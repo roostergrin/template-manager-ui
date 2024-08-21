@@ -2,9 +2,8 @@ import React from 'react';
 import { SitemapItem } from '../../types/SitemapTypes';
 import './SitemapSection.sass';
 
-const models = ['Model1', 'Model2', 'Model3']; // Example models
-
 interface SitemapSectionProps {
+  models: string[];
   title: string;
   pageID: string;
   pageNumber: number;
@@ -12,7 +11,7 @@ interface SitemapSectionProps {
   onItemsChange: (newItems: SitemapItem[]) => void;
 }
 
-const SitemapSection: React.FC<SitemapSectionProps> = ({ title, pageID, pageNumber, items, onItemsChange }) => {
+const SitemapSection: React.FC<SitemapSectionProps> = ({ models, title, pageID, pageNumber, items, onItemsChange }) => {
   // Add item function
   const addItem = () => {
     const newItem: SitemapItem = { id: Date.now().toString(), model: models[0], query: '' };

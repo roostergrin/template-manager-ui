@@ -5,6 +5,14 @@ import './App.sass';
 
 const App: React.FC = () => {
   const [pages, setPages] = useState<SitemapSection[]>([]);
+  const [modelGroups, setModelGroups] = useState<string[][]>([
+    ['Model1', 'Model2', 'Model3'],
+    ['ModelA', 'ModelB', 'ModelC'],
+    ['ModelX', 'ModelY', 'ModelZ']
+  ]);
+  const [selectedModelGroupIndex, setSelectedModelGroupIndex] = useState<number>(0);
+
+  const currentModels = modelGroups[selectedModelGroupIndex];
 
   const addPage = (newPage: SitemapSection) => {
     setPages([...pages, newPage]);
@@ -33,12 +41,16 @@ const App: React.FC = () => {
   };
 
   const exportJSON = () => {
-    const exportData: any[] = pages.map(page => ({
-      title: page.title.toLowerCase(),
-      page_id: page.id,
-      wordpress_id: page.wordpress_id || '',
-      model_query_pairs: page.items.map(item => [item.id, item.model, item.query])
-    }));
+    const exportData = {
+      pages: pages.map(page => ({
+        title: page.title.toLowerCase(),
+        page_id: page.id,
+        wordpress_id: page.wordpress_id || '',
+        model_query_pairs: page.items.map(item => [item.id, item.model, item.query])
+      })),
+      selectedModelGroupIndex,
+      modelGroups
+    };
 
     console.log(exportData)
 
@@ -58,7 +70,7 @@ const App: React.FC = () => {
   const importJSON = (jsonData: string) => {
     try {
       const importedData = JSON.parse(jsonData);
-      const newPages: SitemapSection[] = importedData.map((item: any) => ({
+      const newPages: SitemapSection[] = importedData.pages.map((item: any) => ({
         id: item.page_id,
         title: item.title,
         wordpress_id: item.wordpress_id,
@@ -69,6 +81,8 @@ const App: React.FC = () => {
         }))
       }));
       setPages(newPages);
+      setSelectedModelGroupIndex(importedData.selectedModelGroupIndex);
+      setModelGroups(importedData.modelGroups);
     } catch (error) {
       console.error('Error importing JSON:', error);
       // You might want to show an error message to the user here
@@ -77,12 +91,18 @@ const App: React.FC = () => {
 
   return (
     <div className="app">
-      {/* TODO: add models dynamically */}
-      {/* TODO: add the endpoint to post to. */}
-      {/* TODO: add make google doc and link to it */}
-      {/* <div className="app__header">
-        models
-      </div> */}
+      <div className="app__header">
+        <select
+          value={selectedModelGroupIndex}
+          onChange={(e) => setSelectedModelGroupIndex(Number(e.target.value))}
+        >
+          {modelGroups.map((group, index) => (
+            <option key={index} value={index}>
+              Model Group {index + 1}
+            </option>
+          ))}
+        </select>
+      </div>
       <div className="app__page-container">
       {pages.map((page, index) => (
         <div key={page.id} className="app__page">
@@ -109,6 +129,7 @@ const App: React.FC = () => {
             </button>
           </div>
           <SitemapSectionComponent 
+            models={currentModels}
             pageID={page.id} 
             title={page.title} 
             pageNumber={index + 1}
