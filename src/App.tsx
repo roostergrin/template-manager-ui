@@ -1,35 +1,46 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useState } from 'react';
+import { SitemapSection } from './types/SitemapTypes';
+import SitemapSectionComponent from './components/SitemapSection/SitemapSection';
 
-function App() {
-  const [count, setCount] = useState(0)
+const App: React.FC = () => {
+  const [sections, setSections] = useState<SitemapSection[]>([]);
+
+  const addSection = (newSection: SitemapSection) => {
+    setSections([...sections, newSection]);
+  };
+
+  const removeSection = (sectionId: string) => {
+    setSections(sections.filter(section => section.id !== sectionId));
+  };
+
+  const exportJSON = () => {
+    const exportData: { [key: string]: any } = {};
+    sections.forEach(section => {
+      exportData[section.title.toLowerCase()] = {
+        page_id: section.id,
+        model_query_pairs: section.items.map(item => [item.title, "query"])
+      };
+    });
+    console.log(JSON.stringify(exportData, null, 2));
+    return exportData;
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <div>
+      <h1>Sitemap Builder</h1>
+      {sections.map(section => (
+        <SitemapSectionComponent 
+          key={section.id} 
+          id={section.id} 
+          title={section.title} 
+        />
+      ))}
+      <button onClick={() => addSection({ id: Date.now().toString(), title: 'New Section', items: [] })}>
+        Add Section
+      </button>
+      <button onClick={exportJSON}>Export JSON</button>
+    </div>
+  );
+};
 
-export default App
+export default App;

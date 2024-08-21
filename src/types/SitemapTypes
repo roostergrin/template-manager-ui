@@ -1,0 +1,11 @@
+interface SitemapItem {
+  id: string;
+  title: string;
+  children?: SitemapItem[];
+}
+
+interface SitemapSection {
+  id: string;
+  title: string;
+  items: SitemapItem[];
+}
