@@ -28,11 +28,15 @@ const App: React.FC = () => {
 
   const exportJSON = () => {
     const exportData: { [key: string]: any } = {};
+    // TODO use the wordpress_id as the key
+    // TODO add items to the exportData
+    // TODO add a importJSON function
+    console.log(pages)
     pages.forEach(page => {
       exportData[page.title.toLowerCase()] = {
         page_id: page.id,
         wordpress_id: page.wordpress_id,
-        model_query_pairs: page.items.map(item => [item.title, "query"])
+        model_query_pairs: page.items.map(item => [item.model, item.query])
       };
     });
     console.log(JSON.stringify(exportData, null, 2));

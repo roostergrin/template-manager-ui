@@ -45,13 +45,18 @@ const SitemapSection: React.FC<{ title: string, id: string, pageNumber: number }
                 <option key={model} value={model}>{model}</option>
               ))}
             </select>
-            <input
+            <textarea
               className="sitemap-section__input"
-              type="text"
               value={item.query}
               onChange={(e) => editItem(item.id, item.model, e.target.value)}
               onKeyPress={(e) => handleKeyPress(e, item.id, item.model, e.currentTarget.value)}
-              />
+              rows={1}
+              style={{ resize: 'none', overflow: 'hidden' }}
+              onInput={(e) => {
+                e.currentTarget.style.height = 'auto';
+                e.currentTarget.style.height = `${e.currentTarget.scrollHeight}px`;
+              }}
+            />
             </div>
             <button className="sitemap-section__button" onClick={() => removeItem(item.id)}>-</button>
           </li>
