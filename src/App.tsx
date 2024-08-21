@@ -77,6 +77,12 @@ const App: React.FC = () => {
 
   return (
     <div className="app">
+      {/* TODO: add models dynamically */}
+      {/* TODO: add the endpoint to post to. */}
+      {/* TODO: add make google doc and link to it */}
+      {/* <div className="app__header">
+        models
+      </div> */}
       <div className="app__page-container">
       {pages.map((page, index) => (
         <div key={page.id} className="app__page">
@@ -99,7 +105,7 @@ const App: React.FC = () => {
               className="app__delete-page-button" 
               onClick={() => removePage(page.id)}
             >
-              Delete Page
+              -
             </button>
           </div>
           <SitemapSectionComponent 
