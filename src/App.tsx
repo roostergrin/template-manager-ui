@@ -1,24 +1,38 @@
 import React, { useState } from 'react';
 import { SitemapSection } from './types/SitemapTypes';
 import SitemapSectionComponent from './components/SitemapSection/SitemapSection';
+import './App.sass';
 
 const App: React.FC = () => {
-  const [sections, setSections] = useState<SitemapSection[]>([]);
+  const [pages, setPages] = useState<SitemapSection[]>([]);
 
-  const addSection = (newSection: SitemapSection) => {
-    setSections([...sections, newSection]);
+  const addPage = (newPage: SitemapSection) => {
+    setPages([...pages, newPage]);
   };
 
-  const removeSection = (sectionId: string) => {
-    setSections(sections.filter(section => section.id !== sectionId));
+  const removePage = (pageId: string) => {
+    setPages(pages.filter(page => page.id !== pageId));
+  };
+
+  const updatePageTitle = (pageId: string, newTitle: string) => {
+    setPages(pages.map(page => 
+      page.id === pageId ? { ...page, title: newTitle } : page
+    ));
+  };
+
+  const updatePageWordpressId = (pageId: string, newWordpressId: string) => {
+    setPages(pages.map(page => 
+      page.id === pageId ? { ...page, wordpress_id: newWordpressId } : page
+    ));
   };
 
   const exportJSON = () => {
     const exportData: { [key: string]: any } = {};
-    sections.forEach(section => {
-      exportData[section.title.toLowerCase()] = {
-        page_id: section.id,
-        model_query_pairs: section.items.map(item => [item.title, "query"])
+    pages.forEach(page => {
+      exportData[page.title.toLowerCase()] = {
+        page_id: page.id,
+        wordpress_id: page.wordpress_id,
+        model_query_pairs: page.items.map(item => [item.title, "query"])
       };
     });
     console.log(JSON.stringify(exportData, null, 2));
@@ -26,19 +40,38 @@ const App: React.FC = () => {
   };
 
   return (
-    <div>
-      <h1>Sitemap Builder</h1>
-      {sections.map(section => (
-        <SitemapSectionComponent 
-          key={section.id} 
-          id={section.id} 
-          title={section.title} 
-        />
+    <div className="app">
+      <div className="app__page-container">
+      {pages.map((page, index) => (
+        <div key={page.id} className="app__page">
+          <div className="app__page-header">
+            <span className="app__page-number">{`${index + 1}.0`}</span>
+            <input
+              type="text" 
+            className="app__page-title-input"
+            value={page.title} 
+            onChange={(e) => updatePageTitle(page.id, e.target.value)} 
+            />
+            <input
+              type="text" 
+              className="app__page-wordpress-id-input"
+              placeholder="page ID"
+              value={page.wordpress_id || ''} 
+              onChange={(e) => updatePageWordpressId(page.id, e.target.value)} 
+            />
+          </div>
+          <SitemapSectionComponent 
+            id={page.id} 
+            title={page.title} 
+            pageNumber={index + 1} // Pass the page number
+          />
+        </div>
       ))}
-      <button onClick={() => addSection({ id: Date.now().toString(), title: 'New Section', items: [] })}>
-        Add Section
+      <button className="app__add-page-button" onClick={() => addPage({ id: Date.now().toString(), title: 'New Page', items: [], wordpress_id: '' })}>
+        Add Page
       </button>
-      <button onClick={exportJSON}>Export JSON</button>
+      </div>
+      <button className="app__export-json-button" onClick={exportJSON}>Export JSON</button>
     </div>
   );
 };
