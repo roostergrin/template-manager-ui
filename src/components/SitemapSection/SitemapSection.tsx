@@ -1,26 +1,33 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { SitemapItem } from '../../types/SitemapTypes';
 import './SitemapSection.sass';
 
 const models = ['Model1', 'Model2', 'Model3']; // Example models
 
-const SitemapSection: React.FC<{ title: string, id: string, pageNumber: number }> = ({ title, id, pageNumber }) => {
-  const [items, setItems] = useState<SitemapItem[]>([]);
+interface SitemapSectionProps {
+  title: string;
+  pageID: string;
+  pageNumber: number;
+  items: SitemapItem[];
+  onItemsChange: (newItems: SitemapItem[]) => void;
+}
 
+const SitemapSection: React.FC<SitemapSectionProps> = ({ title, pageID, pageNumber, items, onItemsChange }) => {
   // Add item function
   const addItem = () => {
     const newItem: SitemapItem = { id: Date.now().toString(), model: models[0], query: '' };
-    setItems([...items, newItem]);
+    console.log(items)
+    onItemsChange([...items, newItem]);
   };
 
   // Remove item function
   const removeItem = (itemId: string) => {
-    setItems(items.filter(item => item.id !== itemId));
+    onItemsChange(items.filter(item => item.id !== itemId));
   };
 
   // Edit item function
   const editItem = (itemId: string, newModel: string, newQuery: string) => {
-    setItems(items.map(item => item.id === itemId ? { ...item, model: newModel, query: newQuery } : item));
+    onItemsChange(items.map(item => item.id === itemId ? { ...item, model: newModel, query: newQuery } : item));
   };
 
   const handleKeyPress = (e: React.KeyboardEvent, itemId: string, newModel: string, newQuery: string) => {
