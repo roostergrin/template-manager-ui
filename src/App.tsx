@@ -2,17 +2,23 @@ import React, { useState } from 'react';
 import { SitemapSection, SitemapItem } from './types/SitemapTypes';
 import SitemapSectionComponent from './components/SitemapSection/SitemapSection';
 import './App.sass';
+import { initialModelGroups } from './modelGroups';
 
 const App: React.FC = () => {
   const [pages, setPages] = useState<SitemapSection[]>([]);
-  const [modelGroups, setModelGroups] = useState<string[][]>([
-    ['Model1', 'Model2', 'Model3'],
-    ['ModelA', 'ModelB', 'ModelC'],
-    ['ModelX', 'ModelY', 'ModelZ']
-  ]);
-  const [selectedModelGroupIndex, setSelectedModelGroupIndex] = useState<number>(0);
+  const [modelGroups, setModelGroups] = useState<Record<string, string[]>>(initialModelGroups);
+  const [selectedModelGroupKey, setSelectedModelGroupKey] = useState<string>(Object.keys(initialModelGroups)[0]);
+  const [adjustableParameters, setAdjustableParameters] = useState<string>(
+    `PLEASE USE THIS PART FOR THE TONE AND AESTHETICS. DON"T USE THIS AS CONTENT.
+Site Purpose/Vision: Updated site representing expertise, quality of care, and community culture
+Audience: Primary: Moms/parents, Secondary: Young adults
+Writing Style: Professional with energy
+Current Content Likes/Dislikes: Likes thoroughness, dislikes need for SEO optimization and simplification
+Preferred Photography Style: Lifestyle
+Website Adjectives: Approachable, Friendly, Professional, Clean, Modern`
+  );
 
-  const currentModels = modelGroups[selectedModelGroupIndex];
+  const currentModels = modelGroups[selectedModelGroupKey];
 
   const addPage = (newPage: SitemapSection) => {
     setPages([...pages, newPage]);
@@ -48,8 +54,9 @@ const App: React.FC = () => {
         wordpress_id: page.wordpress_id || '',
         model_query_pairs: page.items.map(item => [item.id, item.model, item.query])
       })),
-      selectedModelGroupIndex,
-      modelGroups
+      selectedModelGroupKey,
+      modelGroups,
+      adjustableParameters
     };
 
     console.log(exportData)
@@ -81,8 +88,11 @@ const App: React.FC = () => {
         }))
       }));
       setPages(newPages);
-      setSelectedModelGroupIndex(importedData.selectedModelGroupIndex);
+      setSelectedModelGroupKey(importedData.selectedModelGroupKey);
       setModelGroups(importedData.modelGroups);
+      if (importedData.adjustableParameters) {
+        setAdjustableParameters(importedData.adjustableParameters);
+      }
     } catch (error) {
       console.error('Error importing JSON:', error);
       // You might want to show an error message to the user here
@@ -93,12 +103,12 @@ const App: React.FC = () => {
     <div className="app">
       <div className="app__header">
         <select
-          value={selectedModelGroupIndex}
-          onChange={(e) => setSelectedModelGroupIndex(Number(e.target.value))}
+          value={selectedModelGroupKey}
+          onChange={(e) => setSelectedModelGroupKey(e.target.value)}
         >
-          {modelGroups.map((group, index) => (
-            <option key={index} value={index}>
-              Model Group {index + 1}
+          {Object.entries(modelGroups).map(([key, group]) => (
+            <option key={key} value={key}>
+              {key}
             </option>
           ))}
         </select>
@@ -159,6 +169,13 @@ const App: React.FC = () => {
               reader.readAsText(file);
             }
           }}
+        />
+        <textarea
+          className="app__adjustable-parameters"
+          value={adjustableParameters}
+          onChange={(e) => setAdjustableParameters(e.target.value)}
+          rows={10}
+          style={{ width: '100%', marginTop: '20px' }}
         />
       </div>
     </div>
