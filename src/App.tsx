@@ -48,12 +48,14 @@ Website Adjectives: Approachable, Friendly, Professional, Clean, Modern`
 
   const exportJSON = () => {
     const exportData = {
-      pages: pages.map(page => ({
-        title: page.title.toLowerCase(),
-        page_id: page.id,
-        wordpress_id: page.wordpress_id || '',
-        model_query_pairs: page.items.map(item => [item.id, item.model, item.query])
-      })),
+      pages: pages.reduce((acc, page) => ({
+        ...acc,
+        [page.title.toLowerCase()]: {
+          internal_id: page.id,
+          page_id: page.wordpress_id || '',
+          model_query_pairs: page.items.map(item => [item.model, item.query, item.id])
+        }
+      }), {}),
       selectedModelGroupKey,
       modelGroups,
       adjustableParameters
@@ -77,14 +79,14 @@ Website Adjectives: Approachable, Friendly, Professional, Clean, Modern`
   const importJSON = (jsonData: string) => {
     try {
       const importedData = JSON.parse(jsonData);
-      const newPages: SitemapSection[] = importedData.pages.map((item: any) => ({
-        id: item.page_id,
-        title: item.title,
-        wordpress_id: item.wordpress_id,
-        items: item.model_query_pairs.map((pair: [string, string, string]) => ({
-          id:    pair[0],
-          model: pair[1],
-          query: pair[2]
+      const newPages: SitemapSection[] = Object.entries(importedData.pages).map(([title, pageData]: [string, any]) => ({
+        id: pageData.internal_id,
+        title: title,
+        wordpress_id: pageData.page_id,
+        items: pageData.model_query_pairs.map((pair: [string, string, string]) => ({
+          model: pair[0],
+          query: pair[1],
+          id:    pair[2]
         }))
       }));
       setPages(newPages);
