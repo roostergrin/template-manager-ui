@@ -1,0 +1,198 @@
+{
+  "pages": {
+    "home": {
+      "internal_id": "1726682637748",
+      "page_id": "8",
+      "model_query_pairs": [
+        [
+          "Hero",
+          "Home",
+          "1726682673576"
+        ],
+        [
+          "Image, Text",
+          "Welcome Message",
+          "1726682674821"
+        ],
+        [
+          "Multi Item Row",
+          "Why Choose Us",
+          "1726682805257"
+        ],
+        [
+          "Image, Text",
+          "Meet the Doctor",
+          "1726682808507"
+        ],
+        [
+          "Masonary Grid",
+          "Treatments",
+          "1726682811742"
+        ],
+        [
+          "Multi Item Testimonial",
+          "Testimonials",
+          "1726682815575"
+        ],
+        [
+          "Multi Use Banner",
+          "Social Media Banner",
+          "1726682819032"
+        ],
+        [
+          "Multi Use Banner",
+          "Contact Banner",
+          "1726683522775"
+        ]
+      ]
+    },
+    "about": {
+      "internal_id": "1726682867083",
+      "page_id": "186",
+      "model_query_pairs": [
+        [
+          "Hero",
+          "About",
+          "1726683575516"
+        ],
+        [
+          "Text, No Image, Simple",
+          "Mission Statement",
+          "1726683582604"
+        ],
+        [
+          "Image, Text",
+          "Meet the Doctor approach, credentials, personal",
+          "1726683583535"
+        ],
+        [
+          "Block Grid",
+          "Meet the Team",
+          "1726683584749"
+        ],
+        [
+          "Single Image Slider",
+          "Office Tour",
+          "1726683585226"
+        ],
+        [
+          "Image, Text",
+          "Community",
+          "1726683586184"
+        ]
+      ]
+    },
+    "treatments": {
+      "internal_id": "1726683668625",
+      "page_id": "264",
+      "model_query_pairs": [
+        [
+          "Hero",
+          "Treatments",
+          "1726683674653"
+        ],
+        [
+          "Image, Text",
+          "Early Treatment",
+          "1726683675532"
+        ],
+        [
+          "Image, Text",
+          "Adult Treatment",
+          "1726683676513"
+        ],
+        [
+          "Image, Text",
+          "Braces: traditional, ceramic",
+          "1726683677329"
+        ],
+        [
+          "Image, Text",
+          "Invisalign",
+          "1726683678017"
+        ],
+        [
+          "Image, Text",
+          "Orthognathic Surgery",
+          "1726683678500"
+        ],
+        [
+          "Image, Text",
+          "Retainers",
+          "1726683678966"
+        ],
+        [
+          "Image, Text",
+          "Technology:\nitero, digital Xray, Digital photography",
+          "1726683679555"
+        ]
+      ]
+    },
+    "patient info": {
+      "internal_id": "1726683772301",
+      "page_id": "266",
+      "model_query_pairs": [
+        [
+          "Hero",
+          "Patient info",
+          "1726683779736"
+        ],
+        [
+          "Image, Text",
+          "First Visit",
+          "1726683791281"
+        ],
+        [
+          "Text, No Image, Simple",
+          "Financing",
+          "1726683791793"
+        ],
+        [
+          "Image, Text",
+          "Patient Forms",
+          "1726683792285"
+        ],
+        [
+          "Multi Use Banner",
+          "Contact Banner",
+          "1726683835069"
+        ]
+      ]
+    },
+    "contact": {
+      "internal_id": "1726683928354",
+      "page_id": "268",
+      "model_query_pairs": [
+        [
+          "Hero",
+          "Contact Us",
+          "1726683940927"
+        ],
+        [
+          "Contact Form",
+          "Contact Form",
+          "1726683943336"
+        ]
+      ]
+    }
+  },
+  "selectedModelGroupKey": "Stinson",
+  "modelGroups": {
+    "Stinson": [
+      "Hero",
+      "Image, Text",
+      "Text, No Image, Simple",
+      "Text, No Image, Full Headline",
+      "Multi Item Row",
+      "Masonary Grid",
+      "Multi Item Testimonial",
+      "Single Testimonial",
+      "Multi Use Banner",
+      "Block Contact",
+      "Block Grid",
+      "Contact Form",
+      "Single Image Slider"
+    ]
+  },
+  "adjustableParameters": "PLEASE USE THIS PART FOR THE TONE AND AESTHETICS. DON\"T USE THIS AS CONTENT.\nSite Purpose/Vision: Updated site representing expertise, quality of care, and community culture\nAudience: Primary: Moms/parents, Secondary: Young adults\nWriting Style: Professional with energy\nCurrent Content Likes/Dislikes: Likes thoroughness, dislikes need for SEO optimization and simplification\nPreferred Photography Style: Lifestyle\nWebsite Adjectives: Approachable, Friendly, Professional, Clean, Modern"
+}

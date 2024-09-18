@@ -1,0 +1,241 @@
+{
+  "pages": {
+    "home": {
+      "internal_id": "1726685838234",
+      "page_id": "8",
+      "model_query_pairs": [
+        [
+          "Hero",
+          "Home",
+          "1726685849320"
+        ],
+        [
+          "Text, No Image, Full Headline",
+          "Welcome Message",
+          "1726685854115"
+        ],
+        [
+          "Multi Item Row",
+          "Why Choose Us",
+          "1726685855036"
+        ],
+        [
+          "Image, Text",
+          "Meet the Doctor",
+          "1726685855927"
+        ],
+        [
+          "Masonary Grid",
+          "Treatments",
+          "1726685856444"
+        ],
+        [
+          "Multi Item Testimonial",
+          "Testimonials",
+          "1726685857119"
+        ],
+        [
+          "Multi Use Banner",
+          "Social Media Banner",
+          "1726685868907"
+        ],
+        [
+          "Multi Use Banner",
+          "Contact Banner",
+          "1726685869512"
+        ]
+      ]
+    },
+    "about": {
+      "internal_id": "1726685911189",
+      "page_id": "186",
+      "model_query_pairs": [
+        [
+          "Hero",
+          "About",
+          "1726685917225"
+        ],
+        [
+          "Text, No Image, Simple",
+          "Mission Statement",
+          "1726685919158"
+        ],
+        [
+          "Image, Text",
+          "Meet the Doctor: Approach, credential, personal",
+          "1726685919693"
+        ],
+        [
+          "Block Grid",
+          "Meet the Team",
+          "1726685920452"
+        ],
+        [
+          "Single Image Slider",
+          "Office Tour",
+          "1726685920987"
+        ],
+        [
+          "Image, Text",
+          "Community",
+          "1726685921528"
+        ]
+      ]
+    },
+    "treatments": {
+      "internal_id": "1726685912096",
+      "page_id": "264",
+      "model_query_pairs": [
+        [
+          "Hero",
+          "Treatments",
+          "1726685923388"
+        ],
+        [
+          "Image, Text",
+          "Early Treatment",
+          "1726685923987"
+        ],
+        [
+          "Image, Text",
+          "Adult Treatment",
+          "1726685925540"
+        ],
+        [
+          "Image, Text",
+          "Braces",
+          "1726685926048"
+        ],
+        [
+          "Image, Text",
+          "Invisalign",
+          "1726685926604"
+        ],
+        [
+          "Image, Text",
+          "Orthognathic Surgery",
+          "1726685927050"
+        ],
+        [
+          "Image, Text",
+          "Retainers",
+          "1726685927636"
+        ],
+        [
+          "Image, Text",
+          "Technology",
+          "1726685928979"
+        ]
+      ]
+    },
+    "patient info": {
+      "internal_id": "1726685913009",
+      "page_id": "266",
+      "model_query_pairs": [
+        [
+          "Hero",
+          "Patient Info",
+          "1726685933323"
+        ],
+        [
+          "Image, Text",
+          "First Visit",
+          "1726685933900"
+        ],
+        [
+          "Text, No Image, Simple",
+          "Financing",
+          "1726685934437"
+        ],
+        [
+          "Image, Text",
+          "Patient Forms",
+          "1726685934958"
+        ],
+        [
+          "Multi Use Banner",
+          "Contact Banner",
+          "1726685935664"
+        ]
+      ]
+    },
+    "contact": {
+      "internal_id": "1726685914411",
+      "page_id": "268",
+      "model_query_pairs": [
+        [
+          "Hero",
+          "Contact Us",
+          "1726685937837"
+        ],
+        [
+          "Map",
+          "Find Us",
+          "1726685938437"
+        ],
+        [
+          "Form",
+          "Contact Form",
+          "1726685938994"
+        ]
+      ]
+    },
+    "faq": {
+      "internal_id": "1726686017149",
+      "page_id": "850",
+      "model_query_pairs": [
+        [
+          "Hero",
+          "Frequently Asked Questions",
+          "1726686037920"
+        ],
+        [
+          "Accordion",
+          "Frequently Asked Questions",
+          "1726686038491"
+        ]
+      ]
+    }
+  },
+  "selectedModelGroupKey": "New Stinson",
+  "modelGroups": {
+    "New Stinson": [
+      "Accordion",
+      "Before After Slider",
+      "Block Grid",
+      "Blog Posts",
+      "Form",
+      "Hero",
+      "Image, Text",
+      "Image, No Text",
+      "Logo Banner",
+      "Map",
+      "Masonary Grid",
+      "Multi Item Row",
+      "Multi Item Testimonial",
+      "Multi Use Banner",
+      "Single Image Slider",
+      "Single Testimonial",
+      "Single Video Slider",
+      "Tabs",
+      "Text, No Image, Full Headline",
+      "Text, No Image, Simple"
+    ],
+    "Stinson": [
+      "Hero",
+      "Image, Text",
+      "Text, No Image, Simple",
+      "Text, No Image, Full Headline",
+      "Multi Item Row",
+      "Masonary Grid",
+      "Multi Item Testimonial",
+      "Single Testimonial",
+      "Multi Use Banner",
+      "Block Contact",
+      "Block Grid",
+      "Contact Form",
+      "Single Image Slider"
+    ]
+  },
+  "adjustableParameters": "PLEASE USE THIS PART FOR THE TONE AND AESTHETICS. DON\"T USE THIS AS CONTENT.\nSite Purpose/Vision: Updated site representing expertise, quality of care, and community culture\nAudience: Primary: Moms/parents, Secondary: Young adults\nWriting Style: Professional with energy\nCurrent Content Likes/Dislikes: Likes thoroughness, dislikes need for SEO optimization and simplification\nPreferred Photography Style: Lifestyle\nWebsite Adjectives: Approachable, Friendly, Professional, Clean, Modern"
+}
