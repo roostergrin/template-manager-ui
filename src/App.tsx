@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { SitemapSection, SitemapItem } from './types/SitemapTypes';
-import SitemapSectionComponent from './components/SitemapSection/SitemapSection';
+import QuestionnaireForm, { QuestionnaireData } from './components/QuestionnaireForm';
 import './App.sass';
 import { initialModelGroups } from './modelGroups';
 
@@ -8,15 +8,8 @@ const App: React.FC = () => {
   const [pages, setPages] = useState<SitemapSection[]>([]);
   const [modelGroups, setModelGroups] = useState<Record<string, string[]>>(initialModelGroups);
   const [selectedModelGroupKey, setSelectedModelGroupKey] = useState<string>(Object.keys(initialModelGroups)[0]);
-  const [adjustableParameters, setAdjustableParameters] = useState<string>(
-    `PLEASE USE THIS PART FOR THE TONE AND AESTHETICS. DON"T USE THIS AS CONTENT.
-Site Purpose/Vision: Updated site representing expertise, quality of care, and community culture
-Audience: Primary: Moms/parents, Secondary: Young adults
-Writing Style: Professional with energy
-Current Content Likes/Dislikes: Likes thoroughness, dislikes need for SEO optimization and simplification
-Preferred Photography Style: Lifestyle
-Website Adjectives: Approachable, Friendly, Professional, Clean, Modern`
-  );
+  const [questionnaireData, setQuestionnaireData] = useState<QuestionnaireData | null>(null);
+  const [dataUpdated, setDataUpdated] = useState<boolean>(false);
 
   const currentModels = modelGroups[selectedModelGroupKey];
 
@@ -46,6 +39,23 @@ Website Adjectives: Approachable, Friendly, Professional, Clean, Modern`
     ));
   };
 
+  // Memoize the function to prevent it from being recreated on every render
+  const handleQuestionnaireSubmit = useCallback((formData: QuestionnaireData) => {
+    setQuestionnaireData(formData);
+    setDataUpdated(true);
+  }, []); // Empty dependency array means this function reference stays stable
+
+  // Reset the update indicator after a brief period
+  useEffect(() => {
+    if (dataUpdated) {
+      const timer = setTimeout(() => {
+        setDataUpdated(false);
+      }, 1500);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [dataUpdated]);
+
   const exportJSON = () => {
     const exportData = {
       pages: pages.reduce((acc, page) => ({
@@ -53,12 +63,12 @@ Website Adjectives: Approachable, Friendly, Professional, Clean, Modern`
         [page.title.toLowerCase()]: {
           internal_id: page.id,
           page_id: page.wordpress_id || '',
-          model_query_pairs: page.items.map(item => [item.model, item.query, item.id])
+          model_query_pairs: page.items.map((item: SitemapItem) => [item.model, item.query, item.id])
         }
       }), {}),
       selectedModelGroupKey,
       modelGroups,
-      adjustableParameters
+      questionnaireData
     };
 
     console.log(exportData)
@@ -79,22 +89,47 @@ Website Adjectives: Approachable, Friendly, Professional, Clean, Modern`
   const importJSON = (jsonData: string) => {
     try {
       const importedData = JSON.parse(jsonData);
-      const newPages: SitemapSection[] = Object.entries(importedData.pages).map(([title, pageData]: [string, any]) => ({
-        id: pageData.internal_id,
-        title: title,
-        wordpress_id: pageData.page_id,
-        items: pageData.model_query_pairs.map((pair: [string, string, string]) => ({
-          model: pair[0],
-          query: pair[1],
-          id:    pair[2]
-        }))
-      }));
-      setPages(newPages);
-      setSelectedModelGroupKey(importedData.selectedModelGroupKey);
-      setModelGroups(importedData.modelGroups);
-      if (importedData.adjustableParameters) {
-        setAdjustableParameters(importedData.adjustableParameters);
+      
+      // Type casting to ensure proper type safety
+      if (importedData.pages && typeof importedData.pages === 'object') {
+        const entries = Object.entries(importedData.pages);
+        const newPages: SitemapSection[] = entries.map(([title, pageData]) => {
+          // Safely cast pageData
+          const typedPageData = pageData as {
+            internal_id: string;
+            page_id: string;
+            model_query_pairs: [string, string, string][];
+          };
+          
+          return {
+            id: typedPageData.internal_id,
+            title: title,
+            wordpress_id: typedPageData.page_id,
+            items: Array.isArray(typedPageData.model_query_pairs) 
+              ? typedPageData.model_query_pairs.map((pair) => ({
+                  model: pair[0],
+                  query: pair[1],
+                  id: pair[2]
+                }))
+              : []
+          };
+        });
+        
+        setPages(newPages);
       }
+      
+      if (importedData.selectedModelGroupKey && typeof importedData.selectedModelGroupKey === 'string') {
+        setSelectedModelGroupKey(importedData.selectedModelGroupKey);
+      }
+      
+      if (importedData.modelGroups && typeof importedData.modelGroups === 'object') {
+        setModelGroups(importedData.modelGroups as Record<string, string[]>);
+      }
+      
+      if (importedData.questionnaireData) {
+        setQuestionnaireData(importedData.questionnaireData as QuestionnaireData);
+      }
+      
     } catch (error) {
       console.error('Error importing JSON:', error);
       // You might want to show an error message to the user here
@@ -103,12 +138,17 @@ Website Adjectives: Approachable, Friendly, Professional, Clean, Modern`
 
   return (
     <div className="app">
+      <div className="app__questionnaire-container">
+        <QuestionnaireForm onSubmit={handleQuestionnaireSubmit} />
+      </div>
+      
+      <h2>Sitemap Builder</h2>
       <div className="app__header">
         <select
           value={selectedModelGroupKey}
           onChange={(e) => setSelectedModelGroupKey(e.target.value)}
         >
-          {Object.entries(modelGroups).map(([key, group]) => (
+          {Object.entries(modelGroups).map(([key]) => (
             <option key={key} value={key}>
               {key}
             </option>
@@ -116,44 +156,37 @@ Website Adjectives: Approachable, Friendly, Professional, Clean, Modern`
         </select>
       </div>
       <div className="app__page-container">
-      {pages.map((page, index) => (
-        <div key={page.id} className="app__page">
-          <div className="app__page-header">
-            <span className="app__page-number">{`${index + 1}.0`}</span>
-            <input
-              type="text" 
-              className="app__page-title-input"
-              value={page.title} 
-              onChange={(e) => updatePageTitle(page.id, e.target.value)} 
-            />
-            <input
-              type="text" 
-              className="app__page-wordpress-id-input"
-              placeholder="page ID"
-              value={page.wordpress_id || ''} 
-              onChange={(e) => updatePageWordpressId(page.id, e.target.value)} 
-            />
-            <button 
-              className="app__delete-page-button" 
-              onClick={() => removePage(page.id)}
-            >
-              -
-            </button>
+        {pages.map((page, index) => (
+          <div key={page.id} className="app__page">
+            <div className="app__page-header">
+              <span className="app__page-number">{`${index + 1}.0`}</span>
+              <input
+                type="text" 
+                className="app__page-title-input"
+                value={page.title} 
+                onChange={(e) => updatePageTitle(page.id, e.target.value)} 
+              />
+              <input
+                type="text" 
+                className="app__page-wordpress-id-input"
+                placeholder="page ID"
+                value={page.wordpress_id || ''} 
+                onChange={(e) => updatePageWordpressId(page.id, e.target.value)} 
+              />
+              <button 
+                className="app__delete-page-button" 
+                onClick={() => removePage(page.id)}
+              >
+                -
+              </button>
+            </div>
           </div>
-          <SitemapSectionComponent 
-            models={currentModels}
-            pageID={page.id} 
-            title={page.title} 
-            pageNumber={index + 1}
-            items={page.items}
-            onItemsChange={(newItems) => updatePageItems(page.id, newItems)}
-          />
-        </div>
-      ))}
-      <button className="app__add-page-button" onClick={() => addPage({ id: Date.now().toString(), title: 'New Page', items: [], wordpress_id: '' })}>
-        Add Page
-      </button>
+        ))}
+        <button className="app__add-page-button" onClick={() => addPage({ id: Date.now().toString(), title: 'New Page', items: [], wordpress_id: '' })}>
+          Add Page
+        </button>
       </div>
+      
       <div className="app__actions">
         <button className="app__export-json-button" onClick={exportJSON}>Export JSON</button>
         <input
@@ -171,13 +204,6 @@ Website Adjectives: Approachable, Friendly, Professional, Clean, Modern`
               reader.readAsText(file);
             }
           }}
-        />
-        <textarea
-          className="app__adjustable-parameters"
-          value={adjustableParameters}
-          onChange={(e) => setAdjustableParameters(e.target.value)}
-          rows={10}
-          style={{ width: '100%', marginTop: '20px' }}
         />
       </div>
     </div>
