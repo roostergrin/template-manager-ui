@@ -1,5 +1,5 @@
-import React from 'react';
-import { templateRegistry, TemplateInfo } from '../../templates/templateRegistry';
+import React, { useEffect } from 'react';
+import { modelGroups } from '../../modelGroups';
 import './DefaultTemplateSelector.sass';
 
 interface DefaultTemplateSelectorProps {
@@ -11,8 +11,19 @@ const DefaultTemplateSelector: React.FC<DefaultTemplateSelectorProps> = ({
   selectedModelGroupKey, 
   onTemplateSelect 
 }) => {
-  const availableTemplates = templateRegistry[selectedModelGroupKey] || [];
+  const availableTemplates = selectedModelGroupKey && modelGroups[selectedModelGroupKey]?.templates || [];
+  const [selectedTemplateIndex, setSelectedTemplateIndex] = React.useState<number>(0);
   
+  // Auto-select the first template when component mounts or selectedModelGroupKey changes
+  useEffect(() => {
+    if (availableTemplates.length > 0) {
+      const firstTemplate = availableTemplates[0];
+      const jsonString = JSON.stringify(firstTemplate.data);
+      onTemplateSelect(jsonString);
+      setSelectedTemplateIndex(0);
+    }
+  }, [selectedModelGroupKey]); // Only depend on the model group key, not onTemplateSelect
+
   const handleTemplateChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedValue = e.target.value;
     if (!selectedValue) return;
@@ -24,6 +35,7 @@ const DefaultTemplateSelector: React.FC<DefaultTemplateSelectorProps> = ({
     if (selectedTemplate) {
       const jsonString = JSON.stringify(selectedTemplate.data);
       onTemplateSelect(jsonString);
+      setSelectedTemplateIndex(selectedIndex);
     }
   };
   
@@ -35,26 +47,32 @@ const DefaultTemplateSelector: React.FC<DefaultTemplateSelectorProps> = ({
     );
   }
 
+  const selectedTemplate = availableTemplates[selectedTemplateIndex];
+
   return (
     <div className="default-template-selector">
-      <label htmlFor="template-select">Load template: </label>
-      <select
-        id="template-select"
-        onChange={handleTemplateChange}
-        defaultValue=""
-      >
-        <option value="" disabled>Select a template</option>
-        {availableTemplates.map((template, index) => (
-          <option key={index} value={index}>
-            {template.name}
-          </option>
-        ))}
-      </select>
+      <div className="template-select-container">
+        <label htmlFor="template-select">Load template: </label>
+        <select
+          id="template-select"
+          onChange={handleTemplateChange}
+          value={selectedTemplateIndex.toString()}
+        >
+          {availableTemplates.map((template, index) => (
+            <option key={index} value={index}>
+              {template.name}
+            </option>
+          ))}
+        </select>
+      </div>
       
-      {/* Optional description display for the selected template */}
+      {/* Template description display */}
       <div className="template-description">
-        {availableTemplates.length > 0 && (
-          <p><i>Select a template to quickly populate your sitemap</i></p>
+        {selectedTemplate && (
+          <>
+            <h4>{selectedTemplate.name}</h4>
+            <p>{selectedTemplate.description}</p>
+          </>
         )}
       </div>
     </div>

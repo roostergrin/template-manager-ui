@@ -1,0 +1,72 @@
+{
+  "pages": {
+    "faq": {
+      "internal_id": "1726686017149",
+      "page_id": "850",
+      "model_query_pairs": [
+        [
+          "Hero",
+          "Frequently Asked Questions",
+          "1726686037920"
+        ],
+        [
+          "Accordion",
+          "Frequently Asked Questions",
+          "1726686038491"
+        ]
+      ]
+    }
+  },
+  "selectedModelGroupKey": "New Stinson",
+  "modelGroups": {
+    "New Stinson": [
+      "Accordion",
+      "Before After Slider",
+      "Block Grid",
+      "Blog Posts",
+      "Form",
+      "Hero",
+      "Image, Text",
+      "Image, No Text",
+      "Logo Banner",
+      "Map",
+      "Masonary Grid",
+      "Multi Item Row",
+      "Multi Item Testimonial",
+      "Multi Use Banner",
+      "Single Image Slider",
+      "Single Testimonial",
+      "Single Video Slider",
+      "Tabs",
+      "Text, No Image, Full Headline",
+      "Text, No Image, Simple"
+    ],
+    "Stinson": [
+      "Hero",
+      "Image, Text",
+      "Text, No Image, Simple",
+      "Text, No Image, Full Headline",
+      "Multi Item Row",
+      "Masonary Grid",
+      "Multi Item Testimonial",
+      "Single Testimonial",
+      "Multi Use Banner",
+      "Block Contact",
+      "Block Grid",
+      "Contact Form",
+      "Single Image Slider"
+    ]
+  },
+  "questionnaireData": {
+    "practiceName": "Bright Smiles Orthodontics",
+    "orthodontistName": "Dr. Sarah Johnson, DDS, MS, Board Certified Orthodontist",
+    "siteVision": "To provide exceptional orthodontic care in a comfortable environment where patients feel valued and informed. Tagline: \"Creating confident smiles for life.\"",
+    "uniqueQualities": "We offer cutting-edge technology like Invisalign® for adults, flexible evening appointments, complimentary consultations, and a welcoming environment with a coffee bar and kids' play area. Our team speaks both English and Spanish.",
+    "primaryAudience": "Parents",
+    "secondaryAudience": "Teenagers",
+    "demographics": "Family-oriented (25-45, middle to upper income)",
+    "writingStyle": "Professional but approachable tone, avoid overly technical jargon, warm and conversational while still being informative",
+    "preferredPhotographyStyle": "Lifestyle",
+    "websiteAdjectives": "Modern, Professional, Friendly, Clean"
+  }
+}

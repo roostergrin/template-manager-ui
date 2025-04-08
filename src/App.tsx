@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { SitemapSection, SitemapItem } from './types/SitemapTypes';
 import SitemapSectionComponent from './components/SitemapSection/SitemapSection';
 import QuestionnaireForm, { QuestionnaireData } from './components/QuestionnaireForm';
-import ModelSelector from './components/ModelSelector';
+import SiteSelector from './components/SiteSelector';
 import DefaultTemplateSelector from './components/DefaultTemplateSelector/DefaultTemplateSelector';
 import './App.sass';
 import { initialModelGroups } from './modelGroups';
@@ -14,7 +14,7 @@ const App: React.FC = () => {
   const [questionnaireData, setQuestionnaireData] = useState<QuestionnaireData | null>(null);
   const [dataUpdated, setDataUpdated] = useState<boolean>(false);
 
-  const currentModels = modelGroups[selectedModelGroupKey];
+  const currentModels = modelGroups[selectedModelGroupKey] || [];
 
   const addPage = (newPage: SitemapSection) => {
     setPages([...pages, newPage]);
@@ -147,9 +147,8 @@ const App: React.FC = () => {
       
       <h2>Sitemap Builder</h2>
       <div className="app__header">
-        <ModelSelector
+        <SiteSelector
           selectedModelGroupKey={selectedModelGroupKey}
-          modelGroups={modelGroups}
           onModelGroupChange={setSelectedModelGroupKey}
         />
         
