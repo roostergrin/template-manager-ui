@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { SitemapSection, SitemapItem } from './types/SitemapTypes';
 import SitemapSectionComponent from './components/SitemapSection/SitemapSection';
 import QuestionnaireForm, { QuestionnaireData } from './components/QuestionnaireForm';
+import ModelSelector from './components/ModelSelector';
+import DefaultTemplateSelector from './components/DefaultTemplateSelector/DefaultTemplateSelector';
 import './App.sass';
 import { initialModelGroups } from './modelGroups';
 
@@ -145,16 +147,16 @@ const App: React.FC = () => {
       
       <h2>Sitemap Builder</h2>
       <div className="app__header">
-        <select
-          value={selectedModelGroupKey}
-          onChange={(e) => setSelectedModelGroupKey(e.target.value)}
-        >
-          {Object.entries(modelGroups).map(([key]) => (
-            <option key={key} value={key}>
-              {key}
-            </option>
-          ))}
-        </select>
+        <ModelSelector
+          selectedModelGroupKey={selectedModelGroupKey}
+          modelGroups={modelGroups}
+          onModelGroupChange={setSelectedModelGroupKey}
+        />
+        
+        <DefaultTemplateSelector 
+          selectedModelGroupKey={selectedModelGroupKey}
+          onTemplateSelect={importJSON}
+        />
       </div>
       <div className="app__page-container">
         {pages.map((page, index) => (
