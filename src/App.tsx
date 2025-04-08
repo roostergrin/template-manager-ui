@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SitemapSection, SitemapItem } from './types/SitemapTypes';
+import SitemapSectionComponent from './components/SitemapSection/SitemapSection';
 import QuestionnaireForm, { QuestionnaireData } from './components/QuestionnaireForm';
 import './App.sass';
 import { initialModelGroups } from './modelGroups';
@@ -39,11 +40,10 @@ const App: React.FC = () => {
     ));
   };
 
-  // Memoize the function to prevent it from being recreated on every render
-  const handleQuestionnaireSubmit = useCallback((formData: QuestionnaireData) => {
+  const handleQuestionnaireSubmit = (formData: QuestionnaireData) => {
     setQuestionnaireData(formData);
     setDataUpdated(true);
-  }, []); // Empty dependency array means this function reference stays stable
+  };
 
   // Reset the update indicator after a brief period
   useEffect(() => {
@@ -180,6 +180,14 @@ const App: React.FC = () => {
                 -
               </button>
             </div>
+            <SitemapSectionComponent 
+              models={currentModels}
+              pageID={page.id} 
+              title={page.title} 
+              pageNumber={index + 1}
+              items={page.items}
+              onItemsChange={(newItems) => updatePageItems(page.id, newItems)}
+            />
           </div>
         ))}
         <button className="app__add-page-button" onClick={() => addPage({ id: Date.now().toString(), title: 'New Page', items: [], wordpress_id: '' })}>
