@@ -2,8 +2,6 @@
 // TODO: make a pydantic model for the sitemap to generate a sitemap export
 import newStinsonSitemap from '../exported_sitemaps/new-stinson/new-stinson-sitemap.json';
 import newStinsonFAQpage from '../exported_sitemaps/new-stinson/new-stinson-sitemap-faq_only.json';
-import stinsonDefault from '../exported_sitemaps/Stinson-old-sitemap.json';
-// import stinsonEcommerce from '../exported_sitemaps/stinson/ecommerce.json';
 
 export interface TemplateInfo {
   name: string;
@@ -42,7 +40,7 @@ export const modelGroups: Record<string, ModelGroup> = {
     ]
   },
   'Bay Area Orthodontics': {
-    models: [], // Add specific models when available
+    models: ["foo"], // Add specific models when available
     title: 'Bay Area Orthodontics',
     image: 'https://d22lbo23j84nfg.cloudfront.net/sites/templates-bayareaortho.jpg',
     adjectives: ['Modern', 'Dynamic', 'Clean'],
