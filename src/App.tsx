@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { SitemapSection, SitemapItem } from './types/SitemapTypes';
 import SitemapSectionComponent from './components/SitemapSection/SitemapSection';
 import QuestionnaireForm, { QuestionnaireData } from './components/QuestionnaireForm';
@@ -40,10 +40,11 @@ const App: React.FC = () => {
     ));
   };
 
-  const handleQuestionnaireSubmit = (formData: QuestionnaireData) => {
+  // Memoize the function to prevent it from being recreated on every render
+  const handleQuestionnaireSubmit = useCallback((formData: QuestionnaireData) => {
     setQuestionnaireData(formData);
     setDataUpdated(true);
-  };
+  }, []); // Empty dependency array means this function reference stays stable
 
   // Reset the update indicator after a brief period
   useEffect(() => {
