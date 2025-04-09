@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { SitemapSection, SitemapItem } from './types/SitemapTypes';
 import SitemapSectionComponent from './components/SitemapSection/SitemapSection';
 import QuestionnaireForm, { QuestionnaireData } from './components/QuestionnaireForm';
@@ -13,8 +13,19 @@ const App: React.FC = () => {
   const [selectedModelGroupKey, setSelectedModelGroupKey] = useState<string>(Object.keys(initialModelGroups)[0]);
   const [questionnaireData, setQuestionnaireData] = useState<QuestionnaireData | null>(null);
   const [dataUpdated, setDataUpdated] = useState<boolean>(false);
+  
+  // View mode states
+  const [showSelect, setShowSelect] = useState<boolean>(true);
+  const [showTextarea, setShowTextarea] = useState<boolean>(false);
+  const [showDeleteButtons, setShowDeleteButtons] = useState<boolean>(false);
+  const [showItemNumbers, setShowItemNumbers] = useState<boolean>(false);
+  const [showPageIds, setShowPageIds] = useState<boolean>(false);
+  const [gridColumnWidth, setGridColumnWidth] = useState<number>(175);
 
-  const currentModels = modelGroups[selectedModelGroupKey] || [];
+  // Add a new state variable
+  const [useGridLayout, setUseGridLayout] = useState<boolean>(true);
+
+  const currentModels = initialModelGroups[selectedModelGroupKey] || [];
 
   const addPage = (newPage: SitemapSection) => {
     setPages([...pages, newPage]);
@@ -58,6 +69,48 @@ const App: React.FC = () => {
       return () => clearTimeout(timer);
     }
   }, [dataUpdated]);
+
+  const toggleSelectVisibility = () => {
+    setShowSelect(!showSelect);
+  };
+
+  const toggleTextareaVisibility = () => {
+    setShowTextarea(!showTextarea);
+  };
+
+  const toggleDeleteButtonsVisibility = () => {
+    setShowDeleteButtons(!showDeleteButtons);
+  };
+
+  const toggleItemNumbersVisibility = () => {
+    setShowItemNumbers(!showItemNumbers);
+  };
+
+  const togglePageIdsVisibility = () => {
+    setShowPageIds(!showPageIds);
+  };
+
+  const handleGridWidthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setGridColumnWidth(Number(e.target.value));
+  };
+
+  // Add a toggle function
+  const toggleGridLayout = () => {
+    setUseGridLayout(!useGridLayout);
+  };
+
+  // Update the grid container style
+  const gridContainerStyle = useGridLayout ? {
+    display: 'grid',
+    gridTemplateColumns: `repeat(auto-fill, minmax(${gridColumnWidth}px, 1fr))`,
+    gap: '1rem',
+    marginBottom: '1.5rem'
+  } : {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: '1rem',
+    marginBottom: '1.5rem'
+  };
 
   const exportJSON = () => {
     const exportData = {
@@ -157,30 +210,122 @@ const App: React.FC = () => {
           onTemplateSelect={importJSON}
         />
       </div>
-      <div className="app__page-container">
+      
+      <div className="app__view-controls">
+        <div className="app__view-control">
+          <label>
+            <input 
+              type="checkbox" 
+              checked={showSelect} 
+              onChange={toggleSelectVisibility} 
+            />
+            Show Model Selectors
+          </label>
+        </div>
+        <div className="app__view-control">
+          <label>
+            <input 
+              type="checkbox" 
+              checked={showTextarea} 
+              onChange={toggleTextareaVisibility} 
+            />
+            Show Query Inputs
+          </label>
+        </div>
+        <div className="app__view-control">
+          <label>
+            <input 
+              type="checkbox" 
+              checked={showDeleteButtons} 
+              onChange={toggleDeleteButtonsVisibility} 
+            />
+            Show Delete Buttons
+          </label>
+        </div>
+        <div className="app__view-control">
+          <label>
+            <input 
+              type="checkbox" 
+              checked={showItemNumbers} 
+              onChange={toggleItemNumbersVisibility} 
+            />
+            Show Item Numbers
+          </label>
+        </div>
+        <div className="app__view-control">
+          <label>
+            <input 
+              type="checkbox" 
+              checked={showPageIds} 
+              onChange={togglePageIdsVisibility} 
+            />
+            Show Page IDs
+          </label>
+        </div>
+      </div>
+      
+      <div className="app__layout-controls">
+        <div className="app__grid-layout-control">
+          <label>
+            <input 
+              type="checkbox" 
+              checked={useGridLayout} 
+              onChange={toggleGridLayout} 
+            />
+            Use Grid Layout
+          </label>
+        </div>
+        {useGridLayout && (
+          <div className="app__grid-width-control">
+            <label>
+              Grid Column Width: {gridColumnWidth}px
+              <input
+                type="range"
+                min="100"
+                max="550"
+                step="25"
+                value={gridColumnWidth}
+                onChange={handleGridWidthChange}
+                className="app__grid-width-slider"
+              />
+            </label>
+          </div>
+        )}
+      </div>
+      
+      <div style={gridContainerStyle} className="app__page-container">
         {pages.map((page, index) => (
-          <div key={page.id} className="app__page">
+          <div key={page.id} className="app__page app__page--compact">
             <div className="app__page-header">
-              <span className="app__page-number">{`${index + 1}.0`}</span>
+              {showItemNumbers && (
+                <span className="app__page-number">{`${index + 1}.0`}</span>
+              )}
               <input
                 type="text" 
                 className="app__page-title-input"
                 value={page.title} 
                 onChange={(e) => updatePageTitle(page.id, e.target.value)} 
+                placeholder="Page Title"
               />
-              <input
-                type="text" 
-                className="app__page-wordpress-id-input"
-                placeholder="page ID"
-                value={page.wordpress_id || ''} 
-                onChange={(e) => updatePageWordpressId(page.id, e.target.value)} 
-              />
-              <button 
-                className="app__delete-page-button" 
-                onClick={() => removePage(page.id)}
-              >
-                -
-              </button>
+              <div className="app__page-controls">
+                {showPageIds && (
+                  <input
+                    type="text" 
+                    className="app__page-wordpress-id-input"
+                    placeholder="Page ID"
+                    value={page.wordpress_id || ''} 
+                    onChange={(e) => updatePageWordpressId(page.id, e.target.value)} 
+                  />
+                )}
+                {showDeleteButtons && (
+                  <button 
+                    className="app__delete-page-button" 
+                    onClick={() => removePage(page.id)}
+                  >
+                    -
+                  </button>
+                )}
+              </div>
             </div>
             <SitemapSectionComponent 
               models={currentModels}
@@ -188,6 +333,10 @@ const App: React.FC = () => {
               title={page.title} 
               pageNumber={index + 1}
               items={page.items}
+              showSelect={showSelect}
+              showTextarea={showTextarea}
+              showDeleteButtons={showDeleteButtons}
+              showItemNumbers={showItemNumbers}
               onItemsChange={(newItems) => updatePageItems(page.id, newItems)}
             />
           </div>

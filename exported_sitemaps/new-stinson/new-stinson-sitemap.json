@@ -10,7 +10,7 @@
           "1726685849320"
         ],
         [
-          "Text, No Image, Full Headline",
+          "Block Text Fh",
           "Welcome Message",
           "1726685854115"
         ],
@@ -20,12 +20,12 @@
           "1726685855036"
         ],
         [
-          "Image, Text",
+          "Block Text Simple",
           "Meet the Doctor",
           "1726685855927"
         ],
         [
-          "Masonary Grid",
+          "Block Masonary Grid",
           "Treatments",
           "1726685856444"
         ],
@@ -56,12 +56,12 @@
           "1726685917225"
         ],
         [
-          "Text, No Image, Simple",
+          "Block Text Simple",
           "Mission Statement",
           "1726685919158"
         ],
         [
-          "Image, Text",
+          "Image Text",
           "Meet the Doctor: Approach, credential, personal",
           "1726685919693"
         ],
@@ -76,7 +76,7 @@
           "1726685920987"
         ],
         [
-          "Image, Text",
+          "Image Text",
           "Community",
           "1726685921528"
         ]
@@ -92,63 +92,63 @@
           "1726685923388"
         ],
         [
-          "Image, Text",
+          "Image Text",
           "Early Treatment",
           "1726685923987"
         ],
         [
-          "Image, Text",
+          "Image Text",
           "Adult Treatment",
           "1726685925540"
         ],
         [
-          "Image, Text",
+          "Image Text",
           "Braces",
           "1726685926048"
         ],
         [
-          "Image, Text",
+          "Image Text",
           "Invisalign",
           "1726685926604"
         ],
         [
-          "Image, Text",
+          "Image Text",
           "Orthognathic Surgery",
           "1726685927050"
         ],
         [
-          "Image, Text",
+          "Image Text",
           "Retainers",
           "1726685927636"
         ],
         [
-          "Image, Text",
+          "Image Text",
           "Technology",
           "1726685928979"
         ]
       ]
     },
-    "patient info": {
+    "get started": {
       "internal_id": "1726685913009",
       "page_id": "266",
       "model_query_pairs": [
         [
           "Hero",
-          "Patient Info",
+          "Get Started",
           "1726685933323"
         ],
         [
-          "Image, Text",
+          "Image Text",
           "First Visit",
           "1726685933900"
         ],
         [
-          "Text, No Image, Simple",
+          "Block Text Simple",
           "Financing",
           "1726685934437"
         ],
         [
-          "Image, Text",
+          "Image Text",
           "Patient Forms",
           "1726685934958"
         ],
@@ -186,7 +186,7 @@
       "model_query_pairs": [
         [
           "Hero",
-          "Frequently Asked Questions",
+          "A Hero section for Frequently Asked Questions",
           "1726686037920"
         ],
         [
@@ -210,7 +210,7 @@
       "Image, No Text",
       "Logo Banner",
       "Map",
-      "Masonary Grid",
+      "Block Masonary Grid",
       "Multi Item Row",
       "Multi Item Testimonial",
       "Multi Use Banner",
@@ -237,5 +237,16 @@
       "Single Image Slider"
     ]
   },
-  "adjustableParameters": "PLEASE USE THIS PART FOR THE TONE AND AESTHETICS. DON\"T USE THIS AS CONTENT.\nSite Purpose/Vision: Updated site representing expertise, quality of care, and community culture\nAudience: Primary: Moms/parents, Secondary: Young adults\nWriting Style: Professional with energy\nCurrent Content Likes/Dislikes: Likes thoroughness, dislikes need for SEO optimization and simplification\nPreferred Photography Style: Lifestyle\nWebsite Adjectives: Approachable, Friendly, Professional, Clean, Modern"
+  "questionnaireData": {
+    "practiceName": "Bright Smiles Orthodontics",
+    "orthodontistName": "Dr. Sarah Johnson, DDS, MS, Board Certified Orthodontist",
+    "siteVision": "To provide exceptional orthodontic care in a comfortable environment where patients feel valued and informed. Tagline: \"Creating confident smiles for life.\"",
+    "uniqueQualities": "We offer cutting-edge technology like Invisalign® for adults, flexible evening appointments, complimentary consultations, and a welcoming environment with a coffee bar and kids' play area. Our team speaks both English and Spanish.",
+    "primaryAudience": "Parents",
+    "secondaryAudience": "Teenagers",
+    "demographics": "Family-oriented (25-45, middle to upper income)",
+    "writingStyle": "Professional but approachable tone, avoid overly technical jargon, warm and conversational while still being informative",
+    "preferredPhotographyStyle": "Lifestyle",
+    "websiteAdjectives": "Modern, Professional, Friendly, Clean"
+  }
 }

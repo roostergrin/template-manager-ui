@@ -1,25 +1,71 @@
 .sitemap-section
   color: #236F87
-  &__list
+  margin-bottom: 1rem
+  &__header
     display: flex
-    flex-direction: column
-    gap: 10px
-  &__item
-    border: 1px solid #236F87
-    padding: 0.5rem
-    display: flex
-    width: fit-content
     align-items: center
-    gap: 0.5rem
+    background-color: #f5f5f5
+    padding: 0.5rem
+    border-radius: 4px
+    margin-bottom: 0
+    &-controls
+      margin-left: auto
+  &__collapse-button
+    background: none
+    border: none
+    cursor: pointer
+    font-size: 0.9rem
+    padding: 0 0.5rem
+  &__title
+    font-weight: bold
+    margin-left: 0.5rem
+  &__edit-button
+    background-color: #f0f0f0
+    border: 1px solid #ccc
+    border-radius: 3px
+    padding: 0.2rem 0.5rem
+    cursor: pointer
+    &:hover
+      background-color: #e0e0e0
+  &__list
+    list-style-type: none
+    padding: 0
+    margin: 0 0 0.5rem 0
+  &__item
+    display: flex
+    align-items: center
+    margin-bottom: 0.5rem
   &__select-container
     display: flex
-    flex-direction: column
-    gap: 0.5rem
+    flex: 1
+    margin: 0 0.5rem
   &__select
+    width: 25%
+    padding: 0.3rem
+    border: 1px solid #ccc
+    border-radius: 3px
+    margin-right: 0.5rem
   &__input
+    flex: 1
+    padding: 0.3rem
+    border: 1px solid #ccc
+    border-radius: 3px
   &__button
+    background-color: #f0f0f0
+    border: 1px solid #ccc
+    border-radius: 3px
+    padding: 0.2rem 0.5rem
+    cursor: pointer
   &__controls
     display: flex
     justify-content: flex-end
     gap: 0.5rem
   &__add-button
+    background-color: #f0f0f0
+    border: 1px solid #ccc
+    border-radius: 3px
+    padding: 0.25rem 0.75rem
+    cursor: pointer
+    font-size: 0.85rem
+    &:hover
+      background-color: #e0e0e0
