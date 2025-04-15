@@ -197,7 +197,6 @@
       ]
     }
   },
-  "selectedModelGroupKey": "New Stinson",
   "modelGroups": {
     "New Stinson": [
       "Accordion",
@@ -220,21 +219,6 @@
       "Tabs",
       "Text, No Image, Full Headline",
       "Text, No Image, Simple"
-    ],
-    "Stinson": [
-      "Hero",
-      "Image, Text",
-      "Text, No Image, Simple",
-      "Text, No Image, Full Headline",
-      "Multi Item Row",
-      "Masonary Grid",
-      "Multi Item Testimonial",
-      "Single Testimonial",
-      "Multi Use Banner",
-      "Block Contact",
-      "Block Grid",
-      "Contact Form",
-      "Single Image Slider"
     ]
   },
   "questionnaireData": {

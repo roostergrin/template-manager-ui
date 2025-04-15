@@ -1,8 +1,8 @@
 // TODO: automate getting the acf export to get the model groups
 // TODO: make a pydantic model for the sitemap to generate a sitemap export
 import newStinsonSitemap from '../exported_sitemaps/new-stinson/new-stinson-sitemap.json';
-import newStinsonFAQpage from '../exported_sitemaps/new-stinson/new-stinson-sitemap-faq_only.json';
-
+import newStinsonGeneratedSitemap from '../exported_sitemaps/new-stinson/generated-sitemap.json';
+import pismoSitemap from '../exported_sitemaps/pismo/pismo-sitemap-reversed.json';
 export interface TemplateInfo {
   name: string;
   description: string;
@@ -20,48 +20,22 @@ export interface ModelGroup {
 
 export const modelGroups: Record<string, ModelGroup> = {
   'New Stinson': {
-    models: [
-    "Accordion",
-    "Before After Slider",
-    "Block Grid",
-    "Block Masonary Grid",
-    "Block Text Fh",
-    "Block Text Simple",
-    "Blog Posts",
-    "Form",
-    "Hero",
-    "Image Only",
-    "Image Text",
-    "Logo Banner",
-    "Map",
-    "Multi Item Row",
-    "Multi Item Testimonial",
-    "Multi Use Banner",
-    "Single Image Slider",
-    "Single Testimonial",
-    "Single Video Slider",
-    "Tabs",
-  ],
+    models: newStinsonSitemap.modelGroups?.["New Stinson"] || [],
     title: 'Stinson',
     image: 'https://d22lbo23j84nfg.cloudfront.net/sites/templates-stinson.jpeg',
     adjectives: ['Minimalist', 'Modern', 'Professional'],
     demoUrl: 'https://stinson.roostergrintemplates.com/',
     templates: [
       {
-        name: 'Full Orthodontist Site 7 pages',
-        description: 'Complete orthodontist website structure with home, about, treatments, etc.',
-        data: newStinsonSitemap
-      },
-      {
-        name: 'FAQ only',
-        description: 'smol boi',
-        data: newStinsonFAQpage
+        name: 'Generated Sitemap',
+        description: 'Generated sitemap from the questionnaire',
+        data: newStinsonGeneratedSitemap
       }
-      // Add more templates for New Stinson
+      // Add ore templates for New Stinson
     ]
   },
   'Bay Area Orthodontics': {
-    models: ["foo"], // Add specific models when available
+    models: [], // Will be empty until templates are added with modelGroups data
     title: 'Bay Area Orthodontics',
     image: 'https://d22lbo23j84nfg.cloudfront.net/sites/templates-bayareaortho.jpg',
     adjectives: ['Modern', 'Dynamic', 'Clean'],
@@ -85,12 +59,18 @@ export const modelGroups: Record<string, ModelGroup> = {
     templates: []
   },
   'Pismo Beach': {
-    models: [], // Add specific models when available
+    models: Array.isArray(pismoSitemap.modelGroups) ? pismoSitemap.modelGroups : [],
     title: 'Pismo Beach',
     image: 'https://d22lbo23j84nfg.cloudfront.net/sites/templates-pismobeach.jpeg',
     adjectives: ['Elegant', 'Clean', 'Fresh'],
     demoUrl: 'https://pismo.roostergrintemplates.com/',
-    templates: []
+    templates: [
+      {
+        name: 'Full Orthodontist Site',
+        description: 'Complete orthodontist website structure with home, about, treatments, etc.',
+        data: pismoSitemap
+      },
+    ]
   },
   'Eureka': {
     models: [], // Add specific models when available

@@ -1,0 +1,266 @@
+{
+  "pages": {
+    "Home": {
+      "internal_id": "8",
+      "page_id": "8",
+      "model_query_pairs": [
+        {
+          "model": "Hero",
+          "query": "{\"image\":{\"src\":\"https://d386op3yztmrz6.cloudfront.net/home/home-hero.jpg\",\"webp\":\"https://d386op3yztmrz6.cloudfront.net/home/home-hero.webp\",\"alt\":\"\"},\"title\":\"Pismo Beach\",\"subtitle\":\"A sight to behold.\",\"button\":{\"link\":\"/contact\",\"label\":\"Book Now\"}}",
+          "internal_id": "hero"
+        },
+        {
+          "model": "Cta Banner",
+          "query": "{\"quote\":{\"quote\":\"On the beach, you can live in bliss.\",\"author\":\"Anonymous\"},\"right_section\":{\"title\":\"Stay at Pismo Beach\",\"subtitle\":\"Call or Message Us!\",\"button\":{\"link\":\"\",\"label\":\"\"}},\"left_section\":\"quote\",\"phone_or_link\":\"phone\"}",
+          "internal_id": "cta_banner"
+        },
+        {
+          "model": "Block Image Text",
+          "query": "{\"image\":{\"src\":\"https://d386op3yztmrz6.cloudfront.net/home/home-explore.jpg\",\"webp\":\"https://d386op3yztmrz6.cloudfront.net/home/home-explore.webp\",\"alt\":\"\",\"position\":\"center\"},\"title\":\"Explore the beauty of a journey.\",\"body\":\"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\",\"button_link\":{\"read_more_link\":\"/about\",\"learn_more_link\":\"/about\",\"label\":\"read more\"},\"image_side\":\"left\",\"image_percentage\":\"sixty_percent\",\"button_type\":\"learn\",\"button_link_type\":\"internal\"}",
+          "internal_id": "block_image_text_1"
+        },
+        {
+          "model": "Icon Banner",
+          "query": "{\"title\":\"Why Choose Us\",\"buttons\":\"yes\",\"content\":[{\"icon\":\"leaf\",\"title\":\"Paradise\",\"button_link\":{\"read_more_link\":\"/about\"}},{\"icon\":\"hand\",\"title\":\"Holistic\",\"button_link\":{\"read_more_link\":\"/about\"}},{\"icon\":\"sand-dollar\",\"title\":\"Relaxing\",\"button_link\":{\"read_more_link\":\"/about\"}},{\"icon\":\"sun\",\"title\":\"Luxury\",\"button_link\":{\"read_more_link\":\"/about\"}}]}",
+          "internal_id": "icon_banner_1"
+        },
+        {
+          "model": "Block Image Text",
+          "query": "{\"image\":{\"src\":\"https://d386op3yztmrz6.cloudfront.net/home/home-sea-set-you-free.jpg\",\"webp\":\"https://d386op3yztmrz6.cloudfront.net/home/home-sea-set-you-free.webp\",\"alt\":\"\",\"position\":\"left\"},\"title\":\"Let the sea set you free\",\"body\":\"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\",\"button_link\":{\"read_more_link\":\"/about\",\"learn_more_link\":\"#\",\"label\":\"\"},\"image_side\":\"left\",\"image_percentage\":\"fifty_percent\",\"button_type\":\"learn\",\"button_link_type\":\"internal\"}",
+          "internal_id": "block_image_text_2"
+        },
+        {
+          "model": "Block Image Text",
+          "query": "{\"image\":{\"src\":\"https://d386op3yztmrz6.cloudfront.net/home/home-vitamin.jpg\",\"webp\":\"https://d386op3yztmrz6.cloudfront.net/home/home-vitamin.webp\",\"alt\":\"\",\"position\":\"center\"},\"title\":\"Get your vitamin sea\",\"body\":\"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\",\"button_link\":{\"read_more_link\":\"/explore\",\"learn_more_link\":\"\",\"label\":\"\"},\"image_side\":\"right\",\"image_percentage\":\"fifty_percent\",\"button_type\":\"learn\",\"button_link_type\":\"internal\"}",
+          "internal_id": "block_image_text_3"
+        },
+        {
+          "model": "Block Image Text",
+          "query": "{\"image\":{\"src\":\"https://d386op3yztmrz6.cloudfront.net/home/home-peaceful.jpg\",\"webp\":\"https://d386op3yztmrz6.cloudfront.net/home/home-peaceful.webp\",\"alt\":\"\",\"position\":\"center\"},\"title\":\"Peaceful & totally exclusive\",\"body\":\"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\",\"button_link\":{\"read_more_link\":\"/contact\",\"learn_more_link\":\"\",\"label\":\"\"},\"image_side\":\"left\",\"image_percentage\":\"fifty_percent\",\"button_type\":\"learn\",\"button_link_type\":\"internal\"}",
+          "internal_id": "block_image_text_4"
+        },
+        {
+          "model": "Quote Banner",
+          "query": "{\"content\":{\"quote\":\"Home-like comfort on the shore of California's Central Coast\",\"author\":\"Anonymous\"}}",
+          "internal_id": "quote_banner"
+        },
+        {
+          "model": "Icon Banner",
+          "query": "{\"title\":\"A lot to write home about.\",\"buttons\":\"no\",\"content\":[{\"icon\":\"check\",\"title\":\"Surf\",\"button_link\":{\"read_more_link\":\"/explore\"}},{\"icon\":\"check\",\"title\":\"Coast\",\"button_link\":{\"read_more_link\":\"/explore\"}},{\"icon\":\"check\",\"title\":\"Reef\",\"button_link\":{\"read_more_link\":\"/explore\"}},{\"icon\":\"check\",\"title\":\"Waves\",\"button_link\":{\"read_more_link\":\"/explore\"}}]}",
+          "internal_id": "icon_banner_2"
+        },
+        {
+          "model": "Appointment Banner",
+          "query": "{\"title\":\"Come for the care, stay for the experience.\",\"subtitle\":\"\",\"body\":\"\",\"button\":{\"link\":\"/contact\",\"label\":\"Contact us!\"}}",
+          "internal_id": "appointment_banner"
+        }
+      ]
+    },
+    "About": {
+      "internal_id": "186",
+      "page_id": "186",
+      "model_query_pairs": [
+        {
+          "model": "Hero",
+          "query": "{\"title\":\"About Us.\",\"subtitle\":\"A place of tranquility\",\"button\":{\"link\":\"/contact\",\"label\":\"Visit Us\"}}},{",
+          "internal_id": "about_your_stay_section"
+        },
+        {
+          "model": "Block Text",
+          "query": "{\"main_title\":{\"title\":\"There's no place like home... except the beach.\",\"alignment\":\"center\"}}},{",
+          "internal_id": "about_your_stay_section"
+        },
+        {
+          "model": "Accordion",
+          "query": "{\"title\":\"About your stay.\",\"image\":{\"src\":\"https://d386op3yztmrz6.cloudfront.net/about/about-your-stay.jpg\",\"webp\":\"https://d386op3yztmrz6.cloudfront.net/about/about-your-stay.webp\"},\"tab\":[{\"title\":\"Private\",\"body\":\"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\",\"read_more\":true,\"button_link\":{\"read_more_link\":\"/faq\"}},{\"title\":\"Relaxing\",\"body\":\"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\",\"read_more\":true,\"button_link\":{\"read_more_link\":\"/faq\"}},{\"title\":\"Breathtaking\",\"body\":\"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\",\"read_more\":true,\"button_link\":{\"read_more_link\":\"/faq\"}}]}},{",
+          "internal_id": "team_section"
+        },
+        {
+          "model": "Team Section",
+          "query": "{\"title\":\"Meet Our Team\",\"members\":[{\"name\":\"Jane Smith\",\"job_title\":\"Sea Captain\",\"bio\":\"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\",\"image\":{\"src\":\"https://d386op3yztmrz6.cloudfront.net/about/about-team-01.jpg\",\"webp\":\"https://d386op3yztmrz6.cloudfront.net/about/about-team-01.webp\"}},{\"name\":\"James Ryan\",\"job_title\":\"Marketing Coordinator\",\"bio\":\"Incididunt ut labore et dolore magna. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor aliqua.\",\"image\":{\"src\":\"https://d386op3yztmrz6.cloudfront.net/about/about-team-02.jpg\",\"webp\":\"https://d386op3yztmrz6.cloudfront.net/about/about-team-02.webp\"}},{\"name\":\"Denise Jones\",\"job_title\":\"Scheduling Coordinator\",\"bio\":\"Consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet.\",\"image\":{\"src\":\"https://d386op3yztmrz6.cloudfront.net/about/about-team-03.jpg\",\"webp\":\"https://d386op3yztmrz6.cloudfront.net/about/about-team-03.webp\"}},{\"name\":\"John Jackson\",\"job_title\":\"Social Media Manager\",\"bio\":\"Lorem sed do eiusmod tempor incididunt ut labore et  ipsum dolor sit amet, consectetur adipiscing elit, dolore magna aliqua.\",\"image\":{\"src\":\"https://d386op3yztmrz6.cloudfront.net/about/about-team-04.jpg\",\"webp\":\"https://d386op3yztmrz6.cloudfront.net/about/about-team-04.webp\"}},{\"name\":\"Emma Locke\",\"job_title\":\"Entertainment Director\",\"bio\":\"Et quia velit quo perferendis minima aut excepturi nobis eum asperiores laborum ut debitis nihil!\",\"image\":{\"src\":\"https://d386op3yztmrz6.cloudfront.net/about/about-team-05.jpg\",\"webp\":\"https://d386op3yztmrz6.cloudfront.net/about/about-team-05.webp\"}},{\"name\":\"Doug Trench\",\"job_title\":\"Sales Associate\",\"bio\":\"At illum labore et sint beatae distinctio molestias qui nostrum dolor!\",\"image\":{\"src\":\"https://d386op3yztmrz6.cloudfront.net/about/about-team-06.jpg\",\"webp\":\"https://d386op3yztmrz6.cloudfront.net/about/about-team-06.webp\"}}]}},{",
+          "internal_id": "gallery_section"
+        },
+        {
+          "model": "Gallery",
+          "query": "{\"title\":\"Look Around Pismo Beach\",\"subtitle\":\"A place that brings you closer to nature\",\"images\":[{\"src\":\"https://d386op3yztmrz6.cloudfront.net/about/about-gallery-01.jpg\",\"webp\":\"https://d386op3yztmrz6.cloudfront.net/about/about-gallery-01.webp\"},{\"src\":\"https://d386op3yztmrz6.cloudfront.net/about/about-gallery-02.jpg\",\"webp\":\"https://d386op3yztmrz6.cloudfront.net/about/about-gallery-02.webp\"},{\"src\":\"https://d386op3yztmrz6.cloudfront.net/about/about-gallery-03.jpg\",\"webp\":\"https://d386op3yztmrz6.cloudfront.net/about/about-gallery-03.webp\"},{\"src\":\"https://d386op3yztmrz6.cloudfront.net/about/about-gallery-04.jpg\",\"webp\":\"https://d386op3yztmrz6.cloudfront.net/about/about-gallery-04.webp\"},{\"src\":\"https://d386op3yztmrz6.cloudfront.net/about/about-gallery-05.jpg\",\"webp\":\"https://d386op3yztmrz6.cloudfront.net/about/about-gallery-05.webp\"},{\"src\":\"https://d386op3yztmrz6.cloudfront.net/about/about-gallery-06.jpg\",\"webp\":\"https://d386op3yztmrz6.cloudfront.net/about/about-gallery-06.webp\"}]}},{",
+          "internal_id": "map_section"
+        },
+        {
+          "model": "Map",
+          "query": "{\"map_title\":\"Find Us!\",\"contact_title\":\"Pismo Beach\"}",
+          "internal_id": "logo_banner_section"
+        },
+        {
+          "model": "Logo Banner",
+          "query": "{\"title\":\"Popular Around Town\",\"logos\":[{\"name\":\"ocean-side\"},{\"name\":\"seaside-hotel\"},{\"name\":\"poke-bar\"},{\"name\":\"sunset\"}]}},{",
+          "internal_id": "footer"
+        }
+      ]
+    },
+    "Blog": {
+      "internal_id": "198",
+      "page_id": "198",
+      "model_query_pairs": [
+        {
+          "model": "Hero",
+          "query": "Our Blog",
+          "internal_id": "hero_section"
+        },
+        {
+          "model": "Blogs",
+          "query": "",
+          "internal_id": "blog_posts"
+        }
+      ]
+    },
+    "Explore": {
+      "internal_id": "826",
+      "page_id": "826",
+      "model_query_pairs": [
+        {
+          "model": "Hero",
+          "query": "{\"title\":\"Explore\",\"subtitle\":\"A Beautiful Vacation Starts Here\",\"button\":{\"link\":\"/contact\",\"label\":\"Visit Us\"}}",
+          "internal_id": "hero"
+        },
+        {
+          "model": "Block Image Text",
+          "query": "{\"image\":{\"src\":\"https://d386op3yztmrz6.cloudfront.net/explore/explore-newpatient-first-visit.jpg\",\"webp\":\"https://d386op3yztmrz6.cloudfront.net/explore/explore-newpatient-first-visit.webp\",\"alt\":\"\"},\"title\":\"Come take a stroll today\",\"body\":\"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\",\"image_side\":\"left\",\"image_percentage\":\"fifty_percent\"}",
+          "internal_id": "block_image_text_1"
+        },
+        {
+          "model": "Block Text",
+          "query": "{\"main_title\":{\"title\":\"Let us take care of you.\",\"alignment\":\"center\"},\"paragraphs\":[{\"body\":\"Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.\"}]}",
+          "internal_id": "block_text_1"
+        },
+        {
+          "model": "Block Image Text",
+          "query": "{\"image\":{\"src\":\"https://d386op3yztmrz6.cloudfront.net/explore/explore-se-good-life.jpg\",\"webp\":\"https://d386op3yztmrz6.cloudfront.net/explore/explore-se-good-life.webp\",\"alt\":\"\"},\"title\":\"Explore Pismo Beach\",\"body\":\"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\",\"button_link\":{\"learn_more_link\":\"#\",\"label\":\"Fun Attractions\"},\"image_side\":\"left\",\"image_percentage\":\"fifty_percent\"}",
+          "internal_id": "block_image_text_2"
+        },
+        {
+          "model": "Videos",
+          "query": "{\"title\":\"Video Gallery\",\"video\":[{\"poster\":{\"src\":\"https://d386op3yztmrz6.cloudfront.net/explore/explore-vid-poster-pier.png\",\"webp\":\"https://d386op3yztmrz6.cloudfront.net/explore/explore-vid-poster-pier.webp\"},\"src\":\"https://www.youtube.com/embed/k1-PAboK6AQ?rel=0\"},{\"poster\":{\"src\":\"https://d386op3yztmrz6.cloudfront.net/explore/explore-vid-poster-scuba.png\",\"webp\":\"https://d386op3yztmrz6.cloudfront.net/explore/explore-vid-poster-scuba.webp\"},\"src\":\"https://www.youtube.com/embed/D2A50OWSwzE?rel=0\"},{\"poster\":{\"src\":\"https://d386op3yztmrz6.cloudfront.net/explore/explore-vid-poster-dining.png\",\"webp\":\"https://d386op3yztmrz6.cloudfront.net/explore/explore-vid-poster-dining.webp\"},\"src\":\"https://www.youtube.com/embed/kBJwQvNScUc?rel=0\"},{\"poster\":{\"src\":\"https://d386op3yztmrz6.cloudfront.net/explore/explore-vid-poster-family.png\",\"webp\":\"https://d386op3yztmrz6.cloudfront.net/explore/explore-vid-poster-family.webp\"},\"src\":\"https://www.youtube.com/embed/AKTIY9TnooQ?rel=0\"}]}",
+          "internal_id": "videos"
+        },
+        {
+          "model": "Appointment Banner",
+          "query": "{\"title\":\"Come for the care. Stay for the experience.\",\"subtitle\":\"Call or Message us today!\",\"button\":{\"link\":\"tel:+1234567890\",\"label\":\"(123) 456-7890\"}}",
+          "internal_id": "appointment_banner"
+        }
+      ]
+    },
+    "Stay": {
+      "internal_id": "828",
+      "page_id": "828",
+      "model_query_pairs": [
+        {
+          "model": "Hero",
+          "query": "{\"title\":\"Take a break!\",\"subtitle\":\"A getaway close to home\",\"button\":{\"link\":\"/contact\",\"label\":\"Visit Us\"}}",
+          "internal_id": "hero-1"
+        },
+        {
+          "model": "Block Image Text",
+          "query": "{\"image\":{\"src\":\"https://d386op3yztmrz6.cloudfront.net/stay/stay-good-life.jpg\",\"webp\":\"https://d386op3yztmrz6.cloudfront.net/stay/stay-good-life.webp\",\"alt\":\"\"},\"title\":\"Enjoy the Good Life\",\"body\":\"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\",\"image_side\":\"left\"}",
+          "internal_id": "block-image-text-1"
+        },
+        {
+          "model": "Block Image Text",
+          "query": "{\"image\":{\"src\":\"https://d386op3yztmrz6.cloudfront.net/stay/stay-ocean-life.jpg\",\"webp\":\"https://d386op3yztmrz6.cloudfront.net/stay/stay-ocean-life.webp\",\"alt\":\"\"},\"title\":\"Explore Ocean Life\",\"body\":\"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\",\"image_side\":\"right\"}",
+          "internal_id": "block-image-text-2"
+        },
+        {
+          "model": "Block Image Text",
+          "query": "{\"image\":{\"src\":\"https://d386op3yztmrz6.cloudfront.net/stay/stay-travel-safely.jpg\",\"webp\":\"https://d386op3yztmrz6.cloudfront.net/stay/stay-travel-safely.webp\",\"alt\":\"\"},\"title\":\"Travel Safely\",\"body\":\"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\",\"image_side\":\"left\"}",
+          "internal_id": "block-image-text-3"
+        },
+        {
+          "model": "Block Image Text",
+          "query": "{\"image\":{\"src\":\"https://d386op3yztmrz6.cloudfront.net/stay/stay-coastal-dining.jpg\",\"webp\":\"https://d386op3yztmrz6.cloudfront.net/stay/stay-coastal-dining.webp\",\"alt\":\"\"},\"title\":\"California Coastal Dining\",\"body\":\"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\",\"image_side\":\"right\"}",
+          "internal_id": "block-image-text-4"
+        },
+        {
+          "model": "Cta Banner",
+          "query": "{\"image\":{\"src\":\"https://d386op3yztmrz6.cloudfront.net/stay/stay-bookstay.jpg\",\"webp\":\"https://d386op3yztmrz6.cloudfront.net/stay/stay-bookstay.webp\",\"alt\":\"\"},\"right_section\":{\"title\":\"Book Your Stay!\",\"subtitle\":\"Call or message us! We're here for you.\",\"button\":{\"link\":\"\",\"label\":\"\"}},\"left_section\":\"image\",\"phone_or_link\":\"phone\"}",
+          "internal_id": "cta-banner-1"
+        }
+      ]
+    },
+    "FAQ": {
+      "internal_id": "830",
+      "page_id": "830",
+      "model_query_pairs": [
+        {
+          "model": "Hero",
+          "query": "{\"title\":\"Frequently Asked Questions\",\"subtitle\":\"Have a question about Pismo Beach? We have you covered!\"}",
+          "internal_id": "hero_section"
+        },
+        {
+          "model": "Accordion",
+          "query": "{\"title\":\"FAQs\",\"tab\":[{\"title\":\"Where is Pismo Beach?\",\"body\":\"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\",\"read_more\":false},{\"title\":\"What are the closest airports to Pismo Beach?\",\"body\":\"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\",\"read_more\":false},{\"title\":\"What is the typical weather in Pismo Beach?\",\"body\":\"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\",\"read_more\":false},{\"title\":\"What is the best time to visit Pismo Beach?\",\"body\":\"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\",\"read_more\":false},{\"title\":\"Are snorkeling, scuba diving, and freediving allowed?\",\"body\":\"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\",\"read_more\":false},{\"title\":\"Is beach volleyball allowed?\",\"body\":\"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\",\"read_more\":false},{\"title\":\"Do you have a tight schedule?\",\"body\":\"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\",\"read_more\":false},{\"title\":\"Is Pismo Beach pet-friendly?\",\"body\":\"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\",\"read_more\":false}]}",
+          "internal_id": "accordion_section"
+        },
+        {
+          "model": "Appointment Banner",
+          "query": "{\"title\":\"Come for the care. Stay for the experience.\",\"subtitle\":\"Call or Message us today!\",\"button\":{\"link\":\"tel:+1234567890\",\"label\":\"(123) 456-7890\"}}",
+          "internal_id": "appointment_banner"
+        }
+      ]
+    },
+    "Contact": {
+      "internal_id": "832",
+      "page_id": "832",
+      "model_query_pairs": [
+        {
+          "model": "Hero",
+          "query": "{\"title\":\"Get in Touch\",\"subtitle\":\"Let's be your Change of Scenery\"}",
+          "internal_id": "hero_section"
+        },
+        {
+          "model": "Contact Form",
+          "query": "{\"title\":\"Dive In! We'd Love to Sea you at Pismo Beach.\"}",
+          "internal_id": "contact_form_section"
+        },
+        {
+          "model": "Map",
+          "query": "{\"map_title\":\"Find Us!\",\"contact_title\":\"Pismo Beach\"}",
+          "internal_id": "map_section"
+        }
+      ]
+    }
+  },
+  "modelGroups": [
+    "Accordion",
+    "Appointment Banner",
+    "Before After",
+    "Block Image Text",
+    "Block Text",
+    "Blogs",
+    "Contact Form",
+    "Cta Banner",
+    "Form",
+    "Gallery",
+    "Hero",
+    "Icon Banner",
+    "Instagram",
+    "Logo Banner",
+    "Map",
+    "Patient Forms",
+    "Quote Banner",
+    "Services",
+    "Team Section",
+    "Videos"
+  ],
+  "questionnaireData": {
+    "practiceName": "Pismo Beach",
+    "orthodontistName": "",
+    "siteVision": "To provide a tranquil and enjoyable experience for visitors in Pismo Beach, showcasing the beauty and attractions of the area while ensuring excellent customer care.",
+    "uniqueQualities": "A focus on relaxation and enjoyment with a beachside atmosphere, offering personalized experiences and services.",
+    "primaryAudience": "Families and individuals looking for a vacation or getaway in Pismo Beach.",
+    "secondaryAudience": "Tourists, adventure seekers, and local residents seeking leisure activities and accommodations.",
+    "demographics": "All ages, primarily families, couples, and individuals seeking relaxation and exploration.",
+    "writingStyle": "Engaging, friendly, and inviting, with a focus on creating a welcoming atmosphere.",
+    "preferredPhotographyStyle": "Bright, vibrant images showcasing the beauty of Pismo Beach and its attractions.",
+    "websiteAdjectives": "Inviting, tranquil, scenic, and enjoyable."
+  },
+  "siteType": "pismo"
+}

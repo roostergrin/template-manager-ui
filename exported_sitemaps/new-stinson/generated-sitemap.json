@@ -1,0 +1,235 @@
+{
+  "pages": {
+    "Home": {
+      "internal_id": "8",
+      "page_id": "8",
+      "model_query_pairs": [
+        {
+          "model": "Hero",
+          "query": "Stinson Orthodontics.",
+          "internal_id": "hero"
+        },
+        {
+          "model": "Text, No Image, Full Headline",
+          "query": "You're in the right place.",
+          "internal_id": "block_text_fh"
+        },
+        {
+          "model": "Multi Item Row",
+          "query": "Why Choose Us",
+          "internal_id": "multi_item_row"
+        },
+        {
+          "model": "Image, Text",
+          "query": "You're in good hands.",
+          "internal_id": "image_text"
+        },
+        {
+          "model": "Block Masonary Grid",
+          "query": "Find the treatment that\u2019s right for you.",
+          "internal_id": "block_masonary_grid"
+        },
+        {
+          "model": "Multi Item Testimonial",
+          "query": "What our clients are saying.",
+          "internal_id": "multi_item_testimonial"
+        },
+        {
+          "model": "Multi Use Banner",
+          "query": "Follow us on social media",
+          "internal_id": "multi_use_banner"
+        },
+        {
+          "model": "Multi Use Banner",
+          "query": "Let\u2019s get started!",
+          "internal_id": "multi_use_banner"
+        }
+      ]
+    },
+    "About": {
+      "internal_id": "186",
+      "page_id": "186",
+      "model_query_pairs": [
+        {
+          "model": "Hero",
+          "query": "About Us",
+          "internal_id": "hero"
+        },
+        {
+          "model": "Block Grid",
+          "query": "Our Mission",
+          "internal_id": "our_mission"
+        },
+        {
+          "model": "Tabs",
+          "query": "Meet the Doctor",
+          "internal_id": "meet_the_doctor"
+        },
+        {
+          "model": "Block Grid",
+          "query": "Meet the Team",
+          "internal_id": "meet_the_team"
+        },
+        {
+          "model": "Single Image Slider",
+          "query": "Our Office",
+          "internal_id": "our_office"
+        },
+        {
+          "model": "Image, Text",
+          "query": "Community Involvement",
+          "internal_id": "community_involvement"
+        }
+      ]
+    },
+    "Get Started": {
+      "internal_id": "266",
+      "page_id": "266",
+      "model_query_pairs": [
+        {
+          "model": "Hero",
+          "query": "Get Started.",
+          "internal_id": "hero-1"
+        },
+        {
+          "model": "Image, Text",
+          "query": "First Visit",
+          "internal_id": "image_text-1"
+        },
+        {
+          "model": "Block Grid",
+          "query": "Finance and Insurance",
+          "internal_id": "block_text_simple-1"
+        },
+        {
+          "model": "Image, Text",
+          "query": "Health History Forms",
+          "internal_id": "image_text-2"
+        },
+        {
+          "model": "Multi Use Banner",
+          "query": "Let's get started.",
+          "internal_id": "multi_use_banner-1"
+        }
+      ]
+    },
+    "Treatments": {
+      "internal_id": "264",
+      "page_id": "264",
+      "model_query_pairs": [
+        {
+          "model": "Hero",
+          "query": "Treatments.",
+          "internal_id": "hero"
+        },
+        {
+          "model": "Image, Text",
+          "query": "Early Treatment",
+          "internal_id": "early-treatment"
+        },
+        {
+          "model": "Image, Text",
+          "query": "Adult Treatment",
+          "internal_id": "adult-treatment"
+        },
+        {
+          "model": "Image, Text",
+          "query": "Braces",
+          "internal_id": "braces"
+        },
+        {
+          "model": "Image, Text",
+          "query": "Invisalign <sup>\u00ae</sup>",
+          "internal_id": "invisalign"
+        },
+        {
+          "model": "Image, Text",
+          "query": "Orthognathic Surgery",
+          "internal_id": "orthognathic-surgery"
+        },
+        {
+          "model": "Image, Text",
+          "query": "Retainers",
+          "internal_id": "retainers"
+        },
+        {
+          "model": "Image, Text",
+          "query": "Technology",
+          "internal_id": "technology"
+        }
+      ]
+    },
+    "Contact": {
+      "internal_id": "268",
+      "page_id": "268",
+      "model_query_pairs": [
+        {
+          "model": "Hero",
+          "query": "Contact Us",
+          "internal_id": "hero"
+        },
+        {
+          "model": "Map",
+          "query": "How to reach us",
+          "internal_id": "map"
+        },
+        {
+          "model": "Form",
+          "query": "",
+          "internal_id": "form"
+        }
+      ]
+    },
+    "FAQ": {
+      "internal_id": "850",
+      "page_id": "850",
+      "model_query_pairs": [
+        {
+          "model": "Hero",
+          "query": "Frequently Asked Questions",
+          "internal_id": "hero-1"
+        },
+        {
+          "model": "Accordion",
+          "query": "Lorem ipsum dolor sit amet",
+          "internal_id": "accordion-1"
+        }
+      ]
+    }
+  },
+  "modelGroups": [
+    "Accordion",
+    "Before After Slider",
+    "Block Grid",
+    "Blog Posts",
+    "Form",
+    "Hero",
+    "Image, Text",
+    "Image, No Text",
+    "Logo Banner",
+    "Map",
+    "Block Masonary Grid",
+    "Multi Item Row",
+    "Multi Item Testimonial",
+    "Multi Use Banner",
+    "Single Image Slider",
+    "Single Testimonial",
+    "Single Video Slider",
+    "Tabs",
+    "Text, No Image, Full Headline",
+    "Text, No Image, Simple"
+  ],
+  "questionnaireData": {
+    "practiceName": "Stinson Orthodontics",
+    "orthodontistName": "Dr. Stinson",
+    "siteVision": "To provide exceptional orthodontic care in a welcoming environment, ensuring every patient leaves with a smile they love.",
+    "uniqueQualities": "Advanced technology, expert staff, and a comfortable setting tailored for all ages.",
+    "primaryAudience": "Families and individuals seeking orthodontic treatment.",
+    "secondaryAudience": "Parents of children needing early orthodontic intervention, adults considering braces or Invisalign.",
+    "demographics": "Children, teenagers, and adults in the local community.",
+    "writingStyle": "Friendly and informative, with a focus on patient comfort and care.",
+    "preferredPhotographyStyle": "Bright, engaging images showcasing the office, staff, and happy patients.",
+    "websiteAdjectives": "Welcoming, professional, modern, informative."
+  },
+  "siteType": "stinson"
+}

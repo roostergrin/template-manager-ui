@@ -116,10 +116,14 @@ const App: React.FC = () => {
     const exportData = {
       pages: pages.reduce((acc, page) => ({
         ...acc,
-        [page.title.toLowerCase()]: {
+        [page.title]: {
           internal_id: page.id,
           page_id: page.wordpress_id || '',
-          model_query_pairs: page.items.map((item: SitemapItem) => [item.model, item.query, item.id])
+          model_query_pairs: page.items.map((item: SitemapItem) => ({
+            model: item.model,
+            query: item.query,
+            internal_id: item.id
+          }))
         }
       }), {}),
       selectedModelGroupKey,
@@ -150,24 +154,26 @@ const App: React.FC = () => {
       if (importedData.pages && typeof importedData.pages === 'object') {
         const entries = Object.entries(importedData.pages);
         const newPages: SitemapSection[] = entries.map(([title, pageData]) => {
-          // Safely cast pageData
+          // Safely cast pageData for the new structure
           const typedPageData = pageData as {
             internal_id: string;
             page_id: string;
-            model_query_pairs: [string, string, string][];
+            model_query_pairs: Array<{
+              model: string;
+              query: string;
+              internal_id: string;
+            }>;
           };
           
           return {
             id: typedPageData.internal_id,
             title: title,
-            wordpress_id: typedPageData.page_id,
-            items: Array.isArray(typedPageData.model_query_pairs) 
-              ? typedPageData.model_query_pairs.map((pair) => ({
-                  model: pair[0],
-                  query: pair[1],
-                  id: pair[2]
-                }))
-              : []
+            wordpress_id: typedPageData.page_id || '',
+            items: typedPageData.model_query_pairs.map(item => ({
+              model: item.model,
+              query: item.query,
+              id: item.internal_id
+            }))
           };
         });
         
