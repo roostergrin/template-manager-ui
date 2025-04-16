@@ -1,0 +1,260 @@
+{
+  "pages": {
+    "Home": {
+      "internal_id": "home-orthodontist-001",
+      "page_id": "home",
+      "model_query_pairs": [
+        {
+          "model": "Hero Home",
+          "query": "Create a welcoming hero section with an engaging headline and call-to-action for the orthodontist homepage.",
+          "internal_id": "home-hero"
+        },
+        {
+          "model": "Block Text",
+          "query": "Add an introductory section highlighting the orthodontist's commitment to patient care and beautiful smiles.",
+          "internal_id": "intro-text"
+        },
+        {
+          "model": "Block Columns",
+          "query": "Showcase key services such as braces, Invisalign, and consultations in a three-column layout with icons and brief descriptions.",
+          "internal_id": "services-columns"
+        },
+        {
+          "model": "Block Text",
+          "query": "Include a section emphasizing the importance of oral health and the orthodontist's expertise.",
+          "internal_id": "oral-health"
+        },
+        {
+          "model": "Block Image Text",
+          "query": "Feature a section about advanced technology used in treatments, with an image and a call-to-action to schedule a consultation.",
+          "internal_id": "technology-section"
+        },
+        {
+          "model": "Block Image Text",
+          "query": "Present patient success stories with before-and-after images and a call-to-action to view more testimonials.",
+          "internal_id": "success-stories"
+        },
+        {
+          "model": "Block Testimonials",
+          "query": "Add a testimonial section with quotes from satisfied patients highlighting their positive experiences.",
+          "internal_id": "patient-testimonials"
+        },
+        {
+          "model": "Block Gallery",
+          "query": "Show a gallery of the clinic, staff, and treatment process to build trust and familiarity.",
+          "internal_id": "clinic-gallery"
+        },
+        {
+          "model": "Contact Banner",
+          "query": "Provide a contact banner encouraging visitors to book an appointment, including a prominent call-to-action button.",
+          "internal_id": "contact-banner"
+        }
+      ]
+    },
+    "About": {
+      "internal_id": "about-orthodontist-001",
+      "page_id": "about",
+      "model_query_pairs": [
+        {
+          "model": "Hero Pages",
+          "query": "Hero section with welcoming image and headline introducing the orthodontist practice.",
+          "internal_id": "section-1-hero"
+        },
+        {
+          "model": "Custom About Block",
+          "query": "Detailed about section describing the orthodontist's mission, values, and approach to patient care, including an image of the clinic or team.",
+          "internal_id": "section-2-about-block"
+        },
+        {
+          "model": "Custom Team Block",
+          "query": "Showcase the orthodontist team with photos and brief bios highlighting their qualifications and patient commitment.",
+          "internal_id": "section-3-team-block"
+        },
+        {
+          "model": "Block Image Text",
+          "query": "Section highlighting advanced orthodontic technologies and treatment options with supporting images.",
+          "internal_id": "section-4-tech-block"
+        },
+        {
+          "model": "Block Testimonials",
+          "query": "Patient testimonials sharing positive experiences and successful treatment stories.",
+          "internal_id": "section-5-testimonials"
+        },
+        {
+          "model": "Contact Banner",
+          "query": "Call to action inviting visitors to schedule a consultation with contact details and booking button.",
+          "internal_id": "section-6-contact-banner"
+        }
+      ]
+    },
+    "Blog": {
+      "internal_id": "blog_page_001",
+      "page_id": "198",
+      "model_query_pairs": [
+        {
+          "model": "Blog Posts",
+          "query": "Display latest blog articles and orthodontic tips with previews and links to full posts.",
+          "internal_id": "blog_posts_01"
+        },
+        {
+          "model": "Contact Banner",
+          "query": "Encourage visitors to schedule a consultation or contact the orthodontist with a clear call to action and contact details.",
+          "internal_id": "contact_banner_01"
+        }
+      ]
+    },
+    "Explore": {
+      "internal_id": "explore-orthodontist-001",
+      "page_id": "explore",
+      "model_query_pairs": [
+        {
+          "model": "Hero Pages",
+          "query": "Create a welcoming hero section with a clear headline and background image suitable for an orthodontist practice.",
+          "internal_id": "hero-explore"
+        },
+        {
+          "model": "Block Text",
+          "query": "Add an introductory text block explaining the orthodontic services and philosophy of care, aligned left with no buttons.",
+          "internal_id": "intro-text"
+        },
+        {
+          "model": "Block Text",
+          "query": "Include a section highlighting patient onboarding forms with call-to-action buttons linking to registration and health forms.",
+          "internal_id": "onboarding-forms"
+        },
+        {
+          "model": "Block Text",
+          "query": "Provide information about flexible financing options for orthodontic treatments, no buttons.",
+          "internal_id": "financing-info"
+        },
+        {
+          "model": "Contact Banner",
+          "query": "Display a contact banner encouraging visitors to book a consultation with a prominent call-to-action button.",
+          "internal_id": "contact-banner"
+        }
+      ]
+    },
+    "Adventures": {
+      "internal_id": "adventures_page_001",
+      "page_id": "adventures",
+      "model_query_pairs": [
+        {
+          "model": "Hero Pages",
+          "query": "Hero section introducing orthodontic adventures and treatments with engaging visuals.",
+          "internal_id": "section_1_hero_pages"
+        },
+        {
+          "model": "Block Text",
+          "query": "Overview of orthodontic services and patient care philosophy, emphasizing comfort and expertise.",
+          "internal_id": "section_2_block_text"
+        },
+        {
+          "model": "Tabs",
+          "query": "Tabs showcasing different orthodontic treatments like braces, Invisalign, retainers, and consultations.",
+          "internal_id": "section_3_tabs"
+        },
+        {
+          "model": "Block Image Text",
+          "query": "Detailed section on braces treatment with images and call-to-action button for consultations.",
+          "internal_id": "section_4_block_image_text_braces"
+        },
+        {
+          "model": "Block Image Text",
+          "query": "Section highlighting Invisalign treatment options with supporting images.",
+          "internal_id": "section_5_block_image_text_invisalign"
+        },
+        {
+          "model": "Block Image Text",
+          "query": "Information on retainers and post-treatment care with images.",
+          "internal_id": "section_6_block_image_text_retainers"
+        },
+        {
+          "model": "Block Image Text",
+          "query": "Orthodontic consultation process explanation with images.",
+          "internal_id": "section_7_block_image_text_consultation"
+        },
+        {
+          "model": "Block Image Text",
+          "query": "Patient testimonials with images illustrating successful treatments.",
+          "internal_id": "section_8_block_image_text_testimonials"
+        },
+        {
+          "model": "Block Testimonials",
+          "query": "Compilation of patient testimonials emphasizing satisfaction and results.",
+          "internal_id": "section_9_block_testimonials"
+        },
+        {
+          "model": "Contact Banner",
+          "query": "Encouraging visitors to book an appointment with a clear call-to-action button.",
+          "internal_id": "section_10_contact_banner"
+        }
+      ]
+    },
+    "FAQs": {
+      "internal_id": "faqs_page_001",
+      "page_id": "faqs",
+      "model_query_pairs": [
+        {
+          "model": "Hero Pages",
+          "query": "Create a welcoming hero section for the FAQs page of an orthodontist website, featuring a clear header and an inviting image that represents dental care and patient support.",
+          "internal_id": "faqs_hero"
+        },
+        {
+          "model": "Accordion",
+          "query": "Develop an accordion section listing common orthodontic questions and answers, allowing users to expand each question to reveal detailed, clear, and helpful responses related to orthodontic treatments, procedures, and patient care.",
+          "internal_id": "faqs_accordion"
+        }
+      ]
+    },
+    "Contact": {
+      "internal_id": "contact-page-001",
+      "page_id": "contact",
+      "model_query_pairs": [
+        {
+          "model": "Contact Form",
+          "query": "Create a contact form section for the orthodontist website's Contact page with fields for name, email, phone, and message, including a submit button.",
+          "internal_id": "section-1-contact-form"
+        },
+        {
+          "model": "Block Text",
+          "query": "Add a section with introductory text encouraging visitors to reach out for consultations or questions about orthodontic services.",
+          "internal_id": "section-2-intro-text"
+        },
+        {
+          "model": "Block Image Text",
+          "query": "Include a section with an image of the orthodontist office or team alongside contact details and office hours.",
+          "internal_id": "section-3-image-text-contact-info"
+        },
+        {
+          "model": "Contact Banner",
+          "query": "Add a call-to-action banner prompting visitors to schedule an appointment, with a prominent 'Schedule Now' button.",
+          "internal_id": "section-4-contact-banner"
+        }
+      ]
+    }
+  },
+  "modelGroups": [
+    "Accordion",
+    "Before After Gallery",
+    "Block Columns",
+    "Block Cta Boxes",
+    "Block Gallery",
+    "Block Image Text",
+    "Block Logos",
+    "Block Testimonials",
+    "Block Text",
+    "Blog Posts",
+    "Contact Banner",
+    "Contact Form",
+    "Custom About Block",
+    "Custom Team Block",
+    "Hero Home",
+    "Hero Pages",
+    "Instagram",
+    "Tabs",
+    "Team Slider",
+    "Videos"
+  ],
+  "questionnaireData": {},
+  "siteType": "shasta"
+}

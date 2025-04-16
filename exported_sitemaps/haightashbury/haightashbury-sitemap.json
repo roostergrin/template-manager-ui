@@ -1,0 +1,264 @@
+{
+  "pages": {
+    "Home": {
+      "internal_id": "home-001",
+      "page_id": "8",
+      "model_query_pairs": [
+        {
+          "model": "Hero",
+          "query": "Welcome to our orthodontic practice - bright smiles start here!",
+          "internal_id": "hero-01"
+        },
+        {
+          "model": "Block Text",
+          "query": "Discover personalized orthodontic care tailored to your unique smile needs.",
+          "internal_id": "block_text-01"
+        },
+        {
+          "model": "Block Image Text",
+          "query": "Expert orthodontic treatments with advanced technology and compassionate care. Includes an appointment booking button and a welcoming image.",
+          "internal_id": "block_image_text-01"
+        },
+        {
+          "model": "Block Image Text",
+          "query": "Our team of skilled orthodontists dedicated to creating beautiful, healthy smiles. Includes a contact button and team photo.",
+          "internal_id": "block_image_text-02"
+        },
+        {
+          "model": "Block Columns",
+          "query": "Explore our range of orthodontic services: braces, Invisalign, retainers, and more.",
+          "internal_id": "block_columns-01"
+        },
+        {
+          "model": "Block Cta Boxes",
+          "query": "Highlight key patient benefits: affordable plans, flexible scheduling, and excellent results.",
+          "internal_id": "block_cta_boxes-01"
+        },
+        {
+          "model": "Block Testimonials",
+          "query": "Hear from our happy patients about their transformative orthodontic experiences. Includes a link to more reviews.",
+          "internal_id": "block_testimonials-01"
+        },
+        {
+          "model": "Contact Banner",
+          "query": "Get in touch to schedule your consultation and start your journey to a perfect smile. Includes a contact form button and inviting image.",
+          "internal_id": "contact_banner-01"
+        },
+        {
+          "model": "Block Logos",
+          "query": "Trusted affiliations and certifications that demonstrate our commitment to quality orthodontic care.",
+          "internal_id": "block_logos-01"
+        }
+      ]
+    },
+    "About": {
+      "internal_id": "about-ortho-001",
+      "page_id": "about-ortho",
+      "model_query_pairs": [
+        {
+          "model": "Hero",
+          "query": "Create a welcoming hero section for the About page of an orthodontist website with a professional image and headline.",
+          "internal_id": "about-hero"
+        },
+        {
+          "model": "Tabs",
+          "query": "Design tabs showcasing orthodontic practice values, services, and patient care approach for the About page.",
+          "internal_id": "about-tabs"
+        },
+        {
+          "model": "Team Slider",
+          "query": "Showcase the orthodontic team with photos, names, roles, and brief bios in a slider format.",
+          "internal_id": "about-team-slider"
+        },
+        {
+          "model": "Block Gallery",
+          "query": "Display a gallery of the clinic, equipment, and patient smiles for the About page.",
+          "internal_id": "about-gallery"
+        },
+        {
+          "model": "Block Testimonials",
+          "query": "Include patient testimonials highlighting positive experiences and successful treatments.",
+          "internal_id": "about-testimonials"
+        },
+        {
+          "model": "Contact Banner",
+          "query": "Add a contact banner encouraging visitors to schedule a consultation, with a call-to-action button and clinic image.",
+          "internal_id": "about-contact-banner"
+        }
+      ]
+    },
+    "Blog": {
+      "internal_id": "page_blog_001",
+      "page_id": "198",
+      "model_query_pairs": [
+        {
+          "model": "Blog Posts",
+          "query": "Showcase latest orthodontic blog articles with summaries and images for patient education and engagement.",
+          "internal_id": "blog_posts_001"
+        }
+      ]
+    },
+    "Explore": {
+      "internal_id": "explore-orthodontist-001",
+      "page_id": "explore",
+      "model_query_pairs": [
+        {
+          "model": "Hero",
+          "query": "Welcome to Our Orthodontic Care Center - Your smile transformation starts here.",
+          "internal_id": "section-1-hero"
+        },
+        {
+          "model": "Block Text",
+          "query": "Discover the benefits of orthodontic treatments tailored to your unique needs. Our expert team is dedicated to creating beautiful, healthy smiles.",
+          "internal_id": "section-2-block-text"
+        },
+        {
+          "model": "Block Image Text",
+          "query": "Comprehensive Consultation and Personalized Treatment Plans. Schedule your first visit to discuss your goals with our specialists.",
+          "internal_id": "section-3-block-image-text"
+        },
+        {
+          "model": "Block Image Text",
+          "query": "Modern Braces Options: Traditional, Ceramic, and Clear Aligners. Learn which option fits your lifestyle best.",
+          "internal_id": "section-4-block-image-text"
+        },
+        {
+          "model": "Block Image Text",
+          "query": "Advanced Technology for Comfortable and Efficient Care. Experience cutting-edge orthodontic solutions.",
+          "internal_id": "section-5-block-image-text"
+        },
+        {
+          "model": "Tabs",
+          "query": "Explore Our Services: Braces, Invisalign, Retainers, and More. Detailed information in easy-to-navigate tabs.",
+          "internal_id": "section-6-tabs"
+        },
+        {
+          "model": "Videos",
+          "query": "Patient Testimonials and Treatment Journey Videos. See real stories and results from our satisfied patients.",
+          "internal_id": "section-7-videos"
+        },
+        {
+          "model": "Contact Banner",
+          "query": "Ready to start your smile journey? Contact us today to schedule your appointment.",
+          "internal_id": "section-8-contact-banner"
+        }
+      ]
+    },
+    "Getting Started": {
+      "internal_id": "page_getting_started_ortho",
+      "page_id": "853",
+      "model_query_pairs": [
+        {
+          "model": "Hero",
+          "query": "Welcome visitors with a vibrant hero section showcasing a smiling patient with braces, highlighting the orthodontist's expertise.",
+          "internal_id": "section_hero"
+        },
+        {
+          "model": "Block Image Text",
+          "query": "Introduce the initial consultation process with an engaging image of the orthodontist and descriptive text. Include a prominent call-to-action button to schedule an appointment.",
+          "internal_id": "section_consultation"
+        },
+        {
+          "model": "Block Image Text",
+          "query": "Explain the treatment options available, paired with an image of different types of braces and aligners. Provide buttons linking to detailed treatment pages.",
+          "internal_id": "section_treatments"
+        },
+        {
+          "model": "Block Image Text",
+          "query": "Discuss the benefits of orthodontic care with a patient testimonial image and informative text. No buttons needed here.",
+          "internal_id": "section_benefits"
+        },
+        {
+          "model": "Contact Banner",
+          "query": "Encourage visitors to contact the office to start their orthodontic journey, featuring a clear call-to-action button and an inviting background image of the clinic.",
+          "internal_id": "section_contact_banner"
+        },
+        {
+          "model": "Block Logos",
+          "query": "Display logos of professional orthodontic associations, technology partners, and insurance providers to build trust and credibility.",
+          "internal_id": "section_logos"
+        }
+      ]
+    },
+    "FAQs": {
+      "internal_id": "faqs_page_001",
+      "page_id": "faqs",
+      "model_query_pairs": [
+        {
+          "model": "Hero",
+          "query": "Create a welcoming hero section for the FAQs page of an orthodontist website, highlighting patient support and expert care.",
+          "internal_id": "faqs_hero_001"
+        },
+        {
+          "model": "Block Text",
+          "query": "Add an introductory text block explaining the purpose of the FAQ page and encouraging patients to find answers or contact the office.",
+          "internal_id": "faqs_blocktext_001"
+        },
+        {
+          "model": "Accordion",
+          "query": "Build an accordion section titled 'Frequently Asked Questions' with common orthodontic questions and clear, concise answers.",
+          "internal_id": "faqs_accordion_001"
+        },
+        {
+          "model": "Contact Banner",
+          "query": "Include a contact banner encouraging visitors to schedule a consultation or reach out with additional questions, featuring a call-to-action button and a relevant image.",
+          "internal_id": "faqs_contactbanner_001"
+        }
+      ]
+    },
+    "Contact": {
+      "internal_id": "contact-page-001",
+      "page_id": "contact",
+      "model_query_pairs": [
+        {
+          "model": "Contact Form",
+          "query": "Contact form for patients to schedule appointments or ask questions.",
+          "internal_id": "contact-form-01"
+        },
+        {
+          "model": "Block Map",
+          "query": "Interactive map showing the orthodontist office location.",
+          "internal_id": "block-map-01"
+        },
+        {
+          "model": "Contact Banner",
+          "query": "Banner with call to action encouraging visitors to schedule a consultation.",
+          "internal_id": "contact-banner-01"
+        }
+      ]
+    }
+  },
+  "modelGroups": [
+    "Accordion",
+    "Before After Gallery",
+    "Block Columns",
+    "Block Cta Boxes",
+    "Block Gallery",
+    "Block Image Text",
+    "Block Logos",
+    "Block Map",
+    "Block Testimonials",
+    "Block Text",
+    "Blog Posts",
+    "Contact Banner",
+    "Contact Form",
+    "Hero",
+    "Instagram",
+    "Tabs",
+    "Team Slider",
+    "Videos"
+  ],
+  "questionnaireData": {
+    "practiceName": "Haight Ashbury",
+    "orthodontistName": "",
+    "siteVision": "Clean, textural & bright, Rooster Grin's Haight Ashbury template is perfect for any business looking to make their website pop. Create your online advantage!",
+    "uniqueQualities": "Unique part of San Francisco with colorful houses, hippie vibe, living history, and vibrant local culture.",
+    "primaryAudience": "Visitors and residents interested in exploring Haight Ashbury neighborhood and its culture.",
+    "secondaryAudience": "Local business owners and community members.",
+    "demographics": "Tourists, locals, culture enthusiasts, ages 18-65, diverse backgrounds.",
+    "writingStyle": "Engaging, informative, friendly, and inviting.",
+    "preferredPhotographyStyle": "Bright, colorful, textural images showcasing neighborhood features and local life.",
+    "websiteAdjectives": "Clean, bright, textural, colorful, inviting, unique"
+  },
+  "siteType": "haightashbury"
+}

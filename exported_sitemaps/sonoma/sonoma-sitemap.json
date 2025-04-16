@@ -1,0 +1,210 @@
+{
+  "pages": {
+    "Home": {
+      "internal_id": "home-page-structure-001",
+      "page_id": "8",
+      "model_query_pairs": [
+        {
+          "model": "Hero",
+          "query": "Create a welcoming hero section with a captivating image or video and a strong headline that conveys warmth and trust for an orthodontist practice.",
+          "internal_id": "home-hero-001"
+        },
+        {
+          "model": "Cards",
+          "query": "Add a cards section highlighting core orthodontic services or values, each with a brief description and a call-to-action button.",
+          "internal_id": "home-cards-001"
+        },
+        {
+          "model": "Image Text",
+          "query": "Include an image and text section to explain the practice's philosophy or unique approach to orthodontic care.",
+          "internal_id": "home-image-text-001"
+        },
+        {
+          "model": "Cta Blocks",
+          "query": "Feature call-to-action blocks promoting popular treatments or consultation offers with engaging images.",
+          "internal_id": "home-cta-blocks-001"
+        },
+        {
+          "model": "Testimonial Slider",
+          "query": "Showcase a testimonial slider with patient reviews to build credibility and trust.",
+          "internal_id": "home-testimonial-slider-001"
+        },
+        {
+          "model": "Instagram",
+          "query": "Add an Instagram feed section to display recent posts and engage visitors with social media content.",
+          "internal_id": "home-instagram-001"
+        },
+        {
+          "model": "Logos",
+          "query": "Present logos of professional affiliations, certifications, or partners to reinforce authority and reputation.",
+          "internal_id": "home-logos-001"
+        }
+      ]
+    },
+    "About": {
+      "internal_id": "about-page-structure-001",
+      "page_id": "186",
+      "model_query_pairs": [
+        {
+          "model": "Hero",
+          "query": "Create a hero section with a welcoming image and a headline that conveys warmth and professionalism for an orthodontist website.",
+          "internal_id": "about-hero"
+        },
+        {
+          "model": "Text",
+          "query": "Add a text section to describe the orthodontist practice's mission and values in a clear and engaging way.",
+          "internal_id": "about-text-mission"
+        },
+        {
+          "model": "Tabs",
+          "query": "Include a tabs section to explain common orthodontic treatments, patient care philosophy, and technology used, with each tab providing concise information.",
+          "internal_id": "about-tabs-info"
+        },
+        {
+          "model": "Team Section",
+          "query": "Showcase the orthodontist team with photos, names, titles, and short bios highlighting their expertise and commitment to patient care.",
+          "internal_id": "about-team-section"
+        },
+        {
+          "model": "Gallery",
+          "query": "Feature a gallery section with images of the clinic, treatment rooms, and happy patients to build trust and familiarity.",
+          "internal_id": "about-gallery"
+        },
+        {
+          "model": "Testimonial Slider",
+          "query": "Add a testimonial slider with quotes from satisfied patients to highlight positive experiences and outcomes.",
+          "internal_id": "about-testimonials"
+        },
+        {
+          "model": "Forms",
+          "query": "Provide a forms section offering downloadable patient intake and consent forms for convenience.",
+          "internal_id": "about-forms"
+        },
+        {
+          "model": "Contact Form",
+          "query": "Include a contact form section for easy appointment requests and inquiries directly from the About page.",
+          "internal_id": "about-contact-form"
+        }
+      ]
+    },
+    "Blog": {
+      "internal_id": "blog-page-001",
+      "page_id": "198",
+      "model_query_pairs": [
+        {
+          "model": "Blog Posts",
+          "query": "Create a blog posts section with a clear header 'Latest Orthodontic Insights' and a concise introduction paragraph explaining the blog's focus on orthodontic care, treatment tips, and patient stories. Align text center, no buttons.",
+          "internal_id": "blog-section-001"
+        }
+      ]
+    },
+    "Treatments": {
+      "internal_id": "treatments_page_001",
+      "page_id": "724",
+      "model_query_pairs": [
+        {
+          "model": "Hero",
+          "query": "Create a hero section with a welcoming title and introductory text about orthodontic treatments, including a background image representing care and smiles.",
+          "internal_id": "treatments_hero_001"
+        },
+        {
+          "model": "Image Text",
+          "query": "Add an image text section highlighting the benefits of modern orthodontic treatments, with an engaging title and descriptive paragraph alongside a relevant image.",
+          "internal_id": "treatments_image_text_001"
+        },
+        {
+          "model": "Image Text",
+          "query": "Include a second image text section focusing on treatment options and personalized care, featuring a border for visual emphasis and an aligned layout.",
+          "internal_id": "treatments_image_text_002"
+        },
+        {
+          "model": "Videos",
+          "query": "Embed a videos section showcasing patient testimonials and educational content about orthodontic procedures to build trust and inform visitors.",
+          "internal_id": "treatments_videos_001"
+        },
+        {
+          "model": "Accordion",
+          "query": "Add an accordion section with frequently asked questions about orthodontic treatments, addressing common concerns and providing clear answers.",
+          "internal_id": "treatments_faq_001"
+        }
+      ]
+    },
+    "Contact": {
+      "internal_id": "contact-structure-001",
+      "page_id": "726",
+      "model_query_pairs": [
+        {
+          "model": "Forms",
+          "query": "Contact form for appointment requests and inquiries with fields for name, email, phone, and message.",
+          "internal_id": "form-section"
+        },
+        {
+          "model": "Contact Form",
+          "query": "Contact Us section with office hours, phone number, email, and quick contact details.",
+          "internal_id": "contact-info-section"
+        },
+        {
+          "model": "Location",
+          "query": "Office location with map and address for easy visit planning.",
+          "internal_id": "location-section"
+        }
+      ]
+    },
+    "FAQ": {
+      "internal_id": "faq-structure-001",
+      "page_id": "1160",
+      "model_query_pairs": [
+        {
+          "model": "Hero",
+          "query": "Section 1: hero\nTitle: Have Questions? We're Here to Help!",
+          "internal_id": "faq-hero-001"
+        },
+        {
+          "model": "Accordion",
+          "query": "Section 2: accordion\nTitle: Common Orthodontic Questions Answered\nDescription: Explore answers to the most frequently asked questions about orthodontic treatments, appointments, and care.",
+          "internal_id": "faq-accordion-001"
+        },
+        {
+          "model": "Videos",
+          "query": "Section 3: videos\nTitle: Understanding Orthodontic Care\nDescription: Watch our informative videos to learn more about how orthodontic treatments work and what to expect.",
+          "internal_id": "faq-videos-001"
+        }
+      ]
+    }
+  },
+  "modelGroups": [
+    "Accordion",
+    "Before After Gallery",
+    "Blog Posts",
+    "Cards",
+    "Contact Form",
+    "Content Banner",
+    "Cta Blocks",
+    "Forms",
+    "Gallery",
+    "Hero",
+    "Image",
+    "Image Text",
+    "Instagram",
+    "Location",
+    "Logos",
+    "Tabs",
+    "Team Section",
+    "Testimonial Slider",
+    "Text",
+    "Videos"
+  ],
+  "questionnaireData": {
+    "practiceName": "Sonoma",
+    "orthodontistName": "",
+    "siteVision": "This design was inspired by an art nouveau Parisian cafe, aiming to create a harmonious and inspired experience.",
+    "uniqueQualities": "Inspired by Art Nouveau style, combining organic and structured elements with a focus on harmony and nature.",
+    "primaryAudience": "",
+    "secondaryAudience": "",
+    "demographics": "",
+    "writingStyle": "Engaging, elegant, and inspired by artistic themes.",
+    "preferredPhotographyStyle": "Natural, artistic, with a focus on organic and structured imagery, including floral and nature themes.",
+    "websiteAdjectives": "Organic, Structured, Inspired, Harmonious, Elegant"
+  },
+  "siteType": "sonoma"
+}

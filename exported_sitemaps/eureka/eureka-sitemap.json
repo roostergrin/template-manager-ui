@@ -1,0 +1,213 @@
+{
+  "pages": {
+    "Home": {
+      "internal_id": "home-001",
+      "page_id": "8",
+      "model_query_pairs": [
+        {
+          "model": "Hero Home",
+          "query": "Hero section with welcoming headline and call-to-action for orthodontic services.",
+          "internal_id": "home-hero"
+        },
+        {
+          "model": "Block Image Text",
+          "query": "Introduction to the orthodontist practice with image and 'Learn More' button.",
+          "internal_id": "home-intro"
+        },
+        {
+          "model": "Custom Column Image",
+          "query": "Overview of key orthodontic treatments and services offered in columns with icons and supporting image.",
+          "internal_id": "home-services"
+        },
+        {
+          "model": "Block Text",
+          "query": "Information about the orthodontist team philosophy and patient care approach.",
+          "internal_id": "home-philosophy"
+        },
+        {
+          "model": "Block Image Text",
+          "query": "Highlight of patient success stories or smile transformations with images and 'Schedule Consultation' button.",
+          "internal_id": "home-success-stories"
+        },
+        {
+          "model": "Block Text",
+          "query": "Educational content about orthodontic care benefits and FAQs with a contact button.",
+          "internal_id": "home-education"
+        },
+        {
+          "model": "Block Carousel",
+          "query": "Carousel showcasing patient testimonials and reviews with images.",
+          "internal_id": "home-testimonials"
+        },
+        {
+          "model": "Contact Banner",
+          "query": "Encouraging visitors to get in touch or book an appointment with prominent call-to-action and image.",
+          "internal_id": "home-contact"
+        }
+      ]
+    },
+    "About": {
+      "internal_id": "about-orthodontist-001",
+      "page_id": "about",
+      "model_query_pairs": [
+        {
+          "model": "Hero Home",
+          "query": "About page hero section with welcoming header and orthodontic theme image.",
+          "internal_id": "about-hero"
+        },
+        {
+          "model": "Block Image Text",
+          "query": "Introduction to the orthodontist with image, describing expertise and patient care philosophy.",
+          "internal_id": "about-intro"
+        },
+        {
+          "model": "Block Carousel",
+          "query": "Team carousel showcasing orthodontists and staff with photos and roles.",
+          "internal_id": "about-team-carousel"
+        },
+        {
+          "model": "Block Image Text",
+          "query": "Patient testimonials section with images and quotes about treatment experiences.",
+          "internal_id": "about-testimonials"
+        },
+        {
+          "model": "Block Logos",
+          "query": "Affiliations and certifications logos of orthodontic associations and awards.",
+          "internal_id": "about-logos"
+        },
+        {
+          "model": "Contact Banner",
+          "query": "Call to action banner with contact info and appointment scheduling button, including relevant image.",
+          "internal_id": "about-contact-banner"
+        }
+      ]
+    },
+    "Blog": {
+      "internal_id": "blog-page-001",
+      "page_id": "198",
+      "model_query_pairs": [
+        {
+          "model": "Hero Home",
+          "query": "Create a hero section for the blog page with an engaging header and a relevant background image that reflects orthodontic care.",
+          "internal_id": "blog-hero-001"
+        },
+        {
+          "model": "Blog Posts",
+          "query": "Display a list of recent blog posts related to orthodontics, including previews and summaries to engage visitors.",
+          "internal_id": "blog-posts-001"
+        }
+      ]
+    },
+    "First Visit": {
+      "internal_id": "first-visit-001",
+      "page_id": "763",
+      "model_query_pairs": [
+        {
+          "model": "Hero Home",
+          "query": "Welcome section with a warm greeting and inviting image for first-time orthodontic patients.",
+          "internal_id": "section-1-hero"
+        },
+        {
+          "model": "Block Text",
+          "query": "Informative text about what new patients can expect during their first visit, including consultation details and initial assessments.",
+          "internal_id": "section-2-text"
+        },
+        {
+          "model": "Block Image Text",
+          "query": "Detailed explanation of the orthodontic evaluation process paired with an illustrative image.",
+          "internal_id": "section-3-image-text"
+        },
+        {
+          "model": "Block Image Text",
+          "query": "Overview of available treatment options with supportive imagery to guide patient understanding.",
+          "internal_id": "section-4-image-text"
+        },
+        {
+          "model": "Contact Banner",
+          "query": "Encouraging call-to-action for scheduling the first appointment with contact details and a booking button.",
+          "internal_id": "section-5-contact-banner"
+        }
+      ]
+    },
+    "Discover": {
+      "internal_id": "discover-page-001",
+      "page_id": "765",
+      "model_query_pairs": [
+        {
+          "model": "Hero Home",
+          "query": "Create a captivating hero section with a welcoming header and a calming image or video background suitable for an orthodontist website.",
+          "internal_id": "discover-hero-001"
+        },
+        {
+          "model": "Block Text",
+          "query": "Add an introductory text block that explains the orthodontic services offered and the benefits of treatment, with a clean layout and clear typography.",
+          "internal_id": "discover-text-001"
+        },
+        {
+          "model": "Block Image Text",
+          "query": "Design a section combining informative text about orthodontic treatment options with a relevant image, including a call-to-action button to schedule a consultation.",
+          "internal_id": "discover-image-text-001"
+        },
+        {
+          "model": "Block Image Text",
+          "query": "Include another image and text section highlighting patient care philosophy and advanced technology used, with a button linking to the contact page.",
+          "internal_id": "discover-image-text-002"
+        },
+        {
+          "model": "Block Image Text",
+          "query": "Feature a section showcasing patient success stories or testimonials with an image, focusing on the positive impact of orthodontic care.",
+          "internal_id": "discover-image-text-003"
+        },
+        {
+          "model": "Contact Banner",
+          "query": "Conclude with a contact banner encouraging visitors to get in touch, featuring a call-to-action button and an inviting image.",
+          "internal_id": "discover-contact-banner-001"
+        }
+      ]
+    },
+    "Contact": {
+      "internal_id": "contact_page_001",
+      "page_id": "contact",
+      "model_query_pairs": [
+        {
+          "model": "Hero Home",
+          "query": "Hero section with welcoming header and background image related to orthodontics, setting a friendly tone for visitors.",
+          "internal_id": "contact_hero"
+        },
+        {
+          "model": "Block Map",
+          "query": "Interactive map showing the orthodontic clinic location for easy navigation.",
+          "internal_id": "contact_map"
+        },
+        {
+          "model": "Contact Form",
+          "query": "Contact form titled 'Get in Touch' allowing patients to submit inquiries or appointment requests.",
+          "internal_id": "contact_form"
+        }
+      ]
+    }
+  },
+  "modelGroups": [
+    "Accordion",
+    "Before After Gallery",
+    "Block Carousel",
+    "Block Columns",
+    "Block Cta Boxes",
+    "Block Gallery",
+    "Block Image Text",
+    "Block Logos",
+    "Block Map",
+    "Block Tabs",
+    "Block Text",
+    "Blog Posts",
+    "Contact Banner",
+    "Contact Form",
+    "Custom Column Image",
+    "Hero Home",
+    "Instagram",
+    "Team Slider",
+    "Videos"
+  ],
+  "questionnaireData": {},
+  "siteType": "eureka"
+}

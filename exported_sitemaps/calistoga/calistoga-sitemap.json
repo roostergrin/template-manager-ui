@@ -1,0 +1,273 @@
+{
+  "pages": {
+    "Home": {
+      "internal_id": "home-structure-001",
+      "page_id": "8",
+      "model_query_pairs": [
+        {
+          "model": "Hero",
+          "query": "Section 1: hero\nTitle: Welcome to Our Orthodontic Practice\nText: Expert care for your perfect smile in a friendly environment.",
+          "internal_id": "hero-1"
+        },
+        {
+          "model": "Image Text",
+          "query": "Section 2: image_text\nTitle: Meet Our Experienced Orthodontists\nHas_button: true\nButton_label: Learn More\nButton_link: /about",
+          "internal_id": "image_text-1"
+        },
+        {
+          "model": "Image Cards",
+          "query": "Section 3: image_cards\nTitle: Why Choose Us\nCards: Experienced Team, Advanced Technology, Personalized Care",
+          "internal_id": "image_cards-1"
+        },
+        {
+          "model": "Image Text",
+          "query": "Section 4: image_text\nTitle: Creating Beautiful Smiles for All Ages\nHas_second_image: true",
+          "internal_id": "image_text-2"
+        },
+        {
+          "model": "Before After Gallery",
+          "query": "Section 5: before_after_gallery\nTitle: Smile Makeovers\nShowcase before and after orthodontic treatment photos",
+          "internal_id": "before_after_gallery-1"
+        },
+        {
+          "model": "Testimonial Slider",
+          "query": "Section 6: testimonial_slider\nTitle: What Our Patients Say\nDisplay patient testimonials and success stories",
+          "internal_id": "testimonial_slider-1"
+        }
+      ]
+    },
+    "About": {
+      "internal_id": "about-structure-001",
+      "page_id": "about",
+      "model_query_pairs": [
+        {
+          "model": "Hero",
+          "query": "Title: About Us\nText: Discover our commitment to creating beautiful, healthy smiles in a welcoming environment.",
+          "internal_id": "about-hero-001"
+        },
+        {
+          "model": "Tabs",
+          "query": "Title: Meet Our Orthodontist\nTabs: Approach, Credentials, Outside Office\nContent: Detailed information about the orthodontist's philosophy, qualifications, and personal interests.",
+          "internal_id": "about-tabs-001"
+        },
+        {
+          "model": "Team Section",
+          "query": "Title: Our Dedicated Team\nShowcase profiles of our skilled and friendly staff members who support your orthodontic journey.",
+          "internal_id": "about-team-001"
+        },
+        {
+          "model": "Gallery",
+          "query": "Title: Office Tour\nImages showcasing our modern facilities and comfortable treatment areas.",
+          "internal_id": "about-gallery-001"
+        },
+        {
+          "model": "Image Text",
+          "query": "Title: Community Involvement\nHighlight our efforts to give back and support local causes.\nInclude a second image for visual impact.",
+          "internal_id": "about-community-001"
+        },
+        {
+          "model": "Instagram",
+          "query": "Title: Follow Our Journey\nDisplay recent Instagram posts to connect with our community and share smile stories.",
+          "internal_id": "about-instagram-001"
+        }
+      ]
+    },
+    "Treatments": {
+      "internal_id": "treatments_page_001",
+      "page_id": "724",
+      "model_query_pairs": [
+        {
+          "model": "Hero",
+          "query": "Orthodontic Treatments hero section with welcoming title and supportive text describing advanced orthodontic care for all ages.",
+          "internal_id": "treatments_hero_001"
+        },
+        {
+          "model": "Image Text",
+          "query": "Section on Invisalign treatment overview with image, descriptive text, a call-to-action button, and a subtle border for emphasis.",
+          "internal_id": "treatments_invisalign_002"
+        },
+        {
+          "model": "Tabs",
+          "query": "Detailed braces options presented in tabs, each tab featuring an image and description of different braces types.",
+          "internal_id": "treatments_braces_tabs_003"
+        },
+        {
+          "model": "Image Text",
+          "query": "Section focused on retainer care and maintaining your new smile with an image, explanatory text, call-to-action button, and border accent.",
+          "internal_id": "treatments_retainer_004"
+        },
+        {
+          "model": "Image Cards",
+          "query": "Technology section showcasing key orthodontic technologies with images, headings, and brief descriptions in card format.",
+          "internal_id": "treatments_technology_cards_005"
+        },
+        {
+          "model": "Content Banner",
+          "query": "Contact call-to-action banner inviting visitors to connect for consultations, featuring header, body text, and a prominently styled phone number button.",
+          "internal_id": "treatments_contact_banner_006"
+        }
+      ]
+    },
+    "Contact": {
+      "internal_id": "contact-structure-001",
+      "page_id": "contact",
+      "model_query_pairs": [
+        {
+          "model": "Hero",
+          "query": "Create a welcoming hero section with a compelling title and an inviting image that reflects a friendly, professional orthodontic practice.",
+          "internal_id": "contact-hero-001"
+        },
+        {
+          "model": "Location",
+          "query": "Include a section with detailed office location information, such as address, map, and contact details for easy patient access.",
+          "internal_id": "contact-location-001"
+        },
+        {
+          "model": "Form",
+          "query": "Add a patient contact form section for inquiries and appointment requests with fields for name, contact info, and message.",
+          "internal_id": "contact-form-001"
+        }
+      ]
+    },
+    "FAQ": {
+      "internal_id": "faq-structure-001",
+      "page_id": "faq",
+      "model_query_pairs": [
+        {
+          "model": "Hero",
+          "query": "Create a welcoming hero section with a title encouraging visitors to find answers to their orthodontic questions.",
+          "internal_id": "faq-hero-001"
+        },
+        {
+          "model": "Accordion",
+          "query": "Design an accordion section listing common orthodontic FAQs with concise, clear answers for easy navigation.",
+          "internal_id": "faq-accordion-001"
+        },
+        {
+          "model": "Videos",
+          "query": "Include an educational videos section explaining orthodontic treatments and procedures to help patients understand their options.",
+          "internal_id": "faq-videos-001"
+        }
+      ]
+    },
+    "Style Guide": {
+      "internal_id": "style-guide-001",
+      "page_id": "1250",
+      "model_query_pairs": [
+        {
+          "model": "Hero",
+          "query": "A welcoming hero section with an engaging image representing the orthodontic practice's style and brand identity, including a headline and subtitle that introduce the style guide.",
+          "internal_id": "style-guide-hero"
+        },
+        {
+          "model": "Block Text",
+          "query": "An overview section explaining the purpose of the style guide, emphasizing the importance of consistent branding and design for the orthodontic practice.",
+          "internal_id": "style-guide-overview"
+        },
+        {
+          "model": "Image Cards",
+          "query": "A set of image cards showcasing the primary brand colors, typography examples, and logo variations to visually communicate the orthodontic practice's visual identity.",
+          "internal_id": "style-guide-brand-elements"
+        },
+        {
+          "model": "Accordion",
+          "query": "An accordion section detailing usage guidelines for logos, colors, fonts, and imagery to ensure consistency across all marketing and communication materials.",
+          "internal_id": "style-guide-guidelines"
+        },
+        {
+          "model": "Gallery",
+          "query": "A gallery displaying approved imagery styles, such as patient photos, office environment, and treatment visuals that align with the brand's tone and aesthetic.",
+          "internal_id": "style-guide-approved-images"
+        },
+        {
+          "model": "Content Banner",
+          "query": "A call-to-action banner encouraging staff and partners to adhere to the style guide and contact the marketing team for any branding questions.",
+          "internal_id": "style-guide-cta-banner"
+        }
+      ]
+    },
+    "Invisalign": {
+      "internal_id": "1280",
+      "page_id": "1280",
+      "model_query_pairs": [
+        {
+          "model": "Hero",
+          "query": "Title: Invisalign\nSection 1: hero\n- title: Smile with confidence!\n- text: Straighten teeth discreetly with Invisalign\u00ae\n- include image and optional video\n- autoplay enabled\n- full width layout\n- no padding or margins\n- hide: false\n- alt text for image included.",
+          "internal_id": "1280-1"
+        },
+        {
+          "model": "Image Text",
+          "query": "Section 2: image_text\n- title: How Invisalign works?\n- descriptive body text explaining the treatment process\n- image on the right side\n- has_border: true\n- padding and margins set for comfortable reading\n- hide: false\n- alt text for image included.",
+          "internal_id": "1280-2"
+        },
+        {
+          "model": "Tabs",
+          "query": "Section 3: tabs\n- title: Is Invisalign for you?\n- multiple tabs for different Invisalign options (e.g., First, Teen, Adult)\n- each tab includes image, title, and descriptive text\n- dynamic image options\n- padding and margins for spacing\n- hide: false.",
+          "internal_id": "1280-3"
+        },
+        {
+          "model": "Content Banner",
+          "query": "Section 4: content_banner\n- header: Connect with us!\n- body text encouraging visitors to schedule a consultation\n- primary styled button labeled 'Complimentary Consultation'\n- button links to contact form page\n- center aligned text and inline button\n- padding and margins for spacing\n- hide: false.",
+          "internal_id": "1280-4"
+        }
+      ]
+    },
+    "New Patients": {
+      "internal_id": "page-new-patients-001",
+      "page_id": "1282",
+      "model_query_pairs": [
+        {
+          "model": "Hero",
+          "query": "Create a welcoming hero section with an engaging title and supportive subtitle for new patients.",
+          "internal_id": "section-hero-new-patients"
+        },
+        {
+          "model": "Image Text",
+          "query": "Describe what patients can expect during their initial consultation, including an image and a call-to-action button for scheduling an appointment.",
+          "internal_id": "section-image-text-initial-visit"
+        },
+        {
+          "model": "Forms",
+          "query": "Provide downloadable or online new patient forms for medical history and consent to streamline the first visit.",
+          "internal_id": "section-forms-new-patient"
+        },
+        {
+          "model": "Image Text",
+          "query": "Explain flexible payment and financing options available to patients, including a call-to-action button for consultation.",
+          "internal_id": "section-image-text-payment-options"
+        },
+        {
+          "model": "Logos",
+          "query": "Showcase affiliations and technologies used at the practice to build trust and credibility with new patients.",
+          "internal_id": "section-logos-technology"
+        }
+      ]
+    }
+  },
+  "modelGroups": [
+    "Accordion",
+    "Before After Gallery",
+    "Block Text",
+    "Blog Posts",
+    "Cards",
+    "Contact Form",
+    "Content Banner",
+    "Form",
+    "Form Newsletter",
+    "Forms",
+    "Gallery",
+    "Hero",
+    "Image",
+    "Image Cards",
+    "Image Text",
+    "Instagram",
+    "Location",
+    "Logos",
+    "Tabs",
+    "Team Section",
+    "Testimonial Slider",
+    "Videos"
+  ],
+  "questionnaireData": {},
+  "siteType": "calistoga"
+}

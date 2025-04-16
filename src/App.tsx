@@ -56,6 +56,7 @@ const App: React.FC = () => {
   // Memoize the function to prevent it from being recreated on every render
   const handleQuestionnaireSubmit = useCallback((formData: QuestionnaireData) => {
     setQuestionnaireData(formData);
+    console.log(formData)
     setDataUpdated(true);
   }, []); // Empty dependency array means this function reference stays stable
 
