@@ -1,0 +1,78 @@
+export const formSchema = [
+  {
+    key: 'contact',
+    title: 'Practice & Contact Basics',
+    fields: [
+      { name: 'practiceName', label: 'Practice Name', type: 'text', required: true },
+      { name: 'orthodontistName', label: 'Orthodontist Name', type: 'text' },
+      { name: 'phone', label: 'Phone', type: 'text' },
+      { name: 'email', label: 'Email', type: 'email' },
+      { name: 'address', label: 'Address', type: 'text' },
+      { name: 'suite', label: 'Suite', type: 'text' },
+      { name: 'cityState', label: 'City/State', type: 'text' },
+      { name: 'googleMapsLink', label: 'Google Maps Link', type: 'text' },
+      { name: 'businessHours', label: 'Business Hours', type: 'text' },
+      { name: 'specialNotes', label: 'Special Notes', type: 'textarea' },
+    ],
+  },
+  {
+    key: 'brand',
+    title: 'Brand Assets',
+    fields: [
+      { name: 'brandColor', label: 'Brand Color', type: 'color' },
+      { name: 'accentColor', label: 'Accent Color', type: 'color' },
+      { name: 'headingFont', label: 'Heading Font', type: 'text' },
+      { name: 'bodyFont', label: 'Body Font', type: 'text' },
+      { name: 'instagram', label: 'Instagram', type: 'text' },
+      { name: 'googleReviewLink', label: 'Google Review Link', type: 'text' },
+      { name: 'missionStatement', label: 'Mission Statement', type: 'textarea' },
+      { name: 'communityInvolvement', label: 'Community Involvement', type: 'textarea' },
+      { name: 'logoUpload', label: 'Logo Upload', type: 'file' },
+      { name: 'collateralUpload', label: 'Collateral Upload', type: 'file' },
+    ],
+  },
+  {
+    key: 'about',
+    title: 'About',
+    fields: [
+      { name: 'teamMembers', label: 'Team Members', type: 'textarea' },
+      { name: 'doctorBio', label: 'Doctor Bio', type: 'textarea' },
+      { name: 'doctorPhoto', label: 'Doctor Photo', type: 'file' },
+      { name: 'doctorPhilosophy', label: 'Doctor Philosophy', type: 'textarea' },
+      { name: 'topReasons', label: 'Top Reasons to Choose Us', type: 'textarea' },
+      { name: 'patientExperience', label: 'Patient Experience', type: 'textarea' },
+      { name: 'testimonials', label: 'Current Testimonials', type: 'textarea' },
+      { name: 'communityEngagement', label: 'Community Engagement', type: 'textarea' },
+    ],
+  },
+  {
+    key: 'treatments',
+    title: 'Treatments Offered',
+    fields: [
+      { name: 'treatmentsOffered', label: 'Treatments Offered', type: 'textarea' },
+      { name: 'topTreatments', label: 'Top Treatments', type: 'textarea' },
+      { name: 'topicsToAvoid', label: 'Topics to Avoid', type: 'textarea' },
+    ],
+  },
+  {
+    key: 'patientInfo',
+    title: 'Get Started / Patient Info',
+    fields: [
+      { name: 'financialOptions', label: 'Financial Options', type: 'textarea' },
+      { name: 'hasPatientForms', label: 'Has Patient Forms?', type: 'radio', options: ['yes', 'no'] },
+      { name: 'patientForms', label: 'Patient Forms', type: 'textarea' },
+      { name: 'formsUrl', label: 'Forms URL', type: 'text' },
+    ],
+  },
+  {
+    key: 'tone',
+    title: 'Tone Settings',
+    fields: [
+      { name: 'primaryAudience', label: 'Primary Audience', type: 'text' },
+      { name: 'secondaryAudience', label: 'Secondary Audience', type: 'text' },
+      { name: 'demographics', label: 'Demographics', type: 'text' },
+      { name: 'writingStyle', label: 'Writing Style', type: 'text' },
+      { name: 'websiteAdjectives', label: 'Website Adjectives', type: 'text' },
+    ],
+  },
+]; 

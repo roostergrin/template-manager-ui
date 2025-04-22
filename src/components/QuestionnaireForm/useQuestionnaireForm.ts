@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { QuestionnaireData } from './QuestionnaireForm';
 
 // Mock scrape function
-async function mockScrapeWebsite(domain: string) {
+export async function mockScrapeWebsite(domain: string) {
   // Simulate network delay
   await new Promise(res => setTimeout(res, 1200));
   if (domain.includes('fail')) {
@@ -143,7 +143,7 @@ export function useQuestionnaireForm(onSubmit: (formData: QuestionnaireData) => 
   const [customAdjective, setCustomAdjective] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [scrapedSummary, setScrapedSummary] = useState<any | null>(null);
+  const [scrapedSummary, setScrapedSummary] = useState<unknown | null>(null);
 
   useEffect(() => {
     const submissionData: Partial<QuestionnaireData> = {};
@@ -180,18 +180,14 @@ export function useQuestionnaireForm(onSubmit: (formData: QuestionnaireData) => 
     onSubmit(submissionData as QuestionnaireData);
   }, [formData, showToneSection, showContentSection, onSubmit]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value, type, dataset } = e.target;
-    const section = dataset.section;
-    if (section && formData[section]) {
-      setFormData({
-        ...formData,
-        [section]: {
-          ...formData[section],
-          [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value,
-        },
-      });
-    }
+  const handleChange = (section: keyof QuestionnaireData, field: string, value: unknown) => {
+    setFormData(prev => ({
+      ...prev,
+      [section]: {
+        ...prev[section],
+        [field]: value,
+      },
+    }));
   };
 
   const handleHasSiteChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -471,6 +467,18 @@ export function useQuestionnaireForm(onSubmit: (formData: QuestionnaireData) => 
     }
   }, [selectedAdjectives, formData.websiteAdjectives]);
 
+  const mergeValues = (values: Partial<QuestionnaireData>) => {
+    setFormData(prev => ({
+      ...prev,
+      ...Object.fromEntries(
+        Object.entries(values).map(([section, sectionData]) => [
+          section,
+          { ...prev[section as keyof QuestionnaireData], ...sectionData }
+        ])
+      )
+    }));
+  };
+
   return {
     formData, setFormData,
     showContentSection, toggleContentSection,
@@ -483,6 +491,7 @@ export function useQuestionnaireForm(onSubmit: (formData: QuestionnaireData) => 
     addCustomAdjective, handleOtherAdjective,
     handleSubmit, handleReset,
     handleHasSiteChange, handleSiteDomainChange, handleSiteDomainScrape,
-    loading, error, scrapedSummary
+    loading, error, scrapedSummary,
+    mergeValues
   };
 } 
