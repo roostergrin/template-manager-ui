@@ -1,300 +1,275 @@
 {
   "pages": {
-    "Testing": {
-      "internal_id": "testing-page-001",
-      "page_id": "testing",
+    "Home": {
+      "internal_id": "home-page",
+      "page_id": "8",
       "model_query_pairs": [
         {
           "model": "Hero",
-          "query": "Hero section introducing the testing services with a welcoming header and call-to-action button.",
-          "internal_id": "section-1-hero"
+          "query": "Hero with video and call to action",
+          "internal_id": "home-hero"
         },
         {
           "model": "Image Text",
-          "query": "Visual section showcasing orthodontic testing equipment with descriptive text and buttons for more info.",
-          "internal_id": "section-2-image_text"
+          "query": "Meet the doctor introduction",
+          "internal_id": "home-meet-doctor"
         },
         {
-          "model": "Accordion",
-          "query": "Accordion section detailing frequently asked questions about orthodontic testing procedures.",
-          "internal_id": "section-3-accordion"
+          "model": "Column Tabs",
+          "query": "Why choose our orthodontics",
+          "internal_id": "home-why-choose-us"
         },
         {
-          "model": "Form",
-          "query": "Contact form for patients to schedule testing appointments or request information.",
-          "internal_id": "section-4-form"
+          "model": "Text",
+          "query": "Smile transformations intro",
+          "internal_id": "home-smile-transformations"
         },
         {
-          "model": "Before After Gallery",
-          "query": "Gallery displaying before and after images of patients who underwent orthodontic testing and treatment.",
-          "internal_id": "section-5-before_after_gallery"
+          "model": "Tiles",
+          "query": "Treatment options overview",
+          "internal_id": "home-treatments"
+        },
+        {
+          "model": "Image Text",
+          "query": "Current promotions highlight",
+          "internal_id": "home-promotions"
         },
         {
           "model": "Testimonials",
-          "query": "Patient testimonials sharing experiences with orthodontic testing and results.",
-          "internal_id": "section-6-testimonials"
+          "query": "Patient testimonials carousel",
+          "internal_id": "home-testimonials"
         },
         {
           "model": "Count Up Blocks",
-          "query": "Count up blocks highlighting key statistics such as number of tests conducted, satisfied patients, and years of experience.",
-          "internal_id": "section-7-count_up_blocks"
+          "query": "Practice statistics highlights",
+          "internal_id": "home-countup"
         },
         {
-          "model": "Team",
-          "query": "Meet the team section introducing orthodontists and staff involved in testing.",
-          "internal_id": "section-8-team"
-        },
-        {
-          "model": "Locations Map",
-          "query": "Interactive map showing clinic locations where testing services are available.",
-          "internal_id": "section-9-locations_map"
-        },
-        {
-          "model": "Contact Banner",
-          "query": "Contact banner with phone number and appointment booking prompt.",
-          "internal_id": "section-10-contact_banner"
+          "model": "Text",
+          "query": "Contact us call to action",
+          "internal_id": "home-contact"
         }
       ]
     },
     "About": {
-      "internal_id": "about_page_001",
-      "page_id": "about",
+      "internal_id": "about-page-186",
+      "page_id": "186",
       "model_query_pairs": [
         {
           "model": "Title",
-          "query": "About Us - Dedicated to Your Perfect Smile Journey.",
-          "internal_id": "section1_title"
+          "query": "Practice mission and values",
+          "internal_id": "about-title-1"
         },
         {
           "model": "Tabs",
-          "query": "Explore Our Orthodontic Philosophy, Treatment Approach, and Patient Care Commitment.",
-          "internal_id": "section2_tabs"
+          "query": "Dr. Rodriguez philosophy and credentials",
+          "internal_id": "about-tabs-2"
         },
         {
           "model": "Team",
-          "query": "Meet Our Expert Orthodontic Team Committed to Your Care and Comfort.",
-          "internal_id": "section3_team"
+          "query": "Meet our orthodontic team",
+          "internal_id": "about-team-3"
         },
         {
           "model": "Testimonials",
-          "query": "Hear What Our Patients Say About Their Transformative Experiences.",
-          "internal_id": "section4_testimonials"
+          "query": "Patient testimonials and reviews",
+          "internal_id": "about-testimonials-4"
         },
         {
           "model": "Gallery",
-          "query": "Tour Our Modern Clinic and See Smiles We've Transformed.",
-          "internal_id": "section5_gallery"
+          "query": "Office tour and facilities",
+          "internal_id": "about-gallery-5"
         },
         {
           "model": "Image Text",
-          "query": "Our Community Involvement and Commitment to Healthy Smiles Beyond the Clinic.",
-          "internal_id": "section6_image_text"
+          "query": "Community outreach and impact",
+          "internal_id": "about-image-text-6"
         },
         {
-          "model": "Contact Banner",
-          "query": "Get in Touch with Us to Start Your Orthodontic Journey Today.",
-          "internal_id": "section7_contact_banner"
+          "model": "Instagram",
+          "query": "Social media highlights",
+          "internal_id": "about-instagram-7"
         }
       ]
     },
     "Blog": {
-      "internal_id": "blog_page_001",
-      "page_id": "blog",
+      "internal_id": "page_blog_main",
+      "page_id": "198",
       "model_query_pairs": [
         {
           "model": "Title",
-          "query": "Blog - Insights and Updates from Your Orthodontist Experts.",
-          "internal_id": "section1_title"
+          "query": "Ortho blog page headline",
+          "internal_id": "blog_title_section"
         },
         {
           "model": "Blog Posts",
-          "query": "Latest articles, tips, and news on orthodontic care, treatments, and patient stories.",
-          "internal_id": "section2_blog_posts"
+          "query": "Latest orthodontic blog articles",
+          "internal_id": "blog_posts_section"
         },
         {
           "model": "Text",
-          "query": "{'content': null, 'preheader': 'Get in Touch', 'header': 'Have Questions About Orthodontics?', 'body': '<p>Our expert team is here to provide personalized advice and answer all your orthodontic care questions. Reach out to us today to schedule a consultation or learn more about your treatment options.</p>', 'buttons': [{'button': {'type': 'nuxt', 'style': 'secondary', 'label': 'Contact Us', 'aria': 'Contact Us', 'href': '', 'path': '/contact', 'hash': '', 'external': false, 'include_icon': false, 'icon': '', 'color': 'black', 'case': 'sentence'}}], 'options': null, 'text_alignment': 'center', 'button_alignment': 'inline', 'header_color': 'unset', 'body_color': 'unset', 'hero_header': false}",
-          "internal_id": "section3_text"
+          "query": "Contact us for ortho advice",
+          "internal_id": "blog_contact_text_section"
         }
       ]
     },
     "New Patients": {
-      "internal_id": "new_patients_page_001",
-      "page_id": "new_patients",
+      "internal_id": "page_new_patients",
+      "page_id": "1648",
       "model_query_pairs": [
         {
           "model": "Title",
-          "query": "New Patients Welcome - Start Your Orthodontic Journey Here!",
-          "internal_id": "section_1_title"
+          "query": "Welcome new patients",
+          "internal_id": "section_title"
         },
         {
           "model": "Image Text",
-          "query": "Preheader: Your First Visit\nHeader: What to Expect at Your Initial Consultation\nBody: <p>Our team is dedicated to making your first visit comfortable and informative. We'll discuss your orthodontic needs, take necessary x-rays, and develop a personalized treatment plan.</p>\n<p>Come prepared with any dental records and questions you may have.</p>\nButtons: [{\"button\":{\"type\":\"nuxt\",\"style\":\"primary\",\"label\":\"Schedule Appointment\",\"aria\":\"Schedule your first appointment\",\"href\":\"\",\"path\":\"/contact-us\",\"hash\":\"\",\"external\":true,\"include_icon\":false,\"icon\":\"\",\"color\":\"black\",\"case\":\"as-is\"}}]\nText Alignment: left\nButton Alignment: inline",
-          "internal_id": "section_2_image_text"
+          "query": "First visit overview",
+          "internal_id": "section_first_visit"
         },
         {
-          "model": "Accordion",
-          "query": "Preheader: Frequently Asked Questions\nHeader: New Patient FAQs\nItems: [{\"title\":\"What should I bring to my first appointment?\",\"content\":\"Please bring any previous dental records, insurance information, and a list of medications.\"},{\"title\":\"Do you accept insurance?\",\"content\":\"We work with many insurance providers and will help you maximize your benefits.\"},{\"title\":\"How long is the initial consultation?\",\"content\":\"Typically, the first visit lasts about 45 minutes to an hour.\"}]\nText Alignment: left",
-          "internal_id": "section_3_accordion"
+          "model": "Image Text",
+          "query": "Financing and payment options",
+          "internal_id": "section_financing"
         },
         {
           "model": "Patient Forms",
-          "query": "Preheader: Patient Forms\nHeader: Save Time by Filling Out Forms Online\nBody: <p>Complete your new patient paperwork before your appointment to streamline the check-in process.</p>\nButtons: [{\"button\":{\"type\":\"external\",\"style\":\"primary\",\"label\":\"Download Forms\",\"aria\":\"Download patient forms\",\"href\":\"/forms/new-patient-forms.pdf\",\"path\":\"\",\"hash\":\"\",\"external\":true,\"include_icon\":false,\"icon\":\"\",\"color\":\"black\",\"case\":\"as-is\"}}]\nText Alignment: left",
-          "internal_id": "section_4_patient_forms"
+          "query": "Download patient forms",
+          "internal_id": "section_patient_forms"
         },
         {
           "model": "Banner With Background",
-          "query": "Preheader: Financing Options\nHeader: Flexible Payment Plans to Fit Your Budget\nBody: <p>We offer a variety of affordable financing options to help you get the smile you deserve without stress.</p>\nButtons: [{\"button\":{\"type\":\"nuxt\",\"style\":\"primary\",\"label\":\"Learn More\",\"aria\":\"Learn about financing options\",\"href\":\"\",\"path\":\"/financing\",\"hash\":\"\",\"external\":true,\"include_icon\":false,\"icon\":\"\",\"color\":\"black\",\"case\":\"as-is\"}}]\nText Alignment: center\nButton Alignment: inline",
-          "internal_id": "section_5_banner_with_background"
+          "query": "Kids club invitation",
+          "internal_id": "section_kids_club"
         },
         {
-          "model": "Testimonials",
-          "query": "Preheader: Happy Smiles\nHeader: What Our Patients Say\nItems: [{\"quote\":\"The staff was amazing and made me feel comfortable every step of the way.\",\"author\":\"Jessica M.\"},{\"quote\":\"Affordable and professional care with great results! Highly recommend.\",\"author\":\"David L.\"}]\nText Alignment: left",
-          "internal_id": "section_6_testimonials"
+          "model": "Logos",
+          "query": "Partner and technology logos",
+          "internal_id": "section_logos"
         },
         {
-          "model": "Contact Banner",
-          "query": "Preheader: Ready to Start?\nHeader: Schedule Your Consultation Today!\nBody: <p>Contact us to take the first step toward your perfect smile.</p>\nButtons: [{\"button\":{\"type\":\"nuxt\",\"style\":\"primary\",\"label\":\"Contact Us\",\"aria\":\"Contact us to schedule\",\"href\":\"\",\"path\":\"/contact-us\",\"hash\":\"\",\"external\":true,\"include_icon\":false,\"icon\":\"\",\"color\":\"black\",\"case\":\"as-is\"}}]\nText Alignment: center",
-          "internal_id": "section_7_contact_banner"
+          "model": "Text",
+          "query": "Contact and questions",
+          "internal_id": "section_contact"
         }
       ]
     },
     "Treatments": {
-      "internal_id": "treatments-page-001",
-      "page_id": "treatments",
+      "internal_id": "treatments-page-structure",
+      "page_id": "1678",
       "model_query_pairs": [
         {
           "model": "Title",
-          "query": "Treatments Overview: Comprehensive Orthodontic Care for Every Smile.",
-          "internal_id": "section-1-title"
+          "query": "Page introduction title",
+          "internal_id": "section-title"
         },
         {
           "model": "Tabs",
-          "query": "Explore Our Range of Orthodontic Treatments: Braces, Clear Aligners, Retainers, and More.",
-          "internal_id": "section-2-tabs"
+          "query": "Orthodontic care for all ages",
+          "internal_id": "section-tabs-all-ages"
         },
         {
-          "model": "Accordion",
-          "query": "Detailed Treatment Descriptions: Benefits, Process, and What to Expect for Each Orthodontic Option.",
-          "internal_id": "section-3-accordion"
+          "model": "Tabs",
+          "query": "Braces treatment options",
+          "internal_id": "section-tabs-braces"
         },
         {
           "model": "Testimonials",
-          "query": "Patient Stories: Real Results and Experiences from Our Orthodontic Care.",
-          "internal_id": "section-4-testimonials"
+          "query": "Patient testimonials and reviews",
+          "internal_id": "section-testimonials"
         },
         {
           "model": "Image Text",
-          "query": "Clear Aligners: Modern, Discreet Solutions for a Confident Smile.",
-          "internal_id": "section-5-image-text"
+          "query": "Invisalign clear aligners info",
+          "internal_id": "section-image-text-invisalign"
         },
         {
           "model": "Image Text",
-          "query": "Traditional Braces: Effective and Reliable Treatment for All Ages.",
-          "internal_id": "section-6-image-text"
+          "query": "TMJ treatment overview",
+          "internal_id": "section-image-text-tmj"
         },
         {
           "model": "Before After Gallery",
-          "query": "Transformations Gallery: See the Impact of Our Treatments on Real Patients.",
-          "internal_id": "section-7-before-after-gallery"
+          "query": "Before and after smile gallery",
+          "internal_id": "section-before-after-gallery"
         },
         {
           "model": "Image Text",
-          "query": "Specialized Treatments: TMJ Therapy, Palatal Expanders, and Orthognathic Surgery Options.",
-          "internal_id": "section-8-image-text"
+          "query": "Orthognathic surgery details",
+          "internal_id": "section-image-text-orthognathic"
         },
         {
-          "model": "Column Tabs",
-          "query": "Advanced Technology: Tools and Innovations Enhancing Your Orthodontic Experience.",
-          "internal_id": "section-9-column-tabs"
+          "model": "Image Text",
+          "query": "Palatal expanders explanation",
+          "internal_id": "section-image-text-expanders"
         },
         {
-          "model": "Contact Banner",
-          "query": "Ready to Start Your Journey? Schedule a Consultation with Our Orthodontic Experts Today.",
-          "internal_id": "section-10-contact-banner"
+          "model": "Tabs",
+          "query": "Orthodontic technology highlights",
+          "internal_id": "section-tabs-technology"
+        },
+        {
+          "model": "Text",
+          "query": "Contact encouragement and CTA",
+          "internal_id": "section-text-contact"
         }
       ]
     },
     "Contact Us": {
-      "internal_id": "contact_us_page_001",
-      "page_id": "contact_us_ortho",
+      "internal_id": "contact-us-page",
+      "page_id": "1580",
       "model_query_pairs": [
         {
           "model": "Title",
-          "query": "Contact Us - Get in Touch with Our Orthodontic Experts for Personalized Care and Support.",
-          "internal_id": "section_1_title"
-        },
-        {
-          "model": "Contact Banner",
-          "query": "Reach out to our friendly orthodontic team for consultations, appointments, and inquiries. We're here to help you achieve your best smile.",
-          "internal_id": "section_2_contact_banner"
+          "query": "Contact page headline",
+          "internal_id": "section-title-get-in-touch"
         },
         {
           "model": "Form",
-          "query": "Contact form for patients to submit questions, appointment requests, or feedback, including fields for name, email, phone, preferred appointment date, and message.",
-          "internal_id": "section_3_form"
+          "query": "Contact inquiry form",
+          "internal_id": "section-form-main-contact"
         },
         {
           "model": "Locations Map",
-          "query": "Interactive map showing our orthodontic office locations with addresses, phone numbers, and office hours for easy visit planning.",
-          "internal_id": "section_4_locations_map"
-        },
-        {
-          "model": "Text",
-          "query": "Additional information about office hours, emergency contact instructions, and how to prepare for your visit.",
-          "internal_id": "section_5_text"
+          "query": "Practice locations map",
+          "internal_id": "section-locations-map-visit-us"
         }
       ]
     },
     "FAQ": {
-      "internal_id": "faq_page_001",
-      "page_id": "faq_page",
+      "internal_id": "faq-page-1714",
+      "page_id": "1714",
       "model_query_pairs": [
         {
           "model": "Title",
-          "query": "Frequently Asked Questions about Orthodontic Care and Treatments.",
-          "internal_id": "faq_title_001"
+          "query": "FAQ page main heading",
+          "internal_id": "faq-title-1"
         },
         {
           "model": "Accordion",
-          "query": "Common questions about orthodontic treatments, braces, Invisalign, appointment scheduling, payment options, and care instructions answered in detail.",
-          "internal_id": "faq_accordion_001"
-        },
-        {
-          "model": "Contact Banner",
-          "query": "Encourage visitors to contact the office for personalized answers or to schedule a consultation regarding their orthodontic needs.",
-          "internal_id": "faq_contactbanner_001"
+          "query": "Common orthodontic questions",
+          "internal_id": "faq-accordion-1"
         }
       ]
     },
     "Promotions": {
-      "internal_id": "promotions_page_001",
-      "page_id": "promotions",
+      "internal_id": "promotions-page-1720",
+      "page_id": "1720",
       "model_query_pairs": [
         {
           "model": "Title",
-          "query": "Promotions and Special Offers at Our Orthodontic Clinic.",
-          "internal_id": "section_1_title"
+          "query": "Promotions page headline",
+          "internal_id": "promotions-title-1"
         },
         {
           "model": "Image Text",
-          "query": "Highlight a current promotion with a compelling header and detailed description, including a call-to-action button to book a consultation or claim the offer.",
-          "internal_id": "section_2_image_text"
-        },
-        {
-          "model": "Accordion",
-          "query": "List multiple ongoing promotions and discounts with expandable details for each offer, making it easy for visitors to browse all available deals.",
-          "internal_id": "section_3_accordion"
+          "query": "Featured Invisalign offer",
+          "internal_id": "promotions-image-text-2"
         },
         {
           "model": "Form",
-          "query": "Provide a contact form for visitors to inquire about promotions or schedule appointments directly from the promotions page.",
-          "internal_id": "section_4_form"
-        },
-        {
-          "model": "Testimonials",
-          "query": "Showcase patient testimonials related to successful treatments and satisfaction with promotional offers to build trust and credibility.",
-          "internal_id": "section_5_testimonials"
+          "query": "Promotions inquiry form",
+          "internal_id": "promotions-form-3"
         }
       ]
     }
@@ -323,6 +298,54 @@
     "Tiles",
     "Title"
   ],
-  "questionnaireData": {},
-  "siteType": "bayareaortho"
+  "questionnaireData": {
+    "practiceName": "Not specified",
+    "orthodontistName": "Not specified",
+    "siteVision": "To create an informative and engaging online presence that highlights the practice's expertise, services, and commitment to patient care.",
+    "uniqueQualities": "Expert orthodontic care, personalized treatment plans, and a welcoming environment for patients of all ages.",
+    "primaryAudience": "Individuals and families seeking orthodontic treatment.",
+    "secondaryAudience": "Referring dentists and healthcare professionals.",
+    "demographics": "Children, teens, and adults interested in improving their smiles and oral health.",
+    "writingStyle": "Friendly, professional, and approachable.",
+    "preferredPhotographyStyle": "Bright, welcoming images featuring real patients and staff in a clinical setting.",
+    "websiteAdjectives": "Modern, trustworthy, inviting, informative, and patient-focused."
+  },
+  "siteType": "bayareaortho",
+  "cliFlags": {
+    "scraped": false,
+    "content_docs": false,
+    "page_json": true,
+    "site_type": "bayareaortho",
+    "input_file": "input/bayareaortho.txt",
+    "output_file": "output/bayareaortho_20250421_111745/sitemap.json",
+    "timestamp": "2025-04-21T11:18:41.195635",
+    "config": {
+      "SITE_TYPE": "bayareaortho",
+      "TEMPLATE_TYPE": "bayareaortho",
+      "ORIGINAL_DATA_FOLDER": "_site_configs/original_data/bayareaortho",
+      "DEFAULT_PAGE_TITLES": [
+        "Home",
+        "About",
+        "Blog",
+        "New Patients",
+        "Treatments",
+        "Contact Us",
+        "FAQ",
+        "Promotions"
+      ],
+      "SITEMAP_MODELS_MODULE": "<module '_site_configs.static_models.bayareaortho.bayareaortho_sitemap' from '/Users/gordonlewis/TemplateSiteGenerator/ContentGenerationAndDistribution/_site_configs/static_models/bayareaortho/bayareaortho_sitemap.py'>",
+      "DEFAULT_TEMPERATURE": 0.1
+    },
+    "pages_used": [
+      "Home",
+      "About",
+      "Blog",
+      "New Patients",
+      "Treatments",
+      "Contact Us",
+      "FAQ",
+      "Promotions"
+    ],
+    "script_version": "1.0.0"
+  }
 }

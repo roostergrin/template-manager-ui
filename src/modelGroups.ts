@@ -21,9 +21,10 @@ export interface ModelGroup {
   adjectives: string[];
   demoUrl?: string;
   templates: TemplateInfo[]; // Added templates to ModelGroup interface
+  enabled?: boolean;
 }
 
-export const modelGroups: Record<string, ModelGroup> = {
+const allModelGroups: Record<string, ModelGroup> = {
   'New Stinson': {
     models: Array.isArray(stinsonSitemap.modelGroups) ? stinsonSitemap.modelGroups : [],
     title: 'Stinson',
@@ -37,7 +38,8 @@ export const modelGroups: Record<string, ModelGroup> = {
         data: stinsonSitemap
       }
       // Add ore templates for New Stinson
-    ]
+    ],
+    enabled: true,
   },
   'Bay Area Orthodontics': {
     models: Array.isArray(bayareaorthoSitemap.modelGroups) ? bayareaorthoSitemap.modelGroups : [], // Will be empty until templates are added with modelGroups data
@@ -51,7 +53,8 @@ export const modelGroups: Record<string, ModelGroup> = {
         description: 'Complete orthodontist website structure with home, about, treatments, etc.',
         data: bayareaorthoSitemap
       }
-    ]
+    ],
+    enabled: true,
   },
   'Calistoga': {
     models: Array.isArray(calistogaSitemap.modelGroups) ? calistogaSitemap.modelGroups : [], // Add specific models when available
@@ -65,7 +68,8 @@ export const modelGroups: Record<string, ModelGroup> = {
         description: 'Complete orthodontist website structure with home, about, treatments, etc.',
         data: calistogaSitemap
       }
-    ]
+    ],
+    enabled: true,
   },
   'Haight Ashbury': {
     models: Array.isArray(haightAshburySitemap.modelGroups) ? haightAshburySitemap.modelGroups : [], // Add specific models when available
@@ -79,7 +83,8 @@ export const modelGroups: Record<string, ModelGroup> = {
         description: 'Complete orthodontist website structure with home, about, treatments, etc.',
         data: haightAshburySitemap
       }
-    ]
+    ],
+    enabled: false,
   },
   'Pismo Beach': {
     models: Array.isArray(pismoSitemap.modelGroups) ? pismoSitemap.modelGroups : [],
@@ -93,7 +98,8 @@ export const modelGroups: Record<string, ModelGroup> = {
         description: 'Complete orthodontist website structure with home, about, treatments, etc.',
         data: pismoSitemap
       },
-    ]
+    ],
+    enabled: false,
   },
   'Eureka': {
     models: Array.isArray(eurekaSitemap.modelGroups) ? eurekaSitemap.modelGroups : [], // Add specific models when available
@@ -107,7 +113,8 @@ export const modelGroups: Record<string, ModelGroup> = {
         description: 'Complete orthodontist website structure with home, about, treatments, etc.',
         data: eurekaSitemap
       }
-    ]
+    ],
+    enabled: false,
   },
   'Shasta': {
     models: Array.isArray(shastaSitemap.modelGroups) ? shastaSitemap.modelGroups : [], // Add specific models when available
@@ -121,7 +128,8 @@ export const modelGroups: Record<string, ModelGroup> = {
         description: 'Complete orthodontist website structure with home, about, treatments, etc.',
         data: shastaSitemap
       }
-    ]
+    ],
+    enabled: false,
   },
   'Sonoma': {
     models: Array.isArray(sonomaSitemap.modelGroups) ? sonomaSitemap.modelGroups : [], // Add specific models when available
@@ -135,9 +143,15 @@ export const modelGroups: Record<string, ModelGroup> = {
         description: 'Complete orthodontist website structure with home, about, treatments, etc.',
         data: sonomaSitemap
       }
-    ]
+    ],
+    enabled: false,
   }
 };
+
+export const modelGroups: Record<string, ModelGroup> = Object.fromEntries(
+  Object.entries(allModelGroups)
+    .filter(([_, grp]) => grp.enabled !== false)
+) as Record<string, ModelGroup>
 
 // For backward compatibility
 export const initialModelGroups = Object.fromEntries(

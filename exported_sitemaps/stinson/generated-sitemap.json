@@ -1,198 +1,198 @@
 {
   "pages": {
     "Home": {
-      "internal_id": "8",
+      "internal_id": "page-home-8",
       "page_id": "8",
       "model_query_pairs": [
         {
           "model": "Hero",
-          "query": "Stinson Orthodontics.",
-          "internal_id": "hero"
+          "query": "Main site introduction banner",
+          "internal_id": "section-1-hero"
         },
         {
-          "model": "Text, No Image, Full Headline",
-          "query": "You're in the right place.",
-          "internal_id": "block_text_fh"
+          "model": "Block Text Fh",
+          "query": "Welcome message and intro text",
+          "internal_id": "section-2-block-text-fh"
         },
         {
           "model": "Multi Item Row",
-          "query": "Why Choose Us",
-          "internal_id": "multi_item_row"
+          "query": "Reasons to choose us",
+          "internal_id": "section-3-multi-item-row"
         },
         {
-          "model": "Image, Text",
-          "query": "You're in good hands.",
-          "internal_id": "image_text"
+          "model": "Image Text",
+          "query": "Trust and care message with buttons",
+          "internal_id": "section-4-image-text"
         },
         {
           "model": "Block Masonary Grid",
-          "query": "Find the treatment that\u2019s right for you.",
-          "internal_id": "block_masonary_grid"
+          "query": "Treatment options overview",
+          "internal_id": "section-5-block-masonary-grid"
         },
         {
           "model": "Multi Item Testimonial",
-          "query": "What our clients are saying.",
-          "internal_id": "multi_item_testimonial"
+          "query": "Client testimonials and reviews",
+          "internal_id": "section-6-multi-item-testimonial"
         },
         {
           "model": "Multi Use Banner",
-          "query": "Follow us on social media",
-          "internal_id": "multi_use_banner"
+          "query": "Social media follow prompt",
+          "internal_id": "section-7-multi-use-banner-social"
         },
         {
           "model": "Multi Use Banner",
-          "query": "Let\u2019s get started!",
-          "internal_id": "multi_use_banner"
+          "query": "Call to action to get started",
+          "internal_id": "section-8-multi-use-banner-started"
         }
       ]
     },
     "About": {
-      "internal_id": "186",
+      "internal_id": "page-about-186",
       "page_id": "186",
       "model_query_pairs": [
         {
           "model": "Hero",
-          "query": "About Us",
-          "internal_id": "hero"
+          "query": "About Us introduction",
+          "internal_id": "section-hero-about-us-186"
         },
         {
-          "model": "Block Grid",
-          "query": "Our Mission",
-          "internal_id": "our_mission"
+          "model": "Block Text Simple",
+          "query": "Our Mission statement",
+          "internal_id": "section-block-text-our-mission-186"
         },
         {
           "model": "Tabs",
-          "query": "Meet the Doctor",
-          "internal_id": "meet_the_doctor"
+          "query": "Meet the Doctor details",
+          "internal_id": "section-tabs-meet-doctor-186"
         },
         {
           "model": "Block Grid",
-          "query": "Meet the Team",
-          "internal_id": "meet_the_team"
+          "query": "Meet the Team profiles",
+          "internal_id": "section-block-grid-meet-team-186"
         },
         {
           "model": "Single Image Slider",
-          "query": "Our Office",
-          "internal_id": "our_office"
+          "query": "Office photo tour",
+          "internal_id": "section-single-image-slider-office-186"
         },
         {
-          "model": "Image, Text",
-          "query": "Community Involvement",
-          "internal_id": "community_involvement"
+          "model": "Image Text",
+          "query": "Community Involvement info",
+          "internal_id": "section-image-text-community-186"
         }
       ]
     },
     "Get Started": {
-      "internal_id": "266",
+      "internal_id": "page-get-started-266",
       "page_id": "266",
       "model_query_pairs": [
         {
           "model": "Hero",
-          "query": "Get Started.",
-          "internal_id": "hero-1"
+          "query": "Get Started hero section",
+          "internal_id": "section-1-hero-get-started"
         },
         {
-          "model": "Image, Text",
-          "query": "First Visit",
-          "internal_id": "image_text-1"
+          "model": "Image Text",
+          "query": "First Visit information",
+          "internal_id": "section-2-image-text-first-visit"
         },
         {
-          "model": "Block Grid",
-          "query": "Finance and Insurance",
-          "internal_id": "block_text_simple-1"
+          "model": "Block Text Simple",
+          "query": "Finance and Insurance details",
+          "internal_id": "section-3-block-text-finance-insurance"
         },
         {
-          "model": "Image, Text",
-          "query": "Health History Forms",
-          "internal_id": "image_text-2"
+          "model": "Image Text",
+          "query": "Health History Forms with buttons",
+          "internal_id": "section-4-image-text-health-history"
         },
         {
           "model": "Multi Use Banner",
-          "query": "Let's get started.",
-          "internal_id": "multi_use_banner-1"
+          "query": "Call to action banner",
+          "internal_id": "section-5-multi-use-banner-get-started"
         }
       ]
     },
     "Treatments": {
-      "internal_id": "264",
+      "internal_id": "page-treatments-264",
       "page_id": "264",
       "model_query_pairs": [
         {
           "model": "Hero",
-          "query": "Treatments.",
-          "internal_id": "hero"
+          "query": "Page hero with title",
+          "internal_id": "section-1-hero-treatments"
         },
         {
-          "model": "Image, Text",
-          "query": "Early Treatment",
-          "internal_id": "early-treatment"
+          "model": "Image Text",
+          "query": "Early treatment details",
+          "internal_id": "section-2-image-text-early-treatment"
         },
         {
-          "model": "Image, Text",
-          "query": "Adult Treatment",
-          "internal_id": "adult-treatment"
+          "model": "Image Text",
+          "query": "Adult treatment information",
+          "internal_id": "section-3-image-text-adult-treatment"
         },
         {
-          "model": "Image, Text",
-          "query": "Braces",
-          "internal_id": "braces"
+          "model": "Image Text",
+          "query": "Braces treatment overview",
+          "internal_id": "section-4-image-text-braces"
         },
         {
-          "model": "Image, Text",
-          "query": "Invisalign <sup>\u00ae</sup>",
-          "internal_id": "invisalign"
+          "model": "Image Text",
+          "query": "Invisalign treatment info",
+          "internal_id": "section-5-image-text-invisalign"
         },
         {
-          "model": "Image, Text",
-          "query": "Orthognathic Surgery",
-          "internal_id": "orthognathic-surgery"
+          "model": "Image Text",
+          "query": "Orthognathic surgery details",
+          "internal_id": "section-6-image-text-orthognathic-surgery"
         },
         {
-          "model": "Image, Text",
-          "query": "Retainers",
-          "internal_id": "retainers"
+          "model": "Image Text",
+          "query": "Retainers treatment info",
+          "internal_id": "section-7-image-text-retainers"
         },
         {
-          "model": "Image, Text",
-          "query": "Technology",
-          "internal_id": "technology"
+          "model": "Image Text",
+          "query": "Technology with accordion",
+          "internal_id": "section-8-image-text-technology"
         }
       ]
     },
     "Contact": {
-      "internal_id": "268",
+      "internal_id": "page_contact_268",
       "page_id": "268",
       "model_query_pairs": [
         {
           "model": "Hero",
-          "query": "Contact Us",
-          "internal_id": "hero"
+          "query": "Contact Us hero section",
+          "internal_id": "section_hero_contact_268"
         },
         {
           "model": "Map",
-          "query": "How to reach us",
-          "internal_id": "map"
+          "query": "Location and directions map",
+          "internal_id": "section_map_contact_268"
         },
         {
           "model": "Form",
-          "query": "",
-          "internal_id": "form"
+          "query": "Contact form for inquiries",
+          "internal_id": "section_form_contact_268"
         }
       ]
     },
     "FAQ": {
-      "internal_id": "850",
+      "internal_id": "page_faq_850",
       "page_id": "850",
       "model_query_pairs": [
         {
           "model": "Hero",
-          "query": "Frequently Asked Questions",
-          "internal_id": "hero-1"
+          "query": "Frequently Asked Questions hero",
+          "internal_id": "section_1_hero_faq_850"
         },
         {
           "model": "Accordion",
-          "query": "Lorem ipsum dolor sit amet",
-          "internal_id": "accordion-1"
+          "query": "FAQ questions and answers",
+          "internal_id": "section_2_accordion_faq_850"
         }
       ]
     }
@@ -201,35 +201,25 @@
     "Accordion",
     "Before After Slider",
     "Block Grid",
+    "Block Masonary Grid",
+    "Block Text Fh",
+    "Block Text Simple",
     "Blog Posts",
     "Form",
     "Hero",
-    "Image, Text",
-    "Image, No Text",
+    "Image Only",
+    "Image Text",
     "Logo Banner",
     "Map",
-    "Block Masonary Grid",
     "Multi Item Row",
     "Multi Item Testimonial",
     "Multi Use Banner",
     "Single Image Slider",
     "Single Testimonial",
     "Single Video Slider",
-    "Tabs",
-    "Text, No Image, Full Headline",
-    "Text, No Image, Simple"
+    "Tabs"
   ],
   "questionnaireData": {
-    "practiceName": "Stinson Orthodontics",
-    "orthodontistName": "Dr. Stinson",
-    "siteVision": "To provide exceptional orthodontic care in a welcoming environment, ensuring every patient leaves with a smile they love.",
-    "uniqueQualities": "Advanced technology, expert staff, and a comfortable setting tailored for all ages.",
-    "primaryAudience": "Families and individuals seeking orthodontic treatment.",
-    "secondaryAudience": "Parents of children needing early orthodontic intervention, adults considering braces or Invisalign.",
-    "demographics": "Children, teenagers, and adults in the local community.",
-    "writingStyle": "Friendly and informative, with a focus on patient comfort and care.",
-    "preferredPhotographyStyle": "Bright, engaging images showcasing the office, staff, and happy patients.",
-    "websiteAdjectives": "Welcoming, professional, modern, informative."
-  },
+},
   "siteType": "stinson"
 }

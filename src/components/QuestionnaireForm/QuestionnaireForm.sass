@@ -519,4 +519,159 @@ textarea
     flex-direction: column
     
     button
-      width: 100% 
+      width: 100%
+
+.website-discovery__card
+  background: #f8fafc
+  border: 1px solid #e2e8f0
+  border-radius: 12px
+  padding: 2rem 2rem 1.5rem 2rem
+  margin-bottom: 2rem
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03)
+  max-width: 500px
+  margin-left: auto
+  margin-right: auto
+
+.website-discovery__header
+  font-size: 1.25rem
+  font-weight: 600
+  margin-bottom: 1.25rem
+  color: #334155
+  letter-spacing: 0.01em
+
+.website-discovery__group
+  margin-bottom: 1.5rem
+
+.website-discovery__label
+  display: block
+  font-size: 1rem
+  font-weight: 500
+  margin-bottom: 0.5rem
+  color: #475569
+
+.website-discovery__radio-group
+  display: flex
+  gap: 2rem
+
+.website-discovery__radio
+  font-size: 1rem
+  font-weight: 400
+  color: #334155
+  display: flex
+  align-items: center
+  gap: 0.5em
+  cursor: pointer
+  padding: 0.25em 0.75em
+  border-radius: 6px
+  transition: background 0.2s
+
+.website-discovery__radio--selected
+  background: #e0e7ef
+  font-weight: 600
+
+.website-discovery__input
+  width: 100%
+  padding: 0.6em 1em
+  font-size: 1rem
+  border: 1px solid #cbd5e1
+  border-radius: 6px
+  outline: none
+  transition: border 0.2s
+  margin-bottom: 0.25rem
+  &:focus
+    border-color: #6366f1
+
+.website-discovery__subtext
+  font-size: 0.92rem
+  color: #64748b
+  margin-top: 0.15rem
+  margin-bottom: 0.25rem
+
+.website-discovery__loading
+  display: flex
+  align-items: center
+  font-size: 0.98rem
+  color: #6366f1
+  margin-top: 0.5rem
+
+.website-discovery__spinner
+  width: 1em
+  height: 1em
+  border: 2.5px solid #c7d2fe
+  border-top: 2.5px solid #6366f1
+  border-radius: 50%
+  display: inline-block
+  margin-right: 0.5em
+  animation: spin 0.8s linear infinite
+
+@keyframes spin
+  0%
+    transform: rotate(0deg)
+  100%
+    transform: rotate(360deg)
+
+.website-discovery__scrape-btn
+  margin-top: 0.75rem
+  padding: 0.6em 1.5em
+  background: #4d4ec1
+  color: #fff
+  border: none
+  border-radius: 0.5em
+  font-size: 1rem
+  font-weight: 600
+  cursor: pointer
+  transition: background 0.2s, color 0.2s, opacity 0.2s
+  display: inline-flex
+  align-items: center
+  gap: 0.5em
+  box-shadow: 0 2px 8px rgba(77, 78, 193, 0.08)
+
+  &:hover:not(:disabled)
+    background: #3d3ea6
+    color: #fff
+
+  &:disabled
+    opacity: 0.6
+    cursor: not-allowed
+
+.website-discovery__error
+  color: #e74c3c
+  background: #fff0f0
+  border: 1px solid #f5c6cb
+  border-radius: 0.5em
+  padding: 0.75em 1em
+  margin-top: 1em
+  font-size: 1rem
+  font-weight: 500
+
+.website-discovery__summary-card
+  background: #f4f8ff
+  border: 1px solid #c7d2fe
+  border-radius: 0.75em
+  margin-top: 1.25em
+  padding: 1.25em 1.5em 1em 1.5em
+  box-shadow: 0 2px 8px rgba(77, 78, 193, 0.06)
+
+.website-discovery__summary-title
+  font-size: 1.05rem
+  font-weight: 600
+  color: #334155
+  margin-bottom: 0.75em
+
+.website-discovery__summary-row
+  display: flex
+  gap: 0.5em
+  margin-bottom: 0.4em
+  font-size: 0.98rem
+
+.website-discovery__summary-label
+  color: #4d4ec1
+  font-weight: 500
+  min-width: 7.5em
+  display: inline-block
+
+.website-discovery__summary-value
+  color: #222b45
+  font-weight: 400
+  flex: 1
+  word-break: break-word 
