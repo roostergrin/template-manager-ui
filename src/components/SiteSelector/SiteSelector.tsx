@@ -15,15 +15,12 @@ const SiteSelector: React.FC<SiteSelectorProps> = ({
   const isModelGroup = (value: ModelGroup | string[]): value is ModelGroup => {
     return typeof value === 'object' && !Array.isArray(value) && 'models' in value;
   };
-  
-  console.log("modelGroups", modelGroups);
 
   return (
     <div className="site-selector">
       <div className="site-selector__container">
         {Object.entries(modelGroups).map(([key, group]) => {
           // Handle both old and new format
-          console.log(key);
           if (isModelGroup(group)) {
             // Check if model is ready (has at least one model)
             const isReady = group.models && group.models.length > 0;

@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import QuestionnaireForm, { QuestionnaireData } from './components/QuestionnaireForm';
+import QuestionnaireForm from './components/QuestionnaireForm/QuestionnaireForm';
 import Sitemap from './components/Sitemap';
 import { initialModelGroups } from './modelGroups';
 import './App.sass';
@@ -10,17 +10,10 @@ const App: React.FC = () => {
   const [questionnaireData, setQuestionnaireData] = useState<QuestionnaireData | null>(null);
 
   const currentModels = initialModelGroups[selectedModelGroupKey] || [];
-
-  // Memoize the function to prevent it from being recreated on every render
-  const handleQuestionnaireSubmit = useCallback((formData: QuestionnaireData) => {
-    setQuestionnaireData(formData);
-    console.log("formData", formData);
-  }, []);
-
   return (
     <div className="app">
       <div className="app__questionnaire-container">
-        <QuestionnaireForm onSubmit={handleQuestionnaireSubmit} />
+        <QuestionnaireForm formData={questionnaireData} setFormData={setQuestionnaireData} />
       </div>
       <Sitemap
         currentModels={currentModels}
@@ -31,6 +24,7 @@ const App: React.FC = () => {
         questionnaireData={questionnaireData}
         setQuestionnaireData={setQuestionnaireData}
       />
+      {/* TODO: get the export and import into its own component */}
     </div>
   );
 };

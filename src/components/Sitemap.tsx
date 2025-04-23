@@ -105,6 +105,22 @@ const Sitemap: React.FC<SitemapProps> = ({
   };
 
   const exportJSON = () => {
+    // Omit unwanted keys from questionnaireData
+    const omitKeys = [
+      'content',
+      'integrations',
+      'reviews',
+      'technical',
+      'visual',
+      'tone'
+    ];
+    let filteredQuestionnaireData = questionnaireData;
+    if (questionnaireData && typeof questionnaireData === 'object') {
+      filteredQuestionnaireData = { ...questionnaireData };
+      omitKeys.forEach(key => {
+        delete filteredQuestionnaireData[key];
+      });
+    }
     const exportData = {
       pages: pages.reduce((acc, page) => ({
         ...acc,
@@ -120,7 +136,7 @@ const Sitemap: React.FC<SitemapProps> = ({
       }), {}),
       selectedModelGroupKey,
       modelGroups,
-      questionnaireData
+      questionnaireData: filteredQuestionnaireData
     };
     const jsonString = JSON.stringify(exportData, null, 2);
     const blob = new Blob([jsonString], { type: 'application/json' });

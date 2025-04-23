@@ -161,7 +161,7 @@ export const formSchema = [
         name: 'doctorBio',
         label: 'Doctor Biography',
         type: 'textarea',
-        placeholder: 'Share 2–3 sentences about your background',
+        placeholder: 'Share 2-3 sentences about your background',
       },
       {
         name: 'doctorPhotoUrl',
