@@ -23,6 +23,16 @@ const mockScrapeData = {
     cityState: 'Renton, WA 98059',
     businessHours: 'Mon–Fri 9 AM–5 PM; Sat 9 AM–1 PM',
     specialNotes: 'Coffee bar, wheelchair accessible, free Wi-Fi'
+  },
+  aboutSection: {
+    doctorBio: 'Lorem ipsum dolor sit amet...',
+    doctorPhotoUrl: 'https://upload.wikimedia.org/wikipedia/commons/8/83/Default-Icon.jpg',
+    teamOverview: [
+      { name: 'Lorem Ipsum', title: 'Office Manager', image: 'https://upload.wikimedia.org/wikipedia/commons/8/83/Default-Icon.jpg' },
+      { name: 'Dolor Sit', title: 'Dental Assistant', image: 'https://upload.wikimedia.org/wikipedia/commons/8/83/Default-Icon.jpg' },
+      { name: 'Amet Consectetur', title: 'Treatment Coordinator', image: 'https://upload.wikimedia.org/wikipedia/commons/8/83/Default-Icon.jpg' }
+    ],
+    communityEngagement: 'Participates in lorem ipsum community events and supports local initiatives.'
   }
   // Add more sections as you expand your schema
 };

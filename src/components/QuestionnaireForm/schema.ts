@@ -80,6 +80,29 @@ export const schema: RJSFSchema = {
         specialNotes: { type: "string", title: "Amenities & Notes" }
       },
     },
+    aboutSection: {
+      type: "object",
+      title: "About & Story",
+      description: "Share your background, team, and community involvement.",
+      properties: {
+        doctorBio: { type: "string", title: "Doctor Biography" },
+        doctorPhotoUrl: { type: "string", title: "Doctor Photo" },
+        teamOverview: {
+          type: "array",
+          title: "Team Members",
+          items: {
+            type: "object",
+            properties: {
+              name: { type: "string", title: "Name" },
+              title: { type: "string", title: "Title/Role" },
+              image: { type: "string", title: "Photo URL" }
+            },
+            required: ["name", "title"]
+          }
+        },
+        communityEngagement: { type: "string", title: "Community Involvement" }
+      }
+    },
   },
   required: ["practiceBasics"],
   dependencies: {
@@ -287,6 +310,51 @@ export const uiSchema = {
     specialNotes: {
       "ui:widget": "textarea",
       "ui:placeholder": "e.g., Coffee bar, wheelchair accessible, free Wi-Fi",
+      "ui:classNames": "questionnaire-form__textarea"
+    }
+  },
+  aboutSection: {
+    "ui:order": [
+      "doctorBio",
+      "doctorPhotoUrl",
+      "teamOverview",
+      "communityEngagement"
+    ],
+    doctorBio: {
+      "ui:widget": "textarea",
+      "ui:placeholder": "Share 2-3 sentences about your background",
+      "ui:classNames": "questionnaire-form__textarea"
+    },
+    doctorPhotoUrl: {
+      "ui:placeholder": "",
+      "ui:help": "Headshot, square crop (400×400px)",
+      "ui:classNames": "questionnaire-form__input"
+    },
+    teamOverview: {
+      "ui:options": {
+        addButtonText: "Add Team Member"
+      },
+      "items": {
+        name: {
+          "ui:placeholder": "e.g., Sarah Lee",
+          "ui:classNames": "questionnaire-form__input"
+        },
+        title: {
+          "ui:placeholder": "e.g., Office Manager",
+          "ui:classNames": "questionnaire-form__input"
+        },
+        image: {
+          "ui:placeholder": "Image URL (optional)",
+          "ui:help": "Square crop recommended",
+          "ui:classNames": "questionnaire-form__input"
+        }
+      },
+      "ui:help": "Add each team member's name, title, and (optionally) photo.",
+      "ui:classNames": "questionnaire-form__array"
+    },
+    communityEngagement: {
+      "ui:widget": "textarea",
+      "ui:placeholder": "School fairs, sponsorships, volunteer work…",
       "ui:classNames": "questionnaire-form__textarea"
     }
   },
