@@ -11,7 +11,6 @@ export interface SitemapProps {
   modelGroups: Record<string, string[]>;
   setModelGroups: (groups: Record<string, string[]>) => void;
   questionnaireData: any;
-  setQuestionnaireData: (data: any) => void;
 }
 
 const Sitemap: React.FC<SitemapProps> = ({
@@ -21,7 +20,6 @@ const Sitemap: React.FC<SitemapProps> = ({
   modelGroups,
   setModelGroups,
   questionnaireData,
-  setQuestionnaireData,
 }) => {
   const [pages, setPages] = useState<SitemapSection[]>([]);
   const [dataUpdated, setDataUpdated] = useState<boolean>(false);
@@ -105,22 +103,6 @@ const Sitemap: React.FC<SitemapProps> = ({
   };
 
   const exportJSON = () => {
-    // Omit unwanted keys from questionnaireData
-    const omitKeys = [
-      'content',
-      'integrations',
-      'reviews',
-      'technical',
-      'visual',
-      'tone'
-    ];
-    let filteredQuestionnaireData = questionnaireData;
-    if (questionnaireData && typeof questionnaireData === 'object') {
-      filteredQuestionnaireData = { ...questionnaireData };
-      omitKeys.forEach(key => {
-        delete filteredQuestionnaireData[key];
-      });
-    }
     const exportData = {
       pages: pages.reduce((acc, page) => ({
         ...acc,
@@ -136,14 +118,19 @@ const Sitemap: React.FC<SitemapProps> = ({
       }), {}),
       selectedModelGroupKey,
       modelGroups,
-      questionnaireData: filteredQuestionnaireData
+      questionnaireData
     };
     const jsonString = JSON.stringify(exportData, null, 2);
     const blob = new Blob([jsonString], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'sitemap_export.json';
+
+    const rawPractice = questionnaireData.practiceBasics.practiceName || 'export';
+    const practiceName = rawPractice.toString().replace(/\s+/g, '_');
+    const siteType = selectedModelGroupKey.replace(/\s+/g, '_');
+    link.download = `${siteType}_${practiceName}.json`;
+
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -183,9 +170,6 @@ const Sitemap: React.FC<SitemapProps> = ({
       }
       if (importedData.modelGroups && typeof importedData.modelGroups === 'object') {
         setModelGroups(importedData.modelGroups as Record<string, string[]>);
-      }
-      if (importedData.questionnaireData) {
-        setQuestionnaireData(importedData.questionnaireData);
       }
     } catch (error) {
       console.error('Error importing JSON:', error);
