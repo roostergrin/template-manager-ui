@@ -1,8 +1,8 @@
 const mockScrapeData = {
   practiceBasics: {
-    practiceName: 'Gordon Orthodontics',
-    orthodontistName: 'Dr. Gordon Lewis, DDS, MS',
-    practiceTagline: 'Creating confident smiles for all ages',
+    practiceName: 'Rooster Grin Dental',
+    orthodontistName: 'Dr. Jamie Chen, DDS',
+    practiceTagline: 'Brightening smiles, one grin at a time',
     uniqueValue: [
       'Advanced Invisalign® technology',
       'Flexible evening/weekend hours',
