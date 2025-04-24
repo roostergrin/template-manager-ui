@@ -67,7 +67,19 @@ export const schema: RJSFSchema = {
         },
       }
     },
-    // ...continue for other sections...
+    contactDetails: {
+      type: "object",
+      title: "Contact & Location",
+      description: "How patients can reach or visit your practice.",
+      properties: {
+        phone: { type: "string", title: "Office Phone" },
+        email: { type: "string", title: "Contact Email", format: "email" },
+        address: { type: "string", title: "Street Address" },
+        cityState: { type: "string", title: "City / State / ZIP" },
+        businessHours: { type: "string", title: "Office Hours" },
+        specialNotes: { type: "string", title: "Amenities & Notes" }
+      },
+    },
   },
   required: ["practiceBasics"],
   dependencies: {
@@ -242,5 +254,40 @@ export const uiSchema = {
       "ui:classNames": "questionnaire-form__radio-group"
     }
   },
-  // ...continue for other fields...
+  contactDetails: {
+    "ui:order": [
+      "phone",
+      "email",
+      "address",
+      "cityState",
+      "businessHours",
+      "specialNotes"
+    ],
+    phone: {
+      "ui:placeholder": "(123) 456-7890",
+      "ui:classNames": "questionnaire-form__input"
+    },
+    email: {
+      "ui:placeholder": "info@yourpractice.com",
+      "ui:classNames": "questionnaire-form__input"
+    },
+    address: {
+      "ui:placeholder": "1520 Duvall Ave NE",
+      "ui:classNames": "questionnaire-form__input"
+    },
+    cityState: {
+      "ui:placeholder": "Renton, WA 98059",
+      "ui:classNames": "questionnaire-form__input"
+    },
+    businessHours: {
+      "ui:widget": "textarea",
+      "ui:help": "E.g., Mon–Fri 9 AM–5 PM; Sat 9 AM–1 PM",
+      "ui:classNames": "questionnaire-form__textarea"
+    },
+    specialNotes: {
+      "ui:widget": "textarea",
+      "ui:placeholder": "e.g., Coffee bar, wheelchair accessible, free Wi-Fi",
+      "ui:classNames": "questionnaire-form__textarea"
+    }
+  },
 };

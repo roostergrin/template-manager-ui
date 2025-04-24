@@ -15,6 +15,14 @@ const mockScrapeData = {
     secondaryAudience: 'Adult professionals',
     brandAdjectives: ['Approachable', 'Modern', 'Trustworthy'],
     writingStyle: 'Conversational'
+  },
+  contactDetails: {
+    phone: '(425) 555-1234',
+    email: 'info@roostergrindental.com',
+    address: '1520 Duvall Ave NE',
+    cityState: 'Renton, WA 98059',
+    businessHours: 'Mon–Fri 9 AM–5 PM; Sat 9 AM–1 PM',
+    specialNotes: 'Coffee bar, wheelchair accessible, free Wi-Fi'
   }
   // Add more sections as you expand your schema
 };
