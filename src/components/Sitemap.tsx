@@ -11,6 +11,7 @@ export interface SitemapProps {
   modelGroups: Record<string, string[]>;
   setModelGroups: (groups: Record<string, string[]>) => void;
   questionnaireData: any;
+  setQuestionnaireData: (data: any) => void;
 }
 
 const Sitemap: React.FC<SitemapProps> = ({
@@ -20,6 +21,7 @@ const Sitemap: React.FC<SitemapProps> = ({
   modelGroups,
   setModelGroups,
   questionnaireData,
+  setQuestionnaireData
 }) => {
   const [pages, setPages] = useState<SitemapSection[]>([]);
   const [dataUpdated, setDataUpdated] = useState<boolean>(false);
@@ -170,6 +172,9 @@ const Sitemap: React.FC<SitemapProps> = ({
       }
       if (importedData.modelGroups && typeof importedData.modelGroups === 'object') {
         setModelGroups(importedData.modelGroups as Record<string, string[]>);
+      }
+      if (importedData.questionnaireData && typeof importedData.questionnaireData === 'object') {
+        setQuestionnaireData(importedData.questionnaireData);
       }
     } catch (error) {
       console.error('Error importing JSON:', error);
