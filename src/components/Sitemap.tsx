@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SitemapSection, SitemapItem } from '../types/SitemapTypes';
 import SitemapSectionComponent from './SitemapSection/SitemapSection';
 import SiteSelector from './SiteSelector';
@@ -10,9 +10,12 @@ export interface SitemapProps {
   setSelectedModelGroupKey: (key: string) => void;
   modelGroups: Record<string, string[]>;
   setModelGroups: (groups: Record<string, string[]>) => void;
-  questionnaireData: any;
-  setQuestionnaireData: (data: any) => void;
+  questionnaireData: QuestionnaireData;
+  setQuestionnaireData: (data: QuestionnaireData) => void;
 }
+
+// Define a type for questionnaireData (customize as needed)
+type QuestionnaireData = Record<string, any>;
 
 const Sitemap: React.FC<SitemapProps> = ({
   currentModels,
@@ -139,33 +142,37 @@ const Sitemap: React.FC<SitemapProps> = ({
     URL.revokeObjectURL(url);
   };
 
+  // Helper to map imported pages to SitemapSection[]
+  const mapImportedPages = (pagesObj: any): SitemapSection[] => {
+    if (!pagesObj || typeof pagesObj !== 'object') return [];
+    return Object.entries(pagesObj).map(([title, pageData]) => {
+      const typedPageData = pageData as {
+        internal_id: string;
+        page_id: string;
+        model_query_pairs: Array<{
+          model: string;
+          query: string;
+          internal_id: string;
+        }>;
+      };
+      return {
+        id: typedPageData.internal_id,
+        title: title,
+        wordpress_id: typedPageData.page_id || '',
+        items: typedPageData.model_query_pairs.map(item => ({
+          model: item.model,
+          query: item.query,
+          id: item.internal_id
+        }))
+      };
+    });
+  };
+
   const importJSON = (jsonData: string) => {
     try {
       const importedData = JSON.parse(jsonData);
-      if (importedData.pages && typeof importedData.pages === 'object') {
-        const entries = Object.entries(importedData.pages);
-        const newPages: SitemapSection[] = entries.map(([title, pageData]) => {
-          const typedPageData = pageData as {
-            internal_id: string;
-            page_id: string;
-            model_query_pairs: Array<{
-              model: string;
-              query: string;
-              internal_id: string;
-            }>;
-          };
-          return {
-            id: typedPageData.internal_id,
-            title: title,
-            wordpress_id: typedPageData.page_id || '',
-            items: typedPageData.model_query_pairs.map(item => ({
-              model: item.model,
-              query: item.query,
-              id: item.internal_id
-            }))
-          };
-        });
-        setPages(newPages);
+      if (importedData.pages) {
+        setPages(mapImportedPages(importedData.pages));
       }
       if (importedData.selectedModelGroupKey && typeof importedData.selectedModelGroupKey === 'string') {
         setSelectedModelGroupKey(importedData.selectedModelGroupKey);
@@ -173,11 +180,27 @@ const Sitemap: React.FC<SitemapProps> = ({
       if (importedData.modelGroups && typeof importedData.modelGroups === 'object') {
         setModelGroups(importedData.modelGroups as Record<string, string[]>);
       }
-      if (importedData.questionnaireData && typeof importedData.questionnaireData === 'object') {
+      if (
+        importedData.questionnaireData &&
+        typeof importedData.questionnaireData === 'object' &&
+        Object.keys(importedData.questionnaireData).length > 0
+      ) {
         setQuestionnaireData(importedData.questionnaireData);
       }
     } catch (error) {
       console.error('Error importing JSON:', error);
+    }
+  };
+
+  // Handler to load template pages without overriding questionnaireData or other settings
+  const importTemplateData = (jsonData: string) => {
+    try {
+      const importedData = JSON.parse(jsonData);
+      if (importedData.pages) {
+        setPages(mapImportedPages(importedData.pages));
+      }
+    } catch (error) {
+      console.error('Error loading template JSON:', error);
     }
   };
 
@@ -191,7 +214,7 @@ const Sitemap: React.FC<SitemapProps> = ({
         />
         <DefaultTemplateSelector 
           selectedModelGroupKey={selectedModelGroupKey}
-          onTemplateSelect={importJSON}
+          onTemplateSelect={importTemplateData}
         />
       </div>
       <div className="app__view-controls">

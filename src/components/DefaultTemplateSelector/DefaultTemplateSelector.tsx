@@ -22,7 +22,7 @@ const DefaultTemplateSelector: React.FC<DefaultTemplateSelectorProps> = ({
       onTemplateSelect(jsonString);
       setSelectedTemplateIndex(0);
     }
-  }, []); // Only depend on the model group key, not onTemplateSelect
+  }, [selectedModelGroupKey]); // Only depend on the model group key, not onTemplateSelect
 
   const handleTemplateChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedValue = e.target.value;
