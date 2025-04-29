@@ -22,20 +22,8 @@ export const schema: RJSFSchema = {
         orthodontistName: { type: "string", title: "Lead Orthodontist" },
         practiceTagline: { type: "string", title: "Practice Tagline" },
         uniqueValue: {
-          type: "array",
-          title: "Top 3 Differentiators",
-          items: {
-            type: "string",
-            enum: [
-              "Advanced Invisalign® technology",
-              "Flexible evening/weekend hours",
-              "Bilingual English/Spanish staff",
-              "Complimentary consultations",
-              "Warm, coffee-bar waiting area",
-              "Other (explain below)"
-            ]
-          },
-          uniqueItems: true
+          type: "string",
+          title: "Top Differentiators"
         },
         uniqueExplainer: { type: "string", title: "Tell us why each matters" },
       },
@@ -308,8 +296,9 @@ export const uiSchema = {
       "ui:classNames": "questionnaire-form__input"
     },
     uniqueValue: {
-      "ui:widget": "checkboxes",
-      "ui:classNames": "questionnaire-form__checkbox-group"
+      "ui:widget": "textarea",
+      "ui:placeholder": "Describe what makes your practice unique (e.g., technology, hours, staff, amenities, etc.)",
+      "ui:classNames": "questionnaire-form__textarea"
     },
     uniqueExplainer: {
       "ui:widget": "textarea",
