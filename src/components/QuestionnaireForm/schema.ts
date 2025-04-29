@@ -102,9 +102,9 @@ export const schema: RJSFSchema = {
           items: {
             type: "object",
             properties: {
+              image: { type: "string", title: "Photo URL" },
               name: { type: "string", title: "Name" },
               title: { type: "string", title: "Title/Role" },
-              image: { type: "string", title: "Photo URL" }
             },
             required: ["name", "title"]
           }
@@ -128,6 +128,29 @@ export const schema: RJSFSchema = {
         collateralUpload: { type: "string", title: "Collateral URL" }
       }
     },
+    photos: {
+      type: "object",
+      title: "Photos",
+      properties: {
+        officeGallery: {
+          type: "array",
+          title: "Office Gallery",
+          items: { type: "string", title: "Photo URL", format: "uri" }
+        },
+        beforeAfterGallery: {
+          type: "array",
+          title: "Before & After Gallery",
+          items: {
+            type: "object",
+            properties: {
+              beforeUrl: { type: "string", title: "Before Photo URL", format: "uri" },
+              afterUrl: { type: "string", title: "After Photo URL", format: "uri" }
+            },
+            required: ["beforeUrl", "afterUrl"]
+          }
+        }
+      }
+    },
     treatments: {
       type: "object",
       title: "Treatments Offered",
@@ -143,7 +166,7 @@ export const schema: RJSFSchema = {
       properties: {
         financialOptions: { type: "string", title: "Financial Options" },
         hasPatientForms: { type: "string", title: "Has Patient Forms?", enum: ["yes", "no"] },
-        patientForms: { type: "string", title: "Patient Forms" },
+        patientFormUrls: { type: "string", title: "Patient Forms" },
         formsUrl: { type: "string", title: "Forms URL" }
       }
     },
@@ -453,6 +476,36 @@ export const uiSchema = {
     logoUpload: { "ui:placeholder": "Logo image URL", "ui:help": "Paste a direct link to your logo image (e.g., https://...)" , "ui:classNames": "questionnaire-form__input" },
     collateralUpload: { "ui:placeholder": "Collateral file URL", "ui:help": "Paste a direct link to your collateral file (e.g., PDF, image)", "ui:classNames": "questionnaire-form__input" }
   },
+  photos: {
+    "ui:order": [
+      "officeGallery",
+      "beforeAfterGallery"
+    ],
+    officeGallery: {
+      "ui:options": { addButtonText: "Add Photo" },
+      "ui:help": "Add URLs of office photos (e.g., https://...)" ,
+      items: {
+        "ui:placeholder": "Photo URL",
+        "ui:classNames": "questionnaire-form__input"
+      },
+      "ui:classNames": "questionnaire-form__array"
+    },
+    beforeAfterGallery: {
+      "ui:options": { addButtonText: "Add Before & After Pair" },
+      "ui:help": "Add before and after photo URL pairs.",
+      items: {
+        beforeUrl: {
+          "ui:placeholder": "Before Photo URL",
+          "ui:classNames": "questionnaire-form__input"
+        },
+        afterUrl: {
+          "ui:placeholder": "After Photo URL",
+          "ui:classNames": "questionnaire-form__input"
+        }
+      },
+      "ui:classNames": "questionnaire-form__array"
+    }
+  },
   about: {
     "ui:order": [
       "teamMembers",
@@ -487,12 +540,12 @@ export const uiSchema = {
     "ui:order": [
       "financialOptions",
       "hasPatientForms",
-      "patientForms",
+      "patientFormUrls",
       "formsUrl"
     ],
     financialOptions: { "ui:widget": "textarea", "ui:placeholder": "Financial Options", "ui:classNames": "questionnaire-form__textarea" },
     hasPatientForms: { "ui:widget": "radio", "ui:options": { "inline": true }, "ui:classNames": "questionnaire-form__radio-group" },
-    patientForms: { "ui:widget": "textarea", "ui:placeholder": "Patient Forms", "ui:classNames": "questionnaire-form__textarea" },
+    patientFormUrls: { "ui:widget": "textarea", "ui:placeholder": "Patient Forms", "ui:classNames": "questionnaire-form__textarea" },
     formsUrl: { "ui:placeholder": "Forms URL", "ui:classNames": "questionnaire-form__input" }
   },
 };
