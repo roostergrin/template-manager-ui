@@ -4,6 +4,7 @@ import validator from '@rjsf/validator-ajv8';
 import { schema, uiSchema } from './schema';
 import { mockScrape } from './mockScrape';
 import './QuestionnaireForm.sass';
+import { ArrayFieldTemplateProps } from '@rjsf/utils';
 
 export default function QuestionnaireForm({
   formData,
@@ -18,6 +19,15 @@ export default function QuestionnaireForm({
     const scrapedData = await mockScrape(domain);
     setFormData(scrapedData);
   };
+
+  function ArrayFieldTemplate(props: ArrayFieldTemplateProps) {
+    return (
+      <div>
+        {props.items.map((element) => element.children)}
+        {props.canAdd && <button type='button' onClick={props.onAddClick}>Add</button>}
+      </div>
+    );
+  }
 
   return (
     <div className="questionnaire-form">
@@ -46,6 +56,7 @@ export default function QuestionnaireForm({
         formData={formData}
         onChange={(e) => setFormData(e.formData)}
         validator={validator}
+        templates={{ ArrayFieldTemplate }}
       >
       </Form>
     </div>

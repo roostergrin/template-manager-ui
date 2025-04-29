@@ -69,16 +69,25 @@ export const schema: RJSFSchema = {
     },
     contactDetails: {
       type: "object",
-      title: "Contact & Location",
+      title: "Contact & Locations",
       description: "How patients can reach or visit your practice.",
       properties: {
-        phone: { type: "string", title: "Office Phone" },
-        email: { type: "string", title: "Contact Email", format: "email" },
-        address: { type: "string", title: "Street Address" },
-        cityState: { type: "string", title: "City / State / ZIP" },
-        businessHours: { type: "string", title: "Office Hours" },
-        specialNotes: { type: "string", title: "Amenities & Notes" }
-      },
+        locations: {
+          type: "array",
+          title: "Locations",
+          items: {
+            type: "object",
+            properties: {
+              phone: { type: "string", title: "Office Phone" },
+              email: { type: "string", title: "Contact Email", format: "email" },
+              address: { type: "string", title: "Street Address" },
+              cityState: { type: "string", title: "City / State / ZIP" },
+              businessHours: { type: "string", title: "Office Hours" },
+              specialNotes: { type: "string", title: "Amenities & Notes" }
+            }
+          }
+        }
+      }
     },
     aboutSection: {
       type: "object",
@@ -101,6 +110,41 @@ export const schema: RJSFSchema = {
           }
         },
         communityEngagement: { type: "string", title: "Community Involvement" }
+      }
+    },
+    brand: {
+      type: "object",
+      title: "Brand Assets",
+      properties: {
+        brandColor: { type: "string", title: "Brand Color", format: "color" },
+        accentColor: { type: "string", title: "Accent Color", format: "color" },
+        headingFont: { type: "string", title: "Heading Font" },
+        bodyFont: { type: "string", title: "Body Font" },
+        instagram: { type: "string", title: "Instagram" },
+        googleReviewLink: { type: "string", title: "Google Review Link" },
+        missionStatement: { type: "string", title: "Mission Statement" },
+        communityInvolvement: { type: "string", title: "Community Involvement" },
+        logoUpload: { type: "string", title: "Logo URL" },
+        collateralUpload: { type: "string", title: "Collateral URL" }
+      }
+    },
+    treatments: {
+      type: "object",
+      title: "Treatments Offered",
+      properties: {
+        treatmentsOffered: { type: "string", title: "Treatments Offered" },
+        topTreatments: { type: "string", title: "Top Treatments" },
+        topicsToAvoid: { type: "string", title: "Topics to Avoid" }
+      }
+    },
+    patientInfo: {
+      type: "object",
+      title: "Get Started / Patient Info",
+      properties: {
+        financialOptions: { type: "string", title: "Financial Options" },
+        hasPatientForms: { type: "string", title: "Has Patient Forms?", enum: ["yes", "no"] },
+        patientForms: { type: "string", title: "Patient Forms" },
+        formsUrl: { type: "string", title: "Forms URL" }
       }
     },
   },
@@ -279,38 +323,41 @@ export const uiSchema = {
   },
   contactDetails: {
     "ui:order": [
-      "phone",
-      "email",
-      "address",
-      "cityState",
-      "businessHours",
-      "specialNotes"
+      "locations"
     ],
-    phone: {
-      "ui:placeholder": "(123) 456-7890",
-      "ui:classNames": "questionnaire-form__input"
-    },
-    email: {
-      "ui:placeholder": "info@yourpractice.com",
-      "ui:classNames": "questionnaire-form__input"
-    },
-    address: {
-      "ui:placeholder": "1520 Duvall Ave NE",
-      "ui:classNames": "questionnaire-form__input"
-    },
-    cityState: {
-      "ui:placeholder": "Renton, WA 98059",
-      "ui:classNames": "questionnaire-form__input"
-    },
-    businessHours: {
-      "ui:widget": "textarea",
-      "ui:help": "E.g., Mon–Fri 9 AM–5 PM; Sat 9 AM–1 PM",
-      "ui:classNames": "questionnaire-form__textarea"
-    },
-    specialNotes: {
-      "ui:widget": "textarea",
-      "ui:placeholder": "e.g., Coffee bar, wheelchair accessible, free Wi-Fi",
-      "ui:classNames": "questionnaire-form__textarea"
+    locations: {
+      "ui:options": {
+        addButtonText: "Add Location"
+      },
+      items: {
+        phone: {
+          "ui:placeholder": "(123) 456-7890",
+          "ui:classNames": "questionnaire-form__input"
+        },
+        email: {
+          "ui:placeholder": "info@yourpractice.com",
+          "ui:classNames": "questionnaire-form__input"
+        },
+        address: {
+          "ui:placeholder": "1520 Duvall Ave NE",
+          "ui:classNames": "questionnaire-form__input"
+        },
+        cityState: {
+          "ui:placeholder": "Renton, WA 98059",
+          "ui:classNames": "questionnaire-form__input"
+        },
+        businessHours: {
+          "ui:widget": "textarea",
+          "ui:help": "E.g., Mon–Fri 9 AM–5 PM; Sat 9 AM–1 PM",
+          "ui:classNames": "questionnaire-form__textarea"
+        },
+        specialNotes: {
+          "ui:widget": "textarea",
+          "ui:placeholder": "e.g., Coffee bar, wheelchair accessible, free Wi-Fi",
+          "ui:classNames": "questionnaire-form__textarea"
+        }
+      },
+      "ui:classNames": "questionnaire-form__array"
     }
   },
   aboutSection: {
@@ -357,5 +404,95 @@ export const uiSchema = {
       "ui:placeholder": "School fairs, sponsorships, volunteer work…",
       "ui:classNames": "questionnaire-form__textarea"
     }
+  },
+  practiceContactBasics: {
+    "ui:order": [
+      "practiceName",
+      "orthodontistName",
+      "phone",
+      "email",
+      "address",
+      "suite",
+      "cityState",
+      "googleMapsLink",
+      "businessHours",
+      "specialNotes"
+    ],
+    practiceName: { "ui:placeholder": "Practice Name", "ui:classNames": "questionnaire-form__input" },
+    orthodontistName: { "ui:placeholder": "Orthodontist Name", "ui:classNames": "questionnaire-form__input" },
+    phone: { "ui:placeholder": "Phone", "ui:classNames": "questionnaire-form__input" },
+    email: { "ui:placeholder": "Email", "ui:classNames": "questionnaire-form__input" },
+    address: { "ui:placeholder": "Address", "ui:classNames": "questionnaire-form__input" },
+    suite: { "ui:placeholder": "Suite", "ui:classNames": "questionnaire-form__input" },
+    cityState: { "ui:placeholder": "City/State", "ui:classNames": "questionnaire-form__input" },
+    googleMapsLink: { "ui:placeholder": "Google Maps Link", "ui:classNames": "questionnaire-form__input" },
+    businessHours: { "ui:placeholder": "Business Hours", "ui:classNames": "questionnaire-form__input" },
+    specialNotes: { "ui:widget": "textarea", "ui:placeholder": "Special Notes", "ui:classNames": "questionnaire-form__textarea" }
+  },
+  brand: {
+    "ui:order": [
+      "brandColor",
+      "accentColor",
+      "headingFont",
+      "bodyFont",
+      "instagram",
+      "googleReviewLink",
+      "missionStatement",
+      "communityInvolvement",
+      "logoUpload",
+      "collateralUpload"
+    ],
+    brandColor: { "ui:widget": "color", "ui:classNames": "questionnaire-form__input" },
+    accentColor: { "ui:widget": "color", "ui:classNames": "questionnaire-form__input" },
+    headingFont: { "ui:placeholder": "Heading Font", "ui:classNames": "questionnaire-form__input" },
+    bodyFont: { "ui:placeholder": "Body Font", "ui:classNames": "questionnaire-form__input" },
+    instagram: { "ui:placeholder": "Instagram", "ui:classNames": "questionnaire-form__input" },
+    googleReviewLink: { "ui:placeholder": "Google Review Link", "ui:classNames": "questionnaire-form__input" },
+    missionStatement: { "ui:widget": "textarea", "ui:placeholder": "Mission Statement", "ui:classNames": "questionnaire-form__textarea" },
+    communityInvolvement: { "ui:widget": "textarea", "ui:placeholder": "Community Involvement", "ui:classNames": "questionnaire-form__textarea" },
+    logoUpload: { "ui:placeholder": "Logo image URL", "ui:help": "Paste a direct link to your logo image (e.g., https://...)" , "ui:classNames": "questionnaire-form__input" },
+    collateralUpload: { "ui:placeholder": "Collateral file URL", "ui:help": "Paste a direct link to your collateral file (e.g., PDF, image)", "ui:classNames": "questionnaire-form__input" }
+  },
+  about: {
+    "ui:order": [
+      "teamMembers",
+      "doctorBio",
+      "doctorPhoto",
+      "doctorPhilosophy",
+      "topReasons",
+      "patientExperience",
+      "testimonials",
+      "communityEngagement"
+    ],
+    teamMembers: { "ui:widget": "textarea", "ui:placeholder": "Team Members", "ui:classNames": "questionnaire-form__textarea" },
+    doctorBio: { "ui:widget": "textarea", "ui:placeholder": "Doctor Bio", "ui:classNames": "questionnaire-form__textarea" },
+    doctorPhoto: { "ui:widget": "file", "ui:classNames": "questionnaire-form__input" },
+    doctorPhilosophy: { "ui:widget": "textarea", "ui:placeholder": "Doctor Philosophy", "ui:classNames": "questionnaire-form__textarea" },
+    topReasons: { "ui:widget": "textarea", "ui:placeholder": "Top Reasons to Choose Us", "ui:classNames": "questionnaire-form__textarea" },
+    patientExperience: { "ui:widget": "textarea", "ui:placeholder": "Patient Experience", "ui:classNames": "questionnaire-form__textarea" },
+    testimonials: { "ui:widget": "textarea", "ui:placeholder": "Current Testimonials", "ui:classNames": "questionnaire-form__textarea" },
+    communityEngagement: { "ui:widget": "textarea", "ui:placeholder": "Community Engagement", "ui:classNames": "questionnaire-form__textarea" }
+  },
+  treatments: {
+    "ui:order": [
+      "treatmentsOffered",
+      "topTreatments",
+      "topicsToAvoid"
+    ],
+    treatmentsOffered: { "ui:widget": "textarea", "ui:placeholder": "Treatments Offered", "ui:classNames": "questionnaire-form__textarea" },
+    topTreatments: { "ui:widget": "textarea", "ui:placeholder": "Top Treatments", "ui:classNames": "questionnaire-form__textarea" },
+    topicsToAvoid: { "ui:widget": "textarea", "ui:placeholder": "Topics to Avoid", "ui:classNames": "questionnaire-form__textarea" }
+  },
+  patientInfo: {
+    "ui:order": [
+      "financialOptions",
+      "hasPatientForms",
+      "patientForms",
+      "formsUrl"
+    ],
+    financialOptions: { "ui:widget": "textarea", "ui:placeholder": "Financial Options", "ui:classNames": "questionnaire-form__textarea" },
+    hasPatientForms: { "ui:widget": "radio", "ui:options": { "inline": true }, "ui:classNames": "questionnaire-form__radio-group" },
+    patientForms: { "ui:widget": "textarea", "ui:placeholder": "Patient Forms", "ui:classNames": "questionnaire-form__textarea" },
+    formsUrl: { "ui:placeholder": "Forms URL", "ui:classNames": "questionnaire-form__input" }
   },
 };
