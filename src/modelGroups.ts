@@ -21,6 +21,7 @@ export interface ModelGroup {
   adjectives: string[];
   demoUrl?: string;
   templates: TemplateInfo[]; // Added templates to ModelGroup interface
+  backend_site_type?: string;
   enabled?: boolean;
 }
 
@@ -35,10 +36,10 @@ const allModelGroups: Record<string, ModelGroup> = {
       {
         name: 'Orthodontist Site',
         description: 'Complete orthodontist website structure with home, about, treatments, etc.',
-        data: stinsonSitemap
+        data: stinsonSitemap,
       }
-      // Add ore templates for New Stinson
     ],
+    backend_site_type: "stinson",
     enabled: true,
   },
   'Bay Area Orthodontics': {
@@ -54,6 +55,7 @@ const allModelGroups: Record<string, ModelGroup> = {
         data: bayareaorthoSitemap
       }
     ],
+    backend_site_type: "bayareaortho",
     enabled: true,
   },
   'Calistoga': {
@@ -69,6 +71,7 @@ const allModelGroups: Record<string, ModelGroup> = {
         data: calistogaSitemap
       }
     ],
+    backend_site_type: "calistoga",
     enabled: true,
   },
   'Haight Ashbury': {

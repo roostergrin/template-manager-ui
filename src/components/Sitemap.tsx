@@ -3,6 +3,8 @@ import { SitemapSection, SitemapItem } from '../types/SitemapTypes';
 import SitemapSectionComponent from './SitemapSection/SitemapSection';
 import SiteSelector from './SiteSelector';
 import DefaultTemplateSelector from './DefaultTemplateSelector/DefaultTemplateSelector';
+import useGenerateSitemap from '../hooks/useGenerateSitemap';
+import { getBackendSiteTypeForModelGroup } from '../utils/modelGroupKeyToBackendSiteType';
 
 export interface SitemapProps {
   currentModels: string[];
@@ -36,7 +38,9 @@ const Sitemap: React.FC<SitemapProps> = ({
   const [showPageIds, setShowPageIds] = useState<boolean>(false);
   const [gridColumnWidth, setGridColumnWidth] = useState<number>(175);
   const [useGridLayout, setUseGridLayout] = useState<boolean>(true);
-
+  const [generateSitemapData, generateSitemapStatus, generateSitemap] = useGenerateSitemap();
+  const [usePageJson, setUsePageJson] = useState<boolean>(false);
+  const backendSiteType = getBackendSiteTypeForModelGroup(selectedModelGroupKey);
   const addPage = (newPage: SitemapSection) => {
     setPages([...pages, newPage]);
   };
@@ -72,6 +76,14 @@ const Sitemap: React.FC<SitemapProps> = ({
       return () => clearTimeout(timer);
     }
   }, [dataUpdated]);
+
+  useEffect(() => {
+    if (generateSitemapData && generateSitemapData.sitemap_data) {
+      // Assume sitemap_data is in the same format as export/import JSON pages
+      console.log(generateSitemapData.sitemap_data.pages);
+      setPages(mapImportedPages(generateSitemapData.sitemap_data.pages));
+    }
+  }, [generateSitemapData]);
 
   const toggleSelectVisibility = () => {
     setShowSelect(!showSelect);
@@ -202,6 +214,10 @@ const Sitemap: React.FC<SitemapProps> = ({
     } catch (error) {
       console.error('Error loading template JSON:', error);
     }
+  };
+
+  const handleToggleUsePageJson = () => {
+    setUsePageJson((prev) => !prev);
   };
 
   return (
@@ -349,24 +365,57 @@ const Sitemap: React.FC<SitemapProps> = ({
           Add Page
         </button>
       </div>
-      <div className="app__actions">
-        <button className="app__export-json-button" onClick={exportJSON}>Export JSON</button>
-        <input
-          type="file"
-          accept=".json"
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) {
-              const reader = new FileReader();
-              reader.onload = (event) => {
-                if (event.target?.result) {
-                  importJSON(event.target.result as string);
-                }
-              };
-              reader.readAsText(file);
+      <div className="app__actions flex flex-col gap-2 items-start mt-4">
+        <div className="flex items-center gap-4">
+          <span className="text-gray-700 font-medium" aria-label="Current Site Type" tabIndex={0}>
+            Current Site Type: 
+            <span className="text-blue-700">{backendSiteType}</span>
+          </span>
+          <label className="flex items-center gap-2 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={usePageJson}
+              onChange={handleToggleUsePageJson}
+              aria-label="Use Page JSON"
+              tabIndex={0}
+              className="form-checkbox h-4 w-4 text-blue-600"
+            />
+            <span className="text-gray-700">Use Page JSON</span>
+          </label>
+        </div>
+        <div className="flex gap-4 items-center">
+          <button
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            onClick={() =>
+              generateSitemap({
+                questionnaire: questionnaireData,
+                site_type: backendSiteType,
+                use_page_json: usePageJson,
+              })
             }
-          }}
-        />
+            aria-label="Generate Sitemap"
+            tabIndex={0}
+          >
+            Generate Sitemap
+          </button>
+          <button className="app__export-json-button" onClick={exportJSON}>Export JSON</button>
+          <input
+            type="file"
+            accept=".json"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                  if (event.target?.result) {
+                    importJSON(event.target.result as string);
+                  }
+                };
+                reader.readAsText(file);
+              }
+            }}
+          />
+        </div>
       </div>
     </>
   );

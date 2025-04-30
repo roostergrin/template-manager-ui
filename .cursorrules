@@ -64,3 +64,40 @@ Follow these rules when you write code:
   - Set appropriate revalidation periods with revalidate
 - Structure your code to minimize client-side JavaScript by keeping as much as possible in Server Components
 - Prefer passing data from Server to Client Components as props rather than fetching in Client Components
+### Data Fetching & Custom Hooks Guidelines
+- All data fetching hooks must use `useQuery` or `useMutation` from `@tanstack/react-query`.
+- Service functions (API calls) must be defined separately and imported into hooks.
+- Hooks must return `[data, status]` as a tuple, with types specified.
+- Hooks and services must use the existing `apiService` (or `fetchApi`) utility for making HTTP requests.
+- All types must be imported and used.
+- This pattern must be followed for all new data fetching hooks and services.
+- Example for a data fetching hook and service:
+
+```typescript
+// useBillingList.ts
+import { QueryStatus, useQuery } from "@tanstack/react-query";
+import fetchBillingList from "../services/fetchBillings";
+import { Billings } from "../Types/types";
+
+const useBillingList = () => {
+  const results = useQuery(["billing"], fetchBillingList);
+  return [results?.data?.billings ?? {}, results.status] as [Billings, QueryStatus];
+};
+export default useBillingList;
+```
+
+```typescript
+// fetchBillings.ts
+import { QueryFunction } from "@tanstack/react-query";
+import { BillingsAPIResponse } from "../Types/APIResponsesTypes";
+import api from "./apiService";
+
+const fetchBillings: QueryFunction<BillingsAPIResponse, ["billing"]> = async function ({ queryKey }) {
+  const res = await api(`/billings`, "GET");
+  if (res === undefined) {
+    console.error(`API call failed with status: ${res?.status}`);
+  }
+  return res;
+};
+export default fetchBillings;
+```

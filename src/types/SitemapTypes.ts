@@ -31,4 +31,14 @@ export interface QuestionnaireData {
   testimonials: string;
   patientExperience: string;
   financialOptions: string;
-} 
+}
+
+export type GenerateSitemapRequest = {
+  questionnaire: QuestionnaireData;
+  site_type?: string;
+  use_page_json?: boolean;
+};
+
+export type GenerateSitemapResponse = {
+  sitemap_data: unknown;
+}; 
