@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { SitemapSection, SitemapItem } from '../types/SitemapTypes';
+import React, { useState, useEffect, useCallback } from 'react';
+import { SitemapSection, SitemapItem, QuestionnaireData } from '../types/SitemapTypes';
 import SitemapSectionComponent from './SitemapSection/SitemapSection';
 import SiteSelector from './SiteSelector';
 import DefaultTemplateSelector from './DefaultTemplateSelector/DefaultTemplateSelector';
 import useGenerateSitemap from '../hooks/useGenerateSitemap';
 import { getBackendSiteTypeForModelGroup } from '../utils/modelGroupKeyToBackendSiteType';
+import GenerateSitemapButton from './GenerateSitemapButton';
+import GeneratedSitemapSelector, { StoredSitemap } from './GeneratedSitemapSelector';
 
 export interface SitemapProps {
   currentModels: string[];
@@ -16,8 +18,7 @@ export interface SitemapProps {
   setQuestionnaireData: (data: QuestionnaireData) => void;
 }
 
-// Define a type for questionnaireData (customize as needed)
-type QuestionnaireData = Record<string, any>;
+const LOCAL_STORAGE_KEY = 'generatedSitemaps';
 
 const Sitemap: React.FC<SitemapProps> = ({
   currentModels,
@@ -40,7 +41,35 @@ const Sitemap: React.FC<SitemapProps> = ({
   const [useGridLayout, setUseGridLayout] = useState<boolean>(true);
   const [generateSitemapData, generateSitemapStatus, generateSitemap] = useGenerateSitemap();
   const [usePageJson, setUsePageJson] = useState<boolean>(false);
-  const backendSiteType = getBackendSiteTypeForModelGroup(selectedModelGroupKey);
+  const backendSiteType = getBackendSiteTypeForModelGroup(selectedModelGroupKey) || '';
+
+  // Store generated sitemap in localStorage
+  const handleSitemapGenerated = useCallback((sitemapData: unknown) => {
+    if (!sitemapData || typeof sitemapData !== 'object' || !(sitemapData as any).pages) return;
+    setPages(mapImportedPages((sitemapData as any).pages));
+    // Prompt for a name or use timestamp
+    const name = prompt('Enter a name for this sitemap:', `Sitemap ${new Date().toLocaleString()}`) || `Sitemap ${new Date().toLocaleString()}`;
+    const stored: StoredSitemap = {
+      name,
+      created: new Date().toISOString(),
+      sitemap: sitemapData
+    };
+    const prev = localStorage.getItem(LOCAL_STORAGE_KEY);
+    let arr: StoredSitemap[] = [];
+    if (prev) {
+      try { arr = JSON.parse(prev) as StoredSitemap[]; } catch {/* ignore */}
+    }
+    arr.push(stored);
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(arr));
+  }, []);
+
+  // When a sitemap is selected from selector
+  const handleSelectSitemap = useCallback((stored: StoredSitemap) => {
+    if (stored && stored.sitemap && (stored.sitemap as any).pages) {
+      setPages(mapImportedPages((stored.sitemap as any).pages));
+    }
+  }, []);
+
   const addPage = (newPage: SitemapSection) => {
     setPages([...pages, newPage]);
   };
@@ -77,85 +106,8 @@ const Sitemap: React.FC<SitemapProps> = ({
     }
   }, [dataUpdated]);
 
-  useEffect(() => {
-    if (generateSitemapData && generateSitemapData.sitemap_data) {
-      // Assume sitemap_data is in the same format as export/import JSON pages
-      console.log(generateSitemapData.sitemap_data.pages);
-      setPages(mapImportedPages(generateSitemapData.sitemap_data.pages));
-    }
-  }, [generateSitemapData]);
-
-  const toggleSelectVisibility = () => {
-    setShowSelect(!showSelect);
-  };
-  const toggleTextareaVisibility = () => {
-    setShowTextarea(!showTextarea);
-  };
-  const toggleDeleteButtonsVisibility = () => {
-    setShowDeleteButtons(!showDeleteButtons);
-  };
-  const toggleItemNumbersVisibility = () => {
-    setShowItemNumbers(!showItemNumbers);
-  };
-  const togglePageIdsVisibility = () => {
-    setShowPageIds(!showPageIds);
-  };
-  const handleGridWidthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setGridColumnWidth(Number(e.target.value));
-  };
-  const toggleGridLayout = () => {
-    setUseGridLayout(!useGridLayout);
-  };
-
-  const gridContainerStyle = useGridLayout ? {
-    display: 'grid',
-    gridTemplateColumns: `repeat(auto-fill, minmax(${gridColumnWidth}px, 1fr))`,
-    gap: '1rem',
-    marginBottom: '1.5rem'
-  } : {
-    display: 'flex',
-    flexDirection: 'column' as const,
-    gap: '1rem',
-    marginBottom: '1.5rem'
-  };
-
-  const exportJSON = () => {
-    const exportData = {
-      pages: pages.reduce((acc, page) => ({
-        ...acc,
-        [page.title]: {
-          internal_id: page.id,
-          page_id: page.wordpress_id || '',
-          model_query_pairs: page.items.map((item: SitemapItem) => ({
-            model: item.model,
-            query: item.query,
-            internal_id: item.id
-          }))
-        }
-      }), {}),
-      selectedModelGroupKey,
-      modelGroups,
-      questionnaireData
-    };
-    const jsonString = JSON.stringify(exportData, null, 2);
-    const blob = new Blob([jsonString], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-
-    const rawPractice = questionnaireData.practiceBasics.practiceName || 'export';
-    const practiceName = rawPractice.toString().replace(/\s+/g, '_');
-    const siteType = selectedModelGroupKey.replace(/\s+/g, '_');
-    link.download = `${siteType}_${practiceName}.json`;
-
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  };
-
   // Helper to map imported pages to SitemapSection[]
-  const mapImportedPages = (pagesObj: any): SitemapSection[] => {
+  const mapImportedPages = (pagesObj: Record<string, unknown>): SitemapSection[] => {
     if (!pagesObj || typeof pagesObj !== 'object') return [];
     return Object.entries(pagesObj).map(([title, pageData]) => {
       const typedPageData = pageData as {
@@ -221,12 +173,26 @@ const Sitemap: React.FC<SitemapProps> = ({
   };
 
   return (
-    <>
+    <div className="relative">
+      <div className="mb-6">
+      </div>
       <h2>Sitemap Builder</h2>
       <div className="app__header">
         <SiteSelector
           selectedModelGroupKey={selectedModelGroupKey}
           onModelGroupChange={setSelectedModelGroupKey}
+        />
+        <h3 className="text-lg font-semibold mb-2">Load a Generated Sitemap</h3>
+          <GeneratedSitemapSelector onSelectSitemap={handleSelectSitemap} />
+        <hr className="my-4 border-gray-300" />
+        <GenerateSitemapButton
+          questionnaireData={questionnaireData}
+          backendSiteType={backendSiteType}
+          usePageJson={usePageJson}
+          generateSitemap={generateSitemap}
+          generateSitemapStatus={generateSitemapStatus}
+          generateSitemapData={generateSitemapData}
+          onSitemapGenerated={handleSitemapGenerated}
         />
         <DefaultTemplateSelector 
           selectedModelGroupKey={selectedModelGroupKey}
@@ -239,7 +205,7 @@ const Sitemap: React.FC<SitemapProps> = ({
             <input 
               type="checkbox" 
               checked={showSelect} 
-              onChange={toggleSelectVisibility} 
+              onChange={() => setShowSelect(!showSelect)} 
             />
             Show Model Selectors
           </label>
@@ -249,7 +215,7 @@ const Sitemap: React.FC<SitemapProps> = ({
             <input 
               type="checkbox" 
               checked={showTextarea} 
-              onChange={toggleTextareaVisibility} 
+              onChange={() => setShowTextarea(!showTextarea)} 
             />
             Show Query Inputs
           </label>
@@ -259,7 +225,7 @@ const Sitemap: React.FC<SitemapProps> = ({
             <input 
               type="checkbox" 
               checked={showDeleteButtons} 
-              onChange={toggleDeleteButtonsVisibility} 
+              onChange={() => setShowDeleteButtons(!showDeleteButtons)} 
             />
             Show Delete Buttons
           </label>
@@ -269,7 +235,7 @@ const Sitemap: React.FC<SitemapProps> = ({
             <input 
               type="checkbox" 
               checked={showItemNumbers} 
-              onChange={toggleItemNumbersVisibility} 
+              onChange={() => setShowItemNumbers(!showItemNumbers)} 
             />
             Show Item Numbers
           </label>
@@ -279,7 +245,7 @@ const Sitemap: React.FC<SitemapProps> = ({
             <input 
               type="checkbox" 
               checked={showPageIds} 
-              onChange={togglePageIdsVisibility} 
+              onChange={() => setShowPageIds(!showPageIds)} 
             />
             Show Page IDs
           </label>
@@ -291,7 +257,7 @@ const Sitemap: React.FC<SitemapProps> = ({
             <input 
               type="checkbox" 
               checked={useGridLayout} 
-              onChange={toggleGridLayout} 
+              onChange={() => setUseGridLayout(!useGridLayout)} 
             />
             Use Grid Layout
           </label>
@@ -306,14 +272,24 @@ const Sitemap: React.FC<SitemapProps> = ({
                 max="550"
                 step="25"
                 value={gridColumnWidth}
-                onChange={handleGridWidthChange}
+                onChange={e => setGridColumnWidth(Number(e.target.value))}
                 className="app__grid-width-slider"
               />
             </label>
           </div>
         )}
       </div>
-      <div style={gridContainerStyle} className="app__page-container">
+      <div style={useGridLayout ? {
+        display: 'grid',
+        gridTemplateColumns: `repeat(auto-fill, minmax(${gridColumnWidth}px, 1fr))`,
+        gap: '1rem',
+        marginBottom: '1.5rem'
+      } : {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '1rem',
+        marginBottom: '1.5rem'
+      }} className="app__page-container">
         {pages.map((page, index) => (
           <div key={page.id} className="app__page app__page--compact">
             <div className="app__page-header">
@@ -384,21 +360,38 @@ const Sitemap: React.FC<SitemapProps> = ({
           </label>
         </div>
         <div className="flex gap-4 items-center">
-          <button
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            onClick={() =>
-              generateSitemap({
-                questionnaire: questionnaireData,
-                site_type: backendSiteType,
-                use_page_json: usePageJson,
-              })
-            }
-            aria-label="Generate Sitemap"
-            tabIndex={0}
-          >
-            Generate Sitemap
-          </button>
-          <button className="app__export-json-button" onClick={exportJSON}>Export JSON</button>
+          <button className="app__export-json-button" onClick={() => {
+            const exportData = {
+              pages: pages.reduce((acc, page) => ({
+                ...acc,
+                [page.title]: {
+                  internal_id: page.id,
+                  page_id: page.wordpress_id || '',
+                  model_query_pairs: page.items.map((item: SitemapItem) => ({
+                    model: item.model,
+                    query: item.query,
+                    internal_id: item.id
+                  }))
+                }
+              }), {}),
+              selectedModelGroupKey,
+              modelGroups,
+              questionnaireData
+            };
+            const jsonString = JSON.stringify(exportData, null, 2);
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            const rawPractice = questionnaireData.practiceDetails || 'export';
+            const practiceName = rawPractice.toString().replace(/\s+/g, '_');
+            const siteType = selectedModelGroupKey.replace(/\s+/g, '_');
+            link.download = `${siteType}_${practiceName}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+          }}>Export JSON</button>
           <input
             type="file"
             accept=".json"
@@ -417,7 +410,7 @@ const Sitemap: React.FC<SitemapProps> = ({
           />
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

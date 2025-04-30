@@ -22,6 +22,30 @@ const DomainScrapeOptions: React.FC<DomainScrapeOptionsProps> = ({
   const [scrape, setScrape] = useState(true);
   const [useSelenium, setUseSelenium] = useState(false);
   const [scroll, setScroll] = useState(false);
+  const [domainError, setDomainError] = useState(false);
+
+  const handleDomainChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setDomain(e.target.value);
+    if (domainError) setDomainError(false);
+  };
+
+  const handleFillFormClick = () => {
+    if (!domain.trim()) {
+      setDomainError(true);
+      return;
+    }
+    setDomainError(false);
+    handleFillForm(scrape, useSelenium, scroll);
+  };
+
+  const handleMockScrapeClick = () => {
+    if (!domain.trim()) {
+      setDomainError(true);
+      return;
+    }
+    setDomainError(false);
+    mockScrapeDomain(domain);
+  };
 
   return (
     <div className="questionnaire-form__field flex flex-col gap-2 mb-4">
@@ -29,13 +53,20 @@ const DomainScrapeOptions: React.FC<DomainScrapeOptionsProps> = ({
       <input
         id="domain-input"
         type="text"
-        className="questionnaire-form__input border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className={`questionnaire-form__input border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${domainError ? 'border-red-500 ring-2 ring-red-500' : ''}`}
         value={domain}
-        onChange={(e) => setDomain(e.target.value)}
+        onChange={handleDomainChange}
         placeholder="Enter a domain to load defaults"
         aria-label="Domain"
         tabIndex={0}
+        aria-invalid={domainError}
+        aria-describedby={domainError ? 'domain-error' : undefined}
       />
+      {domainError && (
+        <span id="domain-error" className="text-red-600 text-sm" role="alert">
+          Please enter a domain.
+        </span>
+      )}
       <div className="flex items-center gap-4 mt-2">
         <label className="flex items-center gap-2 cursor-pointer">
           <input
@@ -75,7 +106,7 @@ const DomainScrapeOptions: React.FC<DomainScrapeOptionsProps> = ({
         <button
           type="button"
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          onClick={() => handleFillForm(scrape, useSelenium, scroll)}
+          onClick={handleFillFormClick}
           aria-label="Fill Form"
           tabIndex={0}
         >
@@ -84,7 +115,7 @@ const DomainScrapeOptions: React.FC<DomainScrapeOptionsProps> = ({
         <button
           type="button"
           className="questionnaire-form__input border px-4 py-2 rounded hover:bg-gray-100"
-          onClick={() => mockScrapeDomain(domain)}
+          onClick={handleMockScrapeClick}
           aria-label="Load Defaults (Mock)"
           tabIndex={0}
         >

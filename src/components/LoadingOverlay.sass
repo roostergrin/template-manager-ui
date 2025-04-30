@@ -1,0 +1,49 @@
+.loading-overlay
+  position: fixed
+  inset: 0
+  z-index: 9999
+  display: flex
+  align-items: center
+  justify-content: center
+  background: rgba(0, 0, 0, 0.5)
+  backdrop-filter: blur(2px)
+
+.loading-overlay__content
+  display: flex
+  flex-direction: column
+  align-items: center
+  gap: 1.5rem
+
+.loading-overlay__spinner
+  width: 3rem
+  height: 3rem
+  animation: loading-overlay-spin 1s linear infinite
+  color: #fff
+
+.loading-overlay__spinner-bg
+  opacity: 0.25
+  stroke: currentColor
+
+.loading-overlay__spinner-fg
+  opacity: 0.75
+  fill: currentColor
+
+.loading-overlay__text
+  color: #fff
+  font-size: 1.25rem
+  font-weight: 600
+
+.loading-overlay__sr-only
+  position: absolute
+  width: 1px
+  height: 1px
+  padding: 0
+  margin: -1px
+  overflow: hidden
+  clip: rect(0, 0, 0, 0)
+  white-space: nowrap
+  border: 0
+
+@keyframes loading-overlay-spin
+  100%
+    transform: rotate(360deg) 
