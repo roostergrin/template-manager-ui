@@ -1,39 +1,44 @@
-import React from 'react';
-import { QueryStatus } from '@tanstack/react-query';
+import React, { useEffect, useCallback } from 'react';
+import { MutationStatus } from '@tanstack/react-query';
 import LoadingOverlay from './LoadingOverlay';
+import { QuestionnaireData, GenerateSitemapRequest, GenerateSitemapResponse } from '../types/SitemapTypes';
+
+type ControlsProps = {
+  usePageJson: boolean;
+  toggleUsePageJson: () => void;
+  backendSiteType: string;
+};
 
 export type GenerateSitemapButtonProps = {
-  questionnaireData: Record<string, unknown>;
-  backendSiteType: string;
-  usePageJson: boolean;
-  generateSitemap: (params: { questionnaire: Record<string, unknown>; site_type: string; use_page_json: boolean }) => void;
-  generateSitemapStatus: QueryStatus;
-  generateSitemapData: any;
-  onSitemapGenerated: (sitemapData: any) => void;
+  questionnaireData: QuestionnaireData;
+  generateSitemap: (params: GenerateSitemapRequest) => void;
+  generateSitemapStatus: MutationStatus;
+  generateSitemapData?: GenerateSitemapResponse;
+  onSitemapGenerated: (sitemapData: unknown) => void;
+  controls: ControlsProps;
 };
 
 const GenerateSitemapButton: React.FC<GenerateSitemapButtonProps> = ({
   questionnaireData,
-  backendSiteType,
-  usePageJson,
   generateSitemap,
   generateSitemapStatus,
   generateSitemapData,
   onSitemapGenerated,
+  controls,
 }) => {
-  React.useEffect(() => {
+  const { usePageJson, toggleUsePageJson, backendSiteType } = controls;
+
+  useEffect(() => {
     if (
       generateSitemapStatus === 'success' &&
-      generateSitemapData &&
-      generateSitemapData.sitemap_data &&
-      generateSitemapData.sitemap_data.pages
+      generateSitemapData?.sitemap_data &&
+      (generateSitemapData.sitemap_data as any).pages
     ) {
-      onSitemapGenerated(generateSitemapData.sitemap_data);
+      onSitemapGenerated(generateSitemapData.sitemap_data as unknown);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [generateSitemapStatus, generateSitemapData]);
+  }, [generateSitemapStatus, generateSitemapData, onSitemapGenerated]);
 
-  const handleClick = React.useCallback(() => {
+  const handleClick = useCallback(() => {
     generateSitemap({
       questionnaire: questionnaireData,
       site_type: backendSiteType,
@@ -42,7 +47,24 @@ const GenerateSitemapButton: React.FC<GenerateSitemapButtonProps> = ({
   }, [questionnaireData, backendSiteType, usePageJson, generateSitemap]);
 
   return (
-    <>
+    <div className="flex flex-col gap-2 items-start mb-4">
+      <div className="flex items-center gap-4">
+        <span className="text-gray-700 font-medium" aria-label="Current Site Type" tabIndex={0}>
+          Current Site Type:
+          <span className="text-blue-700 ml-1">{backendSiteType}</span>
+        </span>
+        <label className="flex items-center gap-2 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={usePageJson}
+            onChange={toggleUsePageJson}
+            aria-label="Use Page JSON"
+            tabIndex={0}
+            className="form-checkbox h-4 w-4 text-blue-600"
+          />
+          <span className="text-gray-700">Use Page JSON</span>
+        </label>
+      </div>
       {generateSitemapStatus === 'pending' && <LoadingOverlay />}
       <button
         className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -53,7 +75,7 @@ const GenerateSitemapButton: React.FC<GenerateSitemapButtonProps> = ({
       >
         Generate Sitemap
       </button>
-    </>
+    </div>
   );
 };
 

@@ -24,7 +24,7 @@ const App: React.FC = () => {
         questionnaireData={questionnaireData}
         setQuestionnaireData={setQuestionnaireData}
       />
-      {/* TODO: get the export and import into its own component */}
+      
     </div>
   );
 };

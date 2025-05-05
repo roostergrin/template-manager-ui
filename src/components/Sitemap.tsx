@@ -1,12 +1,20 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { SitemapSection, SitemapItem, QuestionnaireData } from '../types/SitemapTypes';
-import SitemapSectionComponent from './SitemapSection/SitemapSection';
+import React, { useCallback } from 'react';
+import { QuestionnaireData } from '../types/SitemapTypes';
+import usePages from '../hooks/usePages';
+import useViewControls from '../hooks/useViewControls';
+import useImportExport from '../hooks/useImportExport';
+import useGenerateSitemap from '../hooks/useGenerateSitemap';
+import useGenerateContent from '../hooks/useGenerateContent';
+import { getBackendSiteTypeForModelGroup } from '../utils/modelGroupKeyToBackendSiteType';
 import SiteSelector from './SiteSelector';
 import DefaultTemplateSelector from './DefaultTemplateSelector/DefaultTemplateSelector';
-import useGenerateSitemap from '../hooks/useGenerateSitemap';
-import { getBackendSiteTypeForModelGroup } from '../utils/modelGroupKeyToBackendSiteType';
 import GenerateSitemapButton from './GenerateSitemapButton';
-import GeneratedSitemapSelector, { StoredSitemap } from './GeneratedSitemapSelector';
+import GeneratedSitemapSelector from './GeneratedSitemapSelector';
+import ViewControls from './Sitemap/ViewControls';
+import LayoutControls from './Sitemap/LayoutControls';
+import PageList from './Sitemap/PageList';
+import JsonExportImport from './Sitemap/JsonExportImport';
+import SitemapContentExport from './SitemapContentExport';
 
 export interface SitemapProps {
   currentModels: string[];
@@ -18,8 +26,6 @@ export interface SitemapProps {
   setQuestionnaireData: (data: QuestionnaireData) => void;
 }
 
-const LOCAL_STORAGE_KEY = 'generatedSitemaps';
-
 const Sitemap: React.FC<SitemapProps> = ({
   currentModels,
   selectedModelGroupKey,
@@ -27,389 +33,90 @@ const Sitemap: React.FC<SitemapProps> = ({
   modelGroups,
   setModelGroups,
   questionnaireData,
-  setQuestionnaireData
+  setQuestionnaireData,
 }) => {
-  const [pages, setPages] = useState<SitemapSection[]>([]);
-  const [dataUpdated, setDataUpdated] = useState<boolean>(false);
-  // View mode states
-  const [showSelect, setShowSelect] = useState<boolean>(true);
-  const [showTextarea, setShowTextarea] = useState<boolean>(false);
-  const [showDeleteButtons, setShowDeleteButtons] = useState<boolean>(false);
-  const [showItemNumbers, setShowItemNumbers] = useState<boolean>(false);
-  const [showPageIds, setShowPageIds] = useState<boolean>(false);
-  const [gridColumnWidth, setGridColumnWidth] = useState<number>(175);
-  const [useGridLayout, setUseGridLayout] = useState<boolean>(true);
+  // Page logic
+  const pagesApi = usePages();
+  // View toggles/layout
+  const view = useViewControls();
+  // Import/export logic
+  const { exportJson, importJson } = useImportExport({
+    pages: pagesApi.pages,
+    selectedModelGroupKey,
+    modelGroups,
+    questionnaireData,
+    importPages: pagesApi.importPagesFromJson,
+    onSelectModelGroup: setSelectedModelGroupKey,
+    onSetModelGroups: setModelGroups,
+    onSetQuestionnaireData: setQuestionnaireData,
+  });
+  // Backend
   const [generateSitemapData, generateSitemapStatus, generateSitemap] = useGenerateSitemap();
-  const [usePageJson, setUsePageJson] = useState<boolean>(false);
   const backendSiteType = getBackendSiteTypeForModelGroup(selectedModelGroupKey) || '';
 
-  // Store generated sitemap in localStorage
-  const handleSitemapGenerated = useCallback((sitemapData: unknown) => {
-    if (!sitemapData || typeof sitemapData !== 'object' || !(sitemapData as any).pages) return;
-    setPages(mapImportedPages((sitemapData as any).pages));
-    // Prompt for a name or use timestamp
-    const name = prompt('Enter a name for this sitemap:', `Sitemap ${new Date().toLocaleString()}`) || `Sitemap ${new Date().toLocaleString()}`;
-    const stored: StoredSitemap = {
-      name,
-      created: new Date().toISOString(),
-      sitemap: sitemapData
-    };
-    const prev = localStorage.getItem(LOCAL_STORAGE_KEY);
-    let arr: StoredSitemap[] = [];
-    if (prev) {
-      try { arr = JSON.parse(prev) as StoredSitemap[]; } catch {/* ignore */}
-    }
-    arr.push(stored);
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(arr));
-  }, []);
-
-  // When a sitemap is selected from selector
-  const handleSelectSitemap = useCallback((stored: StoredSitemap) => {
-    if (stored && stored.sitemap && (stored.sitemap as any).pages) {
-      setPages(mapImportedPages((stored.sitemap as any).pages));
-    }
-  }, []);
-
-  const addPage = (newPage: SitemapSection) => {
-    setPages([...pages, newPage]);
-  };
-
-  const removePage = (pageId: string) => {
-    setPages(pages.filter(page => page.id !== pageId));
-  };
-
-  const updatePageTitle = (pageId: string, newTitle: string) => {
-    setPages(pages.map(page => 
-      page.id === pageId ? { ...page, title: newTitle } : page
-    ));
-  };
-
-  const updatePageWordpressId = (pageId: string, newWordpressId: string) => {
-    setPages(pages.map(page => 
-      page.id === pageId ? { ...page, wordpress_id: newWordpressId } : page
-    ));
-  };
-
-  const updatePageItems = (pageId: string, newItems: SitemapItem[]) => {
-    setPages(pages.map(page => 
-      page.id === pageId ? { ...page, items: newItems } : page
-    ));
-  };
-
-  // Reset the update indicator after a brief period
-  useEffect(() => {
-    if (dataUpdated) {
-      const timer = setTimeout(() => {
-        setDataUpdated(false);
-      }, 1500);
-      return () => clearTimeout(timer);
-    }
-  }, [dataUpdated]);
-
-  // Helper to map imported pages to SitemapSection[]
-  const mapImportedPages = (pagesObj: Record<string, unknown>): SitemapSection[] => {
-    if (!pagesObj || typeof pagesObj !== 'object') return [];
-    return Object.entries(pagesObj).map(([title, pageData]) => {
-      const typedPageData = pageData as {
-        internal_id: string;
-        page_id: string;
-        model_query_pairs: Array<{
-          model: string;
-          query: string;
-          internal_id: string;
-        }>;
-      };
-      return {
-        id: typedPageData.internal_id,
-        title: title,
-        wordpress_id: typedPageData.page_id || '',
-        items: typedPageData.model_query_pairs.map(item => ({
-          model: item.model,
-          query: item.query,
-          id: item.internal_id
-        }))
-      };
-    });
-  };
-
-  const importJSON = (jsonData: string) => {
-    try {
-      const importedData = JSON.parse(jsonData);
-      if (importedData.pages) {
-        setPages(mapImportedPages(importedData.pages));
-      }
-      if (importedData.selectedModelGroupKey && typeof importedData.selectedModelGroupKey === 'string') {
-        setSelectedModelGroupKey(importedData.selectedModelGroupKey);
-      }
-      if (importedData.modelGroups && typeof importedData.modelGroups === 'object') {
-        setModelGroups(importedData.modelGroups as Record<string, string[]>);
-      }
-      if (
-        importedData.questionnaireData &&
-        typeof importedData.questionnaireData === 'object' &&
-        Object.keys(importedData.questionnaireData).length > 0
-      ) {
-        setQuestionnaireData(importedData.questionnaireData);
-      }
-    } catch (error) {
-      console.error('Error importing JSON:', error);
-    }
-  };
-
-  // Handler to load template pages without overriding questionnaireData or other settings
-  const importTemplateData = (jsonData: string) => {
-    try {
-      const importedData = JSON.parse(jsonData);
-      if (importedData.pages) {
-        setPages(mapImportedPages(importedData.pages));
-      }
-    } catch (error) {
-      console.error('Error loading template JSON:', error);
-    }
-  };
-
-  const handleToggleUsePageJson = () => {
-    setUsePageJson((prev) => !prev);
+  // Handler to receive exported data (optional: you can use or log it)
+  const handleExportedContent = (data: any) => {
+    // You can use this data as needed in the parent
+    // console.log('Exported Content:', data);
   };
 
   return (
     <div className="relative">
-      <div className="mb-6">
-      </div>
-      <h2>Sitemap Builder</h2>
-      <div className="app__header">
+      <h2 className="text-2xl font-bold mb-4">Sitemap Builder</h2>
+      <div className="app__header mb-6">
         <SiteSelector
           selectedModelGroupKey={selectedModelGroupKey}
           onModelGroupChange={setSelectedModelGroupKey}
         />
         <h3 className="text-lg font-semibold mb-2">Load a Generated Sitemap</h3>
-          <GeneratedSitemapSelector onSelectSitemap={handleSelectSitemap} />
+        <GeneratedSitemapSelector onSelectSitemap={pagesApi.handleSelectStoredSitemap} />
         <hr className="my-4 border-gray-300" />
         <GenerateSitemapButton
           questionnaireData={questionnaireData}
-          backendSiteType={backendSiteType}
-          usePageJson={usePageJson}
           generateSitemap={generateSitemap}
           generateSitemapStatus={generateSitemapStatus}
           generateSitemapData={generateSitemapData}
-          onSitemapGenerated={handleSitemapGenerated}
+          onSitemapGenerated={pagesApi.handleGeneratedSitemap}
+          controls={{
+            usePageJson: view.usePageJson,
+            toggleUsePageJson: view.toggleUsePageJson,
+            backendSiteType,
+          }}
         />
-        <DefaultTemplateSelector 
+        <DefaultTemplateSelector
           selectedModelGroupKey={selectedModelGroupKey}
-          onTemplateSelect={importTemplateData}
+          onTemplateSelect={pagesApi.importPagesFromJson}
         />
       </div>
-      <div className="app__view-controls">
-        <div className="app__view-control">
-          <label>
-            <input 
-              type="checkbox" 
-              checked={showSelect} 
-              onChange={() => setShowSelect(!showSelect)} 
-            />
-            Show Model Selectors
-          </label>
-        </div>
-        <div className="app__view-control">
-          <label>
-            <input 
-              type="checkbox" 
-              checked={showTextarea} 
-              onChange={() => setShowTextarea(!showTextarea)} 
-            />
-            Show Query Inputs
-          </label>
-        </div>
-        <div className="app__view-control">
-          <label>
-            <input 
-              type="checkbox" 
-              checked={showDeleteButtons} 
-              onChange={() => setShowDeleteButtons(!showDeleteButtons)} 
-            />
-            Show Delete Buttons
-          </label>
-        </div>
-        <div className="app__view-control">
-          <label>
-            <input 
-              type="checkbox" 
-              checked={showItemNumbers} 
-              onChange={() => setShowItemNumbers(!showItemNumbers)} 
-            />
-            Show Item Numbers
-          </label>
-        </div>
-        <div className="app__view-control">
-          <label>
-            <input 
-              type="checkbox" 
-              checked={showPageIds} 
-              onChange={() => setShowPageIds(!showPageIds)} 
-            />
-            Show Page IDs
-          </label>
-        </div>
-      </div>
-      <div className="app__layout-controls">
-        <div className="app__grid-layout-control">
-          <label>
-            <input 
-              type="checkbox" 
-              checked={useGridLayout} 
-              onChange={() => setUseGridLayout(!useGridLayout)} 
-            />
-            Use Grid Layout
-          </label>
-        </div>
-        {useGridLayout && (
-          <div className="app__grid-width-control">
-            <label>
-              Grid Column Width: {gridColumnWidth}px
-              <input
-                type="range"
-                min="100"
-                max="550"
-                step="25"
-                value={gridColumnWidth}
-                onChange={e => setGridColumnWidth(Number(e.target.value))}
-                className="app__grid-width-slider"
-              />
-            </label>
-          </div>
-        )}
-      </div>
-      <div style={useGridLayout ? {
-        display: 'grid',
-        gridTemplateColumns: `repeat(auto-fill, minmax(${gridColumnWidth}px, 1fr))`,
-        gap: '1rem',
-        marginBottom: '1.5rem'
-      } : {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '1rem',
-        marginBottom: '1.5rem'
-      }} className="app__page-container">
-        {pages.map((page, index) => (
-          <div key={page.id} className="app__page app__page--compact">
-            <div className="app__page-header">
-              {showItemNumbers && (
-                <span className="app__page-number">{`${index + 1}.0`}</span>
-              )}
-              <input
-                type="text" 
-                className="app__page-title-input"
-                value={page.title} 
-                onChange={(e) => updatePageTitle(page.id, e.target.value)} 
-                placeholder="Page Title"
-              />
-              <div className="app__page-controls">
-                {showPageIds && (
-                  <input
-                    type="text" 
-                    className="app__page-wordpress-id-input"
-                    placeholder="Page ID"
-                    value={page.wordpress_id || ''} 
-                    onChange={(e) => updatePageWordpressId(page.id, e.target.value)} 
-                  />
-                )}
-                {showDeleteButtons && (
-                  <button 
-                    className="app__delete-page-button" 
-                    onClick={() => removePage(page.id)}
-                  >
-                    -
-                  </button>
-                )}
-              </div>
-            </div>
-            <SitemapSectionComponent 
-              models={currentModels}
-              pageID={page.id} 
-              title={page.title} 
-              pageNumber={index + 1}
-              items={page.items}
-              showSelect={showSelect}
-              showTextarea={showTextarea}
-              showDeleteButtons={showDeleteButtons}
-              showItemNumbers={showItemNumbers}
-              onItemsChange={(newItems) => updatePageItems(page.id, newItems)}
-            />
-          </div>
-        ))}
-        <button className="app__add-page-button" onClick={() => addPage({ id: Date.now().toString(), title: 'New Page', items: [], wordpress_id: '' })}>
-          Add Page
-        </button>
-      </div>
-      <div className="app__actions flex flex-col gap-2 items-start mt-4">
-        <div className="flex items-center gap-4">
-          <span className="text-gray-700 font-medium" aria-label="Current Site Type" tabIndex={0}>
-            Current Site Type: 
-            <span className="text-blue-700">{backendSiteType}</span>
-          </span>
-          <label className="flex items-center gap-2 cursor-pointer select-none">
-            <input
-              type="checkbox"
-              checked={usePageJson}
-              onChange={handleToggleUsePageJson}
-              aria-label="Use Page JSON"
-              tabIndex={0}
-              className="form-checkbox h-4 w-4 text-blue-600"
-            />
-            <span className="text-gray-700">Use Page JSON</span>
-          </label>
-        </div>
-        <div className="flex gap-4 items-center">
-          <button className="app__export-json-button" onClick={() => {
-            const exportData = {
-              pages: pages.reduce((acc, page) => ({
-                ...acc,
-                [page.title]: {
-                  internal_id: page.id,
-                  page_id: page.wordpress_id || '',
-                  model_query_pairs: page.items.map((item: SitemapItem) => ({
-                    model: item.model,
-                    query: item.query,
-                    internal_id: item.id
-                  }))
-                }
-              }), {}),
-              selectedModelGroupKey,
-              modelGroups,
-              questionnaireData
-            };
-            const jsonString = JSON.stringify(exportData, null, 2);
-            const blob = new Blob([jsonString], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            const rawPractice = questionnaireData.practiceDetails || 'export';
-            const practiceName = rawPractice.toString().replace(/\s+/g, '_');
-            const siteType = selectedModelGroupKey.replace(/\s+/g, '_');
-            link.download = `${siteType}_${practiceName}.json`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-          }}>Export JSON</button>
-          <input
-            type="file"
-            accept=".json"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) {
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                  if (event.target?.result) {
-                    importJSON(event.target.result as string);
-                  }
-                };
-                reader.readAsText(file);
-              }
-            }}
-          />
-        </div>
-      </div>
+      <ViewControls {...view} />
+      <LayoutControls
+        useGridLayout={view.useGridLayout}
+        toggleUseGridLayout={view.toggleUseGridLayout}
+        gridColumnWidth={view.gridColumnWidth}
+        setGridColumnWidth={view.setGridColumnWidth}
+      />
+      <PageList
+        pages={pagesApi.pages}
+        useGridLayout={view.useGridLayout}
+        gridColumnWidth={view.gridColumnWidth}
+        showItemNumbers={view.showItemNumbers}
+        showPageIds={view.showPageIds}
+        showDeleteButtons={view.showDeleteButtons}
+        showSelect={view.showSelect}
+        showTextarea={view.showTextarea}
+        currentModels={currentModels}
+        updatePageTitle={pagesApi.updatePageTitle}
+        updatePageWordpressId={pagesApi.updatePageWordpressId}
+        updatePageItems={pagesApi.updatePageItems}
+        removePage={pagesApi.removePage}
+        addPage={pagesApi.addPage}
+      />
+      <JsonExportImport exportJson={exportJson} importJson={importJson} />
+      <SitemapContentExport
+        pages={pagesApi.pages}
+        questionnaireData={questionnaireData}
+        onExport={handleExportedContent}
+      />
     </div>
   );
 };

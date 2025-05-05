@@ -41,4 +41,10 @@ export type GenerateSitemapRequest = {
 
 export type GenerateSitemapResponse = {
   sitemap_data: unknown;
-}; 
+};
+
+export interface StoredSitemap {
+  name: string;
+  created: string;
+  sitemap: unknown;
+} 
