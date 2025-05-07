@@ -4,7 +4,7 @@ import usePages from '../hooks/usePages';
 import useViewControls from '../hooks/useViewControls';
 import useImportExport from '../hooks/useImportExport';
 import useGenerateSitemap from '../hooks/useGenerateSitemap';
-import useGenerateContent from '../hooks/useGenerateContent';
+// import useGenerateContent from '../hooks/useGenerateContent';
 import { getBackendSiteTypeForModelGroup } from '../utils/modelGroupKeyToBackendSiteType';
 import SiteSelector from './SiteSelector';
 import DefaultTemplateSelector from './DefaultTemplateSelector/DefaultTemplateSelector';
@@ -14,7 +14,8 @@ import ViewControls from './Sitemap/ViewControls';
 import LayoutControls from './Sitemap/LayoutControls';
 import PageList from './Sitemap/PageList';
 import JsonExportImport from './Sitemap/JsonExportImport';
-import SitemapContentExport from './SitemapContentExport';
+// import SitemapContentExport from './SitemapContentExport';
+import GenerateContentProgress from './GenerateContentProgress';
 
 export interface SitemapProps {
   currentModels: string[];
@@ -112,10 +113,15 @@ const Sitemap: React.FC<SitemapProps> = ({
         addPage={pagesApi.addPage}
       />
       <JsonExportImport exportJson={exportJson} importJson={importJson} />
-      <SitemapContentExport
+      {/* <SitemapContentExport
         pages={pagesApi.pages}
         questionnaireData={questionnaireData}
         onExport={handleExportedContent}
+      /> */}
+      <GenerateContentProgress
+        pages={pagesApi.pages}
+        questionnaireData={questionnaireData}
+        siteType={backendSiteType}
       />
     </div>
   );

@@ -1,0 +1,220 @@
+import React, { useState, useCallback, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import generateContentService from "../services/generateContentService";
+import generateGlobalService from "../services/generateGlobalService";
+import useUpdateGithubRepoDataFiles from "../hooks/useUpdateGithubRepoDataFiles";
+import useCreateGithubRepoFromTemplate from "../hooks/useCreateGithubRepoFromTemplate";
+import { GenerateContentRequest } from "../types/APIServiceTypes";
+import GenerateContentSection from "./GenerateContentSection";
+import ContentPreviewSection from "./ContentPreviewSection";
+import CreateRepoSection from "./CreateRepoSection";
+import GithubUpdateSection from "./GithubUpdateSection";
+import StatusSection from "./StatusSection";
+import "./GenerateContentProgress.sass";
+
+export interface GenerateContentProgressProps {
+  pages: unknown;
+  questionnaireData: unknown;
+  siteType: string;
+}
+
+const GenerateContentProgress: React.FC<GenerateContentProgressProps> = ({
+  pages,
+  questionnaireData,
+  siteType,
+}) => {
+  const [shouldFetch, setShouldFetch] = useState(false);
+  const [isStarted, setIsStarted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [githubData, githubStatus, updateGithub] = useUpdateGithubRepoDataFiles();
+  const [createRepoData, createRepoStatus, createRepo] = useCreateGithubRepoFromTemplate();
+  const [githubOwner, setGithubOwner] = useState("roostergrin");
+  const [githubRepo, setGithubRepo] = useState("");
+  const [newRepoName, setNewRepoName] = useState("");
+  const [pagesContent, setPagesContent] = useState<object | null>(null);
+  const [globalContent, setGlobalContent] = useState<object | null>(null);
+  const [downloadUrlPages, setDownloadUrlPages] = useState<string | null>(null);
+  const [downloadUrlGlobal, setDownloadUrlGlobal] = useState<string | null>(null);
+
+  // Prepare request object
+  const req: GenerateContentRequest = {
+    sitemap_data: {
+      pages,
+      questionnaireData,
+    },
+    site_type: siteType,
+  };
+
+  // Fetch global content
+  const {
+    data: globalData,
+    status: globalStatus,
+    error: globalError,
+  } = useQuery({
+    queryKey: ["generate-global", req],
+    queryFn: generateGlobalService,
+    enabled: shouldFetch,
+  });
+
+  // Fetch pages content
+  const {
+    data: pagesData,
+    status: pagesStatus,
+    error: pagesError,
+  } = useQuery({
+    queryKey: ["generate-content", req],
+    queryFn: generateContentService,
+    enabled: shouldFetch,
+  });
+
+  // Update state when data is ready
+  useEffect(() => {
+    if (globalData) {
+      setGlobalContent(globalData);
+      const jsonGlobal = JSON.stringify(globalData, null, 2);
+      const blobGlobal = new Blob([jsonGlobal], { type: "application/json" });
+      setDownloadUrlGlobal(URL.createObjectURL(blobGlobal));
+    }
+    if (globalStatus === "error") {
+      setGlobalContent(null);
+      setDownloadUrlGlobal(null);
+      setError(globalError instanceof Error ? globalError.message : "An error occurred");
+    }
+  }, [globalData, globalStatus, globalError]);
+
+  useEffect(() => {
+    if (pagesData) {
+      setPagesContent(pagesData);
+      const jsonPages = JSON.stringify(pagesData, null, 2);
+      const blobPages = new Blob([jsonPages], { type: "application/json" });
+      setDownloadUrlPages(URL.createObjectURL(blobPages));
+    }
+    if (pagesStatus === "error") {
+      setPagesContent(null);
+      setDownloadUrlPages(null);
+      setError(pagesError instanceof Error ? pagesError.message : "An error occurred");
+    }
+  }, [pagesData, pagesStatus, pagesError]);
+
+  // Handler to start both fetches
+  const handleGenerateContent = useCallback(() => {
+    setShouldFetch(false); // reset to allow re-fetch
+    setIsStarted(true);
+    setPagesContent(null);
+    setGlobalContent(null);
+    setDownloadUrlPages(null);
+    setDownloadUrlGlobal(null);
+    setError(null);
+    setTimeout(() => setShouldFetch(true), 0); // allow React Query to re-trigger
+  }, []);
+
+  // Download handlers
+  const handleDownloadPages = useCallback(() => {
+    if (!downloadUrlPages) return;
+    const link = document.createElement("a");
+    link.href = downloadUrlPages;
+    link.download = "pages-content.json";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }, [downloadUrlPages]);
+
+  const handleDownloadGlobal = useCallback(() => {
+    if (!downloadUrlGlobal) return;
+    const link = document.createElement("a");
+    link.href = downloadUrlGlobal;
+    link.download = "global-content.json";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }, [downloadUrlGlobal]);
+
+  const handleCreateRepo = useCallback(async () => {
+    setError(null);
+    try {
+      const result = await createRepo({ new_name: newRepoName, site_type: siteType });
+      setGithubOwner(result.owner);
+      setGithubRepo(result.repo);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred");
+    }
+  }, [newRepoName, siteType, createRepo]);
+
+  const handleUpdateGithub = useCallback(async () => {
+    setError(null);
+    if (!pagesContent || !globalContent) {
+      setError("Generate content before updating GitHub.");
+      return;
+    }
+    try {
+      await updateGithub({
+        owner: githubOwner,
+        repo: githubRepo,
+        pages_data: pagesContent,
+        global_data: globalContent,
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred");
+    }
+  }, [githubOwner, githubRepo, pagesContent, globalContent, updateGithub]);
+
+  // Reset to idle after both queries complete
+  useEffect(() => {
+    if (
+      isStarted &&
+      (pagesStatus === "success" || pagesStatus === "error") &&
+      (globalStatus === "success" || globalStatus === "error")
+    ) {
+      setIsStarted(false);
+      setShouldFetch(false);
+    }
+  }, [isStarted, pagesStatus, globalStatus]);
+
+  return (
+    <div className="generate-content-progress">
+      <div className="generate-content-progress__card" role="region" aria-label="Generate Content Progress">
+        <h4 className="generate-content-progress__title">Generate Content</h4>
+        <GenerateContentSection
+          onGenerate={handleGenerateContent}
+          isStarted={isStarted}
+          contentStatus={isStarted ? pagesStatus : "idle"}
+          globalStatus={isStarted ? globalStatus : "idle"}
+        />
+        <ContentPreviewSection
+          pagesContent={pagesContent}
+          globalContent={globalContent}
+          onDownloadPages={handleDownloadPages}
+          onDownloadGlobal={handleDownloadGlobal}
+          downloadUrlPages={downloadUrlPages}
+          downloadUrlGlobal={downloadUrlGlobal}
+        />
+        <CreateRepoSection
+          newRepoName={newRepoName}
+          setNewRepoName={setNewRepoName}
+          createRepoStatus={createRepoStatus}
+          handleCreateRepo={handleCreateRepo}
+          error={error}
+          createRepoData={createRepoData}
+        />
+        <GithubUpdateSection
+          githubOwner={githubOwner}
+          setGithubOwner={setGithubOwner}
+          githubRepo={githubRepo}
+          setGithubRepo={setGithubRepo}
+          githubStatus={githubStatus}
+          handleUpdateGithub={handleUpdateGithub}
+          disabled={!githubOwner || !githubRepo || githubStatus === "pending"}
+        />
+        <StatusSection
+          error={error}
+          contentStatus={pagesStatus}
+          globalStatus={globalStatus}
+          githubStatus={githubStatus}
+          createRepoStatus={createRepoStatus}
+        />
+      </div>
+    </div>
+  );
+};
+
+export default GenerateContentProgress; 

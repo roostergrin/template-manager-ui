@@ -1,0 +1,224 @@
+.generate-content-progress
+  display: flex
+  justify-content: center
+  align-items: center
+  margin: 2rem 0
+
+  &__card
+    max-width: 480px
+    margin: 2rem auto
+    padding: 2rem
+    background: #fff
+    border-radius: 16px
+    box-shadow: 0 2px 16px rgba(0,0,0,0.07)
+    display: flex
+    flex-direction: column
+    gap: 2rem
+
+  &__title
+    font-size: 1.25rem
+    font-weight: 600
+    margin-bottom: 1.5rem
+    text-align: center
+
+  &__button
+    background: #2563eb
+    color: #fff
+    border: none
+    border-radius: 4px
+    padding: 0.75rem 1.5rem
+    font-size: 1rem
+    font-weight: 500
+    cursor: pointer
+    margin-bottom: 1.5rem
+    transition: background 0.2s
+    &:hover:enabled
+      background: #1d4ed8
+    &:disabled
+      background: #a5b4fc
+      cursor: not-allowed
+
+  &__status
+    width: 100%
+    margin-bottom: 1rem
+    display: flex
+    flex-direction: column
+    gap: 0.5rem
+
+  &__step
+    display: flex
+    justify-content: space-between
+    align-items: center
+    font-size: 0.95rem
+
+  &__step-label
+    font-weight: 500
+
+  &__step-status
+    &--pending
+      color: #f59e42
+    &--success
+      color: #22c55e
+    &--error
+      color: #ef4444
+    &--idle
+      color: #64748b
+
+  &__error
+    color: #ef4444
+    background: #fef2f2
+    border-radius: 4px
+    padding: 0.5rem 1rem
+    margin-bottom: 1rem
+    width: 100%
+    text-align: center
+    font-size: 0.95rem
+
+  &__success
+    color: #22c55e
+    background: #f0fdf4
+    border-radius: 4px
+    padding: 0.5rem 1rem
+    margin-bottom: 1rem
+    width: 100%
+    text-align: center
+    font-size: 0.95rem
+
+  &__download
+    background: #059669
+    color: #fff
+    border: none
+    border-radius: 4px
+    padding: 0.5rem 1.25rem
+    font-size: 1rem
+    font-weight: 500
+    cursor: pointer
+    transition: background 0.2s
+    &:hover
+      background: #047857
+
+  &__input-group
+    display: flex
+    flex-direction: column
+    align-items: flex-start
+    width: 100%
+    margin-bottom: 1rem
+
+  &__label
+    font-size: 0.95rem
+    font-weight: 500
+    margin-bottom: 0.25rem
+    color: #374151
+
+  &__input
+    width: 100%
+    padding: 0.5rem 0.75rem
+    border: 1px solid #d1d5db
+    border-radius: 4px
+    font-size: 1rem
+    margin-bottom: 0.25rem
+    transition: border 0.2s
+    &:focus
+      border: 1.5px solid #2563eb
+      outline: none
+
+h4, h5
+  margin-bottom: 1rem
+
+.generate-content-section,
+.content-preview-section,
+.create-repo-section,
+.github-update-section,
+.status-section
+  margin-bottom: 1.5rem
+
+.content-preview-section__block
+  margin-bottom: 1.5rem
+
+.content-preview-section__title
+  font-size: 1.1rem
+  font-weight: 600
+  margin-bottom: 0.5rem
+
+.content-preview-section__preview
+  background: #f7f7f9
+  border: 1px solid #e0e0e0
+  border-radius: 6px
+  padding: 0.75rem
+  font-family: monospace
+  font-size: 0.95rem
+  max-height: 120px
+  overflow: auto
+  margin-bottom: 0.5rem
+
+input
+  padding: 0.5rem
+  border: 1px solid #ccc
+  border-radius: 6px
+  font-size: 1rem
+  margin-bottom: 0.5rem
+  width: 100%
+  box-sizing: border-box
+  &:focus
+    border-color: #0070f3
+    outline: none
+
+button
+  padding: 0.5rem 1.25rem
+  border-radius: 6px
+  border: none
+  font-size: 1rem
+  background: #0070f3
+  color: #fff
+  cursor: pointer
+  margin-right: 0.5rem
+  margin-bottom: 0.5rem
+  transition: background 0.2s
+  &:hover:enabled, &:focus:enabled
+    background: #005bb5
+  &:disabled
+    background: #e0e0e0
+    color: #aaa
+    cursor: not-allowed
+
+.status-section__error
+  color: #d32f2f
+  background: #fff0f0
+  border-radius: 4px
+  padding: 0.5rem
+  margin-top: 0.5rem
+
+.status-section__success
+  color: #388e3c
+  background: #e8f5e9
+  border-radius: 4px
+  padding: 0.5rem
+  margin-top: 0.5rem
+
+.generate-content-section__step-status--success,
+.github-update-section__step-status--success
+  color: #388e3c
+
+.generate-content-section__step-status--error,
+.github-update-section__step-status--error
+  color: #d32f2f
+
+.generate-content-section__step-status--pending,
+.github-update-section__step-status--pending
+  color: #fbc02d
+
+.generate-content-section__step-status--idle,
+.github-update-section__step-status--idle
+  color: #888
+
+// Responsive
+@media (max-width: 600px)
+  .generate-content-progress__card
+    padding: 1rem
+    max-width: 98vw
+  .content-preview-section__preview
+    font-size: 0.9rem
+    padding: 0.5rem
+  button
+    width: 100%
+    margin-right: 0
