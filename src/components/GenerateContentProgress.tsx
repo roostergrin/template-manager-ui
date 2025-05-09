@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useContext } from "react";
 import { useQuery } from "@tanstack/react-query";
 import generateContentService from "../services/generateContentService";
 import generateGlobalService from "../services/generateGlobalService";
@@ -11,6 +11,7 @@ import CreateRepoSection from "./CreateRepoSection";
 import GithubUpdateSection from "./GithubUpdateSection";
 import StatusSection from "./StatusSection";
 import "./GenerateContentProgress.sass";
+import GithubRepoProvider, { GithubRepoContext } from "../context/GithubRepoContext";
 
 export interface GenerateContentProgressProps {
   pages: unknown;
@@ -28,13 +29,14 @@ const GenerateContentProgress: React.FC<GenerateContentProgressProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [githubData, githubStatus, updateGithub] = useUpdateGithubRepoDataFiles();
   const [createRepoData, createRepoStatus, createRepo] = useCreateGithubRepoFromTemplate();
-  const [githubOwner, setGithubOwner] = useState("roostergrin");
-  const [githubRepo, setGithubRepo] = useState("");
   const [newRepoName, setNewRepoName] = useState("");
   const [pagesContent, setPagesContent] = useState<object | null>(null);
   const [globalContent, setGlobalContent] = useState<object | null>(null);
   const [downloadUrlPages, setDownloadUrlPages] = useState<string | null>(null);
   const [downloadUrlGlobal, setDownloadUrlGlobal] = useState<string | null>(null);
+
+  // Use context for githubOwner and githubRepo
+  const { githubOwner, setGithubOwner, githubRepo, setGithubRepo } = useContext(GithubRepoContext);
 
   // Prepare request object
   const req: GenerateContentRequest = {
@@ -138,7 +140,7 @@ const GenerateContentProgress: React.FC<GenerateContentProgressProps> = ({
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
     }
-  }, [newRepoName, siteType, createRepo]);
+  }, [newRepoName, siteType, createRepo, setGithubOwner, setGithubRepo]);
 
   const handleUpdateGithub = useCallback(async () => {
     setError(null);
@@ -197,10 +199,6 @@ const GenerateContentProgress: React.FC<GenerateContentProgressProps> = ({
           createRepoData={createRepoData}
         />
         <GithubUpdateSection
-          githubOwner={githubOwner}
-          setGithubOwner={setGithubOwner}
-          githubRepo={githubRepo}
-          setGithubRepo={setGithubRepo}
           githubStatus={githubStatus}
           handleUpdateGithub={handleUpdateGithub}
           disabled={!githubOwner || !githubRepo || githubStatus === "pending"}

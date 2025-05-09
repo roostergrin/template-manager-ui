@@ -34,4 +34,13 @@ export interface CreateRepoResponse {
   owner: string;
   repo: string;
   full_name: string;
-} 
+}
+
+export interface SiteProvision {
+  bucket_name: string;
+  github_owner: string;
+  github_repo: string;
+  github_branch: string;
+}
+
+export type SiteProvisionResponse = Record<string, any>; // Replace with actual response type if known 
