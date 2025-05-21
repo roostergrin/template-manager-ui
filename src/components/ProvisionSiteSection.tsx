@@ -95,6 +95,19 @@ const ProvisionSiteSection: React.FC = () => {
       {status === "success" && response && (
         <div className="provision-site-section__success" role="status">
           <pre className="provision-site-section__json">{JSON.stringify(response, null, 2)}</pre>
+          {response[0].cloudfront_distribution_url && (
+            <a
+              href={response[0].cloudfront_distribution_url}
+              className="provision-site-section__cloudfront-btn"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Open CloudFront Distribution in new tab"
+              tabIndex={0}
+              onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { window.open(response.cloudfront_distribution_url, '_blank', 'noopener,noreferrer'); } }}
+            >
+              Open CloudFront Distribution
+            </a>
+          )}
         </div>
       )}
     </div>

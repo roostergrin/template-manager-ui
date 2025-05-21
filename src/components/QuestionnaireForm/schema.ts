@@ -158,6 +158,27 @@ export const schema: RJSFSchema = {
         formsUrl: { type: "string", title: "Forms URL" }
       }
     },
+    testimonials: {
+      type: "object",
+      title: "Testimonials",
+      description: "Share what your patients are saying about your practice.",
+      properties: {
+        entries: {
+          type: "array",
+          title: "Testimonials",
+          items: {
+            type: "object",
+            properties: {
+              name: { type: "string", title: "Name" },
+              quote: { type: "string", title: "Testimonial" },
+              role: { type: "string", title: "Role/Relationship" },
+              photoUrl: { type: "string", title: "Photo URL" }
+            },
+            required: ["name", "quote"]
+          }
+        }
+      }
+    },
   },
   required: ["practiceBasics"],
   dependencies: {
@@ -536,5 +557,31 @@ export const uiSchema = {
     hasPatientForms: { "ui:widget": "radio", "ui:options": { "inline": true }, "ui:classNames": "questionnaire-form__radio-group" },
     patientFormUrls: { "ui:widget": "textarea", "ui:placeholder": "Patient Forms", "ui:classNames": "questionnaire-form__textarea" },
     formsUrl: { "ui:placeholder": "Forms URL", "ui:classNames": "questionnaire-form__input" }
+  },
+  testimonials: {
+    "ui:order": ["entries"],
+    entries: {
+      "ui:options": { addButtonText: "Add Testimonial" },
+      items: {
+        name: {
+          "ui:placeholder": "e.g., Jane Doe",
+          "ui:classNames": "questionnaire-form__input"
+        },
+        quote: {
+          "ui:widget": "textarea",
+          "ui:placeholder": "Their feedback about your practice...",
+          "ui:classNames": "questionnaire-form__textarea"
+        },
+        role: {
+          "ui:placeholder": "e.g., Patient, Parent",
+          "ui:classNames": "questionnaire-form__input"
+        },
+        photoUrl: {
+          "ui:placeholder": "Photo URL (optional)",
+          "ui:classNames": "questionnaire-form__input"
+        }
+      },
+      "ui:classNames": "questionnaire-form__array"
+    }
   },
 };

@@ -1,7 +1,7 @@
 const mockScrapeData = {
   practiceBasics: {
     practiceName: 'Rooster Grin Dental',
-    orthodontistName: 'Dr. Jamie Chen, DDS',
+    orthodontistName: 'Dr. Alex Bagden, DDS',
     practiceTagline: 'Brightening smiles, one grin at a time',
     uniqueValue: [
       'Advanced Invisalign® technology',
