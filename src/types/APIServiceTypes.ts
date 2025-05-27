@@ -4,6 +4,7 @@ export interface GenerateContentRequest {
     questionnaireData: any;
   };
   site_type: string;
+  assign_images: boolean;
 }
 
 export interface GenerateContentResponse {

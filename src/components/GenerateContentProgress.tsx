@@ -11,7 +11,7 @@ import CreateRepoSection from "./CreateRepoSection";
 import GithubUpdateSection from "./GithubUpdateSection";
 import StatusSection from "./StatusSection";
 import "./GenerateContentProgress.sass";
-import GithubRepoProvider, { GithubRepoContext } from "../context/GithubRepoContext";
+import { GithubRepoContext } from "../context/GithubRepoContext";
 
 export interface GenerateContentProgressProps {
   pages: unknown;
@@ -27,7 +27,7 @@ const GenerateContentProgress: React.FC<GenerateContentProgressProps> = ({
   const [shouldFetch, setShouldFetch] = useState(false);
   const [isStarted, setIsStarted] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [githubData, githubStatus, updateGithub] = useUpdateGithubRepoDataFiles();
+  const [, githubStatus, updateGithub] = useUpdateGithubRepoDataFiles();
   const [createRepoData, createRepoStatus, createRepo] = useCreateGithubRepoFromTemplate();
   const [newRepoName, setNewRepoName] = useState("");
   const [pagesContent, setPagesContent] = useState<object | null>(null);
@@ -46,6 +46,7 @@ const GenerateContentProgress: React.FC<GenerateContentProgressProps> = ({
       questionnaireData,
     },
     site_type: siteType,
+    assign_images: useRgTemplateAssets,
   };
 
   // Fetch global content
