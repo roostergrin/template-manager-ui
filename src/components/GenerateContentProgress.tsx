@@ -34,6 +34,7 @@ const GenerateContentProgress: React.FC<GenerateContentProgressProps> = ({
   const [globalContent, setGlobalContent] = useState<object | null>(null);
   const [downloadUrlPages, setDownloadUrlPages] = useState<string | null>(null);
   const [downloadUrlGlobal, setDownloadUrlGlobal] = useState<string | null>(null);
+  const [useRgTemplateAssets, setUseRgTemplateAssets] = useState(true);
 
   // Use context for githubOwner and githubRepo
   const { githubOwner, setGithubOwner, githubRepo, setGithubRepo } = useContext(GithubRepoContext);
@@ -172,10 +173,29 @@ const GenerateContentProgress: React.FC<GenerateContentProgressProps> = ({
     }
   }, [isStarted, pagesStatus, globalStatus]);
 
+  const handleUseRgTemplateAssetsChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    setUseRgTemplateAssets(event.target.checked);
+  }, []);
+
   return (
     <div className="generate-content-progress">
       <div className="generate-content-progress__card" role="region" aria-label="Generate Content Progress">
         <h4 className="generate-content-progress__title">Generate Content</h4>
+        <div className="generate-content-progress__options">
+          <div className="generate-content-progress__checkbox-wrapper">
+            <input
+              type="checkbox"
+              id="use-rg-template-assets"
+              className="generate-content-progress__checkbox"
+              checked={useRgTemplateAssets}
+              onChange={handleUseRgTemplateAssetsChange}
+              aria-label="Use images from rg-templates-assets"
+            />
+            <label htmlFor="use-rg-template-assets" className="generate-content-progress__checkbox-label">
+              Use images from rg-templates-assets
+            </label>
+          </div>
+        </div>
         <GenerateContentSection
           onGenerate={handleGenerateContent}
           isStarted={isStarted}
