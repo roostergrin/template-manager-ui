@@ -5,6 +5,7 @@ import generateGlobalService from "../services/generateGlobalService";
 import useUpdateGithubRepoDataFiles from "../hooks/useUpdateGithubRepoDataFiles";
 import useCreateGithubRepoFromTemplate from "../hooks/useCreateGithubRepoFromTemplate";
 import { GenerateContentRequest } from "../types/APIServiceTypes";
+import { getEffectiveQuestionnaireData, isMarkdownData } from "../utils/questionnaireDataUtils";
 import GenerateContentSection from "./GenerateContentSection";
 import ContentPreviewSection from "./ContentPreviewSection";
 import CreateRepoSection from "./CreateRepoSection";
@@ -39,11 +40,14 @@ const GenerateContentProgress: React.FC<GenerateContentProgressProps> = ({
   // Use context for githubOwner and githubRepo
   const { githubOwner, setGithubOwner, githubRepo, setGithubRepo } = useContext(GithubRepoContext);
 
+  // Get the effective questionnaire data (either structured or markdown-based)
+  const effectiveQuestionnaireData = getEffectiveQuestionnaireData(questionnaireData);
+
   // Prepare request object
   const req: GenerateContentRequest = {
     sitemap_data: {
       pages,
-      questionnaireData,
+      questionnaireData: effectiveQuestionnaireData,
     },
     site_type: siteType,
     assign_images: useRgTemplateAssets,
@@ -182,6 +186,16 @@ const GenerateContentProgress: React.FC<GenerateContentProgressProps> = ({
     <div className="generate-content-progress">
       <div className="generate-content-progress__card" role="region" aria-label="Generate Content Progress">
         <h4 className="generate-content-progress__title">Generate Content</h4>
+        
+        {/* Data Source Indicator */}
+        {isMarkdownData(questionnaireData) && (
+          <div className="generate-content-progress__markdown-info">
+            <p className="generate-content-progress__info-text">
+              <strong>📝 Using Markdown Data Source:</strong> Content generation will use the markdown content as questionnaire data.
+            </p>
+          </div>
+        )}
+        
         <div className="generate-content-progress__options">
           <div className="generate-content-progress__checkbox-wrapper">
             <input

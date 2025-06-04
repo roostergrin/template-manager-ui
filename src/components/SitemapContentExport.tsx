@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useCallback } from "react";
 import { SitemapSection, QuestionnaireData } from "../types/SitemapTypes";
+import { getEffectiveQuestionnaireData, isMarkdownData } from "../utils/questionnaireDataUtils";
 import useGenerateContent from "../hooks/useGenerateContent";
 
 export type ExportedSitemapContent = {
@@ -24,13 +25,16 @@ const SitemapContentExport: React.FC<SitemapContentExportProps> = ({
   const [exportedData, setExportedData] = useState<ExportedSitemapContent | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // Get the effective questionnaire data (either structured or markdown-based)
+  const effectiveQuestionnaireData = getEffectiveQuestionnaireData(questionnaireData);
+
   const handleGenerate = useCallback(() => {
     setError(null);
     generateContent(
-      { pages, questionnaireData },
+      { pages, questionnaireData: effectiveQuestionnaireData },
       {
         onSuccess: (generatedContent: any) => {
-          const data: ExportedSitemapContent = { pages, questionnaireData, generatedContent };
+          const data: ExportedSitemapContent = { pages, questionnaireData: effectiveQuestionnaireData, generatedContent };
           setExportedData(data);
           onExport(data);
         },
@@ -39,7 +43,7 @@ const SitemapContentExport: React.FC<SitemapContentExportProps> = ({
         },
       }
     );
-  }, [pages, questionnaireData, generateContent, onExport]);
+  }, [pages, effectiveQuestionnaireData, generateContent, onExport]);
 
   const handleDownload = useCallback(() => {
     if (!exportedData) return;
@@ -59,6 +63,15 @@ const SitemapContentExport: React.FC<SitemapContentExportProps> = ({
 
   return (
     <div className="flex flex-col gap-4 p-4 border rounded bg-gray-50 mt-6">
+      {/* Data Source Indicator */}
+      {isMarkdownData(questionnaireData) && (
+        <div className="mb-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-blue-800">
+            <strong>📝 Using Markdown Data Source:</strong> Content generation will use the markdown content as questionnaire data.
+          </p>
+        </div>
+      )}
+      
       <div className="flex gap-2 items-center">
         <button
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
