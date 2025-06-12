@@ -1,22 +1,47 @@
 import React, { useState } from 'react';
-import QuestionnaireForm from './components/QuestionnaireForm/QuestionnaireForm';
+import QuestionnaireManager from './components/QuestionnaireManager/QuestionnaireManager';
 import Sitemap from './components/Sitemap';
 import { initialModelGroups } from './modelGroups';
 import ProvisionSiteSection from './components/ProvisionSiteSection';
 import GithubRepoProvider from './context/GithubRepoContext';
+import { QuestionnaireData } from './types/SitemapTypes';
 import './App.sass';
 
 const App: React.FC = () => {
   const [modelGroups, setModelGroups] = useState<Record<string, string[]>>(initialModelGroups);
   const [selectedModelGroupKey, setSelectedModelGroupKey] = useState<string>(Object.keys(initialModelGroups)[0]);
-  const [questionnaireData, setQuestionnaireData] = useState<any>(null);
+  const [questionnaireData, setQuestionnaireData] = useState<Record<string, unknown>>({});
+
+  // Convert to QuestionnaireData for Sitemap component
+  const questionnaireDataForSitemap: QuestionnaireData = (questionnaireData as unknown as QuestionnaireData) || {
+    practiceDetails: '',
+    siteVision: '',
+    primaryAudience: '',
+    secondaryAudience: '',
+    demographics: '',
+    uniqueQualities: '',
+    contentCreation: 'new',
+    hasBlog: false,
+    blogType: '',
+    topTreatments: '',
+    writingStyle: '',
+    topicsToAvoid: '',
+    communityEngagement: '',
+    testimonials: '',
+    patientExperience: '',
+    financialOptions: ''
+  };
+
+  const handleQuestionnaireDataChange = (data: QuestionnaireData) => {
+    setQuestionnaireData(data as unknown as Record<string, unknown>);
+  };
 
   const currentModels = initialModelGroups[selectedModelGroupKey] || [];
   return (
     <GithubRepoProvider>
       <div className="app">
         <div className="app__questionnaire-container">
-          <QuestionnaireForm formData={questionnaireData} setFormData={setQuestionnaireData} />
+          <QuestionnaireManager formData={questionnaireData} setFormData={setQuestionnaireData} />
         </div>
         <Sitemap
           currentModels={currentModels}
@@ -24,8 +49,8 @@ const App: React.FC = () => {
           setSelectedModelGroupKey={setSelectedModelGroupKey}
           modelGroups={modelGroups}
           setModelGroups={setModelGroups}
-          questionnaireData={questionnaireData}
-          setQuestionnaireData={setQuestionnaireData}
+          questionnaireData={questionnaireDataForSitemap}
+          setQuestionnaireData={handleQuestionnaireDataChange}
         />
         <ProvisionSiteSection />
       </div>

@@ -1,0 +1,102 @@
+.markdown-textarea
+  width: 100%
+  margin-bottom: 1.5rem
+
+  &__header
+    margin-bottom: 1rem
+
+  &__title
+    font-size: 1.25rem
+    font-weight: 600
+    color: #1f2937
+    margin-bottom: 0.5rem
+    line-height: 1.3
+
+  &__description
+    font-size: 0.875rem
+    color: #6b7280
+    line-height: 1.4
+    margin: 0
+
+  &__container
+    border: 2px solid #e5e7eb
+    border-radius: 8px
+    background-color: #ffffff
+    transition: border-color 0.2s ease-in-out
+
+    &:focus-within
+      border-color: #3b82f6
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1)
+
+  &__input
+    width: 100%
+    min-height: 400px
+    padding: 1rem
+    border: none
+    border-radius: 6px 6px 0 0
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace
+    font-size: 0.875rem
+    line-height: 1.5
+    color: #374151
+    background-color: transparent
+    resize: vertical
+    outline: none
+
+    &::placeholder
+      color: #9ca3af
+      font-style: italic
+
+    &:focus
+      outline: none
+
+  &__footer
+    display: flex
+    justify-content: flex-end
+    align-items: center
+    padding: 0.75rem 1rem
+    background-color: #f9fafb
+    border-top: 1px solid #e5e7eb
+    border-radius: 0 0 6px 6px
+
+  &__char-count
+    font-size: 0.75rem
+    color: #6b7280
+    font-weight: 500
+
+// Dark mode support
+@media (prefers-color-scheme: dark)
+  .markdown-textarea
+    &__container
+      border-color: #374151
+      background-color: #1f2937
+
+      &:focus-within
+        border-color: #3b82f6
+
+    &__input
+      color: #f3f4f6
+      background-color: #1f2937
+
+      &::placeholder
+        color: #6b7280
+
+    &__footer
+      background-color: #111827
+      border-color: #374151
+
+    &__title
+      color: #f3f4f6
+
+    &__description
+      color: #9ca3af
+
+    &__char-count
+      color: #9ca3af
+
+// Responsive design
+@media (max-width: 768px)
+  .markdown-textarea
+    &__input
+      min-height: 300px
+      font-size: 0.8rem
+      padding: 0.75rem 

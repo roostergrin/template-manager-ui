@@ -1,5 +1,6 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import { QuestionnaireData } from '../types/SitemapTypes';
+import { isMarkdownData, getEffectiveQuestionnaireData } from '../utils/questionnaireDataUtils';
 import usePages from '../hooks/usePages';
 import useViewControls from '../hooks/useViewControls';
 import useImportExport from '../hooks/useImportExport';
@@ -40,12 +41,16 @@ const Sitemap: React.FC<SitemapProps> = ({
   const pagesApi = usePages();
   // View toggles/layout
   const view = useViewControls();
+  
+  // Get the effective questionnaire data (either structured or markdown-based)
+  const effectiveQuestionnaireData = getEffectiveQuestionnaireData(questionnaireData);
+  
   // Import/export logic
   const { exportJson, importJson } = useImportExport({
     pages: pagesApi.pages,
     selectedModelGroupKey,
     modelGroups,
-    questionnaireData,
+    questionnaireData: effectiveQuestionnaireData,
     importPages: pagesApi.importPagesFromJson,
     onSelectModelGroup: setSelectedModelGroupKey,
     onSetModelGroups: setModelGroups,
@@ -55,15 +60,19 @@ const Sitemap: React.FC<SitemapProps> = ({
   const [generateSitemapData, generateSitemapStatus, generateSitemap] = useGenerateSitemap();
   const backendSiteType = getBackendSiteTypeForModelGroup(selectedModelGroupKey) || '';
 
-  // Handler to receive exported data (optional: you can use or log it)
-  const handleExportedContent = (data: any) => {
-    // You can use this data as needed in the parent
-    // console.log('Exported Content:', data);
-  };
-
   return (
     <div className="relative">
       <h2 className="text-2xl font-bold mb-4">Sitemap Builder</h2>
+      
+      {/* Data Source Indicator */}
+      {isMarkdownData(questionnaireData) && (
+        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-blue-800">
+            <strong>📝 Using Markdown Data Source:</strong> The sitemap is using markdown content as the questionnaire data.
+          </p>
+        </div>
+      )}
+      
       <div className="app__header mb-6">
         <SiteSelector
           selectedModelGroupKey={selectedModelGroupKey}
@@ -73,7 +82,7 @@ const Sitemap: React.FC<SitemapProps> = ({
         <GeneratedSitemapSelector onSelectSitemap={pagesApi.handleSelectStoredSitemap} />
         <hr className="my-4 border-gray-300" />
         <GenerateSitemapButton
-          questionnaireData={questionnaireData}
+          questionnaireData={effectiveQuestionnaireData}
           generateSitemap={generateSitemap}
           generateSitemapStatus={generateSitemapStatus}
           generateSitemapData={generateSitemapData}
@@ -115,12 +124,12 @@ const Sitemap: React.FC<SitemapProps> = ({
       <JsonExportImport exportJson={exportJson} importJson={importJson} />
       {/* <SitemapContentExport
         pages={pagesApi.pages}
-        questionnaireData={questionnaireData}
+        questionnaireData={effectiveQuestionnaireData}
         onExport={handleExportedContent}
       /> */}
       <GenerateContentProgress
         pages={pagesApi.pages}
-        questionnaireData={questionnaireData}
+        questionnaireData={effectiveQuestionnaireData}
         siteType={backendSiteType}
       />
       

@@ -144,6 +144,23 @@
     cursor: pointer
     user-select: none
 
+  &__markdown-info
+    margin-bottom: 1rem
+    padding: 0.75rem 1rem
+    background-color: #e0f2fe
+    border: 1px solid #0288d1
+    border-radius: 6px
+    width: 100%
+    
+  &__info-text
+    margin: 0
+    font-size: 0.875rem
+    color: #01579b
+    line-height: 1.4
+
+    strong
+      font-weight: 600
+
 h4, h5
   margin-bottom: 1rem
 
@@ -244,3 +261,13 @@ button
   button
     width: 100%
     margin-right: 0
+
+// Dark mode support
+@media (prefers-color-scheme: dark)
+  .generate-content-progress
+    &__markdown-info
+      background-color: #1e3a8a
+      border-color: #3b82f6
+
+    &__info-text
+      color: #bfdbfe

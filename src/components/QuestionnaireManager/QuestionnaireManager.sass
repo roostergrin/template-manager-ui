@@ -1,0 +1,167 @@
+.questionnaire-manager
+  max-width: 1200px
+  margin: 0 auto
+  padding: 2rem
+
+  &__header
+    text-align: center
+    margin-bottom: 2rem
+
+  &__title
+    font-size: 2.5rem
+    font-weight: 700
+    color: #1f2937
+    margin-bottom: 1rem
+    line-height: 1.2
+
+  &__description
+    font-size: 1.125rem
+    color: #6b7280
+    line-height: 1.6
+    max-width: 600px
+    margin: 0 auto
+
+  &__content
+    margin-top: 2rem
+
+  &__scraped-data
+    margin-top: 2rem
+    padding: 1.5rem
+    background-color: #f9fafb
+    border: 1px solid #e5e7eb
+    border-radius: 8px
+
+    h3
+      font-size: 1.125rem
+      font-weight: 600
+      color: #374151
+      margin-bottom: 1rem
+
+    pre
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace
+      font-size: 0.75rem
+      color: #374151
+      background-color: #ffffff
+      padding: 1rem
+      border-radius: 6px
+      border: 1px solid #d1d5db
+      overflow: auto
+      max-height: 300px
+
+  &__debug
+    margin-top: 3rem
+    padding-top: 2rem
+    border-top: 1px solid #e5e7eb
+
+    details
+      summary
+        font-size: 0.875rem
+        font-weight: 600
+        color: #6b7280
+        cursor: pointer
+        padding: 0.5rem
+        background-color: #f3f4f6
+        border-radius: 4px
+        margin-bottom: 1rem
+
+        &:hover
+          background-color: #e5e7eb
+
+      pre
+        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace
+        font-size: 0.75rem
+        color: #374151
+        background-color: #f9fafb
+        padding: 1rem
+        border-radius: 6px
+        border: 1px solid #d1d5db
+        overflow: auto
+        max-height: 400px
+
+  &__markdown-info
+    margin-top: 1rem
+    padding: 1rem
+    background-color: #e0f2fe
+    border: 1px solid #0288d1
+    border-radius: 6px
+    
+    p
+      margin: 0
+      font-size: 0.875rem
+      color: #01579b
+      line-height: 1.4
+
+    strong
+      font-weight: 600
+
+// Dark mode support
+@media (prefers-color-scheme: dark)
+  .questionnaire-manager
+    &__title
+      color: #f3f4f6
+
+    &__description
+      color: #9ca3af
+
+    &__markdown-info
+      background-color: #1e3a8a
+      border-color: #3b82f6
+
+      p
+        color: #bfdbfe
+
+    &__scraped-data
+      background-color: #1f2937
+      border-color: #374151
+
+      h3
+        color: #f3f4f6
+
+      pre
+        background-color: #111827
+        color: #e5e7eb
+        border-color: #374151
+
+    &__debug
+      border-color: #374151
+
+      details
+        summary
+          color: #9ca3af
+          background-color: #374151
+
+          &:hover
+            background-color: #4b5563
+
+        pre
+          background-color: #1f2937
+          color: #e5e7eb
+          border-color: #374151
+
+// Responsive design
+@media (max-width: 1024px)
+  .questionnaire-manager
+    padding: 1.5rem
+
+    &__title
+      font-size: 2rem
+
+@media (max-width: 768px)
+  .questionnaire-manager
+    padding: 1rem
+
+    &__title
+      font-size: 1.75rem
+
+    &__description
+      font-size: 1rem
+
+    &__scraped-data
+      padding: 1rem
+
+      pre
+        font-size: 0.7rem
+
+    &__debug
+      pre
+        font-size: 0.7rem 
