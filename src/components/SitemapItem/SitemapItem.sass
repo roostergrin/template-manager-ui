@@ -22,6 +22,8 @@
     flex-direction: column
     gap: 0.25rem
     max-width: calc(100% - 5rem)
+    min-width: 0
+    overflow: hidden
     
     &--full-width
       max-width: calc(100% - 2.5rem)
@@ -35,10 +37,15 @@
   
   &__input
     width: 100%
+    max-width: 100%
+    min-height: 5rem
+    height: 100%
+    box-sizing: border-box
     padding: 0.25rem
     border: 1px solid #ccc
     border-radius: 3px
     font-size: 0.9rem
+    word-wrap: break-word
     
   &__remove-button
     width: 1.5rem
