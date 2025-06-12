@@ -31,6 +31,7 @@ const GenerateContentProgress: React.FC<GenerateContentProgressProps> = ({
   const [, githubStatus, updateGithub] = useUpdateGithubRepoDataFiles();
   const [createRepoData, createRepoStatus, createRepo] = useCreateGithubRepoFromTemplate();
   const [newRepoName, setNewRepoName] = useState("");
+  const [templateRepoName, setTemplateRepoName] = useState("");
   const [pagesContent, setPagesContent] = useState<object | null>(null);
   const [globalContent, setGlobalContent] = useState<object | null>(null);
   const [downloadUrlPages, setDownloadUrlPages] = useState<string | null>(null);
@@ -140,13 +141,13 @@ const GenerateContentProgress: React.FC<GenerateContentProgressProps> = ({
   const handleCreateRepo = useCallback(async () => {
     setError(null);
     try {
-      const result = await createRepo({ new_name: newRepoName, site_type: siteType });
+      const result = await createRepo({ new_name: newRepoName, template_repo: templateRepoName });
       setGithubOwner(result.owner);
       setGithubRepo(result.repo);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
     }
-  }, [newRepoName, siteType, createRepo, setGithubOwner, setGithubRepo]);
+  }, [newRepoName, templateRepoName, createRepo, setGithubOwner, setGithubRepo]);
 
   const handleUpdateGithub = useCallback(async () => {
     setError(null);
@@ -228,6 +229,8 @@ const GenerateContentProgress: React.FC<GenerateContentProgressProps> = ({
         <CreateRepoSection
           newRepoName={newRepoName}
           setNewRepoName={setNewRepoName}
+          templateRepoName={templateRepoName}
+          setTemplateRepoName={setTemplateRepoName}
           createRepoStatus={createRepoStatus}
           handleCreateRepo={handleCreateRepo}
           error={error}

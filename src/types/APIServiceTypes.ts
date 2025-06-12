@@ -28,7 +28,7 @@ export interface UpdateRepoDataResponse {
 
 export interface CreateRepoRequest {
   new_name: string;
-  site_type: string;
+  template_repo: string;
 }
 
 export interface CreateRepoResponse {
