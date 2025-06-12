@@ -42,6 +42,7 @@ export interface SiteProvision {
   github_owner: string;
   github_repo: string;
   github_branch: string;
+  page_type: "template" | "landing";
 }
 
 export type SiteProvisionResponse = Record<string, any>; // Replace with actual response type if known 

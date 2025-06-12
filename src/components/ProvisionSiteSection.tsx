@@ -7,6 +7,7 @@ const ProvisionSiteSection: React.FC = () => {
   const { githubOwner, setGithubOwner, githubRepo, setGithubRepo } = useContext(GithubRepoContext);
   const [bucketName, setBucketName] = useState("");
   const [githubBranch, setGithubBranch] = useState("master");
+  const [pageType, setPageType] = useState<"template" | "landing">("template");
   const [response, status, provisionSite] = useProvisionSite();
   const [error, setError] = useState<string | null>(null);
 
@@ -18,6 +19,7 @@ const ProvisionSiteSection: React.FC = () => {
         github_owner: githubOwner,
         github_repo: githubRepo,
         github_branch: githubBranch,
+        page_type: pageType,
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
@@ -78,6 +80,35 @@ const ProvisionSiteSection: React.FC = () => {
           aria-label="S3 bucket name"
           tabIndex={0}
         />
+      </div>
+      <div className="provision-site-section__input-group">
+        <label className="provision-site-section__label">Page Type</label>
+        <div className="provision-site-section__radio-group">
+          <label className="provision-site-section__radio-label">
+            <input
+              type="radio"
+              name="page-type"
+              value="template"
+              checked={pageType === "template"}
+              onChange={() => setPageType("template")}
+              className="provision-site-section__radio"
+              aria-label="Template page"
+            />
+            Template Page
+          </label>
+          <label className="provision-site-section__radio-label">
+            <input
+              type="radio"
+              name="page-type"
+              value="landing"
+              checked={pageType === "landing"}
+              onChange={() => setPageType("landing")}
+              className="provision-site-section__radio"
+              aria-label="Landing page"
+            />
+            Landing Page
+          </label>
+        </div>
       </div>
       <button
         className="provision-site-section__button"
