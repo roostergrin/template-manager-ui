@@ -45,4 +45,4 @@ export interface SiteProvision {
   page_type: "template" | "landing";
 }
 
-export type SiteProvisionResponse = Record<string, any>; // Replace with actual response type if known 
+export type SiteProvisionResponse = Record<string, any>; 
