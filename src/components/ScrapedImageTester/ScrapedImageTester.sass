@@ -1,0 +1,273 @@
+.scraped-image-tester
+  max-width: 1200px
+  margin: 2rem auto
+  padding: 2rem
+  background: white
+  border-radius: 12px
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1)
+
+  &__header
+    text-align: center
+    margin-bottom: 2rem
+    
+    h2
+      color: #2c3e50
+      margin: 0 0 0.5rem 0
+      font-size: 1.8rem
+      
+    p
+      color: #7f8c8d
+      margin: 0
+      font-size: 1rem
+
+  &__form
+    margin-bottom: 2rem
+    
+    .form-group
+      margin-bottom: 1.5rem
+      
+      label
+        display: block
+        font-weight: 600
+        color: #2c3e50
+        margin-bottom: 0.5rem
+        font-size: 1rem
+        
+      input, textarea
+        width: 100%
+        padding: 0.75rem
+        border: 2px solid #e1e8ed
+        border-radius: 8px
+        font-size: 1rem
+        font-family: inherit
+        transition: border-color 0.2s ease
+        
+        &:focus
+          outline: none
+          border-color: #3498db
+          
+        &::placeholder
+          color: #95a5a6
+          
+      textarea
+        resize: vertical
+        min-height: 120px
+        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace
+        
+      small
+        display: block
+        color: #7f8c8d
+        font-size: 0.85rem
+        margin-top: 0.25rem
+
+  &__actions
+    display: flex
+    gap: 1rem
+    justify-content: center
+    margin-top: 2rem
+    
+    .btn
+      padding: 0.75rem 1.5rem
+      border: none
+      border-radius: 8px
+      font-size: 1rem
+      font-weight: 600
+      cursor: pointer
+      transition: all 0.2s ease
+      text-decoration: none
+      display: inline-flex
+      align-items: center
+      gap: 0.5rem
+      
+      &:disabled
+        opacity: 0.6
+        cursor: not-allowed
+        
+      &--primary
+        background: #3498db
+        color: white
+        
+        &:hover:not(:disabled)
+          background: #2980b9
+          transform: translateY(-1px)
+          
+      &--secondary
+        background: #95a5a6
+        color: white
+        
+        &:hover:not(:disabled)
+          background: #7f8c8d
+          transform: translateY(-1px)
+
+  &__error
+    background: #fee
+    border: 2px solid #e74c3c
+    border-radius: 8px
+    padding: 1rem
+    margin-bottom: 2rem
+    
+    h3
+      color: #e74c3c
+      margin: 0 0 0.5rem 0
+      font-size: 1.1rem
+      
+    p
+      color: #c0392b
+      margin: 0
+      
+  &__result
+    background: #f8f9fa
+    border: 2px solid #e1e8ed
+    border-radius: 12px
+    padding: 1.5rem
+    margin-bottom: 2rem
+    
+    h3
+      color: #2c3e50
+      margin: 0 0 1rem 0
+      font-size: 1.3rem
+      
+    h4
+      color: #34495e
+      margin: 1.5rem 0 1rem 0
+      font-size: 1.1rem
+      border-bottom: 2px solid #ecf0f1
+      padding-bottom: 0.5rem
+
+  .result-summary
+    display: grid
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr))
+    gap: 1rem
+    margin-bottom: 1.5rem
+    
+    .summary-item
+      display: flex
+      justify-content: space-between
+      align-items: center
+      background: white
+      padding: 0.75rem
+      border-radius: 6px
+      border: 1px solid #e1e8ed
+      
+      .label
+        font-weight: 600
+        color: #34495e
+        
+      .value
+        font-weight: 500
+        
+        &.success
+          color: #27ae60
+          
+        &.error
+          color: #e74c3c
+
+  .result-message
+    background: #d5ead5
+    color: #2d5a2d
+    padding: 1rem
+    border-radius: 6px
+    margin-bottom: 1rem
+    border-left: 4px solid #27ae60
+
+  .synced-images, .failed-images, .status-images
+    margin-top: 1.5rem
+    
+  .image-item
+    background: white
+    border: 1px solid #e1e8ed
+    border-radius: 8px
+    padding: 1rem
+    margin-bottom: 1rem
+    transition: box-shadow 0.2s ease
+    
+    &:hover
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1)
+      
+    &.error
+      border-color: #e74c3c
+      background: #fef5f5
+      
+    .image-details
+      .detail-row
+        display: flex
+        align-items: flex-start
+        margin-bottom: 0.75rem
+        gap: 1rem
+        
+        &:last-child
+          margin-bottom: 0
+          
+        .label
+          font-weight: 600
+          color: #34495e
+          min-width: 140px
+          flex-shrink: 0
+          
+        .value
+          flex: 1
+          word-break: break-all
+          display: flex
+          align-items: center
+          gap: 0.5rem
+          
+          a
+            color: #3498db
+            text-decoration: none
+            
+            &:hover
+              text-decoration: underline
+            
+          &.error
+            color: #e74c3c
+            
+          .copy-btn
+            background: #ecf0f1
+            border: none
+            padding: 0.25rem 0.5rem
+            border-radius: 4px
+            cursor: pointer
+            font-size: 0.8rem
+            transition: background 0.2s ease
+            
+            &:hover
+              background: #d5dbdb
+    
+    .image-preview
+      margin-top: 1rem
+      text-align: center
+      
+      img
+        max-width: 200px
+        max-height: 200px
+        border-radius: 6px
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1)
+
+  .no-images
+    text-align: center
+    color: #7f8c8d
+    padding: 2rem
+    font-style: italic
+
+// Responsive design
+@media (max-width: 768px)
+  .scraped-image-tester
+    margin: 1rem
+    padding: 1rem
+    
+    &__actions
+      flex-direction: column
+      
+    .result-summary
+      grid-template-columns: 1fr
+      
+    .image-item .image-details .detail-row
+      flex-direction: column
+      align-items: flex-start
+      gap: 0.25rem
+      
+      .label
+        min-width: auto
+        
+      .value
+        word-break: break-word 

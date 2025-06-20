@@ -3,6 +3,7 @@ import QuestionnaireManager from './components/QuestionnaireManager/Questionnair
 import Sitemap from './components/Sitemap';
 import { initialModelGroups } from './modelGroups';
 import ProvisionSiteSection from './components/ProvisionSiteSection';
+import ScrapedImageTester from './components/ScrapedImageTester/ScrapedImageTester';
 import GithubRepoProvider from './context/GithubRepoContext';
 import { QuestionnaireData } from './types/SitemapTypes';
 import './App.sass';
@@ -53,6 +54,7 @@ const App: React.FC = () => {
           setQuestionnaireData={handleQuestionnaireDataChange}
         />
         <ProvisionSiteSection />
+        <ScrapedImageTester />
       </div>
     </GithubRepoProvider>
   );
