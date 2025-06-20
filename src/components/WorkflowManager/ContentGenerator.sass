@@ -1,0 +1,193 @@
+.content-generator
+  .markdown-info
+    margin-bottom: 20px
+    padding: 15px
+    background: linear-gradient(135deg, #e0f2fe 0%, #b3e5fc 100%)
+    border: 2px solid #0288d1
+    border-radius: 8px
+    
+    p
+      margin: 0
+      color: #01579b
+      font-size: 0.95rem
+      line-height: 1.4
+      
+      strong
+        font-weight: 600
+
+  .options-section
+    margin-bottom: 20px
+    
+    .checkbox-wrapper
+      display: flex
+      align-items: center
+      gap: 10px
+      
+      input[type="checkbox"]
+        width: auto
+        margin: 0
+        cursor: pointer
+        accent-color: #667eea
+      
+      label
+        font-size: 0.95rem
+        font-weight: 500
+        color: #374151
+        cursor: pointer
+        user-select: none
+
+  .generate-button
+    width: 100%
+    padding: 14px 24px
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)
+    color: white
+    border: none
+    border-radius: 8px
+    font-size: 1.1rem
+    font-weight: 600
+    cursor: pointer
+    transition: all 0.3s ease
+    margin-bottom: 20px
+    
+    &:hover:not(:disabled)
+      transform: translateY(-2px)
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3)
+    
+    &:disabled
+      background: linear-gradient(135deg, #ccc 0%, #999 100%)
+      cursor: not-allowed
+      transform: none
+      box-shadow: none
+
+  .status-section
+    margin-bottom: 20px
+    padding: 15px
+    background: #f8f9fa
+    border: 1px solid #e1e5e9
+    border-radius: 8px
+    
+    .status-item
+      display: flex
+      justify-content: space-between
+      align-items: center
+      margin-bottom: 8px
+      
+      &:last-child
+        margin-bottom: 0
+      
+      .status-label
+        font-weight: 500
+        color: #374151
+        font-size: 0.95rem
+      
+      .status-value
+        font-weight: 600
+        font-size: 0.9rem
+        padding: 4px 8px
+        border-radius: 4px
+        
+        &--idle
+          color: #6b7280
+          background: #f3f4f6
+        
+        &--pending
+          color: #d97706
+          background: #fef3c7
+        
+        &--success
+          color: #059669
+          background: #d1fae5
+        
+        &--error
+          color: #dc2626
+          background: #fee2e2
+
+  .error-section
+    margin-bottom: 20px
+    
+    .error-message
+      background: linear-gradient(135deg, #fee 0%, #fdd 100%)
+      border: 2px solid #f5c6cb
+      border-radius: 8px
+      padding: 12px 16px
+      margin-bottom: 10px
+      color: #721c24
+      font-size: 0.95rem
+      
+      &:last-child
+        margin-bottom: 0
+
+  .success-section
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%)
+    border: 2px solid #b3d4b3
+    border-radius: 12px
+    padding: 20px
+    margin-top: 20px
+    
+    h4
+      margin: 0 0 20px 0
+      color: #155724
+      font-size: 1.3rem
+
+    .content-previews
+      display: grid
+      gap: 20px
+      
+      .preview-block
+        background: rgba(255, 255, 255, 0.7)
+        border: 1px solid #b3d4b3
+        border-radius: 8px
+        padding: 15px
+        
+        .preview-header
+          display: flex
+          justify-content: space-between
+          align-items: center
+          margin-bottom: 10px
+          
+          h5
+            margin: 0
+            color: #155724
+            font-size: 1.1rem
+            font-weight: 600
+          
+          .download-button
+            padding: 6px 12px
+            background: #28a745
+            color: white
+            border: none
+            border-radius: 4px
+            font-size: 0.85rem
+            font-weight: 500
+            cursor: pointer
+            transition: background-color 0.3s ease
+            
+            &:hover
+              background: #218838
+        
+        .content-preview
+          background: #f8f9fa
+          border: 1px solid #e1e5e9
+          border-radius: 6px
+          padding: 12px
+          font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace
+          font-size: 0.85rem
+          color: #374151
+          max-height: 150px
+          overflow: auto
+          margin: 0
+          white-space: pre-wrap
+
+// Responsive design
+@media (max-width: 768px)
+  .content-generator
+    .content-previews
+      grid-template-columns: 1fr
+    
+    .preview-header
+      flex-direction: column
+      align-items: stretch
+      gap: 10px
+      
+      .download-button
+        width: 100% 
