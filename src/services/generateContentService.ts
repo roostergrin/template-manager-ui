@@ -4,11 +4,15 @@ import { GenerateContentRequest, GenerateContentResponse } from "../types/APISer
 
 // For useMutation - plain async function
 const generateContentService = async (request: GenerateContentRequest): Promise<GenerateContentResponse> => {
-  console.log("generateContentService", request);
+  console.log("📤 generateContentService - Sending request:", request);
   const res = await api.post("/generate-content/", request);
+  console.log("📥 generateContentService - Received response:", res);
+  console.log("📄 generateContentService - Response data:", res?.data);
   if (!res?.data) {
+    console.error("❌ generateContentService - No data in response");
     throw new Error("Failed to generate content");
   }
+  console.log("✅ generateContentService - Returning data:", res.data);
   return res.data;
 };
 

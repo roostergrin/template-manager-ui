@@ -1,5 +1,5 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { generateContentQueryFunction } from '../../services/generateContentService';
 import { generateGlobalQueryFunction } from '../../services/generateGlobalService';
 import { GenerateContentRequest } from '../../types/APIServiceTypes';
@@ -24,19 +24,105 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
   const [useRgTemplateAssets, setUseRgTemplateAssets] = useState(true);
   const [pagesContent, setPagesContent] = useState<object | null>(null);
   const [globalContent, setGlobalContent] = useState<object | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [uploadMode, setUploadMode] = useState<'generate' | 'upload'>('generate');
+
+  const queryClient = useQueryClient();
 
   // Get the effective questionnaire data
   const effectiveQuestionnaireData = getEffectiveQuestionnaireData(questionnaireData);
 
-  // Prepare request object
-  const req: GenerateContentRequest = {
+  // File upload handlers
+  const validateContentStructure = useCallback((content: any, type: 'pages' | 'global'): string | null => {
+    if (type === 'pages') {
+      // Basic validation for pages content
+      if (typeof content !== 'object' || Array.isArray(content)) {
+        return 'Pages content must be an object with page data';
+      }
+      
+      // Check if it has at least one page
+      const keys = Object.keys(content);
+      if (keys.length === 0) {
+        return 'Pages content appears to be empty';
+      }
+      
+      return null; // Valid
+    } else {
+      // Basic validation for global content
+      if (typeof content !== 'object' || Array.isArray(content)) {
+        return 'Global content must be an object with global data';
+      }
+      
+      return null; // Valid
+    }
+  }, []);
+
+  const handleFileUpload = useCallback((file: File, type: 'pages' | 'global') => {
+    setUploadError(null);
+    
+    if (!file.name.endsWith('.json')) {
+      setUploadError(`Please upload a valid JSON file for ${type} content.`);
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const content = JSON.parse(e.target?.result as string);
+        
+        // Validate the content structure
+        const validationError = validateContentStructure(content, type);
+        if (validationError) {
+          setUploadError(`Invalid ${type} content structure: ${validationError}`);
+          return;
+        }
+
+        if (type === 'pages') {
+          setPagesContent(content);
+        } else {
+          setGlobalContent(content);
+        }
+      } catch (error) {
+        setUploadError(`Error parsing ${type} JSON file: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      }
+    };
+    reader.readAsText(file);
+  }, [validateContentStructure]);
+
+  const handlePagesFileChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      handleFileUpload(file, 'pages');
+    }
+  }, [handleFileUpload]);
+
+  const handleGlobalFileChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      handleFileUpload(file, 'global');
+    }
+  }, [handleFileUpload]);
+
+  const handleClearUploads = useCallback(() => {
+    setPagesContent(null);
+    setGlobalContent(null);
+    setUploadError(null);
+    // Clear file inputs
+    const pagesInput = document.getElementById('pages-upload') as HTMLInputElement;
+    const globalInput = document.getElementById('global-upload') as HTMLInputElement;
+    if (pagesInput) pagesInput.value = '';
+    if (globalInput) globalInput.value = '';
+  }, []);
+
+  // Prepare request object with useMemo to prevent unnecessary re-renders
+  const req: GenerateContentRequest = useMemo(() => ({
     sitemap_data: {
       pages,
       questionnaireData: effectiveQuestionnaireData,
     },
     site_type: siteType,
     assign_images: useRgTemplateAssets,
-  };
+  }), [pages, effectiveQuestionnaireData, siteType, useRgTemplateAssets]);
 
   // Fetch global content
   const {
@@ -60,16 +146,40 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
     enabled: shouldFetch,
   });
 
+  // Debug logging for query states
+  useEffect(() => {
+    console.log('🔍 Content Generator Debug:');
+    console.log('📊 shouldFetch:', shouldFetch);
+    console.log('🔄 isStarted:', isStarted);
+    console.log('📝 Pages Status:', pagesStatus);
+    console.log('🌐 Global Status:', globalStatus);
+    console.log('📄 Pages Data:', pagesData ? 'Present' : 'Missing');
+    console.log('🌍 Global Data:', globalData ? 'Present' : 'Missing');
+    console.log('❌ Pages Error:', pagesError?.message || 'None');
+    console.log('❌ Global Error:', globalError?.message || 'None');
+    console.log('🔑 Request Object:', req);
+  }, [shouldFetch, isStarted, pagesStatus, globalStatus, pagesData, globalData, pagesError, globalError, req]);
+
   // Handle successful content generation
   useEffect(() => {
+    console.log('📝 Pages useEffect FIRED - Status:', pagesStatus, 'Data present:', !!pagesData);
+    console.log('📝 Pages useEffect - pagesData type:', typeof pagesData, 'keys:', pagesData ? Object.keys(pagesData) : 'none');
     if (pagesStatus === 'success' && pagesData) {
+      console.log('✅ Setting pages content:', Object.keys(pagesData));
       setPagesContent(pagesData);
+    } else {
+      console.log('❌ Not setting pages content - status:', pagesStatus, 'data:', !!pagesData);
     }
   }, [pagesStatus, pagesData]);
 
   useEffect(() => {
+    console.log('🌐 Global useEffect FIRED - Status:', globalStatus, 'Data present:', !!globalData);
+    console.log('🌐 Global useEffect - globalData type:', typeof globalData, 'keys:', globalData ? Object.keys(globalData) : 'none');
     if (globalStatus === 'success' && globalData) {
+      console.log('✅ Setting global content:', Object.keys(globalData));
       setGlobalContent(globalData);
+    } else {
+      console.log('❌ Not setting global content - status:', globalStatus, 'data:', !!globalData);
     }
   }, [globalStatus, globalData]);
 
@@ -93,11 +203,20 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
   }, [isStarted, pagesStatus, globalStatus]);
 
   const handleGenerateContent = useCallback(() => {
+    console.log('🚀 Starting content generation...');
+    
+    // Invalidate existing queries to force fresh requests
+    queryClient.invalidateQueries({ queryKey: ['generate-content'] });
+    queryClient.invalidateQueries({ queryKey: ['generate-global'] });
+    console.log('🧹 Invalidated React Query cache');
+    
     setIsStarted(true);
     setShouldFetch(true);
     setPagesContent(null);
     setGlobalContent(null);
-  }, []);
+    
+    console.log('🧹 Clearing previous content states');
+  }, [queryClient]);
 
   const handleUseRgTemplateAssetsChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     setUseRgTemplateAssets(event.target.checked);
@@ -142,48 +261,171 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
         </div>
       )}
 
-      {/* Options */}
-      <div className="options-section">
-        <div className="checkbox-wrapper">
-          <input
-            type="checkbox"
-            id="use-rg-template-assets"
-            checked={useRgTemplateAssets}
-            onChange={handleUseRgTemplateAssetsChange}
-          />
-          <label htmlFor="use-rg-template-assets">
-            Use images from rg-templates-assets
-          </label>
+      {/* Mode Selection */}
+      <div className="mode-selection">
+        <div className="mode-tabs">
+          <button
+            className={`mode-tab ${uploadMode === 'generate' ? 'mode-tab--active' : ''}`}
+            onClick={() => setUploadMode('generate')}
+          >
+            🤖 Generate Content
+          </button>
+          <button
+            className={`mode-tab ${uploadMode === 'upload' ? 'mode-tab--active' : ''}`}
+            onClick={() => setUploadMode('upload')}
+          >
+            📁 Upload Content
+          </button>
         </div>
       </div>
 
-      {/* Generate Button */}
-      <button
-        className="generate-button"
-        onClick={handleGenerateContent}
-        disabled={isGenerating}
-      >
-        {isGenerating ? 'Generating Content...' : 'Generate Content'}
-      </button>
+      {uploadMode === 'generate' ? (
+        <>
+          {/* Options */}
+          <div className="options-section">
+            <div className="checkbox-wrapper">
+              <input
+                type="checkbox"
+                id="use-rg-template-assets"
+                checked={useRgTemplateAssets}
+                onChange={handleUseRgTemplateAssetsChange}
+              />
+              <label htmlFor="use-rg-template-assets">
+                Use images from rg-templates-assets
+              </label>
+            </div>
+          </div>
+
+          {/* Generate Button */}
+          <button
+            className="generate-button"
+            onClick={handleGenerateContent}
+            disabled={isGenerating}
+          >
+            {isGenerating ? 'Generating Content...' : 'Generate Content'}
+          </button>
+        </>
+      ) : (
+        <>
+          {/* Manual Upload Section */}
+          <div className="upload-section">
+            <div className="upload-info">
+              <h4>📁 Upload Pre-Generated Content</h4>
+              <p>Upload your previously generated content JSON files to skip the generation process.</p>
+            </div>
+
+            <div className="upload-controls">
+              <div className="upload-group">
+                <label htmlFor="pages-upload" className="upload-label">
+                  📄 Pages Content (JSON)
+                </label>
+                <input
+                  type="file"
+                  id="pages-upload"
+                  accept=".json"
+                  onChange={handlePagesFileChange}
+                  className="file-input"
+                />
+                {pagesContent && (
+                  <span className="upload-status upload-status--success">
+                    ✅ Pages content loaded
+                  </span>
+                )}
+              </div>
+
+              <div className="upload-group">
+                <label htmlFor="global-upload" className="upload-label">
+                  🌐 Global Content (JSON)
+                </label>
+                <input
+                  type="file"
+                  id="global-upload"
+                  accept=".json"
+                  onChange={handleGlobalFileChange}
+                  className="file-input"
+                />
+                {globalContent && (
+                  <span className="upload-status upload-status--success">
+                    ✅ Global content loaded
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Sample Structure Guide */}
+            <details className="sample-structure">
+              <summary>💡 View Expected JSON Structure</summary>
+              <div className="structure-content">
+                <div className="structure-example">
+                  <h6>Pages Content Structure:</h6>
+                  <pre>{`{
+  "homepage": {
+    "hero": {
+      "title": "Your Practice Name",
+      "subtitle": "Tagline here",
+      "content": "Main content..."
+    }
+  },
+  "about": {
+    "title": "About Us",
+    "content": "About page content..."
+  }
+}`}</pre>
+                </div>
+                <div className="structure-example">
+                  <h6>Global Content Structure:</h6>
+                  <pre>{`{
+  "practice_name": "Your Practice",
+  "phone": "123-456-7890",
+  "address": "123 Main St",
+  "colors": {
+    "primary": "#007bff",
+    "secondary": "#6c757d"
+  }
+}`}</pre>
+                </div>
+              </div>
+            </details>
+
+            {(pagesContent || globalContent) && (
+              <button
+                className="clear-button"
+                onClick={handleClearUploads}
+              >
+                🗑️ Clear Uploaded Content
+              </button>
+            )}
+          </div>
+        </>
+      )}
+
+      {/* Upload Error Display */}
+      {uploadError && (
+        <div className="error-section">
+          <div className="error-message">
+            <strong>Upload Error:</strong> {uploadError}
+          </div>
+        </div>
+      )}
 
       {/* Status Display */}
       <div className="status-section">
         <div className="status-item">
           <span className="status-label">Pages Content:</span>
-          <span className={`status-value status-value--${pagesStatus}`}>
-            {isStarted ? pagesStatus : 'idle'}
+          <span className={`status-value ${pagesContent ? 'status-value--success' : `status-value--${pagesStatus}`}`}>
+            {pagesContent ? 'loaded' : pagesStatus === 'pending' ? 'generating' : pagesStatus === 'error' ? 'error' : 'idle'}
           </span>
         </div>
         <div className="status-item">
           <span className="status-label">Global Content:</span>
-          <span className={`status-value status-value--${globalStatus}`}>
-            {isStarted ? globalStatus : 'idle'}
+          <span className={`status-value ${globalContent ? 'status-value--success' : `status-value--${globalStatus}`}`}>
+            {globalContent ? 'loaded' : globalStatus === 'pending' ? 'generating' : globalStatus === 'error' ? 'error' : 'idle'}
           </span>
         </div>
       </div>
 
       {/* Error Display */}
-      {hasError && (
+      {hasError && uploadMode === 'generate' && (
         <div className="error-section">
           {pagesError && (
             <div className="error-message">
@@ -199,9 +441,9 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
       )}
 
       {/* Success Display */}
-      {isComplete && (
+      {(isComplete || (pagesContent && globalContent)) && (
         <div className="success-section">
-          <h4>✅ Content Generated Successfully!</h4>
+          <h4>✅ Content {uploadMode === 'upload' ? 'Uploaded' : 'Generated'} Successfully!</h4>
           
           {/* Content Previews */}
           <div className="content-previews">
@@ -233,10 +475,22 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
               </div>
             )}
           </div>
+
+          {uploadMode === 'upload' && (
+            <div className="upload-success-info">
+              <p>💡 <strong>Tip:</strong> Your uploaded content is now ready to be used in the Repository Updater and WordPress Updater sections.</p>
+            </div>
+          )}
+
+          {uploadMode === 'generate' && (
+            <div className="generation-success-info">
+              <p>💡 <strong>Next Steps:</strong> Your generated content is now ready! You can download the JSON files or proceed to the WordPress Updater section to push this content to your site.</p>
+            </div>
+          )}
         </div>
       )}
     </div>
   );
 };
 
-export default ContentGenerator; 
+export default ContentGenerator;

@@ -4,11 +4,15 @@ import { GenerateContentRequest, GenerateGlobalResponse } from "../types/APIServ
 
 // For useMutation - plain async function
 const generateGlobalService = async (request: GenerateContentRequest): Promise<GenerateGlobalResponse> => {
-  console.log("generateGlobalService", request);
+  console.log("📤 generateGlobalService - Sending request:", request);
   const res = await api.post("/generate-global/", request);
+  console.log("📥 generateGlobalService - Received response:", res);
+  console.log("🌐 generateGlobalService - Response data:", res?.data);
   if (!res?.data) {
+    console.error("❌ generateGlobalService - No data in response");
     throw new Error("Failed to generate global data");
   }
+  console.log("✅ generateGlobalService - Returning data:", res.data);
   return res.data;
 };
 

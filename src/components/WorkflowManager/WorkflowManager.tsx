@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import QuestionnaireManager from '../QuestionnaireManager/QuestionnaireManager';
 import EnhancedSitemap from './EnhancedSitemap';
 import EnhancedProvisionSection from './EnhancedProvisionSection';
@@ -6,6 +6,7 @@ import EnhancedImageTester from './EnhancedImageTester';
 import GitHubRepoCreator from './GitHubRepoCreator';
 import ContentGenerator from './ContentGenerator';
 import RepositoryUpdater from './RepositoryUpdater';
+import WordPressUpdater from './WordPressUpdater';
 import { QuestionnaireData } from '../../types/SitemapTypes';
 import { initialModelGroups } from '../../modelGroups';
 import { getBackendSiteTypeForModelGroup } from '../../utils/modelGroupKeyToBackendSiteType';
@@ -31,9 +32,9 @@ const WorkflowManager: React.FC<WorkflowManagerProps> = ({
   }>({ pages: null, global: null });
   const [sitemapPages, setSitemapPages] = useState<any[]>([]);
 
-  const handlePagesChange = (pages: any[]) => {
+  const handlePagesChange = useCallback((pages: any[]) => {
     setSitemapPages(pages);
-  };
+  }, []);
 
   // Convert to QuestionnaireData for Sitemap component
   const questionnaireDataForSitemap: QuestionnaireData = (questionnaireData as unknown as QuestionnaireData) || {
@@ -59,12 +60,12 @@ const WorkflowManager: React.FC<WorkflowManagerProps> = ({
     setQuestionnaireData(data as unknown as Record<string, unknown>);
   };
 
-  const handleContentGenerated = (pagesContent: object, globalContent: object) => {
+  const handleContentGenerated = useCallback((pagesContent: object, globalContent: object) => {
     setGeneratedContent({
       pages: pagesContent,
       global: globalContent
     });
-  };
+  }, []);
 
   const currentModels = initialModelGroups[selectedModelGroupKey] || [];
   const siteType = getBackendSiteTypeForModelGroup(selectedModelGroupKey) || 'stinson';
@@ -189,6 +190,16 @@ const WorkflowManager: React.FC<WorkflowManagerProps> = ({
                 <RepositoryUpdater
                   pagesContent={generatedContent.pages}
                   globalContent={generatedContent.global}
+                />
+              </div>
+              
+              <div className="section">
+                <h3>🌐 Update WordPress</h3>
+                <p>Push generated content directly to your WordPress site via the REST API.</p>
+                <WordPressUpdater
+                  pagesContent={generatedContent.pages}
+                  globalContent={generatedContent.global}
+                  sitemapData={{ pages: sitemapPages }}
                 />
               </div>
             </div>
