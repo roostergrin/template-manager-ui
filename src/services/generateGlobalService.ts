@@ -2,8 +2,8 @@ import { QueryFunction } from "@tanstack/react-query";
 import api from "./apiService";
 import { GenerateContentRequest, GenerateGlobalResponse } from "../types/APIServiceTypes";
 
-const generateGlobalService: QueryFunction<GenerateGlobalResponse, ["generate-global", GenerateContentRequest]> = async ({ queryKey }) => {
-  const [, request] = queryKey;
+// For useMutation - plain async function
+const generateGlobalService = async (request: GenerateContentRequest): Promise<GenerateGlobalResponse> => {
   console.log("generateGlobalService", request);
   const res = await api.post("/generate-global/", request);
   if (!res?.data) {
@@ -11,4 +11,12 @@ const generateGlobalService: QueryFunction<GenerateGlobalResponse, ["generate-gl
   }
   return res.data;
 };
-export default generateGlobalService; 
+
+// For useQuery - QueryFunction that extracts request from queryKey
+const generateGlobalQueryFunction: QueryFunction<GenerateGlobalResponse, ["generate-global", GenerateContentRequest]> = async ({ queryKey }) => {
+  const [, request] = queryKey;
+  return generateGlobalService(request);
+};
+
+export default generateGlobalService;
+export { generateGlobalQueryFunction }; 

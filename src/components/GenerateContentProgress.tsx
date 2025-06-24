@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect, useContext } from "react";
 import { useQuery } from "@tanstack/react-query";
-import generateContentService from "../services/generateContentService";
-import generateGlobalService from "../services/generateGlobalService";
+import { generateContentQueryFunction } from "../services/generateContentService";
+import { generateGlobalQueryFunction } from "../services/generateGlobalService";
 import useUpdateGithubRepoDataFiles from "../hooks/useUpdateGithubRepoDataFiles";
 import useCreateGithubRepoFromTemplate from "../hooks/useCreateGithubRepoFromTemplate";
 import { GenerateContentRequest } from "../types/APIServiceTypes";
@@ -61,7 +61,7 @@ const GenerateContentProgress: React.FC<GenerateContentProgressProps> = ({
     error: globalError,
   } = useQuery({
     queryKey: ["generate-global", req],
-    queryFn: generateGlobalService,
+    queryFn: generateGlobalQueryFunction,
     enabled: shouldFetch,
   });
 
@@ -72,7 +72,7 @@ const GenerateContentProgress: React.FC<GenerateContentProgressProps> = ({
     error: pagesError,
   } = useQuery({
     queryKey: ["generate-content", req],
-    queryFn: generateContentService,
+    queryFn: generateContentQueryFunction,
     enabled: shouldFetch,
   });
 

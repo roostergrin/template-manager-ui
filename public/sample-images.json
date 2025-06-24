@@ -1,0 +1,35 @@
+{
+  "site_data": {
+    "hero_images": [
+      "https://images.unsplash.com/photo-1606811841689-23dfddce3e95?w=800",
+      "https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=800",
+      "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=800"
+    ],
+    "gallery": {
+      "treatment_photos": [
+        "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=600",
+        "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=600",
+        "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600"
+      ],
+      "office_photos": [
+        "https://images.unsplash.com/photo-1551884170-09fb70a3a2ed?w=600",
+        "https://images.unsplash.com/photo-1631815588090-d4bfec5b1ccb?w=600"
+      ]
+    },
+    "team_photos": [
+      "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400",
+      "https://images.unsplash.com/photo-1594824850871-0c0c3e78b6e7?w=400",
+      "https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=400"
+    ],
+    "blog_images": [
+      "https://images.unsplash.com/photo-1606811841689-23dfddce3e95?w=500",
+      "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=500",
+      "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500"
+    ]
+  },
+  "metadata": {
+    "total_images": 13,
+    "categories": ["hero", "gallery", "team", "blog"],
+    "description": "Sample image collection for dental practice website"
+  }
+} 

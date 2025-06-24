@@ -2,8 +2,8 @@ import { QueryFunction } from "@tanstack/react-query";
 import api from "./apiService";
 import { GenerateContentRequest, GenerateContentResponse } from "../types/APIServiceTypes";
 
-const generateContentService: QueryFunction<GenerateContentResponse, ["generate-content", GenerateContentRequest]> = async ({ queryKey }) => {
-  const [, request] = queryKey;
+// For useMutation - plain async function
+const generateContentService = async (request: GenerateContentRequest): Promise<GenerateContentResponse> => {
   console.log("generateContentService", request);
   const res = await api.post("/generate-content/", request);
   if (!res?.data) {
@@ -11,4 +11,12 @@ const generateContentService: QueryFunction<GenerateContentResponse, ["generate-
   }
   return res.data;
 };
-export default generateContentService; 
+
+// For useQuery - QueryFunction that extracts request from queryKey
+const generateContentQueryFunction: QueryFunction<GenerateContentResponse, ["generate-content", GenerateContentRequest]> = async ({ queryKey }) => {
+  const [, request] = queryKey;
+  return generateContentService(request);
+};
+
+export default generateContentService;
+export { generateContentQueryFunction }; 

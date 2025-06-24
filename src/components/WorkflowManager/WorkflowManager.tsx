@@ -141,6 +141,7 @@ const WorkflowManager: React.FC<WorkflowManagerProps> = ({
                 <EnhancedImageTester 
                   prefilledBucket={provisioningData?.bucketName}
                   prefilledCloudFront={provisioningData?.assets_distribution_url}
+                  questionnaireData={questionnaireData}
                 />
               </div>
             </div>

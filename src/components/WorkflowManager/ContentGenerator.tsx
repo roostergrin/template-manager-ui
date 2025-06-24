@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import generateContentService from '../../services/generateContentService';
-import generateGlobalService from '../../services/generateGlobalService';
+import { generateContentQueryFunction } from '../../services/generateContentService';
+import { generateGlobalQueryFunction } from '../../services/generateGlobalService';
 import { GenerateContentRequest } from '../../types/APIServiceTypes';
 import { getEffectiveQuestionnaireData, isMarkdownData } from '../../utils/questionnaireDataUtils';
 import './ContentGenerator.sass';
@@ -45,7 +45,7 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
     error: globalError,
   } = useQuery({
     queryKey: ['generate-global', req],
-    queryFn: generateGlobalService,
+    queryFn: generateGlobalQueryFunction,
     enabled: shouldFetch,
   });
 
@@ -56,7 +56,7 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
     error: pagesError,
   } = useQuery({
     queryKey: ['generate-content', req],
-    queryFn: generateContentService,
+    queryFn: generateContentQueryFunction,
     enabled: shouldFetch,
   });
 

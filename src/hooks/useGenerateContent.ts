@@ -4,7 +4,7 @@ import { GenerateContentRequest, GenerateContentResponse } from "../types/APISer
 
 const useGenerateContent = () => {
   const mutation = useMutation<GenerateContentResponse, Error, GenerateContentRequest>({
-    mutationFn: (request) => generateContentService({ queryKey: ["generate-content", request] })
+    mutationFn: generateContentService
   });
   return [mutation.data, mutation.status as QueryStatus, mutation.mutateAsync] as [GenerateContentResponse | undefined, QueryStatus, (request: GenerateContentRequest) => Promise<GenerateContentResponse>];
 };

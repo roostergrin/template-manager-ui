@@ -249,6 +249,522 @@
     padding: 2rem
     font-style: italic
 
+  // Radio group for sync mode selection
+  .radio-group
+    display: flex
+    flex-direction: column
+    gap: 0.75rem
+    
+    .radio-option
+      display: flex
+      align-items: center
+      gap: 0.5rem
+      cursor: pointer
+      padding: 0.75rem
+      border: 2px solid #e1e8ed
+      border-radius: 8px
+      transition: all 0.2s ease
+      
+      &:hover
+        border-color: #3498db
+        background: #f8fbff
+        
+      input[type="radio"]
+        margin: 0
+        
+      span
+        font-weight: 500
+        color: #2c3e50
+        
+      input[type="radio"]:checked + span
+        color: #3498db
+        font-weight: 600
+        
+      &:has(input:checked)
+        border-color: #3498db
+        background: #f0f8ff
+
+  // Questionnaire images display
+  .questionnaire-images
+    background: #f8f9fa
+    border: 1px solid #e1e8ed
+    border-radius: 8px
+    padding: 1rem
+    max-height: 200px
+    overflow-y: auto
+    
+    ul
+      margin: 0
+      padding-left: 1.5rem
+      
+      li
+        margin-bottom: 0.5rem
+        
+        a
+          color: #3498db
+          text-decoration: none
+          word-break: break-all
+          
+          &:hover
+            text-decoration: underline
+            
+    .no-images
+      padding: 1rem
+      margin: 0
+      text-align: center
+      color: #7f8c8d
+      font-style: italic
+
+  // File upload info
+  .file-info
+    color: #27ae60
+    font-size: 0.9rem
+    margin-top: 0.5rem
+    font-weight: 500
+    display: flex
+    align-items: center
+    gap: 0.25rem
+
+  // URL preview section
+  .url-preview
+    background: #f8f9fa
+    border: 1px solid #e1e8ed
+    border-radius: 8px
+    padding: 1rem
+    max-height: 150px
+    overflow-y: auto
+    
+    .url-item
+      padding: 0.25rem 0
+      border-bottom: 1px solid #ecf0f1
+      
+      &:last-child
+        border-bottom: none
+        
+      a
+        color: #3498db
+        text-decoration: none
+        font-size: 0.9rem
+        word-break: break-all
+        
+        &:hover
+          text-decoration: underline
+          
+      &:last-child:not(:has(a))
+        color: #7f8c8d
+        font-style: italic
+        text-align: center
+
+  // Auto-filled notice
+  .auto-filled-notice
+    background: linear-gradient(135deg, #d5f4e6 0%, #80e27e 100%)
+    border: 2px solid #27ae60
+    border-radius: 8px
+    padding: 1rem
+    margin-bottom: 1.5rem
+    
+    h4
+      color: #1e7e34
+      margin: 0 0 0.5rem 0
+      font-size: 1rem
+      display: flex
+      align-items: center
+      gap: 0.5rem
+      
+    p
+      color: #155724
+      margin: 0.25rem 0
+      font-size: 0.9rem
+      
+      strong
+        font-weight: 600
+
+  // Enhanced form styling
+  .form-group
+    margin-bottom: 1.5rem
+    
+    label
+      display: block
+      font-weight: 600
+      color: #2c3e50
+      margin-bottom: 0.5rem
+      font-size: 1rem
+      
+    input, textarea, select
+      width: 100%
+      padding: 0.75rem
+      border: 2px solid #e1e8ed
+      border-radius: 8px
+      font-size: 1rem
+      font-family: inherit
+      transition: border-color 0.2s ease
+      
+      &:focus
+        outline: none
+        border-color: #3498db
+        
+      &::placeholder
+        color: #95a5a6
+        
+    textarea
+      resize: vertical
+      min-height: 120px
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace
+      
+    input[type="file"]
+      padding: 0.5rem
+      border: 2px dashed #e1e8ed
+      background: #fafbfc
+      cursor: pointer
+      
+      &:hover
+        border-color: #3498db
+        background: #f8fbff
+
+  // Button group styling
+  .button-group
+    display: flex
+    gap: 1rem
+    justify-content: center
+    margin: 2rem 0
+    
+    button
+      padding: 0.75rem 1.5rem
+      border: none
+      border-radius: 8px
+      font-size: 1rem
+      font-weight: 600
+      cursor: pointer
+      transition: all 0.2s ease
+      
+      &:disabled
+        opacity: 0.6
+        cursor: not-allowed
+        
+    .sync-button
+      background: linear-gradient(135deg, #3498db 0%, #2980b9 100%)
+      color: white
+      
+      &:hover:not(:disabled)
+        transform: translateY(-1px)
+        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3)
+        
+    .status-button
+      background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%)
+      color: white
+      
+      &:hover:not(:disabled)
+        transform: translateY(-1px)
+        box-shadow: 0 4px 12px rgba(149, 165, 166, 0.3)
+
+  // Response sections
+  .response-section
+    background: #f8f9fa
+    border: 2px solid #e1e8ed
+    border-radius: 12px
+    padding: 1.5rem
+    margin: 1.5rem 0
+    
+    h3
+      color: #2c3e50
+      margin: 0 0 1rem 0
+      font-size: 1.3rem
+      
+    .response-summary
+      display: grid
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr))
+      gap: 1rem
+      margin-bottom: 1.5rem
+      
+      p
+        background: white
+        padding: 0.75rem
+        border-radius: 6px
+        border: 1px solid #e1e8ed
+        margin: 0
+        
+        strong
+          color: #34495e
+
+  .uploaded-images, .status-images
+    h4
+      color: #34495e
+      margin: 1.5rem 0 1rem 0
+      font-size: 1.1rem
+      border-bottom: 2px solid #ecf0f1
+      padding-bottom: 0.5rem
+      
+  .image-result, .image-status
+    background: white
+    border: 1px solid #e1e8ed
+    border-radius: 8px
+    padding: 1rem
+    margin-bottom: 1rem
+    
+    div
+      margin-bottom: 0.5rem
+      
+      &:last-child
+        margin-bottom: 0
+        
+      strong
+        color: #34495e
+        margin-right: 0.5rem
+        
+      a
+        color: #3498db
+        text-decoration: none
+        word-break: break-all
+        
+        &:hover
+          text-decoration: underline
+
+  // Error message styling
+  .error-message
+    background: #fee
+    border: 2px solid #e74c3c
+    border-radius: 8px
+    padding: 1rem
+    margin: 1rem 0
+    color: #c0392b
+    
+    strong
+      color: #e74c3c
+
+  // Preview functionality styling
+  .preview-header
+    display: flex
+    justify-content: space-between
+    align-items: center
+    margin-bottom: 1rem
+    
+    label
+      margin-bottom: 0
+      
+    .preview-toggle
+      background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%)
+      color: white
+      border: none
+      padding: 0.5rem 1rem
+      border-radius: 6px
+      font-size: 0.9rem
+      font-weight: 500
+      cursor: pointer
+      transition: all 0.2s ease
+      
+      &:hover
+        transform: translateY(-1px)
+        box-shadow: 0 2px 8px rgba(243, 156, 18, 0.3)
+
+  .preview-section
+    background: #f8f9fa
+    border: 2px solid #e1e8ed
+    border-radius: 12px
+    padding: 1.5rem
+    margin-top: 1rem
+
+  .json-preview
+    margin-bottom: 2rem
+    
+    .json-preview-header
+      display: flex
+      justify-content: space-between
+      align-items: center
+      margin-bottom: 1rem
+      
+      h4
+        color: #2c3e50
+        margin: 0
+        font-size: 1.1rem
+        
+      .json-tabs
+        display: flex
+        gap: 0.5rem
+        
+        .json-tab
+          background: #ecf0f1
+          color: #2c3e50
+          border: none
+          padding: 0.5rem 1rem
+          border-radius: 6px
+          font-size: 0.9rem
+          font-weight: 500
+          cursor: pointer
+          transition: all 0.2s ease
+          
+          &:hover
+            background: #d5dbdb
+            
+          &.active
+            background: #3498db
+            color: white
+      
+    .json-display
+      background: #2c3e50
+      color: #ecf0f1
+      padding: 1rem
+      border-radius: 8px
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace
+      font-size: 0.85rem
+      line-height: 1.4
+      overflow-x: auto
+      max-height: 400px
+      overflow-y: auto
+      border: 1px solid #34495e
+      margin-bottom: 1rem
+      
+    .json-actions
+      text-align: center
+      
+      .download-json-btn
+        background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%)
+        color: white
+        border: none
+        padding: 0.75rem 1.5rem
+        border-radius: 8px
+        font-size: 1rem
+        font-weight: 600
+        cursor: pointer
+        transition: all 0.2s ease
+        
+        &:hover
+          transform: translateY(-1px)
+          box-shadow: 0 4px 12px rgba(155, 89, 182, 0.3)
+
+  .url-mapping-preview
+    h4
+      color: #2c3e50
+      margin: 0 0 1rem 0
+      font-size: 1.1rem
+      
+    .mapping-controls
+      background: white
+      padding: 1rem
+      border-radius: 8px
+      margin-bottom: 1.5rem
+      border: 1px solid #e1e8ed
+      
+      p
+        margin: 0.5rem 0
+        
+        &:first-child
+          font-weight: 600
+          color: #2c3e50
+          margin-bottom: 0.75rem
+          
+      .cloudfront-info
+        color: #27ae60
+        font-weight: 500
+        
+        code
+          background: #d5f4e6
+          color: #1e7e34
+          padding: 0.25rem 0.5rem
+          border-radius: 4px
+          font-size: 0.9rem
+          
+      .cloudfront-warning
+        color: #e67e22
+        font-weight: 500
+
+  .url-mappings
+    display: flex
+    flex-direction: column
+    gap: 1.5rem
+    
+  .url-mapping
+    background: white
+    border: 1px solid #e1e8ed
+    border-radius: 8px
+    padding: 1rem
+    transition: box-shadow 0.2s ease
+    
+    &:hover
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1)
+      
+    .mapping-row
+      display: flex
+      align-items: center
+      gap: 0.75rem
+      margin-bottom: 0.5rem
+      
+      &:last-child
+        margin-bottom: 0
+        
+      .mapping-label
+        font-weight: 600
+        color: #34495e
+        min-width: 80px
+        font-size: 0.9rem
+        
+      .original-url
+        color: #3498db
+        text-decoration: none
+        font-size: 0.9rem
+        word-break: break-all
+        flex: 1
+        
+        &:hover
+          text-decoration: underline
+          
+      .cloudfront-url
+        background: #ecf0f1
+        color: #2c3e50
+        padding: 0.25rem 0.5rem
+        border-radius: 4px
+        font-size: 0.85rem
+        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace
+        flex: 1
+        word-break: break-all
+        
+      .copy-url-btn
+        background: #3498db
+        color: white
+        border: none
+        padding: 0.25rem 0.5rem
+        border-radius: 4px
+        cursor: pointer
+        font-size: 0.8rem
+        transition: background 0.2s ease
+        
+        &:hover
+          background: #2980b9
+          
+    .mapping-arrow
+      text-align: center
+      color: #7f8c8d
+      font-size: 1.2rem
+      font-weight: bold
+      margin: 0.25rem 0
+
+  .copy-all-section
+    margin-top: 1.5rem
+    text-align: center
+    
+    .copy-all-btn
+      background: linear-gradient(135deg, #27ae60 0%, #229954 100%)
+      color: white
+      border: none
+      padding: 0.75rem 1.5rem
+      border-radius: 8px
+      font-size: 1rem
+      font-weight: 600
+      cursor: pointer
+      transition: all 0.2s ease
+      
+      &:hover
+        transform: translateY(-1px)
+        box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3)
+
+  .no-preview
+    text-align: center
+    color: #7f8c8d
+    font-style: italic
+    padding: 2rem
+    background: white
+    border-radius: 8px
+    border: 1px solid #e1e8ed
+
 // Responsive design
 @media (max-width: 768px)
   .scraped-image-tester
@@ -270,4 +786,413 @@
         min-width: auto
         
       .value
-        word-break: break-word 
+        word-break: break-word
+
+    // Preview responsive styles
+    .preview-header
+      flex-direction: column
+      align-items: flex-start
+      gap: 0.75rem
+      
+      .preview-toggle
+        align-self: stretch
+        text-align: center
+
+    .url-mapping .mapping-row
+      flex-direction: column
+      align-items: flex-start
+      gap: 0.5rem
+      
+      .mapping-label
+        min-width: auto
+        
+      .original-url, .cloudfront-url
+        word-break: break-word
+        
+      .copy-url-btn
+        align-self: flex-end
+
+    .json-display
+      font-size: 0.75rem
+
+    .json-preview-header
+      flex-direction: column
+      align-items: flex-start
+      gap: 1rem
+      
+      .json-tabs
+        align-self: stretch
+        
+        .json-tab
+          flex: 1
+          text-align: center
+
+// Image preview styles
+.image-preview-item
+  display: flex
+  gap: 1rem
+  align-items: flex-start
+  
+  .preview-image
+    width: 120px
+    height: 80px
+    object-fit: cover
+    border-radius: 6px
+    border: 1px solid #dee2e6
+    background: #f8f9fa
+    transition: transform 0.2s ease
+    
+    &:hover
+      transform: scale(1.05)
+      
+  .url-info
+    flex: 1
+    
+    .url-label
+      font-weight: 600
+      color: #495057
+      margin-bottom: 0.25rem
+      font-size: 0.875rem
+      
+      &.cloudfront-label
+        color: #3498db
+        margin-top: 0.5rem
+      
+    .url-link
+      color: #007bff
+      text-decoration: none
+      word-break: break-all
+      font-size: 0.9rem
+      
+      &:hover
+        text-decoration: underline
+        
+    .cloudfront-url-preview
+      color: #2c3e50
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace
+      font-size: 0.85rem
+      word-break: break-all
+      background: #ecf0f1
+      padding: 0.25rem 0.5rem
+      border-radius: 4px
+      margin-bottom: 0.5rem
+      
+    .copy-hint
+      font-size: 0.8rem
+      color: #7f8c8d
+      font-style: italic
+      display: flex
+      align-items: center
+      gap: 0.25rem
+
+// Clickable card styles
+.image-preview-card
+  display: flex
+  gap: 1rem
+  align-items: flex-start
+  cursor: pointer
+  padding: 1rem
+  border-radius: 8px
+  border: 2px solid #e1e8ed
+  background: white
+  transition: all 0.3s ease
+  position: relative
+  
+  &:hover
+    border-color: #3498db
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2)
+    transform: translateY(-2px)
+    
+  &.copied
+    border-color: #27ae60
+    background: #d5f4e6
+    
+    &::after
+      content: "✅ Copied!"
+      position: absolute
+      top: -10px
+      right: 10px
+      background: #27ae60
+      color: white
+      padding: 0.25rem 0.75rem
+      border-radius: 15px
+      font-size: 0.8rem
+      font-weight: 600
+      animation: fadeInOut 1s ease-in-out
+      
+  .preview-image
+    width: 120px
+    height: 80px
+    object-fit: cover
+    border-radius: 6px
+    border: 1px solid #dee2e6
+    background: #f8f9fa
+    transition: transform 0.2s ease
+    
+  .url-info
+    flex: 1
+
+// Image comparison styles for CloudFront preview
+.image-comparison
+  display: flex
+  gap: 2rem
+  align-items: flex-start
+  
+  .image-preview-container
+    flex: 1
+    text-align: center
+    
+    .image-preview-header
+      display: flex
+      justify-content: space-between
+      align-items: center
+      margin-bottom: 0.75rem
+      
+      .mapping-label
+        font-weight: 600
+        color: #34495e
+        font-size: 0.9rem
+        
+      .copy-url-btn
+        background: #3498db
+        color: white
+        border: none
+        padding: 0.25rem 0.5rem
+        border-radius: 4px
+        cursor: pointer
+        font-size: 0.8rem
+        transition: background 0.2s ease
+        
+        &:hover
+          background: #2980b9
+    
+    .comparison-image
+      width: 200px
+      height: 120px
+      object-fit: cover
+      border-radius: 8px
+      border: 2px solid #e1e8ed
+      background: #f8f9fa
+      transition: all 0.2s ease
+      
+      &:hover
+        transform: scale(1.02)
+        border-color: #3498db
+        
+    .url-display
+      margin-top: 0.75rem
+      padding: 0.5rem
+      background: #f8f9fa
+      border-radius: 6px
+      
+      .original-url, .cloudfront-url
+        font-size: 0.85rem
+        word-break: break-all
+        
+      .original-url
+        color: #3498db
+        text-decoration: none
+        
+        &:hover
+          text-decoration: underline
+          
+      .cloudfront-url
+        color: #2c3e50
+        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace
+        
+  .mapping-arrow
+    font-size: 2rem
+    color: #3498db
+    font-weight: bold
+    align-self: center
+    margin-top: 3rem
+
+// Clickable CloudFront card styles
+.clickable-cloudfront-card
+  cursor: pointer
+  transition: all 0.3s ease
+  border-radius: 8px
+  padding: 1rem
+  position: relative
+  
+  &:hover
+    background: #f0f8ff
+    transform: scale(1.02)
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2)
+    
+    .copy-indicator
+      opacity: 1
+      
+  &.copied
+    background: #d5f4e6
+    
+    &::after
+      content: "✅ Copied!"
+      position: absolute
+      top: 10px
+      right: 10px
+      background: #27ae60
+      color: white
+      padding: 0.25rem 0.75rem
+      border-radius: 15px
+      font-size: 0.8rem
+      font-weight: 600
+      animation: fadeInOut 1s ease-in-out
+      
+  .copy-indicator
+    font-size: 0.8rem
+    color: #3498db
+    opacity: 0.7
+    transition: opacity 0.2s ease
+
+// Result image preview styles
+.image-result-preview
+  display: flex
+  gap: 1.5rem
+  align-items: flex-start
+  
+  .result-image-container
+    flex-shrink: 0
+    
+    .result-image
+      width: 150px
+      height: 100px
+      object-fit: cover
+      border-radius: 8px
+      border: 2px solid #27ae60
+      background: #f8f9fa
+      transition: transform 0.2s ease
+      
+      &:hover
+        transform: scale(1.05)
+        
+  .result-details
+    flex: 1
+    
+    div
+      margin-bottom: 0.5rem
+      font-size: 0.9rem
+      
+      &:last-child
+        margin-bottom: 0
+        
+      strong
+        color: #2c3e50
+        font-weight: 600
+        
+      code
+        background: #ecf0f1
+        color: #2c3e50
+        padding: 0.25rem 0.5rem
+        border-radius: 4px
+        font-size: 0.8rem
+        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace
+        
+      a
+        color: #3498db
+        text-decoration: none
+        
+        &:hover
+          text-decoration: underline
+
+// Responsive adjustments for image previews
+@media (max-width: 768px)
+  .image-preview-item
+    flex-direction: column
+    text-align: center
+    
+    .preview-image
+      width: 100%
+      max-width: 200px
+      height: auto
+      align-self: center
+      
+  .image-comparison
+    flex-direction: column
+    gap: 1.5rem
+    
+    .mapping-arrow
+      transform: rotate(90deg)
+      margin: 0
+      align-self: center
+      
+  .image-result-preview
+    flex-direction: column
+    
+    .result-image-container
+      align-self: center
+      
+      .result-image
+        width: 100%
+        max-width: 250px
+        height: auto
+
+// Clickable result card styles
+.clickable-result-card
+  cursor: pointer
+  transition: all 0.3s ease
+  border-radius: 8px
+  padding: 1rem
+  border: 2px solid #e1e8ed
+  position: relative
+  
+  &:hover
+    border-color: #3498db
+    background: #f0f8ff
+    transform: translateY(-2px)
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2)
+    
+    .copy-overlay
+      opacity: 1
+      
+  &.copied
+    border-color: #27ae60
+    background: #d5f4e6
+    
+    &::after
+      content: "✅ Copied!"
+      position: absolute
+      top: 10px
+      right: 10px
+      background: #27ae60
+      color: white
+      padding: 0.25rem 0.75rem
+      border-radius: 15px
+      font-size: 0.8rem
+      font-weight: 600
+      animation: fadeInOut 1s ease-in-out
+      
+  .result-image-container
+    position: relative
+    
+    .copy-overlay
+      position: absolute
+      top: 0
+      left: 0
+      right: 0
+      bottom: 0
+      background: rgba(52, 152, 219, 0.9)
+      border-radius: 6px
+      display: flex
+      align-items: center
+      justify-content: center
+      opacity: 0
+      transition: opacity 0.2s ease
+      
+      .copy-text
+        color: white
+        font-weight: 600
+        font-size: 0.8rem
+        text-align: center
+
+// Animation for copied feedback
+@keyframes fadeInOut
+  0%
+    opacity: 0
+    transform: scale(0.8)
+  50%
+    opacity: 1
+    transform: scale(1)
+  100%
+    opacity: 0
+    transform: scale(0.8) 
