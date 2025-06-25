@@ -40,6 +40,8 @@ export const updateWordPressService = async (data: WordPressUpdateData): Promise
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(data),
+      // Note: In production, you should not ignore SSL errors
+      // This is only for development with self-signed certificates
     });
 
     console.log('📡 Backend response status:', response.status);
@@ -77,12 +79,33 @@ export const updateWordPressService = async (data: WordPressUpdateData): Promise
     
     // Handle network errors and specific cases
     if (error instanceof TypeError && error.message.includes('fetch')) {
-      throw new Error(`❌ Unable to connect to the WordPress update service at ${BACKEND_BASE_URL}. Please ensure:
+      const isHttpsLocalhost = BACKEND_BASE_URL.startsWith('https://localhost');
+      const baseErrorMessage = `❌ Unable to connect to the WordPress update service at ${BACKEND_BASE_URL}. Please ensure:
       
 1. The backend server is running
 2. The backend URL is correct
 3. CORS is properly configured on the backend
-4. No firewall is blocking the connection
+4. No firewall is blocking the connection`;
+
+             const httpsMessage = isHttpsLocalhost ? `
+5. ⚠️  SSL Certificate Issue Detected: You're using HTTPS with localhost. 
+   SOLUTIONS TO FIX THIS:
+   
+   A) Accept the certificate in your browser:
+      1. Open a new tab and go to: ${BACKEND_BASE_URL}
+      2. Click "Advanced" on the security warning
+      3. Click "Proceed to localhost (unsafe)" or similar
+      4. Return to this app and try again
+   
+   B) Start Chrome with disabled security (DEVELOPMENT ONLY):
+      - Close all Chrome instances
+      - Run: open -a "Google Chrome" --args --disable-web-security --user-data-dir="/tmp/chrome_dev"
+      - Or add --ignore-certificate-errors flag
+   
+   C) Use a proper SSL certificate for localhost
+   D) Set up a reverse proxy with valid SSL` : '';
+
+      throw new Error(`${baseErrorMessage}${httpsMessage}
 
 Current backend URL: ${BACKEND_BASE_URL}`);
     }
