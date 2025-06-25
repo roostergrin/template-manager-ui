@@ -1,6 +1,9 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import useUpdateWordPress from '../../hooks/useUpdateWordPress';
+import EnhancedPreviewSection from './EnhancedPreviewSection';
 import './WordPressUpdater.sass';
+
+
 
 interface WordPressUpdaterProps {
   pagesContent: object | null;
@@ -17,7 +20,7 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
 }) => {
   const [apiUrl, setApiUrl] = useState<string>('https://api.zamoraorthodontics.com/');
   const [username, setUsername] = useState<string>('Rooster Grin');
-  const [password, setPassword] = useState<string>('F(@@zPzb4kAkvk#j!R!QHeaY');
+  const [password, setPassword] = useState<string>('t$9ioIC2L5mhhJ7bEq$5rqZ6');
   const [showPassword, setShowPassword] = useState<boolean>(true);
   const [useNewFormat, setUseNewFormat] = useState<boolean>(true);
   const [response, status, updateWordPress, error] = useUpdateWordPress();
@@ -48,8 +51,11 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
         "acf_fc_layout": "hero",
         "title": "Welcome to Stinson Orthodontics",
         "text": "Your smile is our priority. We provide expert orthodontic care with personalized treatment plans.",
-        "button_text": "Schedule Consultation",
-        "button_url": "/contact",
+        "button": {
+          "button_type": "nuxt_link",
+          "text": "Schedule Consultation",
+          "url": "/contact"
+        },
         "image_url": "https://d2jdm9a19iwpm4.cloudfront.net/home/hero-home.jpg",
         "image_alt": "Smiling woman at sunset"
       }
@@ -91,8 +97,11 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
               "acf_fc_layout": "hero",
               "title": "Welcome to Stinson Orthodontics",
               "text": "Your smile is our priority. We provide expert orthodontic care with personalized treatment plans.",
-              "button_text": "Schedule Consultation",
-              "button_url": "/contact",
+              "button": {
+                "button_type": "nuxt_link",
+                "text": "Schedule Consultation",
+                "url": "/contact"
+              },
               "image_url": "https://d2jdm9a19iwpm4.cloudfront.net/home/hero-home.jpg",
               "image_alt": "Smiling woman at sunset"
             },
@@ -124,8 +133,11 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
               "acf_fc_layout": "content_block",
               "title": `${pageName} Information`,
               "content": `Comprehensive information about our ${pageName.toLowerCase()} services and how we can help you achieve your perfect smile.`,
-              "button_text": "Learn More",
-              "button_url": `/${pageName.toLowerCase().replace(/\s+/g, '-')}`
+              "button": {
+                "button_type": "nuxt_link",
+                "text": "Learn More",
+                "url": `/${pageName.toLowerCase().replace(/\s+/g, '-')}`
+              }
             }
           ]
         };
@@ -215,18 +227,27 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
         }
         
         console.log('📄 Page ID mapping:', pageIdMapping);
+        console.log('🔍 Content to transform:', Object.keys(contentToUse || {}));
+        console.log('🧪 Using test content:', useTestContent);
         
         // Transform the structure to use page IDs and restructure content with seo + sections
         const transformedData: Record<string, any> = {};
-        for (const [pageName, content] of Object.entries(contentToUse || {})) {
-          // Use the existing page_id from sitemap, or fallback to page_name
-          const pageKey = pageIdMapping[pageName] || pageName;
+        for (const [pageKey, content] of Object.entries(contentToUse || {})) {
+          // If using test content, the keys are already page IDs
+          // If using generated content, we need to map page names to IDs
+          let finalPageKey = pageKey;
+          
+          if (!useTestContent) {
+            // For generated content, map page names to IDs
+            finalPageKey = (pageIdMapping[pageKey] || pageKey).toString();
+          }
+          // For test content, use the key as-is (it's already a page ID)
           
           // Check if content is already in the final format (has seo and sections keys)
           if (content && typeof content === 'object' && 'seo' in content && 'sections' in content) {
             // Content is already in final format, just use it
-            transformedData[pageKey] = content;
-            console.log(`📄 Using pre-formatted content for ${pageName} -> ${pageKey}:`, {
+            transformedData[finalPageKey] = content;
+            console.log(`📄 Using pre-formatted content for ${pageKey} -> ${finalPageKey}:`, {
               seoKeys: Object.keys((content as any).seo || {}),
               sectionsCount: ((content as any).sections || []).length
             });
@@ -234,56 +255,79 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
             // Content needs restructuring (legacy format)
             const contentArray = Array.isArray(content) ? content : [content];
             
-            // Extract SEO data if it exists (look for seo object in content)
+            // Extract SEO data if it exists (look for standalone seo objects)
             let seoData = {};
             const sectionsData: any[] = [];
             
-            // Check if any content item has seo data
+            // Check each content item
             for (let i = 0; i < contentArray.length; i++) {
               const item = contentArray[i];
-              if (item && typeof item === 'object' && item.seo) {
-                // Found SEO data, extract it
-                seoData = item.seo;
-                // Remove seo from this item and keep the rest
-                const itemWithoutSeo = { ...item };
-                delete itemWithoutSeo.seo;
-                // Add this item (without seo) to sections if it has other content
-                if (Object.keys(itemWithoutSeo).length > 0) {
+              if (item && typeof item === 'object') {
+                // Check if this item is SEO data (has seo property but no acf_fc_layout)
+                if (item.seo && !item.acf_fc_layout) {
+                  // Found standalone SEO data, extract it
+                  seoData = item.seo;
+                  console.log(`📄 Extracted SEO data for ${pageKey}:`, Object.keys(seoData));
+                } else if (item.acf_fc_layout) {
+                  // This is a content section, add to sections
+                  sectionsData.push(item);
+                } else if (item.seo && item.acf_fc_layout) {
+                  // Item has both SEO and content - extract SEO and keep content
+                  seoData = { ...seoData, ...item.seo };
+                  const itemWithoutSeo = { ...item };
+                  delete itemWithoutSeo.seo;
                   sectionsData.push(itemWithoutSeo);
+                  console.log(`📄 Extracted SEO from content section for ${pageKey}`);
+                } else {
+                  // Item doesn't have expected structure, log and skip
+                  console.warn(`⚠️ Skipping unexpected item structure in ${pageKey}:`, Object.keys(item));
                 }
-              } else if (item) {
-                // No SEO data in this item, add to sections
-                sectionsData.push(item);
               }
             }
             
             // Structure as: { seo: {...}, sections: [...] }
-            transformedData[pageKey] = {
+            transformedData[finalPageKey] = {
               seo: seoData,
               sections: sectionsData
             };
             
-            console.log(`📄 Restructured ${pageName} -> ${pageKey}:`, {
+            console.log(`📄 Restructured ${pageKey} -> ${finalPageKey}:`, {
               seoKeys: Object.keys(seoData),
-              sectionsCount: sectionsData.length
+              sectionsCount: sectionsData.length,
+              originalItemsCount: contentArray.length
             });
           }
         }
         
         dataToSend = {
           ...transformedData,
-          global: globalToUse,
         };
         
+        // Add global data separately if it exists
+        if (globalToUse && Object.keys(globalToUse).length > 0) {
+          dataToSend.global = globalToUse;
+        }
+        
         console.log('🔑 Transformed page keys:', Object.keys(transformedData));
+        
+        // Warn about non-numeric page IDs that will create new pages
+        const nonNumericKeys = Object.keys(transformedData).filter(key => key !== 'global' && isNaN(Number(key)));
+        if (nonNumericKeys.length > 0) {
+          console.warn('⚠️ Non-numeric page IDs detected - these will create NEW pages instead of updating existing ones:', nonNumericKeys);
+          console.warn('💡 To update existing pages, ensure your sitemap contains numeric WordPress page IDs (not slugs)');
+        }
         
       } else {
         // OLD FORMAT: Use page names directly without sections wrapper
         console.log('🔄 Using OLD format with page names and direct arrays');
         dataToSend = {
           ...contentToUse,
-          global: globalToUse,
         };
+        
+        // Add global data separately if it exists
+        if (globalToUse && Object.keys(globalToUse).length > 0) {
+          dataToSend.global = globalToUse;
+        }
       }
 
       const updateData = {
@@ -465,22 +509,30 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
                 <button
                   type="button"
                   className="regenerate-btn"
-                  onClick={() => setTestContent(`{
-  "8": {
-    "seo": {
-      "page_title": "Test Page - Stinson Orthodontics",
-      "page_description": "Test page description",
-      "page_keywords": "test, orthodontics"
-    },
-    "sections": [
-      {
-        "acf_fc_layout": "text_block",
-        "title": "Simple Text Block",
-        "content": "This is a simple text block for testing."
-      }
-    ]
-  }
-}`)}
+                                     onClick={() => setTestContent(`{
+   "8": {
+     "seo": {
+       "page_title": "Test Page - Stinson Orthodontics",
+       "page_description": "Test page description",
+       "page_keywords": "test, orthodontics",
+       "additional_settings": false,
+       "social_meta": {
+         "og_meta": {
+           "title": "Test Page",
+           "description": "Test description",
+           "image": ""
+         }
+       }
+     },
+     "sections": [
+       {
+         "acf_fc_layout": "text_block",
+         "title": "Simple Text Block",
+         "content": "This is a simple text block for testing."
+       }
+     ]
+   }
+ }`)}
                   disabled={status === 'pending'}
                 >
                   📝 Simple Test
@@ -498,7 +550,8 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
               <p><strong>Format:</strong> JSON object where keys are page IDs and values have <code>seo</code> and <code>sections</code> properties.</p>
               <p><strong>SEO Structure:</strong> Includes <code>page_title</code>, <code>page_description</code>, <code>page_keywords</code>, <code>additional_settings</code>, and nested <code>social_meta</code> with <code>og_meta</code>.</p>
               <p><strong>Sections:</strong> Array of content components with <code>acf_fc_layout</code> field. Common layouts: <code>hero</code>, <code>content_block</code>, <code>text_block</code>, <code>image_text</code>.</p>
-              <p><strong>Common Fields:</strong> <code>title</code>, <code>content</code> (or <code>text</code>), <code>button_text</code>, <code>button_url</code>, <code>image_url</code>, <code>image_alt</code>.</p>
+              <p><strong>Common Fields:</strong> <code>title</code>, <code>content</code> (or <code>text</code>), <code>button</code> object with <code>button_type</code>, <code>image_url</code>, <code>image_alt</code>.</p>
+              <p><strong>Button Structure:</strong> <code>{`{"button": {"button_type": "nuxt_link|ext_link|button", "text": "...", "url": "..."}}`}</code></p>
               <p><strong>⚠️ Important:</strong> The <code>acf_fc_layout</code> values must match exactly what's defined in your WordPress ACF Flexible Content field. If you get schema errors, check your ACF field group settings.</p>
               <p><strong>Page IDs:</strong> Content keys use actual WordPress page IDs from your sitemap data.</p>
             </div>
@@ -506,111 +559,28 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
         )}
       </div>
 
-      {/* Preview Section */}
+      {/* Enhanced Preview Section */}
       {hasContent && (
-        <div className="preview-section">
-          <h4>📋 WordPress Update Preview</h4>
-          <div className="preview-content">
-            <div className="preview-format">
-              <strong>Format:</strong> {useNewFormat ? 'NEW (Page IDs + Sections)' : 'OLD (Page Names + Arrays)'}
-            </div>
-            
-            {/* Show page structure that will be sent */}
-            <div className="preview-structure">
-              <strong>Pages to Update:</strong>
-              <div className="page-list">
-                {Object.entries((useTestContent && testContent) ? (() => {
-                  try {
-                    return JSON.parse(testContent);
-                  } catch (error) {
-                    return {};
-                  }
-                })() : (pagesContent || {})).map(([pageName, content]) => {
-                  // Calculate the page key that will be used
-                  let pageKey = pageName;
-                  if (useNewFormat && sitemapData?.pages) {
-                    const pageIdMapping: Record<string, string | number> = {};
-                    if (Array.isArray(sitemapData.pages)) {
-                      sitemapData.pages.forEach((page: any) => {
-                        if (page.title && (page.page_id || page.wordpress_id)) {
-                          pageIdMapping[page.title] = page.page_id || page.wordpress_id;
-                        }
-                      });
-                    }
-                    pageKey = pageIdMapping[pageName]?.toString() || pageName;
-                  }
-                  
-                  const contentArray = Array.isArray(content) ? content : [content];
-                  
-                  return (
-                    <div key={pageName} className="page-preview-item">
-                      <div className="page-header">
-                        <span className="page-name">{pageName}</span>
-                        <span className="page-id">→ ID: {pageKey}</span>
-                        <span className="section-count">{contentArray.length} sections</span>
-                      </div>
-                      
-                      {/* Show ACF structure preview */}
-                      <div className="acf-preview">
-                        <code>
-                          {useNewFormat ? (
-                            `"acf": { "sections": [${contentArray.length} components] }`
-                          ) : (
-                            `"acf": { "sections": [${contentArray.length} components] }`
-                          )}
-                        </code>
-                      </div>
-                      
-                      {/* Show first component preview */}
-                      {contentArray.length > 0 && contentArray[0] && (
-                        <div className="component-preview">
-                          <strong>First Component:</strong>
-                          <code>
-                            {JSON.stringify({
-                              acf_fc_layout: contentArray[0].acf_fc_layout || 'unknown',
-                              // Show just a few key fields
-                              ...(contentArray[0].title ? { title: contentArray[0].title } : {}),
-                              ...(contentArray[0].text ? { text: `${String(contentArray[0].text).substring(0, 50)}...` } : {}),
-                            }, null, 2)}
-                          </code>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-            
-            {/* API Request Preview */}
-            <div className="api-preview">
-              <strong>WordPress API Request:</strong>
-              <code className="api-request-preview">
-                {Object.entries((useTestContent && testContent) ? (() => {
-                  try {
-                    return JSON.parse(testContent);
-                  } catch (error) {
-                    return {};
-                  }
-                })() : (pagesContent || {})).slice(0, 1).map(([pageName]) => {
-                  let pageKey = pageName;
-                  if (useNewFormat && sitemapData?.pages) {
-                    const pageIdMapping: Record<string, string | number> = {};
-                    if (Array.isArray(sitemapData.pages)) {
-                      sitemapData.pages.forEach((page: any) => {
-                        if (page.title && (page.page_id || page.wordpress_id)) {
-                          pageIdMapping[page.title] = page.page_id || page.wordpress_id;
-                        }
-                      });
-                    }
-                    pageKey = pageIdMapping[pageName]?.toString() || pageName;
-                  }
-                  
-                  return `POST ${apiUrl}wp-json/wp/v2/pages/${pageKey}\n{\n  "acf": {\n    "seo": {\n      "page_title": "...",\n      "page_description": "...",\n      "social_meta": {"og_meta": {...}}\n    },\n    "sections": [...]\n  }\n}`;
-                })}
-              </code>
-            </div>
-          </div>
-        </div>
+        <EnhancedPreviewSection
+          pagesContent={useTestContent && testContent ? (() => {
+            try {
+              return JSON.parse(testContent);
+            } catch (error) {
+              return {};
+            }
+          })() : (pagesContent || {})}
+          globalContent={globalContent}
+          useNewFormat={useNewFormat}
+          apiUrl={apiUrl}
+          sitemapData={sitemapData}
+          onContentUpdate={(updatedContent) => {
+            if (useTestContent) {
+              setTestContent(JSON.stringify(updatedContent, null, 2));
+            }
+            // For generated content, we'd need to update the parent state
+            // This would require passing an update callback from parent
+          }}
+        />
       )}
 
       {/* Update Button */}

@@ -497,3 +497,303 @@
         flex-direction: column
         align-items: flex-start
         gap: 8px 
+
+// Enhanced Preview Section Styles
+.enhanced-preview-section
+  background: #f8f9fa
+  border: 1px solid #dee2e6
+  border-radius: 8px
+  padding: 20px
+  margin-bottom: 20px
+  
+  .preview-header
+    display: flex
+    justify-content: space-between
+    align-items: center
+    margin-bottom: 16px
+    
+    h4
+      margin: 0
+      color: #495057
+      font-size: 18px
+      
+    .preview-controls
+      display: flex
+      gap: 8px
+      
+      .expand-all-btn,
+      .collapse-all-btn
+        background: #6c757d
+        color: white
+        border: none
+        padding: 6px 12px
+        border-radius: 4px
+        font-size: 12px
+        cursor: pointer
+        font-weight: 500
+        
+        &:hover
+          background: #5a6268
+          
+  .preview-format
+    margin-bottom: 20px
+    padding: 8px 12px
+    background: #e3f2fd
+    border-radius: 4px
+    font-size: 14px
+    
+  .pages-preview
+    display: flex
+    flex-direction: column
+    gap: 16px
+    
+  .page-preview-card
+    background: white
+    border: 1px solid #dee2e6
+    border-radius: 8px
+    overflow: hidden
+    
+    .page-card-header
+      display: flex
+      justify-content: space-between
+      align-items: center
+      padding: 16px
+      background: #f8f9fa
+      border-bottom: 1px solid #dee2e6
+      
+      .page-info
+        display: flex
+        align-items: center
+        gap: 12px
+        
+        .page-name
+          font-weight: 600
+          color: #495057
+          font-size: 16px
+          
+        .page-id
+          font-size: 12px
+          color: #6c757d
+          background: #e9ecef
+          padding: 4px 8px
+          border-radius: 12px
+          
+        .section-count
+          font-size: 12px
+          background: #d1ecf1
+          color: #0c5460
+          padding: 4px 8px
+          border-radius: 12px
+          
+      .page-actions
+        display: flex
+        gap: 8px
+        
+        .expand-btn,
+        .edit-btn
+          background: #007bff
+          color: white
+          border: none
+          padding: 8px 12px
+          border-radius: 4px
+          font-size: 12px
+          cursor: pointer
+          font-weight: 500
+          
+          &:hover
+            background: #0056b3
+            
+        .edit-btn
+          background: #28a745
+          
+          &:hover
+            background: #1e7e34
+            
+    .page-content-preview
+      padding: 20px
+      
+      .content-structure
+        margin-bottom: 20px
+        
+        strong
+          display: block
+          margin-bottom: 8px
+          color: #495057
+          
+        .json-preview
+          background: #f8f9fa
+          border: 1px solid #dee2e6
+          border-radius: 4px
+          padding: 16px
+          font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace
+          font-size: 12px
+          line-height: 1.4
+          color: #495057
+          max-height: 400px
+          overflow-y: auto
+          white-space: pre-wrap
+          
+      .api-request-preview
+        strong
+          display: block
+          margin-bottom: 8px
+          color: #495057
+          
+        .api-code
+          display: block
+          background: #343a40
+          color: #f8f9fa
+          padding: 16px
+          border-radius: 4px
+          font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace
+          font-size: 12px
+          white-space: pre-wrap
+          overflow-x: auto
+          
+    .page-edit-section
+      padding: 20px
+      background: #fff3cd
+      border-top: 1px solid #ffeaa7
+      
+      .edit-header
+        display: flex
+        justify-content: space-between
+        align-items: center
+        margin-bottom: 16px
+        
+        strong
+          color: #856404
+          font-size: 16px
+          
+        .edit-actions
+          display: flex
+          gap: 8px
+          
+          .save-btn
+            background: #28a745
+            color: white
+            border: none
+            padding: 8px 16px
+            border-radius: 4px
+            font-size: 14px
+            cursor: pointer
+            font-weight: 500
+            
+            &:hover
+              background: #1e7e34
+              
+          .cancel-btn
+            background: #dc3545
+            color: white
+            border: none
+            padding: 8px 16px
+            border-radius: 4px
+            font-size: 14px
+            cursor: pointer
+            font-weight: 500
+            
+            &:hover
+              background: #c82333
+              
+      .edit-textarea
+        width: 100%
+        padding: 16px
+        border: 1px solid #f0b90b
+        border-radius: 4px
+        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace
+        font-size: 12px
+        line-height: 1.4
+        background: #fffbf0
+        color: #856404
+        resize: vertical
+        
+        &:focus
+          outline: none
+          border-color: #f39c12
+          box-shadow: 0 0 0 2px rgba(243, 156, 18, 0.25)
+          
+      .edit-help
+        margin-top: 12px
+        
+        p
+          margin: 0
+          font-size: 12px
+          color: #6c5b0b
+          
+  .global-content-preview
+    margin-top: 20px
+    padding: 16px
+    background: #e8f5e9
+    border-radius: 8px
+    
+    h5
+      margin: 0 0 12px 0
+      color: #2e7d32
+      font-size: 16px
+      
+    .global-details
+      summary
+        cursor: pointer
+        font-weight: 500
+        color: #2e7d32
+        padding: 8px 0
+        
+        &:hover
+          color: #1b5e20
+          
+      .json-preview
+        margin-top: 12px
+        background: #f1f8e9
+        border: 1px solid #c8e6c9
+        border-radius: 4px
+        padding: 16px
+        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace
+        font-size: 12px
+        line-height: 1.4
+        color: #2e7d32
+        max-height: 300px
+        overflow-y: auto
+        white-space: pre-wrap
+
+// Responsive styles for enhanced preview
+@media (max-width: 768px)
+  .enhanced-preview-section
+    padding: 16px
+    
+    .preview-header
+      flex-direction: column
+      align-items: flex-start
+      gap: 12px
+      
+      .preview-controls
+        align-self: stretch
+        
+        .expand-all-btn,
+        .collapse-all-btn
+          flex: 1
+          
+    .page-preview-card
+      .page-card-header
+        flex-direction: column
+        align-items: flex-start
+        gap: 12px
+        
+        .page-actions
+          align-self: stretch
+          
+          .expand-btn,
+          .edit-btn
+            flex: 1
+            
+      .page-edit-section
+        .edit-header
+          flex-direction: column
+          align-items: flex-start
+          gap: 12px
+          
+          .edit-actions
+            align-self: stretch
+            
+            .save-btn,
+            .cancel-btn
+              flex: 1 

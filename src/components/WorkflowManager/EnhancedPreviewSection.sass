@@ -1,0 +1,486 @@
+.enhanced-preview-section
+  background: #f8f9fa
+  border: 1px solid #dee2e6
+  border-radius: 12px
+  padding: 24px
+  margin-bottom: 24px
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1)
+  
+  .preview-header
+    display: flex
+    justify-content: space-between
+    align-items: center
+    margin-bottom: 20px
+    padding-bottom: 16px
+    border-bottom: 2px solid #dee2e6
+    
+    h4
+      margin: 0
+      color: #495057
+      font-size: 20px
+      font-weight: 600
+      
+    .preview-controls
+      display: flex
+      gap: 12px
+      
+      .expand-all-btn,
+      .collapse-all-btn
+        background: #6c757d
+        color: white
+        border: none
+        padding: 8px 16px
+        border-radius: 6px
+        font-size: 13px
+        cursor: pointer
+        font-weight: 500
+        transition: all 0.2s ease
+        
+        &:hover
+          background: #5a6268
+          transform: translateY(-1px)
+          
+  .preview-format
+    margin-bottom: 24px
+    padding: 12px 16px
+    background: #e3f2fd
+    border-radius: 6px
+    font-size: 14px
+    font-weight: 500
+    
+  .pages-preview
+    display: flex
+    flex-direction: column
+    gap: 20px
+    
+  .page-preview-card
+    background: white
+    border: 1px solid #dee2e6
+    border-radius: 12px
+    overflow: hidden
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05)
+    transition: all 0.2s ease
+    
+    &:hover
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1)
+      
+    .page-card-header
+      display: flex
+      justify-content: space-between
+      align-items: flex-start
+      padding: 20px
+      background: #f8f9fa
+      border-bottom: 1px solid #dee2e6
+      
+      .page-info
+        display: flex
+        flex-direction: column
+        gap: 8px
+        flex: 1
+        
+        .page-name
+          font-weight: 600
+          color: #495057
+          font-size: 18px
+          
+        .page-id
+          font-size: 12px
+          color: #6c757d
+          background: #e9ecef
+          padding: 4px 8px
+          border-radius: 12px
+          align-self: flex-start
+          
+        .section-count
+          font-size: 12px
+          background: #d1ecf1
+          color: #0c5460
+          padding: 4px 8px
+          border-radius: 12px
+          align-self: flex-start
+          
+        .component-types
+          display: flex
+          flex-wrap: wrap
+          gap: 4px
+          margin-top: 4px
+          
+          .component-type-badge
+            font-size: 10px
+            background: #fff3cd
+            color: #856404
+            padding: 2px 6px
+            border-radius: 8px
+            font-weight: 500
+            
+      .page-actions
+        display: flex
+        flex-direction: column
+        gap: 8px
+        
+        .expand-btn,
+        .edit-btn
+          background: #007bff
+          color: white
+          border: none
+          padding: 10px 16px
+          border-radius: 6px
+          font-size: 13px
+          cursor: pointer
+          font-weight: 500
+          transition: all 0.2s ease
+          white-space: nowrap
+          
+          &:hover
+            background: #0056b3
+            transform: translateY(-1px)
+            
+        .edit-btn
+          background: #28a745
+          
+          &:hover
+            background: #1e7e34
+            
+    .page-content-preview
+      padding: 24px
+      
+      .content-tabs
+        .tab-content
+          .content-structure
+            margin-bottom: 16px
+            
+            .structure-header
+              display: flex
+              justify-content: space-between
+              align-items: center
+              margin-bottom: 12px
+              padding-bottom: 8px
+              border-bottom: 1px solid #e9ecef
+              
+              .structure-stats
+                display: flex
+                gap: 12px
+                font-size: 12px
+                
+                span
+                  padding: 2px 8px
+                  background: #f8f9fa
+                  border-radius: 4px
+                  font-weight: 500
+                  
+            .seo-preview
+              margin-bottom: 16px
+              padding: 12px
+              background: #e7f3ff
+              border-left: 4px solid #007bff
+              border-radius: 4px
+              
+              strong
+                color: #0056b3
+                display: block
+                margin-bottom: 8px
+                
+              .seo-json-preview
+                background: #f8f9fa
+                padding: 12px
+                border-radius: 4px
+                font-size: 11px
+                border: 1px solid #dee2e6
+                max-height: 200px
+                overflow-y: auto
+                
+            .sections-preview
+              strong
+                color: #495057
+                display: block
+                margin-bottom: 8px
+                
+          .api-request-preview
+            margin-top: 16px
+            padding: 12px
+            background: #f8f9fa
+            border-radius: 4px
+            border: 1px solid #dee2e6
+            
+            strong
+              color: #495057
+              display: block
+              margin-bottom: 8px
+              
+            .api-code
+              display: block
+              background: #2d3748
+              color: #a0aec0
+              padding: 12px
+              border-radius: 4px
+              font-size: 11px
+              line-height: 1.4
+              white-space: pre-wrap
+              overflow-x: auto
+              
+          .json-preview
+            background: #f8f9fa
+            padding: 12px
+            border-radius: 4px
+            font-size: 11px
+            border: 1px solid #dee2e6
+            max-height: 400px
+            overflow-y: auto
+            white-space: pre-wrap
+            word-wrap: break-word
+            
+    .page-edit-section
+      padding: 24px
+      background: #fff3cd
+      border-top: 1px solid #ffeaa7
+      
+      .edit-header
+        display: flex
+        justify-content: space-between
+        align-items: center
+        margin-bottom: 20px
+        padding-bottom: 16px
+        border-bottom: 1px solid #ffeaa7
+        
+        strong
+          color: #856404
+          font-size: 18px
+          font-weight: 600
+          
+        .edit-actions
+          display: flex
+          gap: 12px
+          
+          .save-btn
+            background: #28a745
+            color: white
+            border: none
+            padding: 10px 20px
+            border-radius: 6px
+            font-size: 14px
+            cursor: pointer
+            font-weight: 500
+            transition: all 0.2s ease
+            
+            &:hover
+              background: #1e7e34
+              transform: translateY(-1px)
+              
+          .cancel-btn
+            background: #dc3545
+            color: white
+            border: none
+            padding: 10px 20px
+            border-radius: 6px
+            font-size: 14px
+            cursor: pointer
+            font-weight: 500
+            transition: all 0.2s ease
+            
+            &:hover
+              background: #c82333
+              transform: translateY(-1px)
+              
+      .edit-content
+        display: grid
+        grid-template-columns: 1fr 300px
+        gap: 20px
+        
+        .edit-textarea
+          width: 100%
+          padding: 20px
+          border: 1px solid #f0b90b
+          border-radius: 8px
+          font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace
+          font-size: 13px
+          line-height: 1.5
+          background: #fffbf0
+          color: #856404
+          resize: vertical
+          
+          &:focus
+            outline: none
+            border-color: #f39c12
+            box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.25)
+            
+        .edit-sidebar
+          display: flex
+          flex-direction: column
+          gap: 16px
+          
+          .edit-help
+            background: #fff
+            border: 1px solid #f0b90b
+            border-radius: 8px
+            padding: 16px
+            
+            h6
+              margin: 0 0 12px 0
+              color: #856404
+              font-size: 14px
+              font-weight: 600
+              
+            ul
+              margin: 0
+              padding-left: 16px
+              
+              li
+                font-size: 12px
+                color: #6c5b0b
+                margin-bottom: 4px
+                
+          .json-validator
+            margin-bottom: 16px
+            
+            h6
+              margin-bottom: 8px
+              color: #495057
+              font-size: 14px
+              
+            .valid
+              color: #28a745
+              font-weight: 600
+              
+            .invalid
+              color: #dc3545
+              font-weight: 600
+              
+            .content-analyzer
+              padding: 12px
+              background: #f8f9fa
+              border-left: 4px solid #17a2b8
+              border-radius: 4px
+              
+              h6
+                margin-bottom: 8px
+                color: #117a8b
+                font-size: 14px
+                
+              .analysis-item
+                margin-bottom: 4px
+                font-size: 12px
+                
+                span
+                  color: #495057
+
+  .global-content-preview
+    margin-top: 24px
+    padding: 20px
+    background: #f1f3f4
+    border-radius: 8px
+    border: 1px solid #e9ecef
+    
+    h5
+      margin-bottom: 12px
+      color: #495057
+      
+    .global-details
+      summary
+        cursor: pointer
+        font-weight: 500
+        color: #007bff
+        padding: 8px 0
+        
+        .global-size
+          font-size: 12px
+          color: #6c757d
+          font-weight: normal
+          
+      .json-preview
+        margin-top: 12px
+
+  .preview-summary
+    margin-top: 24px
+    padding: 20px
+    background: #f8f9fa
+    border-radius: 8px
+    border: 1px solid #dee2e6
+    
+    h5
+      margin-bottom: 16px
+      color: #495057
+      
+    .summary-stats
+      display: grid
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr))
+      gap: 16px
+      
+      .stat-item
+        display: flex
+        justify-content: space-between
+        align-items: center
+        padding: 12px
+        background: white
+        border-radius: 6px
+        border: 1px solid #e9ecef
+        
+        .stat-label
+          font-weight: 500
+          color: #495057
+          
+        .stat-value
+          background: #007bff
+          color: white
+          padding: 4px 8px
+          border-radius: 4px
+          font-weight: 600
+          font-size: 12px
+
+// Responsive styles for enhanced preview
+@media (max-width: 768px)
+  .enhanced-preview-section
+    padding: 16px
+    
+    .preview-header
+      flex-direction: column
+      align-items: flex-start
+      gap: 16px
+      
+      .preview-controls
+        align-self: stretch
+        
+        .expand-all-btn,
+        .collapse-all-btn
+          flex: 1
+          
+    .page-preview-card
+      .page-card-header
+        flex-direction: column
+        align-items: flex-start
+        gap: 16px
+        
+        .page-actions
+          flex-direction: row
+          align-self: stretch
+          
+          .expand-btn,
+          .edit-btn
+            flex: 1
+            
+      .page-edit-section
+        .edit-header
+          flex-direction: column
+          align-items: flex-start
+          gap: 16px
+          
+          .edit-actions
+            align-self: stretch
+            
+            .save-btn,
+            .cancel-btn
+              flex: 1
+              
+        .edit-content
+          grid-template-columns: 1fr
+          gap: 16px
+          
+          .edit-sidebar
+            order: -1
+            
+    .summary-stats
+      grid-template-columns: repeat(2, 1fr)
+      gap: 12px
+      
+      .stat-item
+        .stat-value
+          font-size: 16px 
