@@ -1,0 +1,267 @@
+.sitemap-dual-view
+  padding: 2rem
+  background: #f8f9fa
+  border-radius: 12px
+  margin: 2rem 0
+
+  &__header
+    text-align: center
+    margin-bottom: 2rem
+
+  &__title
+    font-size: 1.8rem
+    font-weight: 700
+    color: #333
+    margin-bottom: 0.5rem
+
+  &__description
+    font-size: 1.1rem
+    color: #6c757d
+    margin: 0
+
+  &__container
+    display: grid
+    grid-template-columns: 1fr 1fr
+    gap: 3rem
+    align-items: start
+
+  &__section
+    background: white
+    border-radius: 8px
+    padding: 1.5rem
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1)
+    border: 1px solid #e1e5e9
+
+.sitemap-compact-view
+  &__header
+    margin-bottom: 1.5rem
+    padding-bottom: 1rem
+    border-bottom: 2px solid #e1e5e9
+
+  &__title
+    font-size: 1.3rem
+    font-weight: 600
+    color: #495057
+    margin-bottom: 0.5rem
+    display: flex
+    align-items: center
+    gap: 0.5rem
+
+    &::before
+      content: '📱'
+      font-size: 1.2rem
+
+  &__description
+    font-size: 0.9rem
+    color: #6c757d
+    margin: 0
+    line-height: 1.4
+
+.sitemap-expanded-view
+  &__header
+    margin-bottom: 1.5rem
+    padding-bottom: 1rem
+    border-bottom: 2px solid #e1e5e9
+
+  &__title
+    font-size: 1.3rem
+    font-weight: 600
+    color: #495057
+    margin-bottom: 0.5rem
+    display: flex
+    align-items: center
+    gap: 0.5rem
+
+    &::before
+      content: '🖥️'
+      font-size: 1.2rem
+
+  &__description
+    font-size: 0.9rem
+    color: #6c757d
+    margin: 0
+    line-height: 1.4
+
+// Responsive design
+@media (max-width: 1200px)
+  .sitemap-dual-view
+    &__container
+      grid-template-columns: 1fr
+      gap: 2rem
+
+    &__section
+      padding: 1rem
+
+@media (max-width: 768px)
+  .sitemap-dual-view
+    padding: 1rem
+    margin: 1rem 0
+
+    &__header
+      margin-bottom: 1.5rem
+
+    &__title
+      font-size: 1.5rem
+
+    &__description
+      font-size: 1rem
+
+    &__container
+      gap: 1.5rem
+
+    &__section
+      padding: 1rem
+
+  .sitemap-compact-view,
+  .sitemap-expanded-view
+    &__title
+      font-size: 1.1rem
+
+    &__description
+      font-size: 0.85rem
+
+// Sitemap View Toggle styles
+.sitemap-view-container
+  width: 100%
+  min-height: 100vh
+
+.sitemap-view-toggle
+  background: #fff
+  border-radius: 8px
+  padding: 1.5rem
+  margin-bottom: 2rem
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1)
+  border: 1px solid #e1e5e9
+
+  &__header
+    display: flex
+    flex-direction: column
+    align-items: center
+    gap: 1rem
+
+  &__title
+    font-size: 1.5rem
+    font-weight: 700
+    color: #333
+    margin: 0
+    text-align: center
+
+  &__buttons
+    display: flex
+    gap: 0.75rem
+    flex-wrap: wrap
+    justify-content: center
+
+  &__button
+    padding: 0.75rem 1.25rem
+    border: 2px solid #e1e5e9
+    background: #fff
+    border-radius: 8px
+    font-size: 0.9rem
+    font-weight: 600
+    color: #495057
+    cursor: pointer
+    transition: all 0.2s ease
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    white-space: nowrap
+
+    &:hover
+      border-color: #007bff
+      color: #007bff
+      transform: translateY(-1px)
+      box-shadow: 0 4px 8px rgba(0, 123, 255, 0.15)
+
+    &--active
+      background: linear-gradient(135deg, #007bff, #0056b3)
+      border-color: #007bff
+      color: #fff
+      box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3)
+
+      &:hover
+        background: linear-gradient(135deg, #0056b3, #004085)
+        border-color: #0056b3
+        transform: translateY(-1px)
+
+// Single view styles
+.sitemap-single-view
+  background: #fff
+  border-radius: 8px
+  padding: 2rem
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1)
+  border: 1px solid #e1e5e9
+
+  &__header
+    text-align: center
+    margin-bottom: 2rem
+    padding-bottom: 1.5rem
+    border-bottom: 2px solid #f8f9fa
+
+    h3
+      font-size: 1.6rem
+      font-weight: 700
+      color: #333
+      margin-bottom: 0.75rem
+      display: flex
+      align-items: center
+      justify-content: center
+      gap: 0.75rem
+
+    p
+      font-size: 1rem
+      color: #6c757d
+      margin: 0
+      line-height: 1.5
+
+// Original view styles
+.sitemap-original-view
+  background: #fff
+  border-radius: 8px
+  padding: 2rem
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1)
+  border: 1px solid #e1e5e9
+
+// Responsive design for view toggle
+@media (max-width: 768px)
+  .sitemap-view-toggle
+    padding: 1rem
+    margin-bottom: 1.5rem
+
+    &__title
+      font-size: 1.3rem
+
+    &__buttons
+      gap: 0.5rem
+
+    &__button
+      padding: 0.6rem 1rem
+      font-size: 0.8rem
+
+  .sitemap-single-view,
+  .sitemap-original-view
+    padding: 1.5rem
+
+    &__header
+      margin-bottom: 1.5rem
+
+      h3
+        font-size: 1.3rem
+        gap: 0.5rem
+
+      p
+        font-size: 0.9rem
+
+@media (max-width: 480px)
+  .sitemap-view-toggle
+    &__buttons
+      flex-direction: column
+      width: 100%
+
+    &__button
+      width: 100%
+      justify-content: center
+
+  .sitemap-single-view,
+  .sitemap-original-view
+    padding: 1rem

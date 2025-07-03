@@ -6,13 +6,13 @@ import useViewControls from '../../hooks/useViewControls';
 import useImportExport from '../../hooks/useImportExport';
 import useGenerateSitemap from '../../hooks/useGenerateSitemap';
 import { getBackendSiteTypeForModelGroup } from '../../utils/modelGroupKeyToBackendSiteType';
+import useProgressTracking from '../../hooks/useProgressTracking';
+import ProgressIndicator from '../Common/ProgressIndicator';
 import SiteSelector from '../SiteSelector';
 import DefaultTemplateSelector from '../DefaultTemplateSelector/DefaultTemplateSelector';
 import GenerateSitemapButton from '../GenerateSitemapButton';
 import GeneratedSitemapSelector from '../GeneratedSitemapSelector';
-import ViewControls from '../Sitemap/ViewControls';
-import LayoutControls from '../Sitemap/LayoutControls';
-import PageList from '../Sitemap/PageList';
+import SitemapViewToggle from '../Sitemap/SitemapViewToggle';
 import JsonExportImport from '../Sitemap/JsonExportImport';
 
 export interface EnhancedSitemapProps {
@@ -40,6 +40,8 @@ const EnhancedSitemap: React.FC<EnhancedSitemapProps> = ({
   const pagesApi = usePages();
   // View toggles/layout
   const view = useViewControls();
+  // Progress tracking
+  const { progressState, updateTaskStatus } = useProgressTracking();
   
   // Get the effective questionnaire data (either structured or markdown-based)
   const effectiveQuestionnaireData = getEffectiveQuestionnaireData(questionnaireData);
@@ -50,6 +52,15 @@ const EnhancedSitemap: React.FC<EnhancedSitemapProps> = ({
       onPagesChange(pagesApi.pages);
     }
   }, [pagesApi.pages, onPagesChange]);
+
+  // Track sitemap planning progress
+  useEffect(() => {
+    if (pagesApi.pages.length > 0) {
+      updateTaskStatus('content', 'sitemapPlanning', 'completed');
+    } else if (pagesApi.pages.length === 0) {
+      updateTaskStatus('content', 'sitemapPlanning', 'pending');
+    }
+  }, [pagesApi.pages, updateTaskStatus]);
   
   // Import/export logic
   const { exportJson, importJson } = useImportExport({
@@ -69,7 +80,14 @@ const EnhancedSitemap: React.FC<EnhancedSitemapProps> = ({
 
   return (
     <div className="relative">
-      <h2 className="text-2xl font-bold mb-4">Sitemap Builder</h2>
+      <div className="sitemap-header">
+        <h2 className="text-2xl font-bold mb-4">Sitemap Builder</h2>
+        <ProgressIndicator 
+          status={progressState.content.sitemapPlanning} 
+          size="medium"
+          showLabel={true}
+        />
+      </div>
       
       {/* Data Source Indicator */}
       {isMarkdownData(questionnaireData) && (
@@ -105,29 +123,33 @@ const EnhancedSitemap: React.FC<EnhancedSitemapProps> = ({
           onTemplateSelect={pagesApi.importPagesFromJson}
         />
       </div>
-      <ViewControls {...view} />
-      <LayoutControls
-        useGridLayout={view.useGridLayout}
-        toggleUseGridLayout={view.toggleUseGridLayout}
-        gridColumnWidth={view.gridColumnWidth}
-        setGridColumnWidth={view.setGridColumnWidth}
-      />
-      <PageList
+      
+      <SitemapViewToggle
         pages={pagesApi.pages}
-        useGridLayout={view.useGridLayout}
-        gridColumnWidth={view.gridColumnWidth}
-        showItemNumbers={view.showItemNumbers}
-        showPageIds={view.showPageIds}
-        showDeleteButtons={view.showDeleteButtons}
-        showSelect={view.showSelect}
-        showTextarea={view.showTextarea}
         currentModels={currentModels}
         updatePageTitle={pagesApi.updatePageTitle}
         updatePageWordpressId={pagesApi.updatePageWordpressId}
         updatePageItems={pagesApi.updatePageItems}
         removePage={pagesApi.removePage}
         addPage={pagesApi.addPage}
+        // View control props
+        showSelect={view.showSelect}
+        toggleShowSelect={view.toggleShowSelect}
+        showTextarea={view.showTextarea}
+        toggleShowTextarea={view.toggleShowTextarea}
+        showDeleteButtons={view.showDeleteButtons}
+        toggleShowDeleteButtons={view.toggleShowDeleteButtons}
+        showItemNumbers={view.showItemNumbers}
+        toggleShowItemNumbers={view.toggleShowItemNumbers}
+        showPageIds={view.showPageIds}
+        toggleShowPageIds={view.toggleShowPageIds}
+        // Layout control props
+        useGridLayout={view.useGridLayout}
+        toggleUseGridLayout={view.toggleUseGridLayout}
+        gridColumnWidth={view.gridColumnWidth}
+        setGridColumnWidth={view.setGridColumnWidth}
       />
+      
       <JsonExportImport exportJson={exportJson} importJson={importJson} />
     </div>
   );

@@ -7,9 +7,13 @@ import GitHubRepoCreator from './GitHubRepoCreator';
 import ContentGenerator from './ContentGenerator';
 import RepositoryUpdater from './RepositoryUpdater';
 import WordPressUpdater from './WordPressUpdater';
+import SidebarNavigation from '../Sidebar/SidebarNavigation';
 import { QuestionnaireData } from '../../types/SitemapTypes';
 import { initialModelGroups } from '../../modelGroups';
 import { getBackendSiteTypeForModelGroup } from '../../utils/modelGroupKeyToBackendSiteType';
+import useProgressTracking from '../../hooks/useProgressTracking';
+import '../Common/ProgressIndicator.sass';
+import '../Sidebar/SidebarNavigation.sass';
 import './WorkflowManager.sass';
 
 interface WorkflowManagerProps {
@@ -21,7 +25,8 @@ const WorkflowManager: React.FC<WorkflowManagerProps> = ({
   questionnaireData,
   setQuestionnaireData
 }) => {
-  const [activeTab, setActiveTab] = useState<string>('infrastructure');
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
+  const { activeSection, updateTaskStatus } = useProgressTracking();
   const [modelGroups, setModelGroups] = useState<Record<string, string[]>>(initialModelGroups);
   const [selectedModelGroupKey, setSelectedModelGroupKey] = useState<string>(Object.keys(initialModelGroups)[0]);
   const [provisioningData, setProvisioningData] = useState<any>(null);
@@ -70,28 +75,32 @@ const WorkflowManager: React.FC<WorkflowManagerProps> = ({
   const currentModels = initialModelGroups[selectedModelGroupKey] || [];
   const siteType = getBackendSiteTypeForModelGroup(selectedModelGroupKey) || 'stinson';
 
-  const tabs = [
-    {
-      id: 'infrastructure',
-      label: '🏗️ Infrastructure & Assets',
-      description: 'Create GitHub repo and provision AWS resources'
-    },
-    {
-      id: 'setup',
-      label: '📝 Setup & Configuration',
-      description: 'Configure questionnaire, content docs, and sync assets'
-    },
-    {
-      id: 'content',
-      label: '🗺️ Content Planning & Generation',
-      description: 'Plan structure, generate content, and update repo'
-    }
-  ];
+  const handleRepoCreated = useCallback((data: any) => {
+    setRepoData(data);
+    updateTaskStatus('infrastructure', 'repoCreation', 'completed');
+  }, [updateTaskStatus]);
 
-  const renderTabContent = () => {
-    switch (activeTab) {
-      case 'infrastructure':
-        return (
+  const handleProvisioningComplete = useCallback((data: any) => {
+    setProvisioningData(data);
+    updateTaskStatus('infrastructure', 'awsProvisioning', 'completed');
+  }, [updateTaskStatus]);
+
+  const handleQuestionnaireComplete = useCallback(() => {
+    updateTaskStatus('setup', 'questionnaire', 'completed');
+  }, [updateTaskStatus]);
+
+  const handleContentGenerationComplete = useCallback((pagesContent: object, globalContent: object) => {
+    setGeneratedContent({
+      pages: pagesContent,
+      global: globalContent
+    });
+    updateTaskStatus('content', 'contentGeneration', 'completed');
+  }, [updateTaskStatus]);
+
+  const renderSectionContent = () => {
+    return (
+      <div className="workflow-sections">
+        <div id="section-infrastructure" className="workflow-section">
           <div className="tab-content">
             <div className="tab-content__header">
               <h2>🏗️ Infrastructure & Assets</h2>
@@ -99,25 +108,24 @@ const WorkflowManager: React.FC<WorkflowManagerProps> = ({
             </div>
             
             <div className="infrastructure-sections">
-              <div className="section">
+              <div id="task-infrastructure-repoCreation" className="section">
                 <h3>📁 Create GitHub Repository</h3>
                 <p>Create a new GitHub repository from template to host your site code.</p>
-                <GitHubRepoCreator onRepoCreated={setRepoData} />
+                <GitHubRepoCreator onRepoCreated={handleRepoCreated} />
               </div>
               
-              <div className="section">
+              <div id="task-infrastructure-awsProvisioning" className="section">
                 <h3>☁️ Provision AWS Resources</h3>
                 <p>Create S3 bucket, CloudFront distribution, and CodePipeline for your site.</p>
                 <EnhancedProvisionSection 
-                  onProvisioningComplete={setProvisioningData}
+                  onProvisioningComplete={handleProvisioningComplete}
                 />
               </div>
             </div>
           </div>
-        );
+        </div>
 
-      case 'setup':
-        return (
+        <div id="section-setup" className="workflow-section">
           <div className="tab-content">
             <div className="tab-content__header">
               <h2>📝 Setup & Configuration</h2>
@@ -125,7 +133,7 @@ const WorkflowManager: React.FC<WorkflowManagerProps> = ({
             </div>
             
             <div className="setup-sections">
-              <div className="section">
+              <div id="task-setup-questionnaire" className="section">
                 <h3>📋 Site Questionnaire</h3>
                 <p>Fill out the questionnaire to configure your site's basic settings and content preferences.</p>
                 <QuestionnaireManager 
@@ -134,9 +142,7 @@ const WorkflowManager: React.FC<WorkflowManagerProps> = ({
                 />
               </div>
               
-
-              
-              <div className="section">
+              <div id="task-setup-assetSync" className="section">
                 <h3>🖼️ Sync Scraped Assets</h3>
                 <p>Upload scraped images to S3 and get CloudFront URLs to prevent hotlinking.</p>
                 <EnhancedImageTester 
@@ -147,10 +153,9 @@ const WorkflowManager: React.FC<WorkflowManagerProps> = ({
               </div>
             </div>
           </div>
-        );
+        </div>
 
-      case 'content':
-        return (
+        <div id="section-content" className="workflow-section">
           <div className="tab-content">
             <div className="tab-content__header">
               <h2>🗺️ Content Planning & Generation</h2>
@@ -158,7 +163,7 @@ const WorkflowManager: React.FC<WorkflowManagerProps> = ({
             </div>
             
             <div className="content-sections">
-              <div className="section">
+              <div id="task-content-sitemapPlanning" className="section">
                 <h3>🗺️ Site Structure Planning</h3>
                 <p>Plan your site structure, organize pages, and define your content hierarchy.</p>
                 <EnhancedSitemap
@@ -173,18 +178,18 @@ const WorkflowManager: React.FC<WorkflowManagerProps> = ({
                 />
               </div>
               
-              <div className="section">
+              <div id="task-content-contentGeneration" className="section">
                 <h3>✨ Content Generation</h3>
                 <p>Generate content based on your questionnaire and sitemap configuration.</p>
                 <ContentGenerator
                   pages={sitemapPages}
                   questionnaireData={questionnaireData}
                   siteType={siteType}
-                  onContentGenerated={handleContentGenerated}
+                  onContentGenerated={handleContentGenerationComplete}
                 />
               </div>
               
-              <div className="section">
+              <div id="task-content-repositoryUpdate" className="section">
                 <h3>🔄 Update Repository</h3>
                 <p>Push generated content and updates to your GitHub repository.</p>
                 <RepositoryUpdater
@@ -193,7 +198,7 @@ const WorkflowManager: React.FC<WorkflowManagerProps> = ({
                 />
               </div>
               
-              <div className="section">
+              <div id="task-content-wordpressUpdate" className="section">
                 <h3>🌐 Update WordPress</h3>
                 <p>Push generated content directly to your WordPress site via the REST API.</p>
                 <WordPressUpdater
@@ -204,35 +209,23 @@ const WorkflowManager: React.FC<WorkflowManagerProps> = ({
               </div>
             </div>
           </div>
-        );
-
-      default:
-        return null;
-    }
+        </div>
+      </div>
+    );
   };
+
 
   return (
     <div className="workflow-manager">
-      <div className="workflow-manager__header">
-        <h1>🌐 Site Builder Workflow</h1>
-        <p>Follow these steps to build and deploy your site</p>
-      </div>
-
-      <div className="workflow-manager__tabs">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            className={`tab ${activeTab === tab.id ? 'tab--active' : ''}`}
-            onClick={() => setActiveTab(tab.id)}
-          >
-            <span className="tab__label">{tab.label}</span>
-            <span className="tab__description">{tab.description}</span>
-          </button>
-        ))}
-      </div>
-
-      <div className="workflow-manager__content">
-        {renderTabContent()}
+      <SidebarNavigation 
+        isCollapsed={isSidebarCollapsed}
+        onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+      />
+      
+      <div className={`workflow-manager__main ${isSidebarCollapsed ? 'workflow-manager__main--expanded' : ''}`}>
+        <div className="workflow-manager__content">
+          {renderSectionContent()}
+        </div>
       </div>
     </div>
   );

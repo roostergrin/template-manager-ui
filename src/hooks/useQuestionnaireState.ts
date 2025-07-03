@@ -7,7 +7,7 @@ import {
 } from '../types/QuestionnaireStateTypes';
 
 const initialState: QuestionnaireState = {
-  activeMode: 'questionnaire',
+  activeMode: 'scrape',
   dataSource: 'structured',
   data: {}
 };

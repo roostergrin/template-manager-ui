@@ -6,6 +6,8 @@ import DomainScrapeOptions from '../QuestionnaireForm/DomainScrapeOptions';
 import useQuestionnaireState from '../../hooks/useQuestionnaireState';
 import useFillForm from '../../hooks/useFillForm';
 import { createMarkdownFormData } from '../../utils/questionnaireDataUtils';
+import useProgressTracking from '../../hooks/useProgressTracking';
+import ProgressIndicator from '../Common/ProgressIndicator';
 import './QuestionnaireManager.sass';
 
 interface QuestionnaireManagerProps {
@@ -19,6 +21,43 @@ const QuestionnaireManager: React.FC<QuestionnaireManagerProps> = ({
 }) => {
   const [questionnaireState, questionnaireActions] = useQuestionnaireState();
   const [fillFormData, fillFormStatus, fillForm] = useFillForm();
+  const { updateTaskStatus, progressState } = useProgressTracking();
+
+  // Function to check if questionnaire is completed
+  const isQuestionnaireCompleted = () => {
+    if (!formData) return false;
+    
+    switch (questionnaireState.activeMode) {
+      case 'scrape':
+        return fillFormData && Object.keys(fillFormData).length > 0;
+      case 'questionnaire':
+        // Check if key fields are filled
+        const requiredFields = ['practiceDetails', 'siteVision', 'primaryAudience'];
+        return requiredFields.every(field => 
+          formData[field] && String(formData[field]).trim().length > 0
+        );
+      case 'template-markdown':
+        return questionnaireState.data.templateMarkdown && 
+               questionnaireState.data.templateMarkdown.trim().length > 100;
+      case 'content-document':
+        return questionnaireState.data.contentDocument && 
+               questionnaireState.data.contentDocument.trim().length > 100;
+      default:
+        return false;
+    }
+  };
+
+  // Track progress changes
+  useEffect(() => {
+    const completed = isQuestionnaireCompleted();
+    if (completed) {
+      updateTaskStatus('setup', 'questionnaire', 'completed');
+    } else if (formData && Object.keys(formData).length > 0) {
+      updateTaskStatus('setup', 'questionnaire', 'in-progress');
+    } else {
+      updateTaskStatus('setup', 'questionnaire', 'pending');
+    }
+  }, [formData, questionnaireState, fillFormData, updateTaskStatus]);
 
   // Sync markdown content with formData when in template-markdown mode
   useEffect(() => {
@@ -166,10 +205,22 @@ Dr. Smith has been practicing orthodontics for over 15 years...
   return (
     <div className="questionnaire-manager">
       <div className="questionnaire-manager__header">
-        <h1 className="questionnaire-manager__title">Questionnaire Manager</h1>
+        <div className="questionnaire-manager__title-row">
+          <h1 className="questionnaire-manager__title">Questionnaire Manager</h1>
+          <ProgressIndicator 
+            status={progressState.setup.questionnaire} 
+            size="large"
+            showLabel={true}
+          />
+        </div>
         <p className="questionnaire-manager__description">
           Choose how you want to input your practice information for website generation.
         </p>
+        {isQuestionnaireCompleted() && (
+          <div className="questionnaire-manager__completion-notice">
+            ✅ Questionnaire completed! You can now proceed to content planning.
+          </div>
+        )}
       </div>
       
       <QuestionnaireModeSelector

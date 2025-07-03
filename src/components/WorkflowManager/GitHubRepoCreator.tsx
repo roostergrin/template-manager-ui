@@ -1,6 +1,8 @@
 import React, { useState, useContext, useCallback } from 'react';
 import { GithubRepoContext } from '../../context/GithubRepoContext';
 import useCreateGithubRepoFromTemplate from '../../hooks/useCreateGithubRepoFromTemplate';
+import useProgressTracking from '../../hooks/useProgressTracking';
+import ProgressIndicator from '../Common/ProgressIndicator';
 import './GitHubRepoCreator.sass';
 
 interface GitHubRepoCreatorProps {
@@ -14,9 +16,12 @@ const GitHubRepoCreator: React.FC<GitHubRepoCreatorProps> = ({ onRepoCreated }) 
   const [createRepoData, createRepoStatus, createRepo] = useCreateGithubRepoFromTemplate();
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const { progressState, updateTaskStatus } = useProgressTracking();
 
   const handleCreateRepo = useCallback(async () => {
     setError(null);
+    updateTaskStatus('infrastructure', 'repoCreation', 'in-progress');
+    
     try {
       const result = await createRepo({ 
         new_name: newRepoName, 
@@ -25,13 +30,16 @@ const GitHubRepoCreator: React.FC<GitHubRepoCreatorProps> = ({ onRepoCreated }) 
       setGithubOwner(result.owner);
       setGithubRepo(result.repo);
       
+      updateTaskStatus('infrastructure', 'repoCreation', 'completed');
+      
       if (onRepoCreated) {
         onRepoCreated(result);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
+      updateTaskStatus('infrastructure', 'repoCreation', 'error');
     }
-  }, [newRepoName, templateRepoName, createRepo, setGithubOwner, setGithubRepo, onRepoCreated]);
+  }, [newRepoName, templateRepoName, createRepo, setGithubOwner, setGithubRepo, onRepoCreated, updateTaskStatus]);
 
   const handleCopy = useCallback(() => {
     if (createRepoData) {
@@ -43,6 +51,15 @@ const GitHubRepoCreator: React.FC<GitHubRepoCreatorProps> = ({ onRepoCreated }) 
 
   return (
     <div className="github-repo-creator">
+      <div className="github-repo-creator__header">
+        <h4 className="github-repo-creator__title">GitHub Repository Creation</h4>
+        <ProgressIndicator 
+          status={progressState.infrastructure.repoCreation} 
+          size="medium"
+          showLabel={true}
+        />
+      </div>
+      
       <div className="form-group">
         <label htmlFor="new-repo-name">New Repository Name</label>
         <input

@@ -1,6 +1,8 @@
 import React, { useState, useContext, useEffect } from "react";
 import useProvisionSite from "../../hooks/useProvisionSite";
 import { GithubRepoContext } from "../../context/GithubRepoContext";
+import useProgressTracking from "../../hooks/useProgressTracking";
+import ProgressIndicator from "../Common/ProgressIndicator";
 import "../ProvisionSiteSection.sass";
 
 interface EnhancedProvisionSectionProps {
@@ -16,10 +18,12 @@ const EnhancedProvisionSection: React.FC<EnhancedProvisionSectionProps> = ({
   const [pageType, setPageType] = useState<"template" | "landing">("template");
   const [response, status, provisionSite] = useProvisionSite();
   const [error, setError] = useState<string | null>(null);
+  const { progressState, updateTaskStatus } = useProgressTracking();
 
   // Notify parent when provisioning is complete
   useEffect(() => {
     if (status === "success" && response && onProvisioningComplete) {
+      updateTaskStatus('infrastructure', 'awsProvisioning', 'completed');
       onProvisioningComplete({
         ...response,
         bucketName, // Include the bucket name used
@@ -27,11 +31,15 @@ const EnhancedProvisionSection: React.FC<EnhancedProvisionSectionProps> = ({
         githubRepo,
         githubBranch
       });
+    } else if (status === "error") {
+      updateTaskStatus('infrastructure', 'awsProvisioning', 'error');
     }
-  }, [status, response, onProvisioningComplete, bucketName, githubOwner, githubRepo, githubBranch]);
+  }, [status, response, onProvisioningComplete, bucketName, githubOwner, githubRepo, githubBranch, updateTaskStatus]);
 
   const handleProvision = async () => {
     setError(null);
+    updateTaskStatus('infrastructure', 'awsProvisioning', 'in-progress');
+    
     try {
       await provisionSite({
         bucket_name: bucketName,
@@ -42,11 +50,21 @@ const EnhancedProvisionSection: React.FC<EnhancedProvisionSectionProps> = ({
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
+      updateTaskStatus('infrastructure', 'awsProvisioning', 'error');
     }
   };
 
   return (
     <div className="provision-site-section" role="region" aria-label="Provision Site">
+      <div className="provision-site-section__header">
+        <h4 className="provision-site-section__title">AWS Infrastructure Provisioning</h4>
+        <ProgressIndicator 
+          status={progressState.infrastructure.awsProvisioning} 
+          size="medium"
+          showLabel={true}
+        />
+      </div>
+      
       <div className="provision-site-section__input-group">
         <label className="provision-site-section__label" htmlFor="github-owner">GitHub Owner</label>
         <input

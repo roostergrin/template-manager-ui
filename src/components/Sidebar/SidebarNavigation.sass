@@ -1,0 +1,382 @@
+.sidebar-navigation
+  width: 320px
+  height: 100vh
+  background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%)
+  border-right: 2px solid #dee2e6
+  display: flex
+  flex-direction: column
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1)
+  position: fixed
+  left: 0
+  top: 0
+  z-index: 1000
+  transition: all 0.3s ease
+
+  &--collapsed
+    width: 80px
+
+    .sidebar-navigation__title,
+    .sidebar-navigation__progress,
+    .sidebar-navigation__tasks,
+    .sidebar-navigation__footer,
+    .sidebar-navigation__section-title
+      display: none
+
+    .sidebar-navigation__section-button
+      justify-content: center
+      padding: 1rem
+
+    .sidebar-navigation__section-icon
+      font-size: 1.5rem
+
+  &__header
+    padding: 1.5rem 1rem
+    border-bottom: 1px solid #dee2e6
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)
+    color: white
+    display: flex
+    align-items: center
+    justify-content: space-between
+
+  &__logo
+    display: flex
+    align-items: center
+    gap: 0.75rem
+
+  &__logo-icon
+    font-size: 1.5rem
+    animation: rotate 10s linear infinite
+
+  &__title
+    margin: 0
+    font-size: 1.25rem
+    font-weight: 600
+    white-space: nowrap
+
+  &__toggle
+    background: rgba(255, 255, 255, 0.2)
+    border: 1px solid rgba(255, 255, 255, 0.3)
+    color: white
+    border-radius: 4px
+    padding: 0.5rem
+    cursor: pointer
+    transition: all 0.2s ease
+    width: 2rem
+    height: 2rem
+    display: flex
+    align-items: center
+    justify-content: center
+
+    &:hover
+      background: rgba(255, 255, 255, 0.3)
+      transform: scale(1.1)
+
+    &:focus
+      outline: 2px solid rgba(255, 255, 255, 0.5)
+      outline-offset: 2px
+
+  &__progress
+    padding: 1rem
+    border-bottom: 1px solid #dee2e6
+    background: rgba(255, 255, 255, 0.5)
+
+  &__progress-header
+    display: flex
+    justify-content: space-between
+    align-items: center
+    margin-bottom: 0.5rem
+
+  &__progress-label
+    font-size: 0.875rem
+    font-weight: 500
+    color: #495057
+
+  &__progress-percentage
+    font-size: 0.875rem
+    font-weight: 600
+    color: #198754
+
+  &__progress-bar
+    height: 6px
+    background: #e9ecef
+    border-radius: 3px
+    overflow: hidden
+
+  &__progress-fill
+    height: 100%
+    background: linear-gradient(90deg, #198754 0%, #20c997 100%)
+    border-radius: 3px
+    transition: width 0.5s ease
+
+  &__nav
+    flex: 1
+    overflow-y: auto
+    padding: 0.5rem 0
+
+  &__section
+    margin-bottom: 0.25rem
+
+  &__section-button
+    width: 100%
+    background: none
+    border: none
+    padding: 0.75rem 1rem
+    cursor: pointer
+    transition: all 0.3s ease
+    display: flex
+    align-items: center
+    text-align: left
+    border-radius: 0
+    position: relative
+
+    &:hover
+      background: rgba(102, 126, 234, 0.1)
+      transform: translateX(4px)
+
+    &:focus
+      outline: 2px solid #667eea
+      outline-offset: -2px
+
+    &--active
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%)
+      border-right: 4px solid #667eea
+      font-weight: 600
+      box-shadow: inset 0 0 10px rgba(102, 126, 234, 0.1)
+
+      &:hover
+        transform: none
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.25) 0%, rgba(118, 75, 162, 0.25) 100%)
+
+      &::before
+        content: ''
+        position: absolute
+        left: 0
+        top: 0
+        bottom: 0
+        width: 3px
+        background: linear-gradient(180deg, #667eea 0%, #764ba2 100%)
+        animation: pulse-active 2s ease-in-out infinite
+
+    &--has-active-task
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%)
+      border-right: 2px solid rgba(102, 126, 234, 0.3)
+
+      &:hover
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.12) 0%, rgba(118, 75, 162, 0.12) 100%)
+
+
+  @keyframes pulse-active
+    0%
+      opacity: 0.8
+    50%
+      opacity: 1.0
+    100%
+      opacity: 0.8
+
+  &__section-header
+    display: flex
+    align-items: center
+    gap: 0.75rem
+    flex: 1
+
+  &__section-icon
+    font-size: 1.25rem
+    min-width: 1.5rem
+    text-align: center
+
+  &__section-title
+    font-size: 0.9rem
+    flex: 1
+    white-space: nowrap
+    overflow: hidden
+    text-overflow: ellipsis
+
+  &__tasks
+    padding: 0.5rem 0 0.5rem 3rem
+    background: rgba(248, 249, 250, 0.8)
+    border-left: 2px solid #e9ecef
+    margin-left: 1rem
+
+  &__task
+    width: 100%
+    background: none
+    border: none
+    padding: 0.75rem 0.5rem
+    margin-bottom: 0.25rem
+    border-radius: 6px
+    cursor: pointer
+    text-align: left
+    transition: all 0.2s ease
+    border-bottom: 1px solid rgba(241, 243, 244, 0.5)
+
+    &:hover
+      background: rgba(102, 126, 234, 0.08)
+      transform: translateX(2px)
+
+    &:focus
+      outline: 1px solid #667eea
+      outline-offset: 1px
+
+    &:last-child
+      border-bottom: none
+
+    &--active
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%)
+      border-left: 3px solid #667eea
+      font-weight: 600
+      transform: translateX(2px)
+
+      &:hover
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%)
+
+      .sidebar-navigation__task-title
+        color: #667eea
+        font-weight: 600
+
+  &__task-header
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    margin-bottom: 0.25rem
+
+  &__task-title
+    font-size: 0.8rem
+    font-weight: 500
+    color: #495057
+
+  &__task-description
+    font-size: 0.75rem
+    color: #6c757d
+    margin: 0
+    padding-left: 2rem
+    line-height: 1.3
+
+  &__scroll-indicator
+    position: absolute
+    right: 8px
+    top: 50%
+    transform: translateY(-50%)
+    width: 3px
+    height: 40px
+    opacity: 0.7
+
+  &__scroll-track
+    width: 100%
+    height: 100%
+    background: rgba(222, 226, 230, 0.5)
+    border-radius: 2px
+
+  &__scroll-thumb
+    width: 100%
+    background: linear-gradient(180deg, #667eea 0%, #764ba2 100%)
+    border-radius: 2px
+    transition: all 0.3s ease
+
+  &__footer
+    padding: 1rem
+    border-top: 1px solid #dee2e6
+    background: rgba(248, 249, 250, 0.8)
+
+  &__footer-content
+    text-align: center
+
+  &__footer-text
+    font-size: 0.75rem
+    color: #6c757d
+    margin: 0 0 0.5rem 0
+
+  &__footer-links
+    display: flex
+    justify-content: center
+    gap: 1rem
+
+  &__footer-link
+    background: none
+    border: none
+    color: #667eea
+    font-size: 0.75rem
+    cursor: pointer
+    padding: 0.25rem
+    border-radius: 3px
+    transition: all 0.2s ease
+
+    &:hover
+      background: rgba(102, 126, 234, 0.1)
+      transform: scale(1.05)
+
+    &:focus
+      outline: 1px solid #667eea
+      outline-offset: 1px
+
+@keyframes rotate
+  from
+    transform: rotate(0deg)
+  to
+    transform: rotate(360deg)
+
+// Responsive design
+@media (max-width: 768px)
+  .sidebar-navigation
+    width: 100%
+    height: auto
+    position: relative
+    box-shadow: none
+    border-right: none
+    border-bottom: 2px solid #dee2e6
+    z-index: 1001
+
+    &--collapsed
+      width: 100%
+      height: 60px
+
+      .sidebar-navigation__nav,
+      .sidebar-navigation__progress,
+      .sidebar-navigation__footer
+        display: none
+
+      .sidebar-navigation__header
+        padding: 0.75rem 1rem
+
+    &__nav
+      max-height: 400px
+      overflow-y: auto
+
+    &__section-button
+      padding: 1rem
+
+      &:hover
+        transform: none
+
+      &--active
+        &::before
+          display: none
+
+    &__tasks
+      padding: 0.5rem 1rem
+      margin-left: 0
+
+    &__scroll-indicator
+      display: none
+
+@media (max-width: 480px)
+  .sidebar-navigation
+    &__header
+      flex-direction: row
+      justify-content: space-between
+
+    &__title
+      font-size: 1.1rem
+
+    &__section-button
+      padding: 0.75rem
+
+    &__section-icon
+      font-size: 1.1rem
+
+    &__section-title
+      font-size: 0.85rem
+
+// Print styles
+@media print
+  .sidebar-navigation
+    display: none

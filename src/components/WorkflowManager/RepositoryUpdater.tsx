@@ -1,6 +1,8 @@
 import React, { useState, useContext, useCallback } from 'react';
 import { GithubRepoContext } from '../../context/GithubRepoContext';
 import useUpdateGithubRepoDataFiles from '../../hooks/useUpdateGithubRepoDataFiles';
+import useProgressTracking from '../../hooks/useProgressTracking';
+import ProgressIndicator from '../Common/ProgressIndicator';
 import './RepositoryUpdater.sass';
 
 interface RepositoryUpdaterProps {
@@ -17,6 +19,7 @@ const RepositoryUpdater: React.FC<RepositoryUpdaterProps> = ({
   const { githubOwner, setGithubOwner, githubRepo, setGithubRepo } = useContext(GithubRepoContext);
   const [, githubStatus, updateGithub] = useUpdateGithubRepoDataFiles();
   const [error, setError] = useState<string | null>(null);
+  const { progressState, updateTaskStatus } = useProgressTracking();
 
   const handleUpdateGithub = useCallback(async () => {
     setError(null);
@@ -31,6 +34,8 @@ const RepositoryUpdater: React.FC<RepositoryUpdaterProps> = ({
       return;
     }
 
+    updateTaskStatus('content', 'repositoryUpdate', 'in-progress');
+
     try {
       await updateGithub({
         owner: githubOwner,
@@ -39,19 +44,31 @@ const RepositoryUpdater: React.FC<RepositoryUpdaterProps> = ({
         global_data: globalContent,
       });
       
+      updateTaskStatus('content', 'repositoryUpdate', 'completed');
+      
       if (onUpdateComplete) {
         onUpdateComplete();
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred while updating repository');
+      updateTaskStatus('content', 'repositoryUpdate', 'error');
     }
-  }, [githubOwner, githubRepo, pagesContent, globalContent, updateGithub, onUpdateComplete]);
+  }, [githubOwner, githubRepo, pagesContent, globalContent, updateGithub, onUpdateComplete, updateTaskStatus]);
 
   const isDisabled = !githubOwner || !githubRepo || !pagesContent || !globalContent || githubStatus === 'pending';
   const hasContent = pagesContent && globalContent;
 
   return (
     <div className="repository-updater">
+      <div className="repository-updater__header">
+        <h4 className="repository-updater__title">Repository Update Status</h4>
+        <ProgressIndicator 
+          status={progressState.content.repositoryUpdate} 
+          size="medium"
+          showLabel={true}
+        />
+      </div>
+      
       {/* Content Status */}
       <div className="content-status">
         <div className="status-item">
