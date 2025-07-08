@@ -18,9 +18,9 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
   onUpdateComplete,
   sitemapData
 }) => {
-  const [apiUrl, setApiUrl] = useState<string>('https://api.zamoraorthodontics.com/');
+  const [apiUrl, setApiUrl] = useState<string>('https://api-haightashbury.roostergrintemplates.com/');
   const [username, setUsername] = useState<string>('Rooster Grin');
-  const [password, setPassword] = useState<string>('t$9ioIC2L5mhhJ7bEq$5rqZ6');
+  const [password, setPassword] = useState<string>('E%SxY)1TtOroreDbVVKGcb8j');
   const [showPassword, setShowPassword] = useState<boolean>(true);
   const [useNewFormat, setUseNewFormat] = useState<boolean>(true);
   const [response, status, updateWordPress, error] = useUpdateWordPress();
@@ -34,34 +34,51 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
       return `{
   "8": {
     "seo": {
-      "page_title": "Home - Stinson Orthodontics",
-      "page_description": "Welcome to our orthodontic practice where your smile is our priority",
-      "page_keywords": "orthodontics, braces, smile, dental care",
-      "additional_settings": false,
+      "page_title": "Rooster Grin Media",
+      "page_description": "Clean, textural & bright, Rooster Grin's Haight Ashbury template is perfect for any business looking to make their website pop. Create your online advantage!",
+      "page_keywords": "",
+      "additional_settings": true,
       "social_meta": {
         "og_meta": {
-          "title": "Stinson Orthodontics - Expert Orthodontic Care",
-          "description": "Your smile is our priority",
-          "image": ""
+          "title": "Rooster Grin Media",
+          "description": "Clean, textural & bright, Rooster Grin's Haight Ashbury template is perfect for any business looking to make their website pop. Create your online advantage!",
+          "image": " https://d30hu1ergm5305.cloudfront.net/home/meta.jpg"
         }
       }
     },
-    "sections": [
+    "page_sections": [
       {
         "acf_fc_layout": "hero",
-        "title": "Welcome to Stinson Orthodontics",
-        "text": "Your smile is our priority. We provide expert orthodontic care with personalized treatment plans.",
-        "button": {
-          "button_type": "nuxt_link",
-          "text": "Schedule Consultation",
-          "url": "/contact"
+        "header": "PLOMP DOMP",
+        "subheader": "Proin sed imperdiet ligula",
+        "buttons": [
+          {
+            "link_type": "ext_link",
+            "label": "Schedule Appointment",
+            "aria": "schedule an appointment through Calendly",
+            "path": "",
+            "hash": "",
+            "href": "https://calendly.com/alicia_rg",
+            "external": true,
+            "open_chair": false
+          }
+        ],
+        "type": "image",
+        "image": {
+          "src": "https://d30hu1ergm5305.cloudfront.net/home/home-hero.jpg",
+          "webp": "https://d30hu1ergm5305.cloudfront.net/home/home-hero.webp"
         },
-        "image_url": "https://d2jdm9a19iwpm4.cloudfront.net/home/hero-home.jpg",
-        "image_alt": "Smiling woman at sunset"
-      }
-    ]
-  }
-}`;
+        "image_mobile": {
+          "src": "https://d30hu1ergm5305.cloudfront.net/home/home-hero-mobile.jpg",
+          "webp": "https://d30hu1ergm5305.cloudfront.net/home/home-hero-mobile.webp"
+        },
+        "image_position": "center top",
+        "video": {
+          "title": "",
+          "src": "",
+          "poster": ""
+        }
+      },`;
     }
 
     // Use actual page IDs from sitemap
@@ -243,13 +260,16 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
           }
           // For test content, use the key as-is (it's already a page ID)
           
-          // Check if content is already in the final format (has seo and sections keys)
-          if (content && typeof content === 'object' && 'seo' in content && 'sections' in content) {
-            // Content is already in final format, just use it
+          // Check if content is already in the final format (has seo and sections/page_sections keys)
+          if (content && typeof content === 'object' && 'seo' in content && ('sections' in content || 'page_sections' in content)) {
+            // Content is already in final format, use as-is (don't normalize)
             transformedData[finalPageKey] = content;
+            const sectionsKey = 'page_sections' in content ? 'page_sections' : 'sections';
+            const sectionsData = (content as any)[sectionsKey] || [];
             console.log(`📄 Using pre-formatted content for ${pageKey} -> ${finalPageKey}:`, {
               seoKeys: Object.keys((content as any).seo || {}),
-              sectionsCount: ((content as any).sections || []).length
+              sectionsCount: sectionsData.length,
+              sectionsKey: sectionsKey
             });
           } else {
             // Content needs restructuring (legacy format)
@@ -285,10 +305,20 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
               }
             }
             
-            // Structure as: { seo: {...}, sections: [...] }
+            // Determine sections key based on existing content format in the data
+            // Check if any existing content uses 'page_sections' to maintain consistency
+            let sectionsKey = 'sections'; // default
+            for (const [, existingContent] of Object.entries(contentToUse || {})) {
+              if (existingContent && typeof existingContent === 'object' && 'page_sections' in existingContent) {
+                sectionsKey = 'page_sections';
+                break;
+              }
+            }
+            
+            // Structure as: { seo: {...}, [sections|page_sections]: [...] }
             transformedData[finalPageKey] = {
               seo: seoData,
-              sections: sectionsData
+              [sectionsKey]: sectionsData
             };
             
             console.log(`📄 Restructured ${pageKey} -> ${finalPageKey}:`, {
@@ -509,30 +539,60 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
                 <button
                   type="button"
                   className="regenerate-btn"
-                                     onClick={() => setTestContent(`{
-   "8": {
-     "seo": {
-       "page_title": "Test Page - Stinson Orthodontics",
-       "page_description": "Test page description",
-       "page_keywords": "test, orthodontics",
-       "additional_settings": false,
-       "social_meta": {
-         "og_meta": {
-           "title": "Test Page",
-           "description": "Test description",
-           "image": ""
-         }
-       }
-     },
-     "sections": [
-       {
-         "acf_fc_layout": "text_block",
-         "title": "Simple Text Block",
-         "content": "This is a simple text block for testing."
-       }
-     ]
-   }
- }`)}
+                  onClick={
+                    () => setTestContent(`
+                      {
+                        "8": {
+                          "seo": {
+                            "page_title": "Rooster Grin Media",
+                            "page_description": "Clean, textural & bright, Rooster Grin's Haight Ashbury template is perfect for any business looking to make their website pop. Create your online advantage!",
+                            "page_keywords": "",
+                            "additional_settings": true,
+                            "social_meta": {
+                              "og_meta": {
+                                "title": "Rooster Grin Media",
+                                "description": "Clean, textural & bright, Rooster Grin's Haight Ashbury template is perfect for any business looking to make their website pop. Create your online advantage!",
+                                "image": " https://d30hu1ergm5305.cloudfront.net/home/meta.jpg"
+                              }
+                            }
+                          },
+                          "page_sections": [
+                            {
+                              "acf_fc_layout": "hero",
+                              "header": "PLOMP DOMP",
+                              "subheader": "Proin sed imperdiet ligula",
+                              "buttons": [
+                                {
+                                  "link_type": "ext_link",
+                                  "label": "Schedule Appointment",
+                                  "aria": "schedule an appointment through Calendly",
+                                  "path": "",
+                                  "hash": "",
+                                  "href": "https://calendly.com/alicia_rg",
+                                  "external": true,
+                                  "open_chair": false
+                                }
+                              ],
+                              "type": "image",
+                              "image": {
+                                "src": "https://d30hu1ergm5305.cloudfront.net/home/home-hero.jpg",
+                                "webp": "https://d30hu1ergm5305.cloudfront.net/home/home-hero.webp"
+                              },
+                              "image_mobile": {
+                                "src": "https://d30hu1ergm5305.cloudfront.net/home/home-hero-mobile.jpg",
+                                "webp": "https://d30hu1ergm5305.cloudfront.net/home/home-hero-mobile.webp"
+                              },
+                              "image_position": "center top",
+                              "video": {
+                                "title": "",
+                                "src": "",
+                                "poster": ""
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    `)}
                   disabled={status === 'pending'}
                 >
                   📝 Simple Test

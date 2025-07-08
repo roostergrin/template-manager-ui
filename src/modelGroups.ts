@@ -87,7 +87,8 @@ const allModelGroups: Record<string, ModelGroup> = {
         data: haightAshburySitemap
       }
     ],
-    enabled: false,
+    backend_site_type: "haightashbury",
+    enabled: true,
   },
   'Pismo Beach': {
     models: Array.isArray(pismoSitemap.modelGroups) ? pismoSitemap.modelGroups : [],
@@ -102,6 +103,7 @@ const allModelGroups: Record<string, ModelGroup> = {
         data: pismoSitemap
       },
     ],
+    backend_site_type: "pismo",
     enabled: false,
   },
   'Eureka': {
@@ -117,6 +119,7 @@ const allModelGroups: Record<string, ModelGroup> = {
         data: eurekaSitemap
       }
     ],
+    backend_site_type: "eureka",
     enabled: false,
   },
   'Shasta': {
@@ -132,6 +135,7 @@ const allModelGroups: Record<string, ModelGroup> = {
         data: shastaSitemap
       }
     ],
+    backend_site_type: "shasta",
     enabled: false,
   },
   'Sonoma': {
@@ -147,6 +151,7 @@ const allModelGroups: Record<string, ModelGroup> = {
         data: sonomaSitemap
       }
     ],
+    backend_site_type: "sonoma",
     enabled: false,
   }
 };
