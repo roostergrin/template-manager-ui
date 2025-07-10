@@ -53,7 +53,7 @@
     },
     "About": {
       "internal_id": "about-ortho-001",
-      "page_id": "about-ortho",
+      "page_id": "186",
       "model_query_pairs": [
         {
           "model": "Hero",
@@ -98,9 +98,9 @@
         }
       ]
     },
-    "Explore": {
+    "Treatments": {
       "internal_id": "explore-orthodontist-001",
-      "page_id": "explore",
+      "page_id": "781",
       "model_query_pairs": [
         {
           "model": "Hero",
@@ -144,7 +144,7 @@
         }
       ]
     },
-    "Getting Started": {
+    "Get Started": {
       "internal_id": "page_getting_started_ortho",
       "page_id": "853",
       "model_query_pairs": [
@@ -182,7 +182,7 @@
     },
     "FAQs": {
       "internal_id": "faqs_page_001",
-      "page_id": "faqs",
+      "page_id": "903",
       "model_query_pairs": [
         {
           "model": "Hero",
@@ -208,7 +208,7 @@
     },
     "Contact": {
       "internal_id": "contact-page-001",
-      "page_id": "contact",
+      "page_id": "912",
       "model_query_pairs": [
         {
           "model": "Contact Form",

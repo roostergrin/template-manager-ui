@@ -249,6 +249,27 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
         
         // Transform the structure to use page IDs and restructure content with seo + sections
         const transformedData: Record<string, any> = {};
+        
+        // First, determine the expected sections key based on existing content or template needs
+        let expectedSectionsKey = 'sections'; // default
+        
+        // Check if any existing content uses 'page_sections' to maintain consistency
+        for (const [, existingContent] of Object.entries(contentToUse || {})) {
+          if (existingContent && typeof existingContent === 'object' && 'page_sections' in existingContent) {
+            expectedSectionsKey = 'page_sections';
+            break;
+          }
+        }
+        
+        // For templates that use 'page_sections', default to that key if not explicitly using test content
+        // Check API URL for known templates that use 'page_sections'
+        const templatesUsingPageSections = ['haightashbury', 'haight-ashbury'];
+        if (!useTestContent && templatesUsingPageSections.some(template => apiUrl.includes(template))) {
+          expectedSectionsKey = 'page_sections';
+        }
+        
+        console.log(`🔑 Expected sections key: ${expectedSectionsKey}`);
+        
         for (const [pageKey, content] of Object.entries(contentToUse || {})) {
           // If using test content, the keys are already page IDs
           // If using generated content, we need to map page names to IDs
@@ -262,15 +283,32 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
           
           // Check if content is already in the final format (has seo and sections/page_sections keys)
           if (content && typeof content === 'object' && 'seo' in content && ('sections' in content || 'page_sections' in content)) {
-            // Content is already in final format, use as-is (don't normalize)
-            transformedData[finalPageKey] = content;
-            const sectionsKey = 'page_sections' in content ? 'page_sections' : 'sections';
-            const sectionsData = (content as any)[sectionsKey] || [];
-            console.log(`📄 Using pre-formatted content for ${pageKey} -> ${finalPageKey}:`, {
-              seoKeys: Object.keys((content as any).seo || {}),
-              sectionsCount: sectionsData.length,
-              sectionsKey: sectionsKey
-            });
+            // Content is in final format, but check if sections key needs transformation
+            const currentSectionsKey = 'page_sections' in content ? 'page_sections' : 'sections';
+            const sectionsData = (content as any)[currentSectionsKey] || [];
+            
+            // If the current key doesn't match expected key, transform it
+            if (currentSectionsKey !== expectedSectionsKey) {
+              const transformedContent = { ...content };
+              transformedContent[expectedSectionsKey] = sectionsData;
+              delete transformedContent[currentSectionsKey];
+              transformedData[finalPageKey] = transformedContent;
+              
+              console.log(`📄 Transformed sections key for ${pageKey} -> ${finalPageKey}: ${currentSectionsKey} -> ${expectedSectionsKey}`, {
+                seoKeys: Object.keys((content as any).seo || {}),
+                sectionsCount: sectionsData.length,
+                transformedFrom: currentSectionsKey,
+                transformedTo: expectedSectionsKey
+              });
+            } else {
+              // Keys match, use as-is
+              transformedData[finalPageKey] = content;
+              console.log(`📄 Using pre-formatted content for ${pageKey} -> ${finalPageKey}:`, {
+                seoKeys: Object.keys((content as any).seo || {}),
+                sectionsCount: sectionsData.length,
+                sectionsKey: currentSectionsKey
+              });
+            }
           } else {
             // Content needs restructuring (legacy format)
             const contentArray = Array.isArray(content) ? content : [content];
@@ -305,26 +343,17 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
               }
             }
             
-            // Determine sections key based on existing content format in the data
-            // Check if any existing content uses 'page_sections' to maintain consistency
-            let sectionsKey = 'sections'; // default
-            for (const [, existingContent] of Object.entries(contentToUse || {})) {
-              if (existingContent && typeof existingContent === 'object' && 'page_sections' in existingContent) {
-                sectionsKey = 'page_sections';
-                break;
-              }
-            }
-            
             // Structure as: { seo: {...}, [sections|page_sections]: [...] }
             transformedData[finalPageKey] = {
               seo: seoData,
-              [sectionsKey]: sectionsData
+              [expectedSectionsKey]: sectionsData
             };
             
             console.log(`📄 Restructured ${pageKey} -> ${finalPageKey}:`, {
               seoKeys: Object.keys(seoData),
               sectionsCount: sectionsData.length,
-              originalItemsCount: contentArray.length
+              originalItemsCount: contentArray.length,
+              sectionsKey: expectedSectionsKey
             });
           }
         }
