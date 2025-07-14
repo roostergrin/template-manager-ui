@@ -205,6 +205,7 @@ const WorkflowManager: React.FC<WorkflowManagerProps> = ({
                   pagesContent={generatedContent.pages}
                   globalContent={generatedContent.global}
                   sitemapData={{ pages: sitemapPages }}
+                  selectedModelGroupKey={selectedModelGroupKey}
                 />
               </div>
             </div>

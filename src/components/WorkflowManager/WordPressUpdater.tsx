@@ -1,26 +1,41 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import useUpdateWordPress from '../../hooks/useUpdateWordPress';
 import EnhancedPreviewSection from './EnhancedPreviewSection';
+import { getBackendSiteTypeForModelGroup } from '../../utils/modelGroupKeyToBackendSiteType';
 import './WordPressUpdater.sass';
 
 
+
+interface SitemapPageInfo {
+  page_id?: string | number;
+  wordpress_id?: string | number;
+  [key: string]: unknown;
+}
+
+interface SitemapData {
+  pages?: SitemapPageInfo[] | Record<string, SitemapPageInfo>;
+  [key: string]: unknown;
+}
 
 interface WordPressUpdaterProps {
   pagesContent: object | null;
   globalContent: object | null;
   onUpdateComplete?: () => void;
-  sitemapData?: any; // Add sitemap data to get page IDs
+  sitemapData?: SitemapData; // Add sitemap data to get page IDs
+  selectedModelGroupKey?: string; // Add selected template to determine sections format
 }
 
 const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
   pagesContent,
   globalContent,
   onUpdateComplete,
-  sitemapData
+  sitemapData,
+  selectedModelGroupKey
 }) => {
-  const [apiUrl, setApiUrl] = useState<string>('https://api-haightashbury.roostergrintemplates.com/');
+  console.log('selectedModelGroupKey', selectedModelGroupKey);
+  const [apiUrl, setApiUrl] = useState<string>('https://api-crm-thread.roostergrintemplates.com/');
   const [username, setUsername] = useState<string>('Rooster Grin');
-  const [password, setPassword] = useState<string>('E%SxY)1TtOroreDbVVKGcb8j');
+  const [password, setPassword] = useState<string>('iw4bvxnD5ffPc5SOxI(JQTPZ');
   const [showPassword, setShowPassword] = useState<boolean>(true);
   const [useNewFormat, setUseNewFormat] = useState<boolean>(true);
   const [response, status, updateWordPress, error] = useUpdateWordPress();
@@ -42,7 +57,7 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
         "og_meta": {
           "title": "Rooster Grin Media",
           "description": "Clean, textural & bright, Rooster Grin's Haight Ashbury template is perfect for any business looking to make their website pop. Create your online advantage!",
-          "image": " https://d30hu1ergm5305.cloudfront.net/home/meta.jpg"
+          "image": "https://d30hu1ergm5305.cloudfront.net/home/meta.jpg"
         }
       }
     },
@@ -82,15 +97,15 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
     }
 
     // Use actual page IDs from sitemap
-    const samplePages: Record<string, any> = {};
-    const pageEntries = Object.entries(sitemapData.pages).slice(0, 1); // Take first 3 pages
+    const samplePages: Record<string, unknown> = {};
+    const pageEntries = Object.entries(sitemapData.pages).slice(0, 1); // Take first page
 
     pageEntries.forEach(([pageName, pageInfo], index) => {
       let pageId = pageName; // fallback to page name
       
       if (typeof pageInfo === 'object' && pageInfo !== null) {
-        const info = pageInfo as any;
-        pageId = info.page_id || info.wordpress_id || pageName;
+        const info = pageInfo as SitemapPageInfo;
+        pageId = String(info.page_id || info.wordpress_id || pageName);
       }
 
       if (index === 0) {
@@ -185,7 +200,7 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
         contentToUse = parsedTestContent;
         globalToUse = {}; // Use empty global for test content
         console.log('📝 Using test content from text area');
-      } catch (err) {
+      } catch {
         setLocalError('Invalid JSON in test content. Please check the format.');
         return;
       }
@@ -207,14 +222,17 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
       if (!url.protocol.startsWith('http')) {
         throw new Error('Invalid URL protocol');
       }
-    } catch (error) {
+    } catch {
       setLocalError('Please provide a valid WordPress API URL (e.g., https://example.com/)');
       return;
     }
 
     try {
+      // Determine the backend site type from the selected model group
+      const backendSiteType = selectedModelGroupKey ? getBackendSiteTypeForModelGroup(selectedModelGroupKey) : null;
+      
       // Prepare data for WordPress update
-      let dataToSend;
+      let dataToSend: Record<string, unknown>;
       
       if (useNewFormat) {
         // NEW FORMAT: Transform to use existing page IDs and sections structure
@@ -225,18 +243,18 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
         if (sitemapData?.pages) {
           if (Array.isArray(sitemapData.pages)) {
             // Handle array format
-            sitemapData.pages.forEach((page: any) => {
+            sitemapData.pages.forEach((page: SitemapPageInfo & { title?: string }) => {
               if (page.title && (page.page_id || page.wordpress_id)) {
-                pageIdMapping[page.title] = page.page_id || page.wordpress_id;
+                pageIdMapping[page.title] = page.page_id || page.wordpress_id || '';
               }
             });
           } else if (typeof sitemapData.pages === 'object') {
             // Handle object format
             for (const [pageName, pageInfo] of Object.entries(sitemapData.pages)) {
               if (typeof pageInfo === 'object' && pageInfo !== null) {
-                const info = pageInfo as any;
+                const info = pageInfo as SitemapPageInfo;
                 if (info.page_id || info.wordpress_id) {
-                  pageIdMapping[pageName] = info.page_id || info.wordpress_id;
+                  pageIdMapping[pageName] = info.page_id || info.wordpress_id || '';
                 }
               }
             }
@@ -248,7 +266,7 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
         console.log('🧪 Using test content:', useTestContent);
         
         // Transform the structure to use page IDs and restructure content with seo + sections
-        const transformedData: Record<string, any> = {};
+        const transformedData: Record<string, unknown> = {};
         
         // First, determine the expected sections key based on existing content or template needs
         let expectedSectionsKey = 'sections'; // default
@@ -262,9 +280,9 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
         }
         
         // For templates that use 'page_sections', default to that key if not explicitly using test content
-        // Check API URL for known templates that use 'page_sections'
-        const templatesUsingPageSections = ['haightashbury', 'haight-ashbury'];
-        if (!useTestContent && templatesUsingPageSections.some(template => apiUrl.includes(template))) {
+        // Check selected template to determine if it uses 'page_sections'
+        const templatesUsingPageSections = ['haightashbury', 'bayareaortho'];
+        if (!useTestContent && backendSiteType && templatesUsingPageSections.includes(backendSiteType)) {
           expectedSectionsKey = 'page_sections';
         }
         
@@ -285,29 +303,30 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
           if (content && typeof content === 'object' && 'seo' in content && ('sections' in content || 'page_sections' in content)) {
             // Content is in final format, but check if sections key needs transformation
             const currentSectionsKey = 'page_sections' in content ? 'page_sections' : 'sections';
-            const sectionsData = (content as any)[currentSectionsKey] || [];
+            const sectionsData = (content as Record<string, unknown>)[currentSectionsKey] || [];
+            const sectionsArray = Array.isArray(sectionsData) ? sectionsData : [];
             
             // If the current key doesn't match expected key, transform it
             if (currentSectionsKey !== expectedSectionsKey) {
               const transformedContent = { ...content };
-              transformedContent[expectedSectionsKey] = sectionsData;
-              delete transformedContent[currentSectionsKey];
-              transformedData[finalPageKey] = transformedContent;
-              
-              console.log(`📄 Transformed sections key for ${pageKey} -> ${finalPageKey}: ${currentSectionsKey} -> ${expectedSectionsKey}`, {
-                seoKeys: Object.keys((content as any).seo || {}),
-                sectionsCount: sectionsData.length,
-                transformedFrom: currentSectionsKey,
-                transformedTo: expectedSectionsKey
-              });
+                              transformedContent[expectedSectionsKey] = sectionsArray;
+                delete transformedContent[currentSectionsKey];
+                transformedData[finalPageKey] = transformedContent;
+                
+                console.log(`📄 Transformed sections key for ${pageKey} -> ${finalPageKey}: ${currentSectionsKey} -> ${expectedSectionsKey}`, {
+                  seoKeys: Object.keys((content as Record<string, unknown>).seo || {}),
+                  sectionsCount: sectionsArray.length,
+                  transformedFrom: currentSectionsKey,
+                  transformedTo: expectedSectionsKey
+                });
             } else {
               // Keys match, use as-is
-              transformedData[finalPageKey] = content;
-              console.log(`📄 Using pre-formatted content for ${pageKey} -> ${finalPageKey}:`, {
-                seoKeys: Object.keys((content as any).seo || {}),
-                sectionsCount: sectionsData.length,
-                sectionsKey: currentSectionsKey
-              });
+                              transformedData[finalPageKey] = content;
+                console.log(`📄 Using pre-formatted content for ${pageKey} -> ${finalPageKey}:`, {
+                  seoKeys: Object.keys((content as Record<string, unknown>).seo || {}),
+                  sectionsCount: sectionsArray.length,
+                  sectionsKey: currentSectionsKey
+                });
             }
           } else {
             // Content needs restructuring (legacy format)
@@ -315,7 +334,7 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
             
             // Extract SEO data if it exists (look for standalone seo objects)
             let seoData = {};
-            const sectionsData: any[] = [];
+            const sectionsData: unknown[] = [];
             
             // Check each content item
             for (let i = 0; i < contentArray.length; i++) {
@@ -326,9 +345,6 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
                   // Found standalone SEO data, extract it
                   seoData = item.seo;
                   console.log(`📄 Extracted SEO data for ${pageKey}:`, Object.keys(seoData));
-                } else if (item.acf_fc_layout) {
-                  // This is a content section, add to sections
-                  sectionsData.push(item);
                 } else if (item.seo && item.acf_fc_layout) {
                   // Item has both SEO and content - extract SEO and keep content
                   seoData = { ...seoData, ...item.seo };
@@ -336,6 +352,9 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
                   delete itemWithoutSeo.seo;
                   sectionsData.push(itemWithoutSeo);
                   console.log(`📄 Extracted SEO from content section for ${pageKey}`);
+                } else if (item.acf_fc_layout) {
+                  // This is a content section, add to sections
+                  sectionsData.push(item);
                 } else {
                   // Item doesn't have expected structure, log and skip
                   console.warn(`⚠️ Skipping unexpected item structure in ${pageKey}:`, Object.keys(item));
@@ -360,11 +379,11 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
         
         dataToSend = {
           ...transformedData,
-        };
+        } as Record<string, unknown>;
         
         // Add global data separately if it exists
         if (globalToUse && Object.keys(globalToUse).length > 0) {
-          dataToSend.global = globalToUse;
+          (dataToSend as Record<string, unknown>).global = globalToUse;
         }
         
         console.log('🔑 Transformed page keys:', Object.keys(transformedData));
@@ -381,7 +400,7 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
         console.log('🔄 Using OLD format with page names and direct arrays');
         dataToSend = {
           ...contentToUse,
-        };
+        } as Record<string, unknown>;
         
         // Add global data separately if it exists
         if (globalToUse && Object.keys(globalToUse).length > 0) {
@@ -396,6 +415,7 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
           password,
         },
         data: dataToSend,
+        site_type: backendSiteType, // Add site_type to the request
       };
 
       // Add detailed logging for debugging
@@ -403,6 +423,7 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
       console.log('📡 API URL:', updateData.wordpress_config.api_url);
       console.log('👤 Username:', updateData.wordpress_config.username);
       console.log('🔧 Format:', useNewFormat ? 'NEW (Page IDs + Sections)' : 'OLD (Page Names + Arrays)');
+      console.log('🏷️ Site Type:', backendSiteType);
       console.log('📊 Data Structure:', Object.keys(updateData.data));
       console.log('📝 Full Data Being Sent:', JSON.stringify(updateData, null, 2));
 
@@ -414,7 +435,7 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
     } catch (err) {
       setLocalError(err instanceof Error ? err.message : 'An error occurred while updating WordPress');
     }
-  }, [apiUrl, username, password, pagesContent, globalContent, updateWordPress, onUpdateComplete, useNewFormat, sitemapData, testContent, useTestContent]);
+  }, [apiUrl, username, password, pagesContent, globalContent, updateWordPress, onUpdateComplete, useNewFormat, sitemapData, testContent, useTestContent, selectedModelGroupKey]);
 
   const isDisabled = !apiUrl || !username || !password || (!pagesContent || !globalContent) && (!useTestContent || !testContent) || status === 'pending';
   const hasContent = (pagesContent && globalContent) || (useTestContent && testContent);
@@ -581,42 +602,70 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
                               "og_meta": {
                                 "title": "Rooster Grin Media",
                                 "description": "Clean, textural & bright, Rooster Grin's Haight Ashbury template is perfect for any business looking to make their website pop. Create your online advantage!",
-                                "image": " https://d30hu1ergm5305.cloudfront.net/home/meta.jpg"
+                                "image": "https://d30hu1ergm5305.cloudfront.net/home/meta.jpg"
                               }
                             }
                           },
                           "page_sections": [
                             {
-                              "acf_fc_layout": "hero",
-                              "header": "PLOMP DOMP",
-                              "subheader": "Proin sed imperdiet ligula",
-                              "buttons": [
-                                {
-                                  "link_type": "ext_link",
-                                  "label": "Schedule Appointment",
-                                  "aria": "schedule an appointment through Calendly",
-                                  "path": "",
-                                  "hash": "",
-                                  "href": "https://calendly.com/alicia_rg",
-                                  "external": true,
-                                  "open_chair": false
-                                }
-                              ],
-                              "type": "image",
+                              "acf_fc_layout": "image_text",
+                              "content": {
+                                "content": null,
+                                "preheader": "Meet the Doctor",
+                                "header": "Ortho Care You Can Count On",
+                                "body": "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum.</p>",
+                                "buttons": [
+                                  {
+                                    "button": {
+                                      "type": "nuxt",
+                                      "style": "primary",
+                                      "label": "Meet Dr. Constantino",
+                                      "aria": "Meet Dr. Constantino",
+                                      "href": "",
+                                      "path": "/about",
+                                      "hash": "doctor",
+                                      "external": true,
+                                      "include_icon": false,
+                                      "icon": "",
+                                      "color": "dark",
+                                      "case": "as-is"
+                                    }
+                                  }
+                                ],
+                                "options": null,
+                                "text_alignment": "left",
+                                "button_alignment": "inline",
+                                "header_color": "unset",
+                                "body_color": "unset",
+                                "hero_header": false
+                              },
                               "image": {
-                                "src": "https://d30hu1ergm5305.cloudfront.net/home/home-hero.jpg",
-                                "webp": "https://d30hu1ergm5305.cloudfront.net/home/home-hero.webp"
+                                "content": null,
+                                "src": "https://d1kyobf1p4jk0v.cloudfront.net/home/home-meet.jpg",
+                                "webp": "https://d1kyobf1p4jk0v.cloudfront.net/home/home-meet.webp",
+                                "alt": "doctor headshot",
+                                "options": null,
+                                "bgColor": "",
+                                "imageBackground": false,
+                                "addLoader": false,
+                                "objectPosition": "",
+                                "forceAlt": ""
                               },
-                              "image_mobile": {
-                                "src": "https://d30hu1ergm5305.cloudfront.net/home/home-hero-mobile.jpg",
-                                "webp": "https://d30hu1ergm5305.cloudfront.net/home/home-hero-mobile.webp"
-                              },
-                              "image_position": "center top",
                               "video": {
-                                "title": "",
-                                "src": "",
-                                "poster": ""
-                              }
+                                "src": "https://d1kyobf1p4jk0v.cloudfront.net/home/home-hero-video.mp4",
+                                "poster": "https://d1kyobf1p4jk0v.cloudfront.net/home/home-hero-video.jpg",
+                                "title": "test"
+                              },
+                              "iframe": {
+                                "src": "https://www.youtube.com/embed/iLAnH4xw4MQ?si=uqNX7_PeKsl7p_V6",
+                                "title": "test"
+                              },
+                              "hash": "",
+                              "component_padding": "half",
+                              "component_margins": "none",
+                              "background_color": "unset",
+                              "media_type": "image",
+                              "reverse": true
                             }
                           ]
                         }
@@ -654,7 +703,7 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
           pagesContent={useTestContent && testContent ? (() => {
             try {
               return JSON.parse(testContent);
-            } catch (error) {
+            } catch {
               return {};
             }
           })() : (pagesContent || {})}
