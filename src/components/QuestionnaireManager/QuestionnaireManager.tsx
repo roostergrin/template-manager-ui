@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo, useCallback } from 'react';
 import QuestionnaireForm from '../QuestionnaireForm/QuestionnaireForm';
 import QuestionnaireModeSelector from '../QuestionnaireModeSelector/QuestionnaireModeSelector';
 import MarkdownTextArea from '../MarkdownTextArea/MarkdownTextArea';
@@ -44,25 +44,23 @@ const QuestionnaireManager: React.FC = () => {
   // Track progress changes
   useEffect(() => {
     const completed = isQuestionnaireCompleted();
+    const currentStatus = workflowState.progressState.setup.questionnaire;
+    
+    let newStatus;
     if (completed) {
-      workflowActions.updateTaskStatus('setup', 'questionnaire', 'completed');
+      newStatus = 'completed';
     } else if (formData && Object.keys(formData).length > 0) {
-      workflowActions.updateTaskStatus('setup', 'questionnaire', 'in-progress');
+      newStatus = 'in-progress';
     } else {
-      workflowActions.updateTaskStatus('setup', 'questionnaire', 'pending');
+      newStatus = 'pending';
     }
-  }, [formData, questionnaireState, fillFormData, workflowActions]);
+    
+    // Only update if the status actually changed
+    if (currentStatus !== newStatus) {
+      workflowActions.updateTaskStatus('setup', 'questionnaire', newStatus);
+    }
+  }, [formData, questionnaireState.activeMode, fillFormData, workflowState.progressState.setup.questionnaire]);
 
-  // Sync markdown content with formData when in template-markdown mode
-  useEffect(() => {
-    if (questionnaireState.activeMode === 'template-markdown' && questionnaireState.data.templateMarkdown) {
-      const markdownData = createMarkdownFormData(questionnaireState.data.templateMarkdown, 'template');
-      questionnaireActions.updateQuestionnaireData(markdownData);
-    } else if (questionnaireState.activeMode === 'content-document' && questionnaireState.data.contentDocument) {
-      const markdownData = createMarkdownFormData(questionnaireState.data.contentDocument, 'content');
-      questionnaireActions.updateQuestionnaireData(markdownData);
-    }
-  }, [questionnaireState.activeMode, questionnaireState.data.templateMarkdown, questionnaireState.data.contentDocument, questionnaireActions]);
 
   const handleFillForm = (scrape: boolean, useSelenium: boolean, scroll: boolean) => {
     const domain = questionnaireState.data.scrape?.domain || '';

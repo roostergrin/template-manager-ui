@@ -38,7 +38,6 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
   const globalContent = latestContent?.content?.global || null;
   const sitemapData = { pages: sitemapState.pages };
   const selectedModelGroupKey = appConfigState.selectedModelGroupKey || Object.keys(appConfigState.modelGroups)[0];
-  console.log('selectedModelGroupKey', selectedModelGroupKey);
   const [apiUrl, setApiUrl] = useState<string>('https://api-crm-thread.roostergrintemplates.com/');
   const [username, setUsername] = useState<string>('Rooster Grin');
   const [password, setPassword] = useState<string>('iw4bvxnD5ffPc5SOxI(JQTPZ');

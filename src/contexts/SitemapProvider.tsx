@@ -1,9 +1,13 @@
-import React, { createContext, useContext, useReducer, useCallback, ReactNode } from 'react'
+import React, { createContext, useContext, ReactNode } from 'react'
 import { SitemapSection, SitemapItem, StoredSitemap } from '../types/SitemapTypes'
+import usePages from '../hooks/usePages'
+import usePageSelection from '../hooks/usePageSelection'
+import useViewControls from '../hooks/useViewControls'
+import useOptimisticUpdates from '../hooks/useOptimisticUpdates'
+import useErrorState from '../hooks/useErrorState'
+import useSitemapImport from '../hooks/useSitemapImport'
 
-const LOCAL_STORAGE_KEY = 'generatedSitemaps'
-
-// Context State Types
+// Context State Types (now simplified with hooks)
 interface SitemapContextState {
   pages: SitemapSection[]
   selectedPages: string[]
@@ -11,6 +15,18 @@ interface SitemapContextState {
   isLoading: boolean
   error: string | null
   lastSaved: string | null
+  // View controls
+  showSelect: boolean
+  showTextarea: boolean
+  showDeleteButtons: boolean
+  showItemNumbers: boolean
+  showPageIds: boolean
+  usePageJson: boolean
+  // Layout controls
+  useGridLayout: boolean
+  gridColumnWidth: number
+  // Optimistic updates
+  optimisticPages: SitemapSection[]
 }
 
 // Context Actions
@@ -32,6 +48,16 @@ interface SitemapContextActions {
   
   // View controls
   setViewMode: (mode: 'grid' | 'list') => void
+  toggleShowSelect: () => void
+  toggleShowTextarea: () => void
+  toggleShowDeleteButtons: () => void
+  toggleShowItemNumbers: () => void
+  toggleShowPageIds: () => void
+  toggleUsePageJson: () => void
+  
+  // Layout controls
+  toggleUseGridLayout: () => void
+  setGridColumnWidth: (width: number) => void
   
   // Import/Export operations
   importPagesFromJson: (jsonData: string) => void
@@ -54,274 +80,6 @@ interface SitemapContextValue {
   actions: SitemapContextActions
 }
 
-// Action Types
-type SitemapAction =
-  | { type: 'ADD_PAGE' }
-  | { type: 'REMOVE_PAGE'; payload: string }
-  | { type: 'UPDATE_PAGE_TITLE'; payload: { pageId: string; title: string } }
-  | { type: 'UPDATE_PAGE_WORDPRESS_ID'; payload: { pageId: string; wordpressId: string } }
-  | { type: 'UPDATE_PAGE_ITEMS'; payload: { pageId: string; items: SitemapItem[] } }
-  | { type: 'SET_PAGES'; payload: SitemapSection[] }
-  | { type: 'SELECT_PAGE'; payload: string }
-  | { type: 'DESELECT_PAGE'; payload: string }
-  | { type: 'TOGGLE_PAGE_SELECTION'; payload: string }
-  | { type: 'SELECT_ALL_PAGES' }
-  | { type: 'DESELECT_ALL_PAGES' }
-  | { type: 'SET_VIEW_MODE'; payload: 'grid' | 'list' }
-  | { type: 'IMPORT_PAGES_FROM_JSON'; payload: string }
-  | { type: 'HANDLE_GENERATED_SITEMAP'; payload: unknown }
-  | { type: 'HANDLE_SELECT_STORED_SITEMAP'; payload: StoredSitemap }
-  | { type: 'OPTIMISTICALLY_ADD_PAGE'; payload: SitemapSection }
-  | { type: 'CONFIRM_OPTIMISTIC_PAGE'; payload: { tempId: string; confirmedPage: SitemapSection } }
-  | { type: 'REVERT_OPTIMISTIC_PAGE'; payload: string }
-  | { type: 'SET_LOADING'; payload: boolean }
-  | { type: 'SET_ERROR'; payload: string | null }
-  | { type: 'CLEAR_ERROR' }
-
-// Initial State
-const initialState: SitemapContextState = {
-  pages: [],
-  selectedPages: [],
-  viewMode: 'grid',
-  isLoading: false,
-  error: null,
-  lastSaved: null
-}
-
-// Helper function to map imported pages
-const mapImportedPages = (pagesObj: Record<string, any>): SitemapSection[] => {
-  if (!pagesObj || typeof pagesObj !== 'object') return []
-  return Object.entries(pagesObj).map(([title, pageData]) => {
-    const { internal_id, page_id, model_query_pairs } = pageData as any
-    return {
-      id: internal_id,
-      title,
-      wordpress_id: page_id || '',
-      items: model_query_pairs.map((item: any) => ({
-        model: item.model,
-        query: item.query,
-        id: item.internal_id,
-      })),
-    }
-  })
-}
-
-// Reducer
-const sitemapReducer = (
-  state: SitemapContextState,
-  action: SitemapAction
-): SitemapContextState => {
-  switch (action.type) {
-    case 'ADD_PAGE':
-      return {
-        ...state,
-        pages: [
-          ...state.pages,
-          { 
-            id: Date.now().toString(), 
-            title: 'New Page', 
-            items: [], 
-            wordpress_id: '' 
-          },
-        ],
-      }
-    
-    case 'REMOVE_PAGE':
-      return {
-        ...state,
-        pages: state.pages.filter(page => page.id !== action.payload),
-        selectedPages: state.selectedPages.filter(id => id !== action.payload)
-      }
-    
-    case 'UPDATE_PAGE_TITLE':
-      return {
-        ...state,
-        pages: state.pages.map(page =>
-          page.id === action.payload.pageId 
-            ? { ...page, title: action.payload.title } 
-            : page
-        )
-      }
-    
-    case 'UPDATE_PAGE_WORDPRESS_ID':
-      return {
-        ...state,
-        pages: state.pages.map(page =>
-          page.id === action.payload.pageId 
-            ? { ...page, wordpress_id: action.payload.wordpressId } 
-            : page
-        )
-      }
-    
-    case 'UPDATE_PAGE_ITEMS':
-      return {
-        ...state,
-        pages: state.pages.map(page =>
-          page.id === action.payload.pageId 
-            ? { ...page, items: action.payload.items } 
-            : page
-        )
-      }
-    
-    case 'SET_PAGES':
-      return {
-        ...state,
-        pages: action.payload,
-        selectedPages: [], // Clear selections when setting new pages
-        lastSaved: new Date().toISOString()
-      }
-    
-    case 'SELECT_PAGE':
-      return {
-        ...state,
-        selectedPages: state.selectedPages.includes(action.payload)
-          ? state.selectedPages
-          : [...state.selectedPages, action.payload]
-      }
-    
-    case 'DESELECT_PAGE':
-      return {
-        ...state,
-        selectedPages: state.selectedPages.filter(id => id !== action.payload)
-      }
-    
-    case 'TOGGLE_PAGE_SELECTION':
-      return {
-        ...state,
-        selectedPages: state.selectedPages.includes(action.payload)
-          ? state.selectedPages.filter(id => id !== action.payload)
-          : [...state.selectedPages, action.payload]
-      }
-    
-    case 'SELECT_ALL_PAGES':
-      return {
-        ...state,
-        selectedPages: state.pages.map(page => page.id)
-      }
-    
-    case 'DESELECT_ALL_PAGES':
-      return {
-        ...state,
-        selectedPages: []
-      }
-    
-    case 'SET_VIEW_MODE':
-      return {
-        ...state,
-        viewMode: action.payload
-      }
-    
-    case 'IMPORT_PAGES_FROM_JSON':
-      try {
-        const importedData = JSON.parse(action.payload)
-        if (importedData.pages) {
-          return {
-            ...state,
-            pages: mapImportedPages(importedData.pages),
-            selectedPages: [],
-            lastSaved: new Date().toISOString(),
-            error: null
-          }
-        }
-        return state
-      } catch (error) {
-        return {
-          ...state,
-          error: 'Error importing JSON: Invalid format'
-        }
-      }
-    
-    case 'HANDLE_GENERATED_SITEMAP':
-      if (!action.payload || typeof action.payload !== 'object' || !(action.payload as any).pages) {
-        return state
-      }
-      
-      const newPages = mapImportedPages((action.payload as any).pages)
-      const name = prompt('Enter a name for this sitemap:', `Sitemap ${new Date().toLocaleString()}`) 
-        || `Sitemap ${new Date().toLocaleString()}`
-      
-      const stored: StoredSitemap = {
-        name,
-        created: new Date().toISOString(),
-        sitemap: action.payload,
-      }
-      
-      // Store in localStorage
-      const prev = localStorage.getItem(LOCAL_STORAGE_KEY)
-      let arr: StoredSitemap[] = []
-      if (prev) {
-        try {
-          arr = JSON.parse(prev) as StoredSitemap[]
-        } catch {}
-      }
-      arr.push(stored)
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(arr))
-      
-      return {
-        ...state,
-        pages: newPages,
-        selectedPages: [],
-        lastSaved: new Date().toISOString(),
-        error: null
-      }
-    
-    case 'HANDLE_SELECT_STORED_SITEMAP':
-      if (action.payload && action.payload.sitemap && (action.payload.sitemap as any).pages) {
-        return {
-          ...state,
-          pages: mapImportedPages((action.payload.sitemap as any).pages),
-          selectedPages: [],
-          lastSaved: action.payload.created,
-          error: null
-        }
-      }
-      return state
-    
-    case 'OPTIMISTICALLY_ADD_PAGE':
-      return {
-        ...state,
-        pages: [...state.pages, action.payload]
-      }
-    
-    case 'CONFIRM_OPTIMISTIC_PAGE':
-      return {
-        ...state,
-        pages: state.pages.map(page =>
-          page.id === action.payload.tempId ? action.payload.confirmedPage : page
-        )
-      }
-    
-    case 'REVERT_OPTIMISTIC_PAGE':
-      return {
-        ...state,
-        pages: state.pages.filter(page => page.id !== action.payload),
-        selectedPages: state.selectedPages.filter(id => id !== action.payload)
-      }
-    
-    case 'SET_LOADING':
-      return {
-        ...state,
-        isLoading: action.payload
-      }
-    
-    case 'SET_ERROR':
-      return {
-        ...state,
-        error: action.payload,
-        isLoading: false
-      }
-    
-    case 'CLEAR_ERROR':
-      return {
-        ...state,
-        error: null
-      }
-    
-    default:
-      return state
-  }
-}
-
 // Context
 const SitemapContext = createContext<SitemapContextValue | undefined>(undefined)
 
@@ -331,120 +89,160 @@ interface SitemapProviderProps {
   initialState?: Partial<SitemapContextState>
 }
 
-// Provider Component
+// Provider Component - Now using custom hooks instead of reducer!
 export const SitemapProvider: React.FC<SitemapProviderProps> = ({
   children,
-  initialState: providedInitialState
+  initialState = {}
 }) => {
-  const [state, dispatch] = useReducer(
-    sitemapReducer,
-    { ...initialState, ...providedInitialState }
-  )
+  // Initialize all the custom hooks
+  const { pages, addPage, removePage, updatePageTitle, updatePageWordpressId, updatePageItems, setPages } = usePages(initialState.pages || [])
+  
+  const { 
+    selectedPages, 
+    selectPage, 
+    deselectPage, 
+    togglePageSelection, 
+    selectAllPages: selectAllPagesHook, 
+    deselectAllPages,
+    clearSelection
+  } = usePageSelection(initialState.selectedPages || [])
+  
+  const {
+    viewMode,
+    showSelect,
+    showTextarea,
+    showDeleteButtons,
+    showItemNumbers,
+    showPageIds,
+    usePageJson,
+    useGridLayout,
+    gridColumnWidth,
+    setViewMode,
+    toggleShowSelect,
+    toggleShowTextarea,
+    toggleShowDeleteButtons,
+    toggleShowItemNumbers,
+    toggleShowPageIds,
+    toggleUsePageJson,
+    toggleUseGridLayout,
+    setGridColumnWidth
+  } = useViewControls({
+    ...(initialState.viewMode !== undefined && { viewMode: initialState.viewMode }),
+    ...(initialState.showSelect !== undefined && { showSelect: initialState.showSelect }),
+    ...(initialState.showTextarea !== undefined && { showTextarea: initialState.showTextarea }),
+    ...(initialState.showDeleteButtons !== undefined && { showDeleteButtons: initialState.showDeleteButtons }),
+    ...(initialState.showItemNumbers !== undefined && { showItemNumbers: initialState.showItemNumbers }),
+    ...(initialState.showPageIds !== undefined && { showPageIds: initialState.showPageIds }),
+    ...(initialState.usePageJson !== undefined && { usePageJson: initialState.usePageJson }),
+    ...(initialState.useGridLayout !== undefined && { useGridLayout: initialState.useGridLayout }),
+    ...(initialState.gridColumnWidth !== undefined && { gridColumnWidth: initialState.gridColumnWidth })
+  })
+  
+  const { optimisticPages, optimisticallyAddPage, confirmOptimisticPage, revertOptimisticPage } = useOptimisticUpdates()
+  
+  const { error, isLoading, setError, clearError, setLoading } = useErrorState(initialState.error || null)
+  
+  const { lastSaved, importPagesFromJson, handleGeneratedSitemap, handleSelectStoredSitemap } = useSitemapImport()
 
-  // Action Creators
-  const addPage = useCallback(() => {
-    dispatch({ type: 'ADD_PAGE' })
-  }, [])
+  // Enhanced functions that coordinate between hooks
+  const selectAllPages = () => {
+    selectAllPagesHook(pages.map(page => page.id))
+  }
 
-  const removePage = useCallback((pageId: string) => {
-    dispatch({ type: 'REMOVE_PAGE', payload: pageId })
-  }, [])
+  const handleSetPages = (newPages: SitemapSection[]) => {
+    setPages(newPages)
+    clearSelection() // Clear selections when setting new pages
+  }
 
-  const updatePageTitle = useCallback((pageId: string, newTitle: string) => {
-    dispatch({ type: 'UPDATE_PAGE_TITLE', payload: { pageId, title: newTitle } })
-  }, [])
+  const handleRemovePage = (pageId: string) => {
+    removePage(pageId)
+    deselectPage(pageId) // Remove from selection too
+  }
 
-  const updatePageWordpressId = useCallback((pageId: string, newId: string) => {
-    dispatch({ type: 'UPDATE_PAGE_WORDPRESS_ID', payload: { pageId, wordpressId: newId } })
-  }, [])
+  const handleImportPagesFromJson = (jsonData: string) => {
+    try {
+      const importedPages = importPagesFromJson(jsonData)
+      if (importedPages) {
+        setPages(importedPages)
+        clearSelection()
+        clearError()
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Import failed')
+    }
+  }
 
-  const updatePageItems = useCallback((pageId: string, newItems: SitemapItem[]) => {
-    dispatch({ type: 'UPDATE_PAGE_ITEMS', payload: { pageId, items: newItems } })
-  }, [])
+  const handleGeneratedSitemapWrapper = (sitemapData: unknown) => {
+    try {
+      const newPages = handleGeneratedSitemap(sitemapData)
+      if (newPages) {
+        setPages(newPages)
+        clearSelection()
+        clearError()
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to handle generated sitemap')
+    }
+  }
 
-  const setPages = useCallback((pages: SitemapSection[]) => {
-    dispatch({ type: 'SET_PAGES', payload: pages })
-  }, [])
+  const handleSelectStoredSitemapWrapper = (stored: StoredSitemap) => {
+    try {
+      const storedPages = handleSelectStoredSitemap(stored)
+      if (storedPages) {
+        setPages(storedPages)
+        clearSelection()
+        clearError()
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load stored sitemap')
+    }
+  }
 
-  const selectPage = useCallback((pageId: string) => {
-    dispatch({ type: 'SELECT_PAGE', payload: pageId })
-  }, [])
+  // Combine all pages (regular + optimistic)
+  const allPages = [...pages, ...optimisticPages]
 
-  const deselectPage = useCallback((pageId: string) => {
-    dispatch({ type: 'DESELECT_PAGE', payload: pageId })
-  }, [])
-
-  const togglePageSelection = useCallback((pageId: string) => {
-    dispatch({ type: 'TOGGLE_PAGE_SELECTION', payload: pageId })
-  }, [])
-
-  const selectAllPages = useCallback(() => {
-    dispatch({ type: 'SELECT_ALL_PAGES' })
-  }, [])
-
-  const deselectAllPages = useCallback(() => {
-    dispatch({ type: 'DESELECT_ALL_PAGES' })
-  }, [])
-
-  const setViewMode = useCallback((mode: 'grid' | 'list') => {
-    dispatch({ type: 'SET_VIEW_MODE', payload: mode })
-  }, [])
-
-  const importPagesFromJson = useCallback((jsonData: string) => {
-    dispatch({ type: 'IMPORT_PAGES_FROM_JSON', payload: jsonData })
-  }, [])
-
-  const handleGeneratedSitemap = useCallback((sitemapData: unknown) => {
-    dispatch({ type: 'HANDLE_GENERATED_SITEMAP', payload: sitemapData })
-  }, [])
-
-  const handleSelectStoredSitemap = useCallback((stored: StoredSitemap) => {
-    dispatch({ type: 'HANDLE_SELECT_STORED_SITEMAP', payload: stored })
-  }, [])
-
-  const optimisticallyAddPage = useCallback((tempPage: SitemapSection): string => {
-    const tempId = `temp-${Date.now()}`
-    const pageWithTempId = { ...tempPage, id: tempId }
-    dispatch({ type: 'OPTIMISTICALLY_ADD_PAGE', payload: pageWithTempId })
-    return tempId
-  }, [])
-
-  const confirmOptimisticPage = useCallback((tempId: string, confirmedPage: SitemapSection) => {
-    dispatch({ type: 'CONFIRM_OPTIMISTIC_PAGE', payload: { tempId, confirmedPage } })
-  }, [])
-
-  const revertOptimisticPage = useCallback((tempId: string) => {
-    dispatch({ type: 'REVERT_OPTIMISTIC_PAGE', payload: tempId })
-  }, [])
-
-  const setLoading = useCallback((loading: boolean) => {
-    dispatch({ type: 'SET_LOADING', payload: loading })
-  }, [])
-
-  const setError = useCallback((error: string | null) => {
-    dispatch({ type: 'SET_ERROR', payload: error })
-  }, [])
-
-  const clearError = useCallback(() => {
-    dispatch({ type: 'CLEAR_ERROR' })
-  }, [])
+  const state: SitemapContextState = {
+    pages: allPages,
+    selectedPages,
+    viewMode,
+    isLoading,
+    error,
+    lastSaved,
+    showSelect,
+    showTextarea,
+    showDeleteButtons,
+    showItemNumbers,
+    showPageIds,
+    usePageJson,
+    useGridLayout,
+    gridColumnWidth,
+    optimisticPages
+  }
 
   const actions: SitemapContextActions = {
     addPage,
-    removePage,
+    removePage: handleRemovePage,
     updatePageTitle,
     updatePageWordpressId,
     updatePageItems,
-    setPages,
+    setPages: handleSetPages,
     selectPage,
     deselectPage,
     togglePageSelection,
     selectAllPages,
     deselectAllPages,
     setViewMode,
-    importPagesFromJson,
-    handleGeneratedSitemap,
-    handleSelectStoredSitemap,
+    toggleShowSelect,
+    toggleShowTextarea,
+    toggleShowDeleteButtons,
+    toggleShowItemNumbers,
+    toggleShowPageIds,
+    toggleUsePageJson,
+    toggleUseGridLayout,
+    setGridColumnWidth,
+    importPagesFromJson: handleImportPagesFromJson,
+    handleGeneratedSitemap: handleGeneratedSitemapWrapper,
+    handleSelectStoredSitemap: handleSelectStoredSitemapWrapper,
     optimisticallyAddPage,
     confirmOptimisticPage,
     revertOptimisticPage,

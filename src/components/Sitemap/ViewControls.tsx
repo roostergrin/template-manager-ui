@@ -1,30 +1,22 @@
 import React from 'react';
+import { useSitemap } from '../../contexts/SitemapProvider';
 
-type ViewControlsProps = {
-  showSelect: boolean;
-  toggleShowSelect: () => void;
-  showTextarea: boolean;
-  toggleShowTextarea: () => void;
-  showDeleteButtons: boolean;
-  toggleShowDeleteButtons: () => void;
-  showItemNumbers: boolean;
-  toggleShowItemNumbers: () => void;
-  showPageIds: boolean;
-  toggleShowPageIds: () => void;
-};
-
-const ViewControls: React.FC<ViewControlsProps> = ({
-  showSelect,
-  toggleShowSelect,
-  showTextarea,
-  toggleShowTextarea,
-  showDeleteButtons,
-  toggleShowDeleteButtons,
-  showItemNumbers,
-  toggleShowItemNumbers,
-  showPageIds,
-  toggleShowPageIds,
-}) => {
+const ViewControls: React.FC = () => {
+  const { state, actions } = useSitemap();
+  const {
+    showSelect,
+    showTextarea,
+    showDeleteButtons,
+    showItemNumbers,
+    showPageIds
+  } = state;
+  const {
+    toggleShowSelect,
+    toggleShowTextarea,
+    toggleShowDeleteButtons,
+    toggleShowItemNumbers,
+    toggleShowPageIds
+  } = actions;
   return (
     <div className="flex flex-wrap gap-4 mb-4">
       <label className="flex items-center gap-2 cursor-pointer">

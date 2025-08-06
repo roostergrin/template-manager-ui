@@ -1,26 +1,7 @@
 import React from 'react';
-import { SitemapSection, SitemapItem } from '../../types/SitemapTypes';
 import PageList from './PageList';
 
-type SitemapExpandedViewProps = {
-  pages: SitemapSection[];
-  currentModels: string[];
-  updatePageTitle: (id: string, title: string) => void;
-  updatePageWordpressId: (id: string, wpId: string) => void;
-  updatePageItems: (id: string, items: SitemapItem[]) => void;
-  removePage: (id: string) => void;
-  addPage: () => void;
-};
-
-const SitemapExpandedView: React.FC<SitemapExpandedViewProps> = ({
-  pages,
-  currentModels,
-  updatePageTitle,
-  updatePageWordpressId,
-  updatePageItems,
-  removePage,
-  addPage,
-}) => {
+const SitemapExpandedView: React.FC = () => {
   return (
     <div className="sitemap-expanded-view">
       <div className="sitemap-expanded-view__header">
@@ -30,22 +11,7 @@ const SitemapExpandedView: React.FC<SitemapExpandedViewProps> = ({
         </p>
       </div>
       
-      <PageList
-        pages={pages}
-        useGridLayout={true}
-        gridColumnWidth={550}
-        showItemNumbers={false}
-        showPageIds={true}
-        showDeleteButtons={true}
-        showSelect={true}
-        showTextarea={true}
-        currentModels={currentModels}
-        updatePageTitle={updatePageTitle}
-        updatePageWordpressId={updatePageWordpressId}
-        updatePageItems={updatePageItems}
-        removePage={removePage}
-        addPage={addPage}
-      />
+      <PageList />
     </div>
   );
 };

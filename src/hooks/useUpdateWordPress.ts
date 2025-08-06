@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { updateWordPressService, WordPressUpdateData, WordPressUpdateResponse } from '../services/updateWordPressService';
 
 type UpdateStatus = 'idle' | 'pending' | 'success' | 'error';
@@ -13,7 +13,7 @@ const useUpdateWordPress = (): [
   const [status, setStatus] = useState<UpdateStatus>('idle');
   const [error, setError] = useState<string | null>(null);
 
-  const updateWordPress = useCallback(async (data: WordPressUpdateData) => {
+  const updateWordPress = async (data: WordPressUpdateData) => {
     setStatus('pending');
     setError(null);
     setResponse(null);
@@ -27,7 +27,7 @@ const useUpdateWordPress = (): [
       setError(errorMessage);
       setStatus('error');
     }
-  }, []);
+  };
 
   return [response, status, updateWordPress, error];
 };

@@ -1,5 +1,11 @@
-import React, { createContext, useContext, useReducer, useCallback, ReactNode } from 'react'
+import React, { createContext, useContext, ReactNode, useMemo } from 'react'
 import { QuestionnaireState, QuestionnaireMode, QuestionnaireDataSource } from '../types/QuestionnaireStateTypes'
+
+// Custom Hooks
+import useQuestionnaireMode from '../hooks/questionnaire/useQuestionnaireMode'
+import useFormData from '../hooks/questionnaire/useFormData'
+import useDataSource from '../hooks/questionnaire/useDataSource'
+import useQuestionnaireError from '../hooks/questionnaire/useQuestionnaireError'
 
 // Context State Types
 interface QuestionnaireContextState extends QuestionnaireState {
@@ -26,116 +32,6 @@ interface QuestionnaireContextValue {
   actions: QuestionnaireContextActions
 }
 
-// Action Types
-type QuestionnaireAction =
-  | { type: 'SET_ACTIVE_MODE'; payload: QuestionnaireMode }
-  | { type: 'SET_DATA_SOURCE'; payload: QuestionnaireDataSource }
-  | { type: 'UPDATE_SCRAPE_DATA'; payload: { domain: string; scraped_data?: Record<string, unknown> } }
-  | { type: 'UPDATE_QUESTIONNAIRE_DATA'; payload: Record<string, unknown> }
-  | { type: 'UPDATE_TEMPLATE_MARKDOWN'; payload: string }
-  | { type: 'UPDATE_CONTENT_DOCUMENT'; payload: string }
-  | { type: 'RESET_DATA' }
-  | { type: 'SET_LOADING'; payload: boolean }
-  | { type: 'SET_ERROR'; payload: string | null }
-  | { type: 'CLEAR_ERROR' }
-
-// Initial State
-const initialState: QuestionnaireContextState = {
-  activeMode: 'scrape',
-  dataSource: 'structured',
-  data: {},
-  isLoading: false,
-  error: null
-}
-
-// Reducer
-const questionnaireReducer = (
-  state: QuestionnaireContextState,
-  action: QuestionnaireAction
-): QuestionnaireContextState => {
-  switch (action.type) {
-    case 'SET_ACTIVE_MODE':
-      return {
-        ...state,
-        activeMode: action.payload,
-        // Automatically switch data source based on mode
-        dataSource: action.payload === 'template-markdown' || action.payload === 'content-document'
-          ? 'markdown'
-          : 'structured'
-      }
-    
-    case 'SET_DATA_SOURCE':
-      return {
-        ...state,
-        dataSource: action.payload
-      }
-    
-    case 'UPDATE_SCRAPE_DATA':
-      return {
-        ...state,
-        data: {
-          ...state.data,
-          scrape: {
-            domain: action.payload.domain,
-            scraped_data: action.payload.scraped_data
-          }
-        }
-      }
-    
-    case 'UPDATE_QUESTIONNAIRE_DATA':
-      return {
-        ...state,
-        data: {
-          ...state.data,
-          questionnaire: action.payload
-        }
-      }
-    
-    case 'UPDATE_TEMPLATE_MARKDOWN':
-      return {
-        ...state,
-        data: {
-          ...state.data,
-          templateMarkdown: action.payload
-        }
-      }
-    
-    case 'UPDATE_CONTENT_DOCUMENT':
-      return {
-        ...state,
-        data: {
-          ...state.data,
-          contentDocument: action.payload
-        }
-      }
-    
-    case 'RESET_DATA':
-      return initialState
-    
-    case 'SET_LOADING':
-      return {
-        ...state,
-        isLoading: action.payload
-      }
-    
-    case 'SET_ERROR':
-      return {
-        ...state,
-        error: action.payload,
-        isLoading: false
-      }
-    
-    case 'CLEAR_ERROR':
-      return {
-        ...state,
-        error: null
-      }
-    
-    default:
-      return state
-  }
-}
-
 // Context
 const QuestionnaireContext = createContext<QuestionnaireContextValue | undefined>(undefined)
 
@@ -150,53 +46,61 @@ export const QuestionnaireProvider: React.FC<QuestionnaireProviderProps> = ({
   children,
   initialState: providedInitialState
 }) => {
-  const [state, dispatch] = useReducer(
-    questionnaireReducer,
-    { ...initialState, ...providedInitialState }
-  )
+  // Initialize with provided initial state values or defaults
+  const initialMode = providedInitialState?.activeMode || 'scrape'
+  const initialDataSourceValue = providedInitialState?.dataSource || 'structured'
+  const initialData = providedInitialState?.data || {}
+  const initialLoading = providedInitialState?.isLoading || false
+  const initialError = providedInitialState?.error || null
 
-  // Action Creators
-  const setActiveMode = useCallback((mode: QuestionnaireMode) => {
-    dispatch({ type: 'SET_ACTIVE_MODE', payload: mode })
-  }, [])
+  // Custom Hooks
+  const {
+    activeMode,
+    dataSource,
+    setActiveMode,
+    setDataSource: setModeDataSource
+  } = useQuestionnaireMode(initialMode, initialDataSourceValue)
 
-  const setDataSource = useCallback((source: QuestionnaireDataSource) => {
-    dispatch({ type: 'SET_DATA_SOURCE', payload: source })
-  }, [])
+  const {
+    data,
+    updateScrapeData,
+    updateQuestionnaireData,
+    updateTemplateMarkdown,
+    updateContentDocument,
+    resetData
+  } = useFormData(initialData)
 
-  const updateScrapeData = useCallback((domain: string, scraped_data?: Record<string, unknown>) => {
-    dispatch({ type: 'UPDATE_SCRAPE_DATA', payload: { domain, scraped_data } })
-  }, [])
+  const {
+    dataSource: independentDataSource,
+    setDataSource: setIndependentDataSource
+  } = useDataSource(dataSource)
 
-  const updateQuestionnaireData = useCallback((data: Record<string, unknown>) => {
-    dispatch({ type: 'UPDATE_QUESTIONNAIRE_DATA', payload: data })
-  }, [])
+  const {
+    isLoading,
+    error,
+    setLoading,
+    setError,
+    clearError
+  } = useQuestionnaireError(initialLoading, initialError)
 
-  const updateTemplateMarkdown = useCallback((markdown: string) => {
-    dispatch({ type: 'UPDATE_TEMPLATE_MARKDOWN', payload: markdown })
-  }, [])
+  // Use the mode-driven data source as primary, but allow independent override
+  const finalDataSource = independentDataSource !== dataSource ? independentDataSource : dataSource
 
-  const updateContentDocument = useCallback((content: string) => {
-    dispatch({ type: 'UPDATE_CONTENT_DOCUMENT', payload: content })
-  }, [])
+  const setDataSource = (source: QuestionnaireDataSource) => {
+    setModeDataSource(source)
+    setIndependentDataSource(source)
+  }
 
-  const resetData = useCallback(() => {
-    dispatch({ type: 'RESET_DATA' })
-  }, [])
+  // Compose state and actions using useMemo for performance
+  const state = useMemo((): QuestionnaireContextState => ({
+    activeMode,
+    dataSource: finalDataSource,
+    data,
+    isLoading,
+    error
+  }), [activeMode, finalDataSource, data, isLoading, error])
 
-  const setLoading = useCallback((loading: boolean) => {
-    dispatch({ type: 'SET_LOADING', payload: loading })
-  }, [])
-
-  const setError = useCallback((error: string | null) => {
-    dispatch({ type: 'SET_ERROR', payload: error })
-  }, [])
-
-  const clearError = useCallback(() => {
-    dispatch({ type: 'CLEAR_ERROR' })
-  }, [])
-
-  const actions: QuestionnaireContextActions = {
+  const actions = useMemo((): QuestionnaireContextActions => ({
     setActiveMode,
     setDataSource,
     updateScrapeData,
@@ -207,12 +111,23 @@ export const QuestionnaireProvider: React.FC<QuestionnaireProviderProps> = ({
     setLoading,
     setError,
     clearError
-  }
+  }), [
+    setActiveMode,
+    setDataSource,
+    updateScrapeData,
+    updateQuestionnaireData,
+    updateTemplateMarkdown,
+    updateContentDocument,
+    resetData,
+    setLoading,
+    setError,
+    clearError
+  ])
 
-  const value: QuestionnaireContextValue = {
+  const value: QuestionnaireContextValue = useMemo(() => ({
     state,
     actions
-  }
+  }), [state, actions])
 
   return (
     <QuestionnaireContext.Provider value={value}>

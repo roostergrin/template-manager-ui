@@ -1,40 +1,34 @@
 import React from 'react';
-import { SitemapSection, SitemapItem } from '../../types/SitemapTypes';
+import { useSitemap } from '../../contexts/SitemapProvider';
+import { useAppConfig } from '../../contexts/AppConfigProvider';
 import PageCard from './PageCard';
 
-type PageListProps = {
-  pages: SitemapSection[];
-  useGridLayout: boolean;
-  gridColumnWidth: number;
-  showItemNumbers: boolean;
-  showPageIds: boolean;
-  showDeleteButtons: boolean;
-  showSelect: boolean;
-  showTextarea: boolean;
-  currentModels: string[];
-  updatePageTitle: (id: string, title: string) => void;
-  updatePageWordpressId: (id: string, wpId: string) => void;
-  updatePageItems: (id: string, items: SitemapItem[]) => void;
-  removePage: (id: string) => void;
-  addPage: () => void;
-};
-
-const PageList: React.FC<PageListProps> = ({
-  pages,
-  useGridLayout,
-  gridColumnWidth,
-  showItemNumbers,
-  showPageIds,
-  showDeleteButtons,
-  showSelect,
-  showTextarea,
-  currentModels,
-  updatePageTitle,
-  updatePageWordpressId,
-  updatePageItems,
-  removePage,
-  addPage,
-}) => {
+const PageList: React.FC = () => {
+  const { state, actions } = useSitemap();
+  const { state: appConfigState } = useAppConfig();
+  
+  const {
+    pages,
+    useGridLayout,
+    gridColumnWidth,
+    showItemNumbers,
+    showPageIds,
+    showDeleteButtons,
+    showSelect,
+    showTextarea
+  } = state;
+  
+  const {
+    updatePageTitle,
+    updatePageWordpressId,
+    updatePageItems,
+    removePage,
+    addPage
+  } = actions;
+  
+  // Get current models from AppConfig context
+  const selectedModelGroupKey = appConfigState.selectedModelGroupKey || Object.keys(appConfigState.modelGroups)[0];
+  const currentModels = appConfigState.modelGroups[selectedModelGroupKey]?.models || [];
   return (
     <div
       className="app__page-container mb-6"
@@ -60,11 +54,6 @@ const PageList: React.FC<PageListProps> = ({
           showDeleteButtons={showDeleteButtons}
           showSelect={showSelect}
           showTextarea={showTextarea}
-          currentModels={currentModels}
-          updatePageTitle={updatePageTitle}
-          updatePageWordpressId={updatePageWordpressId}
-          updatePageItems={updatePageItems}
-          removePage={removePage}
         />
       ))}
       <button

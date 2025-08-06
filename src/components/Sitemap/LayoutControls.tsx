@@ -1,18 +1,10 @@
 import React from 'react';
+import { useSitemap } from '../../contexts/SitemapProvider';
 
-type LayoutControlsProps = {
-  useGridLayout: boolean;
-  toggleUseGridLayout: () => void;
-  gridColumnWidth: number;
-  setGridColumnWidth: (n: number) => void;
-};
-
-const LayoutControls: React.FC<LayoutControlsProps> = ({
-  useGridLayout,
-  toggleUseGridLayout,
-  gridColumnWidth,
-  setGridColumnWidth,
-}) => {
+const LayoutControls: React.FC = () => {
+  const { state, actions } = useSitemap();
+  const { useGridLayout, gridColumnWidth } = state;
+  const { toggleUseGridLayout, setGridColumnWidth } = actions;
   return (
     <div className="flex items-center gap-6 mb-4">
       <label className="flex items-center gap-2 cursor-pointer">

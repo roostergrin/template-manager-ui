@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { 
   QuestionnaireMode, 
   QuestionnaireState, 
@@ -15,23 +15,23 @@ const initialState: QuestionnaireState = {
 const useQuestionnaireState = (): [QuestionnaireState, QuestionnaireStateActions] => {
   const [state, setState] = useState<QuestionnaireState>(initialState);
 
-  const setActiveMode = useCallback((mode: QuestionnaireMode) => {
+  const setActiveMode = (mode: QuestionnaireMode) => {
     setState(prevState => ({
       ...prevState,
       activeMode: mode,
       // Automatically switch data source based on mode
       dataSource: mode === 'template-markdown' || mode === 'content-document' ? 'markdown' : 'structured'
     }));
-  }, []);
+  };
 
-  const setDataSource = useCallback((source: QuestionnaireDataSource) => {
+  const setDataSource = (source: QuestionnaireDataSource) => {
     setState(prevState => ({
       ...prevState,
       dataSource: source
     }));
-  }, []);
+  };
 
-  const updateScrapeData = useCallback((domain: string, scraped_data?: Record<string, unknown>) => {
+  const updateScrapeData = (domain: string, scraped_data?: Record<string, unknown>) => {
     setState(prevState => ({
       ...prevState,
       data: {
@@ -42,9 +42,9 @@ const useQuestionnaireState = (): [QuestionnaireState, QuestionnaireStateActions
         }
       }
     }));
-  }, []);
+  };
 
-  const updateQuestionnaireData = useCallback((data: Record<string, unknown>) => {
+  const updateQuestionnaireData = (data: Record<string, unknown>) => {
     setState(prevState => ({
       ...prevState,
       data: {
@@ -52,9 +52,9 @@ const useQuestionnaireState = (): [QuestionnaireState, QuestionnaireStateActions
         questionnaire: data
       }
     }));
-  }, []);
+  };
 
-  const updateTemplateMarkdown = useCallback((markdown: string) => {
+  const updateTemplateMarkdown = (markdown: string) => {
     setState(prevState => ({
       ...prevState,
       data: {
@@ -62,9 +62,9 @@ const useQuestionnaireState = (): [QuestionnaireState, QuestionnaireStateActions
         templateMarkdown: markdown
       }
     }));
-  }, []);
+  };
 
-  const updateContentDocument = useCallback((content: string) => {
+  const updateContentDocument = (content: string) => {
     setState(prevState => ({
       ...prevState,
       data: {
@@ -72,11 +72,11 @@ const useQuestionnaireState = (): [QuestionnaireState, QuestionnaireStateActions
         contentDocument: content
       }
     }));
-  }, []);
+  };
 
-  const resetData = useCallback(() => {
+  const resetData = () => {
     setState(initialState);
-  }, []);
+  };
 
   const actions: QuestionnaireStateActions = {
     setActiveMode,
