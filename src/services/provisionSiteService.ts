@@ -1,10 +1,8 @@
-import api from "./apiService";
+import apiClient from "./apiService";
 import { SiteProvision, SiteProvisionResponse } from "../types/APIServiceTypes";
 
 const provisionSite = async (request: SiteProvision): Promise<SiteProvisionResponse> => {
-  const res = await api.post("/provision/", request);
-  if (!res.data) throw new Error("No data returned from provision endpoint");
-  return res.data;
+  return await apiClient.post<SiteProvisionResponse>("/provision/", request);
 };
 
 export default provisionSite; 

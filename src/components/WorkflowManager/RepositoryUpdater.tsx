@@ -1,25 +1,26 @@
 import React, { useState, useContext, useCallback } from 'react';
 import { GithubRepoContext } from '../../context/GithubRepoContext';
 import useUpdateGithubRepoDataFiles from '../../hooks/useUpdateGithubRepoDataFiles';
-import useProgressTracking from '../../hooks/useProgressTracking';
+import { useWorkflow } from '../../contexts/WorkflowProvider';
 import ProgressIndicator from '../Common/ProgressIndicator';
 import './RepositoryUpdater.sass';
 
 interface RepositoryUpdaterProps {
-  pagesContent?: object | null;
-  globalContent?: object | null;
   onUpdateComplete?: () => void;
 }
 
 const RepositoryUpdater: React.FC<RepositoryUpdaterProps> = ({
-  pagesContent,
-  globalContent,
   onUpdateComplete
 }) => {
   const { githubOwner, setGithubOwner, githubRepo, setGithubRepo } = useContext(GithubRepoContext);
   const [, githubStatus, updateGithub] = useUpdateGithubRepoDataFiles();
   const [error, setError] = useState<string | null>(null);
-  const { progressState, updateTaskStatus } = useProgressTracking();
+  const { state: workflowState, actions: workflowActions } = useWorkflow();
+
+  // Get generated content from workflow context
+  const latestContent = workflowState.generatedContent.find(content => content.type === 'page-content');
+  const pagesContent = latestContent?.content?.pages || null;
+  const globalContent = latestContent?.content?.global || null;
 
   const handleUpdateGithub = useCallback(async () => {
     setError(null);
@@ -44,16 +45,16 @@ const RepositoryUpdater: React.FC<RepositoryUpdaterProps> = ({
         global_data: globalContent,
       });
       
-      updateTaskStatus('content', 'repositoryUpdate', 'completed');
+      workflowActions.updateTaskStatus('content', 'repositoryUpdate', 'completed');
       
       if (onUpdateComplete) {
         onUpdateComplete();
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred while updating repository');
-      updateTaskStatus('content', 'repositoryUpdate', 'error');
+      workflowActions.updateTaskStatus('content', 'repositoryUpdate', 'error');
     }
-  }, [githubOwner, githubRepo, pagesContent, globalContent, updateGithub, onUpdateComplete, updateTaskStatus]);
+  }, [githubOwner, githubRepo, pagesContent, globalContent, updateGithub, onUpdateComplete, workflowActions]);
 
   const isDisabled = !githubOwner || !githubRepo || !pagesContent || !globalContent || githubStatus === 'pending';
   const hasContent = pagesContent && globalContent;
@@ -63,7 +64,7 @@ const RepositoryUpdater: React.FC<RepositoryUpdaterProps> = ({
       <div className="repository-updater__header">
         <h4 className="repository-updater__title">Repository Update Status</h4>
         <ProgressIndicator 
-          status={progressState.content.repositoryUpdate} 
+          status={workflowState.progressState.content.repositoryUpdate} 
           size="medium"
           showLabel={true}
         />

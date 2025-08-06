@@ -1,9 +1,8 @@
-import api from './apiService';
+import apiClient from './apiService';
 import { GenerateSitemapRequest, GenerateSitemapResponse } from '../types/SitemapTypes';
 
 const generateSitemapService = async (data: GenerateSitemapRequest): Promise<GenerateSitemapResponse> => {
-  const response = await api.post<GenerateSitemapResponse>('/generate-sitemap/', data);
-  return response.data;
+  return await apiClient.post<GenerateSitemapResponse>('/generate-sitemap/', data);
 };
 
 export default generateSitemapService; 

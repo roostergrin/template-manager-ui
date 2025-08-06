@@ -1,12 +1,14 @@
 import React, { useEffect } from 'react';
-import { QuestionnaireData } from '../../types/SitemapTypes';
-import { isMarkdownData, getEffectiveQuestionnaireData } from '../../utils/questionnaireDataUtils';
+import { getEffectiveQuestionnaireData, isMarkdownData } from '../../utils/questionnaireDataUtils';
+import { useQuestionnaire } from '../../contexts/QuestionnaireProvider';
+import { useSitemap } from '../../contexts/SitemapProvider';
+import { useWorkflow } from '../../contexts/WorkflowProvider';
+import { useAppConfig } from '../../contexts/AppConfigProvider';
 import usePages from '../../hooks/usePages';
 import useViewControls from '../../hooks/useViewControls';
 import useImportExport from '../../hooks/useImportExport';
 import useGenerateSitemap from '../../hooks/useGenerateSitemap';
 import { getBackendSiteTypeForModelGroup } from '../../utils/modelGroupKeyToBackendSiteType';
-import useProgressTracking from '../../hooks/useProgressTracking';
 import ProgressIndicator from '../Common/ProgressIndicator';
 import SiteSelector from '../SiteSelector';
 import DefaultTemplateSelector from '../DefaultTemplateSelector/DefaultTemplateSelector';
@@ -15,63 +17,52 @@ import GeneratedSitemapSelector from '../GeneratedSitemapSelector';
 import SitemapViewToggle from '../Sitemap/SitemapViewToggle';
 import JsonExportImport from '../Sitemap/JsonExportImport';
 
-export interface EnhancedSitemapProps {
-  currentModels: string[];
-  selectedModelGroupKey: string;
-  setSelectedModelGroupKey: (key: string) => void;
-  modelGroups: Record<string, string[]>;
-  setModelGroups: (groups: Record<string, string[]>) => void;
-  questionnaireData: QuestionnaireData;
-  setQuestionnaireData: (data: QuestionnaireData) => void;
-  onPagesChange?: (pages: any[]) => void;
-}
+const EnhancedSitemap: React.FC = () => {
+  // Use contexts instead of props
+  const { state: questionnaireState, actions: questionnaireActions } = useQuestionnaire();
+  const { state: sitemapState, actions: sitemapActions } = useSitemap();
+  const { state: workflowState, actions: workflowActions } = useWorkflow();
+  const { state: appConfigState, actions: appConfigActions } = useAppConfig();
 
-const EnhancedSitemap: React.FC<EnhancedSitemapProps> = ({
-  currentModels,
-  selectedModelGroupKey,
-  setSelectedModelGroupKey,
-  modelGroups,
-  setModelGroups,
-  questionnaireData,
-  setQuestionnaireData,
-  onPagesChange,
-}) => {
-  // Page logic
-  const pagesApi = usePages();
-  // View toggles/layout
-  const view = useViewControls();
-  // Progress tracking
-  const { progressState, updateTaskStatus } = useProgressTracking();
+  // Extract data from contexts
+  const questionnaireData = questionnaireState.data;
+  const selectedModelGroupKey = appConfigState.selectedModelGroupKey || Object.keys(appConfigState.modelGroups)[0];
+  const modelGroups = appConfigState.modelGroups;
+  const currentModels = modelGroups[selectedModelGroupKey]?.models || [];
+  const pages = sitemapState.pages;
   
   // Get the effective questionnaire data (either structured or markdown-based)
   const effectiveQuestionnaireData = getEffectiveQuestionnaireData(questionnaireData);
   
-  // Notify parent when pages change
+  // Page logic - keeping the hook for now but using context data
+  const pagesApi = usePages();
+  // View toggles/layout
+  const view = useViewControls();
+  
+  // Track sitemap planning progress - using context instead of props
   useEffect(() => {
-    if (onPagesChange) {
-      onPagesChange(pagesApi.pages);
+    if (pages.length > 0) {
+      workflowActions.updateTaskStatus('content', 'sitemapPlanning', 'completed');
+    } else if (pages.length === 0) {
+      workflowActions.updateTaskStatus('content', 'sitemapPlanning', 'pending');
     }
-  }, [pagesApi.pages, onPagesChange]);
-
-  // Track sitemap planning progress
-  useEffect(() => {
-    if (pagesApi.pages.length > 0) {
-      updateTaskStatus('content', 'sitemapPlanning', 'completed');
-    } else if (pagesApi.pages.length === 0) {
-      updateTaskStatus('content', 'sitemapPlanning', 'pending');
-    }
-  }, [pagesApi.pages, updateTaskStatus]);
+  }, [pages, workflowActions]);
   
   // Import/export logic
   const { exportJson, importJson } = useImportExport({
-    pages: pagesApi.pages,
+    pages: pages,
     selectedModelGroupKey,
     modelGroups,
     questionnaireData: effectiveQuestionnaireData,
-    importPages: pagesApi.importPagesFromJson,
-    onSelectModelGroup: setSelectedModelGroupKey,
-    onSetModelGroups: setModelGroups,
-    onSetQuestionnaireData: setQuestionnaireData,
+    importPages: sitemapActions.importPagesFromJson,
+    onSelectModelGroup: (key: string) => appConfigActions.setSelectedModelGroup(key),
+    onSetModelGroups: (groups: Record<string, any>) => {
+      // Model groups are now managed by AppConfigProvider - this would need more complex logic
+      console.warn('setModelGroups needs to be implemented in AppConfigProvider');
+    },
+    onSetQuestionnaireData: (data: any) => {
+      questionnaireActions.updateQuestionnaireData(data);
+    },
   });
   
   // Backend
@@ -83,7 +74,7 @@ const EnhancedSitemap: React.FC<EnhancedSitemapProps> = ({
       <div className="sitemap-header">
         <h2 className="text-2xl font-bold mb-4">Sitemap Builder</h2>
         <ProgressIndicator 
-          status={progressState.content.sitemapPlanning} 
+          status={workflowState.progressState.content.sitemapPlanning} 
           size="medium"
           showLabel={true}
         />
@@ -101,17 +92,17 @@ const EnhancedSitemap: React.FC<EnhancedSitemapProps> = ({
       <div className="app__header mb-6">
         <SiteSelector
           selectedModelGroupKey={selectedModelGroupKey}
-          onModelGroupChange={setSelectedModelGroupKey}
+          onModelGroupChange={(key) => appConfigActions.setSelectedModelGroup(key)}
         />
         <h3 className="text-lg font-semibold mb-2">Load a Generated Sitemap</h3>
-        <GeneratedSitemapSelector onSelectSitemap={pagesApi.handleSelectStoredSitemap} />
+        <GeneratedSitemapSelector onSelectSitemap={sitemapActions.handleSelectStoredSitemap} />
         <hr className="my-4 border-gray-300" />
         <GenerateSitemapButton
           questionnaireData={effectiveQuestionnaireData}
           generateSitemap={generateSitemap}
           generateSitemapStatus={generateSitemapStatus}
           generateSitemapData={generateSitemapData}
-          onSitemapGenerated={pagesApi.handleGeneratedSitemap}
+          onSitemapGenerated={sitemapActions.handleGeneratedSitemap}
           controls={{
             usePageJson: view.usePageJson,
             toggleUsePageJson: view.toggleUsePageJson,
@@ -120,18 +111,18 @@ const EnhancedSitemap: React.FC<EnhancedSitemapProps> = ({
         />
         <DefaultTemplateSelector
           selectedModelGroupKey={selectedModelGroupKey}
-          onTemplateSelect={pagesApi.importPagesFromJson}
+          onTemplateSelect={sitemapActions.importPagesFromJson}
         />
       </div>
       
       <SitemapViewToggle
-        pages={pagesApi.pages}
+        pages={pages}
         currentModels={currentModels}
-        updatePageTitle={pagesApi.updatePageTitle}
-        updatePageWordpressId={pagesApi.updatePageWordpressId}
-        updatePageItems={pagesApi.updatePageItems}
-        removePage={pagesApi.removePage}
-        addPage={pagesApi.addPage}
+        updatePageTitle={sitemapActions.updatePageTitle}
+        updatePageWordpressId={sitemapActions.updatePageWordpressId}
+        updatePageItems={sitemapActions.updatePageItems}
+        removePage={sitemapActions.removePage}
+        addPage={sitemapActions.addPage}
         // View control props
         showSelect={view.showSelect}
         toggleShowSelect={view.toggleShowSelect}

@@ -8,94 +8,58 @@ import ContentGenerator from './ContentGenerator';
 import RepositoryUpdater from './RepositoryUpdater';
 import WordPressUpdater from './WordPressUpdater';
 import SidebarNavigation from '../Sidebar/SidebarNavigation';
-import { QuestionnaireData } from '../../types/SitemapTypes';
-import { initialModelGroups } from '../../modelGroups';
+import { useQuestionnaire } from '../../contexts/QuestionnaireProvider';
+import { useSitemap } from '../../contexts/SitemapProvider';
+import { useWorkflow } from '../../contexts/WorkflowProvider';
+import { useAppConfig } from '../../contexts/AppConfigProvider';
 import { getBackendSiteTypeForModelGroup } from '../../utils/modelGroupKeyToBackendSiteType';
-import useProgressTracking from '../../hooks/useProgressTracking';
 import '../Common/ProgressIndicator.sass';
 import '../Sidebar/SidebarNavigation.sass';
 import './WorkflowManager.sass';
 
-interface WorkflowManagerProps {
-  questionnaireData: Record<string, unknown>;
-  setQuestionnaireData: (data: Record<string, unknown>) => void;
-}
-
-const WorkflowManager: React.FC<WorkflowManagerProps> = ({
-  questionnaireData,
-  setQuestionnaireData
-}) => {
+const WorkflowManager: React.FC = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
-  const { activeSection, updateTaskStatus } = useProgressTracking();
-  const [modelGroups, setModelGroups] = useState<Record<string, string[]>>(initialModelGroups);
-  const [selectedModelGroupKey, setSelectedModelGroupKey] = useState<string>(Object.keys(initialModelGroups)[0]);
   const [provisioningData, setProvisioningData] = useState<any>(null);
   const [repoData, setRepoData] = useState<any>(null);
-  const [generatedContent, setGeneratedContent] = useState<{
-    pages: object | null;
-    global: object | null;
-  }>({ pages: null, global: null });
-  const [sitemapPages, setSitemapPages] = useState<any[]>([]);
 
-  const handlePagesChange = useCallback((pages: any[]) => {
-    setSitemapPages(pages);
-  }, []);
+  // Use contexts instead of local state and props
+  const { state: questionnaireState } = useQuestionnaire();
+  const { state: sitemapState } = useSitemap();
+  const { state: workflowState, actions: workflowActions } = useWorkflow();
+  const { state: appConfigState } = useAppConfig();
 
-  // Convert to QuestionnaireData for Sitemap component
-  const questionnaireDataForSitemap: QuestionnaireData = (questionnaireData as unknown as QuestionnaireData) || {
-    practiceDetails: '',
-    siteVision: '',
-    primaryAudience: '',
-    secondaryAudience: '',
-    demographics: '',
-    uniqueQualities: '',
-    contentCreation: 'new',
-    hasBlog: false,
-    blogType: '',
-    topTreatments: '',
-    writingStyle: '',
-    topicsToAvoid: '',
-    communityEngagement: '',
-    testimonials: '',
-    patientExperience: '',
-    financialOptions: ''
-  };
+  const questionnaireData = questionnaireState.data;
+  const sitemapPages = sitemapState.pages;
+  const selectedModelGroupKey = appConfigState.selectedModelGroupKey || Object.keys(appConfigState.modelGroups)[0];
+  const modelGroups = appConfigState.modelGroups;
 
-  const handleQuestionnaireDataChange = (data: QuestionnaireData) => {
-    setQuestionnaireData(data as unknown as Record<string, unknown>);
-  };
-
-  const handleContentGenerated = useCallback((pagesContent: object, globalContent: object) => {
-    setGeneratedContent({
-      pages: pagesContent,
-      global: globalContent
-    });
-  }, []);
-
-  const currentModels = initialModelGroups[selectedModelGroupKey] || [];
+  const currentModels = modelGroups[selectedModelGroupKey]?.models || [];
   const siteType = getBackendSiteTypeForModelGroup(selectedModelGroupKey) || 'stinson';
 
   const handleRepoCreated = useCallback((data: any) => {
     setRepoData(data);
-    updateTaskStatus('infrastructure', 'repoCreation', 'completed');
-  }, [updateTaskStatus]);
+    workflowActions.updateTaskStatus('infrastructure', 'repoCreation', 'completed');
+  }, [workflowActions]);
 
   const handleProvisioningComplete = useCallback((data: any) => {
     setProvisioningData(data);
-    updateTaskStatus('infrastructure', 'awsProvisioning', 'completed');
-  }, [updateTaskStatus]);
+    workflowActions.updateTaskStatus('infrastructure', 'awsProvisioning', 'completed');
+  }, [workflowActions]);
 
   const handleQuestionnaireComplete = useCallback(() => {
-    updateTaskStatus('setup', 'questionnaire', 'completed');
-  }, [updateTaskStatus]);
+    workflowActions.updateTaskStatus('setup', 'questionnaire', 'completed');
+  }, [workflowActions]);
 
   const handleContentGenerationComplete = useCallback((pagesContent: object, globalContent: object) => {
-    setGeneratedContent({
-      pages: pagesContent,
-      global: globalContent
+    workflowActions.addContent({
+      id: `content-${Date.now()}`,
+      type: 'page-content',
+      title: 'Generated Content',
+      content: { pages: pagesContent, global: globalContent },
+      created: new Date().toISOString()
     });
-    updateTaskStatus('content', 'contentGeneration', 'completed');
-  }, [updateTaskStatus]);
+    workflowActions.updateTaskStatus('content', 'contentGeneration', 'completed');
+  }, [workflowActions]);
 
   const renderSectionContent = () => {
     return (
@@ -136,10 +100,7 @@ const WorkflowManager: React.FC<WorkflowManagerProps> = ({
               <div id="task-setup-questionnaire" className="section">
                 <h3>📋 Site Questionnaire</h3>
                 <p>Fill out the questionnaire to configure your site's basic settings and content preferences.</p>
-                <QuestionnaireManager 
-                  formData={questionnaireData} 
-                  setFormData={setQuestionnaireData} 
-                />
+                <QuestionnaireManager />
               </div>
               
               <div id="task-setup-assetSync" className="section">
@@ -148,7 +109,6 @@ const WorkflowManager: React.FC<WorkflowManagerProps> = ({
                 <EnhancedImageTester 
                   prefilledBucket={provisioningData?.bucketName}
                   prefilledCloudFront={provisioningData?.assets_distribution_url}
-                  questionnaireData={questionnaireData}
                 />
               </div>
             </div>
@@ -166,25 +126,13 @@ const WorkflowManager: React.FC<WorkflowManagerProps> = ({
               <div id="task-content-sitemapPlanning" className="section">
                 <h3>🗺️ Site Structure Planning</h3>
                 <p>Plan your site structure, organize pages, and define your content hierarchy.</p>
-                <EnhancedSitemap
-                  currentModels={currentModels}
-                  selectedModelGroupKey={selectedModelGroupKey}
-                  setSelectedModelGroupKey={setSelectedModelGroupKey}
-                  modelGroups={modelGroups}
-                  setModelGroups={setModelGroups}
-                  questionnaireData={questionnaireDataForSitemap}
-                  setQuestionnaireData={handleQuestionnaireDataChange}
-                  onPagesChange={handlePagesChange}
-                />
+                <EnhancedSitemap />
               </div>
               
               <div id="task-content-contentGeneration" className="section">
                 <h3>✨ Content Generation</h3>
                 <p>Generate content based on your questionnaire and sitemap configuration.</p>
                 <ContentGenerator
-                  pages={sitemapPages}
-                  questionnaireData={questionnaireData}
-                  siteType={siteType}
                   onContentGenerated={handleContentGenerationComplete}
                 />
               </div>
@@ -192,21 +140,13 @@ const WorkflowManager: React.FC<WorkflowManagerProps> = ({
               <div id="task-content-repositoryUpdate" className="section">
                 <h3>🔄 Update Repository</h3>
                 <p>Push generated content and updates to your GitHub repository.</p>
-                <RepositoryUpdater
-                  pagesContent={generatedContent.pages}
-                  globalContent={generatedContent.global}
-                />
+                <RepositoryUpdater />
               </div>
               
               <div id="task-content-wordpressUpdate" className="section">
                 <h3>🌐 Update WordPress</h3>
                 <p>Push generated content directly to your WordPress site via the REST API.</p>
-                <WordPressUpdater
-                  pagesContent={generatedContent.pages}
-                  globalContent={generatedContent.global}
-                  sitemapData={{ pages: sitemapPages }}
-                  selectedModelGroupKey={selectedModelGroupKey}
-                />
+                <WordPressUpdater />
               </div>
             </div>
           </div>

@@ -3,25 +3,19 @@ import QuestionnaireForm from '../QuestionnaireForm/QuestionnaireForm';
 import QuestionnaireModeSelector from '../QuestionnaireModeSelector/QuestionnaireModeSelector';
 import MarkdownTextArea from '../MarkdownTextArea/MarkdownTextArea';
 import DomainScrapeOptions from '../QuestionnaireForm/DomainScrapeOptions';
-import useQuestionnaireState from '../../hooks/useQuestionnaireState';
+import { useQuestionnaire } from '../../contexts/QuestionnaireProvider';
+import { useWorkflow } from '../../contexts/WorkflowProvider';
 import useFillForm from '../../hooks/useFillForm';
 import { createMarkdownFormData } from '../../utils/questionnaireDataUtils';
-import useProgressTracking from '../../hooks/useProgressTracking';
 import ProgressIndicator from '../Common/ProgressIndicator';
 import './QuestionnaireManager.sass';
 
-interface QuestionnaireManagerProps {
-  formData: Record<string, unknown> | null;
-  setFormData: React.Dispatch<React.SetStateAction<Record<string, unknown>>>;
-}
-
-const QuestionnaireManager: React.FC<QuestionnaireManagerProps> = ({
-  formData,
-  setFormData
-}) => {
-  const [questionnaireState, questionnaireActions] = useQuestionnaireState();
+const QuestionnaireManager: React.FC = () => {
+  const { state: questionnaireState, actions: questionnaireActions } = useQuestionnaire();
+  const { state: workflowState, actions: workflowActions } = useWorkflow();
   const [fillFormData, fillFormStatus, fillForm] = useFillForm();
-  const { updateTaskStatus, progressState } = useProgressTracking();
+  
+  const formData = questionnaireState.data;
 
   // Function to check if questionnaire is completed
   const isQuestionnaireCompleted = () => {
@@ -51,22 +45,24 @@ const QuestionnaireManager: React.FC<QuestionnaireManagerProps> = ({
   useEffect(() => {
     const completed = isQuestionnaireCompleted();
     if (completed) {
-      updateTaskStatus('setup', 'questionnaire', 'completed');
+      workflowActions.updateTaskStatus('setup', 'questionnaire', 'completed');
     } else if (formData && Object.keys(formData).length > 0) {
-      updateTaskStatus('setup', 'questionnaire', 'in-progress');
+      workflowActions.updateTaskStatus('setup', 'questionnaire', 'in-progress');
     } else {
-      updateTaskStatus('setup', 'questionnaire', 'pending');
+      workflowActions.updateTaskStatus('setup', 'questionnaire', 'pending');
     }
-  }, [formData, questionnaireState, fillFormData, updateTaskStatus]);
+  }, [formData, questionnaireState, fillFormData, workflowActions]);
 
   // Sync markdown content with formData when in template-markdown mode
   useEffect(() => {
     if (questionnaireState.activeMode === 'template-markdown' && questionnaireState.data.templateMarkdown) {
-      setFormData(createMarkdownFormData(questionnaireState.data.templateMarkdown, 'template'));
+      const markdownData = createMarkdownFormData(questionnaireState.data.templateMarkdown, 'template');
+      questionnaireActions.updateQuestionnaireData(markdownData);
     } else if (questionnaireState.activeMode === 'content-document' && questionnaireState.data.contentDocument) {
-      setFormData(createMarkdownFormData(questionnaireState.data.contentDocument, 'content'));
+      const markdownData = createMarkdownFormData(questionnaireState.data.contentDocument, 'content');
+      questionnaireActions.updateQuestionnaireData(markdownData);
     }
-  }, [questionnaireState.activeMode, questionnaireState.data.templateMarkdown, questionnaireState.data.contentDocument, setFormData]);
+  }, [questionnaireState.activeMode, questionnaireState.data.templateMarkdown, questionnaireState.data.contentDocument, questionnaireActions]);
 
   const handleFillForm = (scrape: boolean, useSelenium: boolean, scroll: boolean) => {
     const domain = questionnaireState.data.scrape?.domain || '';
@@ -83,13 +79,15 @@ const QuestionnaireManager: React.FC<QuestionnaireManagerProps> = ({
   const handleTemplateMarkdownChange = (markdown: string) => {
     questionnaireActions.updateTemplateMarkdown(markdown);
     // Update formData immediately when markdown changes
-    setFormData(createMarkdownFormData(markdown, 'template'));
+    const markdownData = createMarkdownFormData(markdown, 'template');
+    questionnaireActions.updateQuestionnaireData(markdownData);
   };
 
   const handleContentDocumentChange = (content: string) => {
     questionnaireActions.updateContentDocument(content);
     // Update formData immediately when content changes
-    setFormData(createMarkdownFormData(content, 'content'));
+    const markdownData = createMarkdownFormData(content, 'content');
+    questionnaireActions.updateQuestionnaireData(markdownData);
   };
 
   const renderContent = () => {
@@ -121,7 +119,6 @@ const QuestionnaireManager: React.FC<QuestionnaireManagerProps> = ({
               formData={formData || {}} 
               setFormData={(data) => {
                 const formDataValue = typeof data === 'function' ? data(formData || {}) : data;
-                setFormData(formDataValue || {});
                 if (formDataValue) {
                   questionnaireActions.updateQuestionnaireData(formDataValue);
                 }
@@ -208,7 +205,7 @@ Dr. Smith has been practicing orthodontics for over 15 years...
         <div className="questionnaire-manager__title-row">
           <h1 className="questionnaire-manager__title">Questionnaire Manager</h1>
           <ProgressIndicator 
-            status={progressState.setup.questionnaire} 
+            status={workflowState.progressState.setup.questionnaire} 
             size="large"
             showLabel={true}
           />

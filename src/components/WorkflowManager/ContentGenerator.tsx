@@ -4,19 +4,17 @@ import { generateContentQueryFunction } from '../../services/generateContentServ
 import { generateGlobalQueryFunction } from '../../services/generateGlobalService';
 import { GenerateContentRequest } from '../../types/APIServiceTypes';
 import { getEffectiveQuestionnaireData, isMarkdownData } from '../../utils/questionnaireDataUtils';
+import { getBackendSiteTypeForModelGroup } from '../../utils/modelGroupKeyToBackendSiteType';
+import { useQuestionnaire } from '../../contexts/QuestionnaireProvider';
+import { useSitemap } from '../../contexts/SitemapProvider';
+import { useAppConfig } from '../../contexts/AppConfigProvider';
 import './ContentGenerator.sass';
 
 interface ContentGeneratorProps {
-  pages: unknown;
-  questionnaireData: unknown;
-  siteType: string;
   onContentGenerated?: (pagesContent: object, globalContent: object) => void;
 }
 
 const ContentGenerator: React.FC<ContentGeneratorProps> = ({
-  pages,
-  questionnaireData,
-  siteType,
   onContentGenerated
 }) => {
   const [shouldFetch, setShouldFetch] = useState(false);
@@ -28,6 +26,17 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
   const [uploadMode, setUploadMode] = useState<'generate' | 'upload'>('generate');
 
   const queryClient = useQueryClient();
+
+  // Use contexts instead of props
+  const { state: questionnaireState } = useQuestionnaire();
+  const { state: sitemapState } = useSitemap();
+  const { state: appConfigState } = useAppConfig();
+
+  // Extract data from contexts
+  const questionnaireData = questionnaireState.data;
+  const pages = sitemapState.pages;
+  const selectedModelGroupKey = appConfigState.selectedModelGroupKey || Object.keys(appConfigState.modelGroups)[0];
+  const siteType = getBackendSiteTypeForModelGroup(selectedModelGroupKey) || 'stinson';
 
   // Get the effective questionnaire data
   const effectiveQuestionnaireData = getEffectiveQuestionnaireData(questionnaireData);

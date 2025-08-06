@@ -2,6 +2,9 @@ import React, { useState, useCallback, useEffect } from 'react';
 import useUpdateWordPress from '../../hooks/useUpdateWordPress';
 import EnhancedPreviewSection from './EnhancedPreviewSection';
 import { getBackendSiteTypeForModelGroup } from '../../utils/modelGroupKeyToBackendSiteType';
+import { useWorkflow } from '../../contexts/WorkflowProvider';
+import { useSitemap } from '../../contexts/SitemapProvider';
+import { useAppConfig } from '../../contexts/AppConfigProvider';
 import './WordPressUpdater.sass';
 
 
@@ -18,20 +21,23 @@ interface SitemapData {
 }
 
 interface WordPressUpdaterProps {
-  pagesContent: object | null;
-  globalContent: object | null;
   onUpdateComplete?: () => void;
-  sitemapData?: SitemapData; // Add sitemap data to get page IDs
-  selectedModelGroupKey?: string; // Add selected template to determine sections format
 }
 
 const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
-  pagesContent,
-  globalContent,
-  onUpdateComplete,
-  sitemapData,
-  selectedModelGroupKey
+  onUpdateComplete
 }) => {
+  // Use contexts instead of props
+  const { state: workflowState } = useWorkflow();
+  const { state: sitemapState } = useSitemap();
+  const { state: appConfigState } = useAppConfig();
+
+  // Extract data from contexts
+  const latestContent = workflowState.generatedContent.find(content => content.type === 'page-content');
+  const pagesContent = latestContent?.content?.pages || null;
+  const globalContent = latestContent?.content?.global || null;
+  const sitemapData = { pages: sitemapState.pages };
+  const selectedModelGroupKey = appConfigState.selectedModelGroupKey || Object.keys(appConfigState.modelGroups)[0];
   console.log('selectedModelGroupKey', selectedModelGroupKey);
   const [apiUrl, setApiUrl] = useState<string>('https://api-crm-thread.roostergrintemplates.com/');
   const [username, setUsername] = useState<string>('Rooster Grin');
