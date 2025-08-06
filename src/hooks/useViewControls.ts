@@ -1,33 +1,83 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react'
 
-const useViewControls = () => {
-  const [showSelect, setShowSelect] = useState<boolean>(true);
-  const [showTextarea, setShowTextarea] = useState<boolean>(false);
-  const [showDeleteButtons, setShowDeleteButtons] = useState<boolean>(false);
-  const [showItemNumbers, setShowItemNumbers] = useState<boolean>(false);
-  const [showPageIds, setShowPageIds] = useState<boolean>(false);
-  const [useGridLayout, setUseGridLayout] = useState<boolean>(true);
-  const [gridColumnWidth, setGridColumnWidth] = useState<number>(175);
-  const [usePageJson, setUsePageJson] = useState<boolean>(false);
+interface ViewControlsState {
+  viewMode: 'grid' | 'list'
+  showSelect: boolean
+  showTextarea: boolean
+  showDeleteButtons: boolean
+  showItemNumbers: boolean
+  showPageIds: boolean
+  usePageJson: boolean
+  useGridLayout: boolean
+  gridColumnWidth: number
+}
+
+const defaultViewControls: ViewControlsState = {
+  viewMode: 'grid',
+  showSelect: true,
+  showTextarea: true,
+  showDeleteButtons: false,
+  showItemNumbers: false,
+  showPageIds: false,
+  usePageJson: false,
+  useGridLayout: true,
+  gridColumnWidth: 175
+}
+
+const useViewControls = (initialState: Partial<ViewControlsState> = {}) => {
+  const [viewControls, setViewControls] = useState<ViewControlsState>({
+    ...defaultViewControls,
+    ...initialState
+  })
+
+  const setViewMode = (mode: 'grid' | 'list') => {
+    setViewControls(prev => ({ ...prev, viewMode: mode }))
+  }
+
+  const toggleShowSelect = () => {
+    setViewControls(prev => ({ ...prev, showSelect: !prev.showSelect }))
+  }
+
+  const toggleShowTextarea = () => {
+    setViewControls(prev => ({ ...prev, showTextarea: !prev.showTextarea }))
+  }
+
+  const toggleShowDeleteButtons = () => {
+    setViewControls(prev => ({ ...prev, showDeleteButtons: !prev.showDeleteButtons }))
+  }
+
+  const toggleShowItemNumbers = () => {
+    setViewControls(prev => ({ ...prev, showItemNumbers: !prev.showItemNumbers }))
+  }
+
+  const toggleShowPageIds = () => {
+    setViewControls(prev => ({ ...prev, showPageIds: !prev.showPageIds }))
+  }
+
+  const toggleUsePageJson = () => {
+    setViewControls(prev => ({ ...prev, usePageJson: !prev.usePageJson }))
+  }
+
+  const toggleUseGridLayout = () => {
+    setViewControls(prev => ({ ...prev, useGridLayout: !prev.useGridLayout }))
+  }
+
+  const setGridColumnWidth = (width: number) => {
+    setViewControls(prev => ({ ...prev, gridColumnWidth: width }))
+  }
 
   return {
-    usePageJson,
-    toggleUsePageJson: useCallback(() => setUsePageJson(prev => !prev), []),
-    showSelect,
-    toggleShowSelect: useCallback(() => setShowSelect(prev => !prev), []),
-    showTextarea,
-    toggleShowTextarea: useCallback(() => setShowTextarea(prev => !prev), []),
-    showDeleteButtons,
-    toggleShowDeleteButtons: useCallback(() => setShowDeleteButtons(prev => !prev), []),
-    showItemNumbers,
-    toggleShowItemNumbers: useCallback(() => setShowItemNumbers(prev => !prev), []),
-    showPageIds,
-    toggleShowPageIds: useCallback(() => setShowPageIds(prev => !prev), []),
-    useGridLayout,
-    toggleUseGridLayout: useCallback(() => setUseGridLayout(prev => !prev), []),
-    gridColumnWidth,
-    setGridColumnWidth,
-  };
-};
+    ...viewControls,
+    setViewMode,
+    toggleShowSelect,
+    toggleShowTextarea,
+    toggleShowDeleteButtons,
+    toggleShowItemNumbers,
+    toggleShowPageIds,
+    toggleUsePageJson,
+    toggleUseGridLayout,
+    setGridColumnWidth
+  }
+}
 
-export default useViewControls; 
+export default useViewControls

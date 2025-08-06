@@ -1,27 +1,17 @@
 import { useCallback } from 'react';
-import { SitemapSection, QuestionnaireData } from '../types/SitemapTypes';
+import { useSitemap } from '../contexts/SitemapProvider';
+import { useAppConfig } from '../contexts/AppConfigProvider';
+import { useQuestionnaire } from '../contexts/QuestionnaireProvider';
 
-interface UseImportExportArgs {
-  pages: SitemapSection[];
-  selectedModelGroupKey: string;
-  modelGroups: Record<string, string[]>;
-  questionnaireData: QuestionnaireData;
-  importPages: (jsonData: string) => void;
-  onSelectModelGroup: (key: string) => void;
-  onSetModelGroups: (groups: Record<string, string[]>) => void;
-  onSetQuestionnaireData: (data: QuestionnaireData) => void;
-}
-
-const useImportExport = ({
-  pages,
-  selectedModelGroupKey,
-  modelGroups,
-  questionnaireData,
-  importPages,
-  onSelectModelGroup,
-  onSetModelGroups,
-  onSetQuestionnaireData,
-}: UseImportExportArgs) => {
+const useImportExport = () => {
+  const { state: sitemapState, actions: sitemapActions } = useSitemap();
+  const { state: appConfigState, actions: appConfigActions } = useAppConfig();
+  const { state: questionnaireState, actions: questionnaireActions } = useQuestionnaire();
+  
+  const pages = sitemapState.pages;
+  const selectedModelGroupKey = appConfigState.selectedModelGroupKey || Object.keys(appConfigState.modelGroups)[0];
+  const modelGroups = appConfigState.modelGroups;
+  const questionnaireData = questionnaireState.data;
   const exportJson = useCallback(() => {
     const exportData = {
       pages: pages.reduce((acc, page) => ({
@@ -35,7 +25,15 @@ const useImportExport = ({
             internal_id: item.id,
           })),
         },
-      }), {} as Record<string, any>),
+      }), {} as Record<string, {
+        internal_id: string;
+        page_id: string;
+        model_query_pairs: Array<{
+          model: string;
+          query: string;
+          internal_id: string;
+        }>;
+      }>),
       selectedModelGroupKey,
       modelGroups,
       questionnaireData,
@@ -45,7 +43,10 @@ const useImportExport = ({
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    const practiceName = questionnaireData.practiceDetails.replace(/\s+/g, '_');
+    // Extract practice name from available data or use fallback
+    const practiceName = questionnaireData?.scrape?.domain?.replace(/\./g, '_').replace(/\s+/g, '_') 
+      || questionnaireData?.questionnaire?.practiceName?.toString().replace(/\s+/g, '_')
+      || 'sitemap_export';
     const siteType = selectedModelGroupKey.replace(/\s+/g, '_');
     link.download = `${siteType}_${practiceName}.json`;
     document.body.appendChild(link);
@@ -57,20 +58,21 @@ const useImportExport = ({
   const importJson = useCallback((jsonData: string) => {
     try {
       const importedData = JSON.parse(jsonData);
-      importPages(jsonData);
+      sitemapActions.importPagesFromJson(jsonData);
       if (importedData.selectedModelGroupKey && typeof importedData.selectedModelGroupKey === 'string') {
-        onSelectModelGroup(importedData.selectedModelGroupKey);
+        appConfigActions.setSelectedModelGroup(importedData.selectedModelGroupKey);
       }
       if (importedData.modelGroups && typeof importedData.modelGroups === 'object') {
-        onSetModelGroups(importedData.modelGroups as Record<string, string[]>);
+        // Note: This would need to be implemented in AppConfigProvider if needed
+        console.warn('Model groups import not yet implemented in AppConfigProvider');
       }
       if (importedData.questionnaireData && typeof importedData.questionnaireData === 'object') {
-        onSetQuestionnaireData(importedData.questionnaireData as QuestionnaireData);
+        questionnaireActions.updateQuestionnaireData(importedData.questionnaireData);
       }
     } catch (error) {
       console.error('Error importing JSON:', error);
     }
-  }, [importPages, onSelectModelGroup, onSetModelGroups, onSetQuestionnaireData]);
+  }, [sitemapActions, appConfigActions, questionnaireActions]);
 
   return { exportJson, importJson };
 };
