@@ -1,5 +1,4 @@
-import React, { useEffect, useMemo, useCallback } from 'react';
-import QuestionnaireForm from '../QuestionnaireForm/QuestionnaireForm';
+import React, { useEffect } from 'react';
 import QuestionnaireModeSelector from '../QuestionnaireModeSelector/QuestionnaireModeSelector';
 import MarkdownTextArea from '../MarkdownTextArea/MarkdownTextArea';
 import DomainScrapeOptions from '../QuestionnaireForm/DomainScrapeOptions';
@@ -19,17 +18,12 @@ const QuestionnaireManager: React.FC = () => {
 
   // Function to check if questionnaire is completed
   const isQuestionnaireCompleted = () => {
-    if (!formData) return false;
-    
     switch (questionnaireState.activeMode) {
       case 'scrape':
         return fillFormData && Object.keys(fillFormData).length > 0;
       case 'questionnaire':
-        // Check if key fields are filled
-        const requiredFields = ['practiceDetails', 'siteVision', 'primaryAudience'];
-        return requiredFields.every(field => 
-          formData[field] && String(formData[field]).trim().length > 0
-        );
+        // Questionnaire mode is currently disabled
+        return false;
       case 'template-markdown':
         return questionnaireState.data.templateMarkdown && 
                questionnaireState.data.templateMarkdown.trim().length > 100;
@@ -49,7 +43,11 @@ const QuestionnaireManager: React.FC = () => {
     let newStatus;
     if (completed) {
       newStatus = 'completed';
-    } else if (formData && Object.keys(formData).length > 0) {
+    } else if (questionnaireState.activeMode === 'scrape' && fillFormData) {
+      newStatus = 'in-progress';
+    } else if (questionnaireState.activeMode === 'template-markdown' && questionnaireState.data.templateMarkdown) {
+      newStatus = 'in-progress';
+    } else if (questionnaireState.activeMode === 'content-document' && questionnaireState.data.contentDocument) {
       newStatus = 'in-progress';
     } else {
       newStatus = 'pending';
@@ -59,7 +57,7 @@ const QuestionnaireManager: React.FC = () => {
     if (currentStatus !== newStatus) {
       workflowActions.updateTaskStatus('setup', 'questionnaire', newStatus);
     }
-  }, [formData, questionnaireState.activeMode, fillFormData, workflowState.progressState.setup.questionnaire]);
+  }, [questionnaireState.activeMode, questionnaireState.data.templateMarkdown, questionnaireState.data.contentDocument, fillFormData, workflowState.progressState.setup.questionnaire, isQuestionnaireCompleted, workflowActions]);
 
 
   const handleFillForm = (scrape: boolean, useSelenium: boolean, scroll: boolean) => {
@@ -113,15 +111,16 @@ const QuestionnaireManager: React.FC = () => {
       case 'questionnaire':
         return (
           <div className="questionnaire-manager__content">
-            <QuestionnaireForm 
-              formData={formData || {}} 
-              setFormData={(data) => {
-                const formDataValue = typeof data === 'function' ? data(formData || {}) : data;
-                if (formDataValue) {
-                  questionnaireActions.updateQuestionnaireData(formDataValue);
-                }
-              }} 
-            />
+            <div className="questionnaire-manager__removed-notice">
+              <h3>Questionnaire Form Temporarily Removed</h3>
+              <p>The questionnaire form has been removed to fix a technical issue. Please use one of the alternative input methods:</p>
+              <ul>
+                <li><strong>Domain Scraping:</strong> Automatically extract data from an existing website</li>
+                <li><strong>Template Markdown:</strong> Provide structured content in markdown format</li>
+                <li><strong>Content Document:</strong> Upload existing content documentation</li>
+              </ul>
+              <p>You can switch between these options using the mode selector above.</p>
+            </div>
           </div>
         );
 

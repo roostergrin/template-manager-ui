@@ -4,8 +4,6 @@ import LoadingOverlay from './LoadingOverlay';
 import { QuestionnaireData, GenerateSitemapRequest, GenerateSitemapResponse } from '../types/SitemapTypes';
 
 type ControlsProps = {
-  usePageJson: boolean;
-  toggleUsePageJson: () => void;
   backendSiteType: string;
 };
 
@@ -26,7 +24,7 @@ const GenerateSitemapButton: React.FC<GenerateSitemapButtonProps> = ({
   onSitemapGenerated,
   controls,
 }) => {
-  const { usePageJson, toggleUsePageJson, backendSiteType } = controls;
+  const { backendSiteType } = controls;
 
   useEffect(() => {
     if (
@@ -42,9 +40,9 @@ const GenerateSitemapButton: React.FC<GenerateSitemapButtonProps> = ({
     generateSitemap({
       questionnaire: questionnaireData,
       site_type: backendSiteType,
-      use_page_json: usePageJson,
+      use_page_json: true,
     });
-  }, [questionnaireData, backendSiteType, usePageJson, generateSitemap]);
+  }, [questionnaireData, backendSiteType, generateSitemap]);
 
   return (
     <div className="flex flex-col gap-2 items-start mb-4">
@@ -53,17 +51,9 @@ const GenerateSitemapButton: React.FC<GenerateSitemapButtonProps> = ({
           Current Site Type:
           <span className="text-blue-700 ml-1">{backendSiteType}</span>
         </span>
-        <label className="flex items-center gap-2 cursor-pointer select-none">
-          <input
-            type="checkbox"
-            checked={usePageJson}
-            onChange={toggleUsePageJson}
-            aria-label="Use Page JSON"
-            tabIndex={0}
-            className="form-checkbox h-4 w-4 text-blue-600"
-          />
-          <span className="text-gray-700">Use Page JSON</span>
-        </label>
+        <span className="text-gray-700">
+          Using Page JSON
+        </span>
       </div>
       {generateSitemapStatus === 'pending' && <LoadingOverlay />}
       <button

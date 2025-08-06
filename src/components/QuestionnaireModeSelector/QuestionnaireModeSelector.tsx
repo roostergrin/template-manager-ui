@@ -13,11 +13,11 @@ const modes: Array<{ key: QuestionnaireMode; label: string; description: string 
     label: 'Scrape',
     description: 'Extract content from existing websites'
   },
-  {
-    key: 'questionnaire',
-    label: 'Questionnaire Form',
-    description: 'Fill out structured questionnaire'
-  },
+  // {
+  //   key: 'questionnaire',
+  //   label: 'Questionnaire Form',
+  //   description: 'Fill out structured questionnaire'
+  // },
   {
     key: 'template-markdown',
     label: 'Template Questionnaire Markdown',
