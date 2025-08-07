@@ -1,103 +1,134 @@
+@use '../../styles/_variables.sass' as *
 .app__page
-  background-color: #fff
-  border: 1px solid #e0e0e0
-  border-radius: 8px
-  padding: 1rem
-  margin-bottom: 1rem
+  background-color: $bg-surface
+  border: 1px solid $border-color
+  border-radius: $radius-md
+  padding: $space-4
+  margin-bottom: $space-4
+  box-shadow: $shadow-sm
 
   &--compact
-    padding: 0.5rem
-    margin-bottom: 0.5rem
-    border-radius: 4px
-    
-    .app__page-header
-      margin-bottom: 0.5rem
-      
-      .app__page-title-input
-        padding: 0.25rem 0.5rem
-        font-size: 0.85rem
-        
-      .app__page-wordpress-id-input
-        padding: 0.25rem 0.5rem
-        font-size: 0.75rem
-        
-      .app__delete-page-button
-        padding: 0.25rem 0.5rem
-        font-size: 0.75rem
+    padding: $space-3
+    margin-bottom: $space-3
+    border-radius: $radius-sm
 
   &--expanded
-    padding: 1.5rem
-    margin-bottom: 1.5rem
-    border-radius: 8px
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1)
-    
-    .app__page-header
-      margin-bottom: 1rem
-      
-      .app__page-title-input
-        padding: 0.5rem 0.75rem
-        font-size: 1rem
-        font-weight: 500
-        
-      .app__page-wordpress-id-input
-        padding: 0.5rem 0.75rem
-        font-size: 0.9rem
-        
-      .app__delete-page-button
-        padding: 0.5rem 0.75rem
-        font-size: 0.9rem
+    padding: $space-6
+    margin-bottom: $space-6
+    border-radius: $radius-md
+    box-shadow: $shadow-md
 
   &-header
     display: flex
     align-items: center
-    gap: 0.5rem
-    margin-bottom: 0.75rem
-    
+    gap: $space-2
+    margin-bottom: $space-3
+
   &-number
-    color: #666
+    color: $text-muted
     font-size: 0.8rem
     min-width: 2rem
-    
+
   &-title-input
-    border: 1px solid #ccc
-    border-radius: 4px
+    border: 1px solid $border-color
+    border-radius: $radius-sm
     flex: 1
-    
+    padding: $space-2 $space-3
+    font-weight: 500
+
     &:focus
-      border-color: #007acc
+      border-color: $color-primary
       outline: none
-      box-shadow: 0 0 0 2px rgba(0, 122, 204, 0.2)
-      
+      box-shadow: $focus-ring
+
   &-wordpress-id-input
-    border: 1px solid #ccc
-    border-radius: 4px
-    width: 80px
-    
+    border: 1px solid $border-color
+    border-radius: $radius-sm
+    width: 92px
+    padding: $space-2
+
     &:focus
-      border-color: #007acc
+      border-color: $color-primary
       outline: none
-      box-shadow: 0 0 0 2px rgba(0, 122, 204, 0.2)
-      
-  &__delete-page-button
-    background-color: #fee
-    border: 1px solid #fcc
-    border-radius: 4px
-    color: #c33
-    cursor: pointer
-    
+      box-shadow: $focus-ring
+
+  &-drag-handle
+    width: 2.25rem
+    height: 2.25rem
+    min-width: 2.25rem
+    display: inline-flex
+    align-items: center
+    justify-content: center
+    margin-right: $space-2
+    background: $bg-subtle
+    border: 1px solid $border-color
+    border-radius: $radius-sm
+    color: $text-muted
+    cursor: grab
+    user-select: none
+    transition: background .15s ease, color .15s ease, border-color .15s ease, box-shadow .15s ease
+
     &:hover
-      background-color: #fdd
-      border-color: #faa
+      background: #eef2ff
+      color: $color-primary
+      border-color: $color-primary
+      box-shadow: $shadow-sm
+
+    &:active
+      cursor: grabbing
+
+  &-collapse-toggle
+    background: $bg-subtle
+    border: 1px solid $border-color
+    border-radius: $radius-sm
+    color: $text-secondary
+    cursor: pointer
+    transition: background .15s ease, border-color .15s ease
+
+    &:hover
+      background: #f3f4f6
+      border-color: $border-strong
+
+.app__filter-button
+  border: 1px solid $border-color
+  border-radius: $radius-sm
+  padding: $space-2 $space-3
+  font-size: 0.75rem
+  background: #fff
+  color: #374151
+  cursor: pointer
+  transition: background .15s ease, color .15s ease, border-color .15s ease, box-shadow .15s ease
+
+  &:hover
+    border-color: $color-primary
+    color: $color-primary
+    box-shadow: $shadow-sm
+
+  &--active
+    background: #2563eb
+    color: #fff
+    border-color: #2563eb
+
+  &__delete-page-button
+    background-color: #fff1f2
+    border: 1px solid #fecdd3
+    border-radius: $radius-sm
+    color: #e11d48
+    cursor: pointer
+
+    &:hover
+      background-color: #ffe4e6
+      border-color: #fda4af
 
   &__add-page-button
-    background-color: #e8f5e8
-    border: 1px solid #4caf50
-    border-radius: 4px
-    color: #2e7d32
+    background-color: #ecfdf5
+    border: 1px solid #34d399
+    border-radius: $radius-sm
+    color: #059669
     cursor: pointer
-    padding: 0.75rem 1.5rem
-    font-weight: 500
-    
+    padding: $space-3 $space-5
+    font-weight: 600
+
     &:hover
-      background-color: #c8e6c9
-      border-color: #388e3c
+      background-color: #d1fae5
+      border-color: #10b981

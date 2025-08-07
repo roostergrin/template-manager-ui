@@ -23,6 +23,7 @@ const useImportExport = () => {
             model: item.model,
             query: item.query,
             internal_id: item.id,
+            use_default: Boolean(item.useDefault),
           })),
         },
       }), {} as Record<string, {
@@ -32,6 +33,7 @@ const useImportExport = () => {
           model: string;
           query: string;
           internal_id: string;
+          use_default?: boolean;
         }>;
       }>),
       selectedModelGroupKey,

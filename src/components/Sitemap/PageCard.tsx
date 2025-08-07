@@ -1,5 +1,7 @@
-import React from 'react';
-import { SitemapSection, SitemapItem } from '../../types/SitemapTypes';
+import React, { useEffect, useState } from 'react';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { SitemapSection } from '../../types/SitemapTypes';
 import SitemapSectionComponent from '../SitemapSection/SitemapSection';
 import { useSitemap } from '../../contexts/SitemapProvider';
 import { useAppConfig } from '../../contexts/AppConfigProvider';
@@ -26,14 +28,34 @@ const PageCard: React.FC<PageCardProps> = ({
   showTextarea = false,
   isCompactMode = false,
 }) => {
-  const { actions: sitemapActions } = useSitemap();
+  const { state: sitemapState, actions: sitemapActions } = useSitemap();
   const { state: appConfigState } = useAppConfig();
+  const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
   
   const selectedModelGroupKey = appConfigState.selectedModelGroupKey || Object.keys(appConfigState.modelGroups)[0];
   const currentModels = appConfigState.modelGroups[selectedModelGroupKey]?.models || [];
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: page.id, data: { type: 'page' } });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  } as React.CSSProperties;
+
+  // Sync local collapse with global showItems toggle (page vs item mode)
+  useEffect(() => {
+    setIsCollapsed(!sitemapState.showItems);
+  }, [sitemapState.showItems]);
+
   return (
-    <div className={`app__page ${isCompactMode ? 'app__page--compact' : 'app__page--expanded'}`}>
+    <div ref={setNodeRef} style={style} className={`app__page ${isCompactMode ? 'app__page--compact' : 'app__page--expanded'}`}>
       <div className="app__page-header flex items-center gap-2 mb-2">
+        <button
+          className="app__page-drag-handle"
+          aria-label="Drag page"
+          {...attributes}
+          {...listeners}
+        >
+          ⇅
+        </button>
         {showItemNumbers && (
           <span className="app__page-number font-mono text-xs text-gray-500">{`${index + 1}.0`}</span>
         )}
@@ -45,6 +67,7 @@ const PageCard: React.FC<PageCardProps> = ({
           placeholder="Page Title"
           aria-label="Page Title"
         />
+        <span className="app__page-item-count text-xs text-gray-500">{page.items.length} items</span>
         <div className="flex items-center gap-2 ml-auto">
           {showPageIds && (
             <input
@@ -68,19 +91,21 @@ const PageCard: React.FC<PageCardProps> = ({
           )}
         </div>
       </div>
-      <SitemapSectionComponent
-        models={currentModels}
-        pageID={page.id}
-        title={page.title}
-        pageNumber={index + 1}
-        items={page.items}
-        showSelect={showSelect}
-        showTextarea={showTextarea}
-        showDeleteButtons={showDeleteButtons}
-        showItemNumbers={showItemNumbers}
-        isCompactMode={isCompactMode}
-        onItemsChange={newItems => sitemapActions.updatePageItems(page.id, newItems)}
-      />
+      {!isCollapsed && (
+        <SitemapSectionComponent
+          models={currentModels}
+          pageID={page.id}
+          title={page.title}
+          pageNumber={index + 1}
+          items={page.items}
+          showSelect={showSelect}
+          showTextarea={showTextarea}
+          showDeleteButtons={showDeleteButtons}
+          showItemNumbers={showItemNumbers}
+          isCompactMode={isCompactMode}
+          onItemsChange={newItems => sitemapActions.updatePageItems(page.id, newItems)}
+        />
+      )}
     </div>
   );
 };

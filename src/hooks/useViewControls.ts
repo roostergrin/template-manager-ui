@@ -7,6 +7,7 @@ interface ViewControlsState {
   showDeleteButtons: boolean
   showItemNumbers: boolean
   showPageIds: boolean
+  showItems: boolean
   usePageJson: boolean
   useGridLayout: boolean
   gridColumnWidth: number
@@ -16,9 +17,10 @@ const defaultViewControls: ViewControlsState = {
   viewMode: 'grid',
   showSelect: true,
   showTextarea: true,
-  showDeleteButtons: false,
-  showItemNumbers: false,
-  showPageIds: false,
+  showDeleteButtons: true,
+  showItemNumbers: true,
+  showPageIds: true,
+  showItems: true,
   usePageJson: false,
   useGridLayout: true,
   gridColumnWidth: 175
@@ -66,6 +68,10 @@ const useViewControls = (initialState: Partial<ViewControlsState> = {}) => {
     setViewControls(prev => ({ ...prev, gridColumnWidth: width }))
   }
 
+  const setShowItems = (show: boolean) => {
+    setViewControls(prev => ({ ...prev, showItems: show }))
+  }
+
   return {
     ...viewControls,
     setViewMode,
@@ -76,7 +82,8 @@ const useViewControls = (initialState: Partial<ViewControlsState> = {}) => {
     toggleShowPageIds,
     toggleUsePageJson,
     toggleUseGridLayout,
-    setGridColumnWidth
+    setGridColumnWidth,
+    setShowItems
   }
 }
 
