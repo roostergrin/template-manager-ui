@@ -30,6 +30,15 @@ const EnhancedSitemap: React.FC = () => {
   // Get the effective questionnaire data (either structured or markdown-based)
   const effectiveQuestionnaireData = getEffectiveQuestionnaireData(questionnaireData);
   
+  // Ensure query inputs are visible
+  const toggledRef = React.useRef(false);
+  useEffect(() => {
+    if (!toggledRef.current && !sitemapState.showTextarea) {
+      toggledRef.current = true;
+      sitemapActions.toggleShowTextarea();
+    }
+  }, [sitemapState.showTextarea, sitemapActions]);
+  
   
   // Track sitemap planning progress - using context instead of props
   useEffect(() => {

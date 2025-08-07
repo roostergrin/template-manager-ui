@@ -21,6 +21,7 @@ interface SitemapContextState {
   showDeleteButtons: boolean
   showItemNumbers: boolean
   showPageIds: boolean
+  showItems: boolean
   usePageJson: boolean
   // Layout controls
   useGridLayout: boolean
@@ -53,6 +54,7 @@ interface SitemapContextActions {
   toggleShowDeleteButtons: () => void
   toggleShowItemNumbers: () => void
   toggleShowPageIds: () => void
+  setShowItems: (show: boolean) => void
   toggleUsePageJson: () => void
   
   // Layout controls
@@ -115,6 +117,7 @@ export const SitemapProvider: React.FC<SitemapProviderProps> = ({
     showItemNumbers,
     showPageIds,
     usePageJson,
+    showItems,
     useGridLayout,
     gridColumnWidth,
     setViewMode,
@@ -123,6 +126,7 @@ export const SitemapProvider: React.FC<SitemapProviderProps> = ({
     toggleShowDeleteButtons,
     toggleShowItemNumbers,
     toggleShowPageIds,
+     setShowItems,
     toggleUsePageJson,
     toggleUseGridLayout,
     setGridColumnWidth
@@ -216,6 +220,7 @@ export const SitemapProvider: React.FC<SitemapProviderProps> = ({
     usePageJson,
     useGridLayout,
     gridColumnWidth,
+      showItems,
     optimisticPages
   }
 
@@ -237,6 +242,7 @@ export const SitemapProvider: React.FC<SitemapProviderProps> = ({
     toggleShowDeleteButtons,
     toggleShowItemNumbers,
     toggleShowPageIds,
+    setShowItems,
     toggleUsePageJson,
     toggleUseGridLayout,
     setGridColumnWidth,

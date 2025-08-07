@@ -15,6 +15,7 @@ const mapImportedPages = (pagesObj: Record<string, any>): SitemapSection[] => {
         model: item.model,
         query: item.query,
         id: item.internal_id,
+        useDefault: Boolean(item.use_default),
       })),
     }
   })

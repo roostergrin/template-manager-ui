@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
+import { useDroppable } from '@dnd-kit/core';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { SitemapItem as SitemapItemType } from '../../types/SitemapTypes';
 import SitemapItemComponent from '../SitemapItem/SitemapItem';
 import './SitemapSection.sass';
@@ -42,29 +44,39 @@ const SitemapSection: React.FC<SitemapSectionProps> = ({
   };
 
   // Edit item function
-  const editItem = (itemId: string, newModel: string, newQuery: string) => {
-    onItemsChange(items.map(item => item.id === itemId ? { ...item, model: newModel, query: newQuery } : item));
+  const editItem = (itemId: string, newModel: string, newQuery: string, useDefault?: boolean) => {
+    onItemsChange(
+      items.map(item =>
+        item.id === itemId ? { ...item, model: newModel, query: newQuery, useDefault } : item
+      )
+    );
   };
 
+  const { setNodeRef } = useDroppable({ id: pageID, data: { type: 'list', containerId: pageID } });
+  const itemIds = useMemo(() => items.map(i => i.id), [items]);
+
   return (
-    <div className={`sitemap-section ${isCompactMode ? 'sitemap-section--compact' : 'sitemap-section--expanded'}`}>
-      <ul className="sitemap-section__list">
-        {items.map((item, index) => (
-          <SitemapItemComponent
-            key={item.id}
-            item={item}
-            itemNumber={`${pageNumber}.${index + 1}`}
-            models={models}
-            showSelect={showSelect}
-            showTextarea={showTextarea}
-            showDeleteButton={showDeleteButtons}
-            showItemNumber={showItemNumbers}
-            onEdit={editItem}
-            onRemove={removeItem}
-            isCompactMode={isCompactMode}
-          />
-        ))}
-      </ul>
+    <div ref={setNodeRef} className={`sitemap-section ${isCompactMode ? 'sitemap-section--compact' : 'sitemap-section--expanded'}`}>
+      <SortableContext items={itemIds} strategy={verticalListSortingStrategy}>
+        <ul className="sitemap-section__list">
+          {items.map((item, index) => (
+            <SitemapItemComponent
+              key={item.id}
+              item={item}
+              itemNumber={`${pageNumber}.${index + 1}`}
+              models={models}
+              showSelect={showSelect}
+              showTextarea={showTextarea}
+              showDeleteButton={showDeleteButtons}
+              showItemNumber={showItemNumbers}
+              onEdit={editItem}
+              onRemove={removeItem}
+              isCompactMode={isCompactMode}
+              containerId={pageID}
+            />
+          ))}
+        </ul>
+      </SortableContext>
       <div className="sitemap-section__controls">
         <button className="sitemap-section__add-button" onClick={addItem}>Add Item</button>
       </div>

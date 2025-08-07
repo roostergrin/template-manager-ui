@@ -12,7 +12,6 @@ import DefaultTemplateSelector from './DefaultTemplateSelector/DefaultTemplateSe
 import GenerateSitemapButton from './GenerateSitemapButton';
 import GeneratedSitemapSelector from './GeneratedSitemapSelector';
 import ViewControls from './Sitemap/ViewControls';
-import LayoutControls from './Sitemap/LayoutControls';
 import PageList from './Sitemap/PageList';
 import JsonExportImport from './Sitemap/JsonExportImport';
 // import SitemapContentExport from './SitemapContentExport';
@@ -89,7 +88,6 @@ const Sitemap: React.FC<SitemapProps> = ({
         />
       </div>
       <ViewControls />
-      <LayoutControls />
       <PageList />
       <JsonExportImport exportJson={exportJson} importJson={importJson} />
       {/* <SitemapContentExport

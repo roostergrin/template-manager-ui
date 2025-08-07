@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { modelGroups } from '../../modelGroups';
 import './DefaultTemplateSelector.sass';
 
@@ -15,14 +15,20 @@ const DefaultTemplateSelector: React.FC<DefaultTemplateSelectorProps> = ({
     return selectedModelGroupKey && modelGroups[selectedModelGroupKey]?.templates || [];
   }, [selectedModelGroupKey]);
   
+  // Stabilize callback to avoid effect loops when parent recreates function identities
+  const onSelectRef = useRef(onTemplateSelect);
+  useEffect(() => {
+    onSelectRef.current = onTemplateSelect;
+  }, [onTemplateSelect]);
+
   // Auto-select the first template when component mounts or selectedModelGroupKey changes
   useEffect(() => {
     if (availableTemplates.length > 0) {
       const firstTemplate = availableTemplates[0];
       const jsonString = JSON.stringify(firstTemplate.data);
-      onTemplateSelect(jsonString);
+      onSelectRef.current(jsonString);
     }
-  }, [availableTemplates, onTemplateSelect]);
+  }, [availableTemplates]);
   
   if (availableTemplates.length === 0) {
     return (

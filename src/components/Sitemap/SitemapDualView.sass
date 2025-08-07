@@ -1,8 +1,9 @@
+@use '../../styles/_variables.sass' as *
 .sitemap-dual-view
-  padding: 2rem
-  background: #f8f9fa
-  border-radius: 12px
-  margin: 2rem 0
+  padding: $space-6
+  background: $bg-subtle
+  border-radius: $radius-lg
+  margin: $space-6 0
 
   &__header
     text-align: center
@@ -22,15 +23,15 @@
   &__container
     display: grid
     grid-template-columns: 1fr 1fr
-    gap: 3rem
+    gap: $space-8
     align-items: start
 
   &__section
-    background: white
-    border-radius: 8px
-    padding: 1.5rem
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1)
-    border: 1px solid #e1e5e9
+    background: $bg-surface
+    border-radius: $radius-md
+    padding: $space-5
+    box-shadow: $shadow-md
+    border: 1px solid $border-color
 
 .sitemap-compact-view
   &__header
