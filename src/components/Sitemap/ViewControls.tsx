@@ -17,8 +17,11 @@ const ViewControls: React.FC = () => {
     toggleShowItemNumbers,
     toggleShowPageIds
   } = actions;
+
   return (
-    <div className="flex flex-wrap gap-4 mb-4">
+    <div className="mb-4">
+      {/* Individual Controls */}
+      <div className="flex flex-wrap gap-4">
       <label className="flex items-center gap-2 cursor-pointer">
         <input
           type="checkbox"
@@ -69,6 +72,7 @@ const ViewControls: React.FC = () => {
         />
         <span>Show Page IDs</span>
       </label>
+      </div>
     </div>
   );
 };

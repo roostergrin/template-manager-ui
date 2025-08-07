@@ -8,11 +8,6 @@ interface QuestionnaireModeSelector {
 }
 
 const modes: Array<{ key: QuestionnaireMode; label: string; description: string }> = [
-  {
-    key: 'scrape',
-    label: 'Scrape',
-    description: 'Extract content from existing websites'
-  },
   // {
   //   key: 'questionnaire',
   //   label: 'Questionnaire Form',
@@ -20,14 +15,19 @@ const modes: Array<{ key: QuestionnaireMode; label: string; description: string 
   // },
   {
     key: 'template-markdown',
-    label: 'Template Questionnaire Markdown',
-    description: 'Paste markdown template content'
+    label: 'Express Template',
+    description: 'Template Questionnaire'
   },
   {
     key: 'content-document',
-    label: 'Content Document',
-    description: 'Paste content document markdown'
-  }
+    label: 'Regular Template',
+    description: 'Content Document'
+  },
+  {
+    key: 'scrape',
+    label: 'Scrape',
+    description: 'Extract content from existing websites'
+  },
 ];
 
 const QuestionnaireModeSelector: React.FC<QuestionnaireModeSelector> = ({

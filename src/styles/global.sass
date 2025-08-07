@@ -1,0 +1,196 @@
+@use './variables'
+@use './mixins'
+
+// Expose variables locally
+$color-primary: variables.$color-primary
+$color-primary-600: variables.$color-primary-600
+$color-primary-700: variables.$color-primary-700
+$color-secondary: variables.$color-secondary
+$color-accent: variables.$color-accent
+$color-info: variables.$color-info
+$color-warning: variables.$color-warning
+$color-danger: variables.$color-danger
+
+$bg-app: variables.$bg-app
+$bg-surface: variables.$bg-surface
+$bg-subtle: variables.$bg-subtle
+$text-primary: variables.$text-primary
+$text-secondary: variables.$text-secondary
+$text-muted: variables.$text-muted
+$border-color: variables.$border-color
+$border-strong: variables.$border-strong
+$radius-sm: variables.$radius-sm
+$radius-md: variables.$radius-md
+$radius-lg: variables.$radius-lg
+$shadow-sm: variables.$shadow-sm
+$shadow-md: variables.$shadow-md
+$shadow-lg: variables.$shadow-lg
+$space-1: variables.$space-1
+$space-2: variables.$space-2
+$space-3: variables.$space-3
+$space-4: variables.$space-4
+$space-5: variables.$space-5
+$space-6: variables.$space-6
+$space-8: variables.$space-8
+$space-10: variables.$space-10
+$space-12: variables.$space-12
+$container-max: variables.$container-max
+$sidebar-width: variables.$sidebar-width
+$sidebar-width-collapsed: variables.$sidebar-width-collapsed
+$focus-ring: variables.$focus-ring
+
+// Reset / base
+*, *::before, *::after
+  box-sizing: border-box
+
+html, body, #root
+  height: 100%
+
+body
+  margin: 0
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, Apple Color Emoji, Segoe UI Emoji
+  color: $text-primary
+  background: $bg-app
+  -webkit-font-smoothing: antialiased
+  -moz-osx-font-smoothing: grayscale
+
+a
+  color: $color-primary
+  text-decoration: none
+  &:hover
+    color: $color-primary-600
+    text-decoration: underline
+
+img
+  max-width: 100%
+  display: block
+
+// Headings
+h1, h2, h3, h4, h5, h6
+  color: $text-primary
+  margin: 0 0 $space-3
+  line-height: 1.2
+
+h1
+  font-size: 2rem
+h2
+  font-size: 1.5rem
+h3
+  font-size: 1.25rem
+h4
+  font-size: 1.125rem
+
+p
+  margin: 0 0 $space-3
+  color: $text-secondary
+
+// Buttons
+.btn
+  display: inline-flex
+  align-items: center
+  justify-content: center
+  gap: 8px
+  padding: 10px 16px
+  border-radius: $radius-sm
+  border: 1px solid transparent
+  font-weight: 600
+  cursor: pointer
+  transition: .2s ease
+  background: $bg-surface
+  color: $text-primary
+  &:focus-visible
+    @include mixins.focus-ring
+  &:disabled
+    opacity: .6
+    cursor: not-allowed
+
+.btn--primary
+  background: $color-primary
+  color: white
+  &:hover
+    background: $color-primary-600
+
+.btn--secondary
+  background: $color-secondary
+  color: white
+  &:hover
+    background: darken($color-secondary, 6%)
+
+.btn--outline
+  background: transparent
+  border-color: $border-strong
+  color: $text-primary
+  &:hover
+    background: $bg-subtle
+
+.btn--ghost
+  background: transparent
+  color: $color-primary
+  &:hover
+    background: rgba(99,102,241,0.08)
+
+.btn--danger
+  background: $color-danger
+  color: #fff
+  &:hover
+    background: darken($color-danger, 6%)
+
+.btn--success
+  background: $color-accent
+  color: #fff
+  &:hover
+    background: darken($color-accent, 6%)
+
+// Inputs
+input, select, textarea
+  width: 100%
+  padding: 10px 12px
+  border: 1px solid $border-color
+  border-radius: $radius-sm
+  background: white
+  color: $text-primary
+  transition: .2s ease
+  &:focus
+    border-color: $color-primary
+    @include mixins.focus-ring
+
+label
+  display: block
+  margin-bottom: 6px
+  font-weight: 600
+  color: $text-secondary
+
+// Card
+.card
+  background: $bg-surface
+  border: 1px solid $border-color
+  border-radius: $radius-md
+  padding: $space-6
+  @include mixins.elevate('sm')
+
+// Utilities
+.container
+  @include mixins.container
+
+.elevation-sm
+  @include mixins.elevate('sm')
+.elevation-md
+  @include mixins.elevate('md')
+.elevation-lg
+  @include mixins.elevate('lg')
+
+.text-muted
+  color: $text-muted
+
+.grid
+  display: grid
+  gap: $space-6
+
+.grid--responsive
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr))
+
+// Scrollbars globally for scrollable panes
+.scrollable
+  @include mixins.scrollbar
+
+

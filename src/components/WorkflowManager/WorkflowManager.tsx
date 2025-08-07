@@ -47,7 +47,7 @@ const WorkflowManager: React.FC = () => {
   }, [workflowActions]);
 
   const handleQuestionnaireComplete = useCallback(() => {
-    workflowActions.updateTaskStatus('setup', 'questionnaire', 'completed');
+    workflowActions.updateTaskStatus('planning', 'questionnaire', 'completed');
   }, [workflowActions]);
 
   const handleContentGenerationComplete = useCallback((pagesContent: object, globalContent: object) => {
@@ -58,7 +58,7 @@ const WorkflowManager: React.FC = () => {
       content: { pages: pagesContent, global: globalContent },
       created: new Date().toISOString()
     });
-    workflowActions.updateTaskStatus('content', 'contentGeneration', 'completed');
+    workflowActions.updateTaskStatus('planning', 'contentGeneration', 'completed');
   }, [workflowActions]);
 
   const renderSectionContent = () => {
@@ -67,7 +67,7 @@ const WorkflowManager: React.FC = () => {
         <div id="section-infrastructure" className="workflow-section">
           <div className="tab-content">
             <div className="tab-content__header">
-              <h2>🏗️ Infrastructure & Assets</h2>
+              <h2>🏗️ Infrastructure Setup</h2>
               <p>First, create your GitHub repository and provision AWS infrastructure for hosting and assets.</p>
             </div>
             
@@ -89,61 +89,65 @@ const WorkflowManager: React.FC = () => {
           </div>
         </div>
 
-        <div id="section-setup" className="workflow-section">
+        <div id="section-planning" className="workflow-section">
           <div className="tab-content">
             <div className="tab-content__header">
-              <h2>📝 Setup & Configuration</h2>
-              <p>Configure your site settings, fill out the questionnaire, add content documents, and sync scraped assets.</p>
+              <h2>📋 Planning & Content Generation</h2>
+              <p>Configure your site settings, plan your structure, generate content, and sync scraped assets.</p>
             </div>
             
-            <div className="setup-sections">
-              <div id="task-setup-questionnaire" className="section">
+            <div className="planning-sections">
+              <div id="task-planning-questionnaire" className="section">
                 <h3>📋 Site Questionnaire</h3>
                 <p>Fill out the questionnaire to configure your site's basic settings and content preferences.</p>
                 <QuestionnaireManager />
               </div>
               
-              <div id="task-setup-assetSync" className="section">
-                <h3>🖼️ Sync Scraped Assets</h3>
-                <p>Upload scraped images to S3 and get CloudFront URLs to prevent hotlinking.</p>
-                <EnhancedImageTester 
-                  prefilledBucket={provisioningData?.bucketName}
-                  prefilledCloudFront={provisioningData?.assets_distribution_url}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div id="section-content" className="workflow-section">
-          <div className="tab-content">
-            <div className="tab-content__header">
-              <h2>🗺️ Content Planning & Generation</h2>
-              <p>Plan your site structure, organize pages, generate content, and update your GitHub repository.</p>
-            </div>
-            
-            <div className="content-sections">
-              <div id="task-content-sitemapPlanning" className="section">
+              {questionnaireState.activeMode === 'scrape' && (
+                <div id="task-planning-assetSync" className="section">
+                  <h3>🖼️ Sync Scraped Assets</h3>
+                  <p>Upload scraped images to S3 and get CloudFront URLs to prevent hotlinking.</p>
+                  <EnhancedImageTester 
+                    prefilledBucket={provisioningData?.bucketName}
+                    prefilledCloudFront={provisioningData?.assets_distribution_url}
+                  />
+                </div>
+              )}
+              
+              <div id="task-planning-sitemapPlanning" className="section">
                 <h3>🗺️ Site Structure Planning</h3>
                 <p>Plan your site structure, organize pages, and define your content hierarchy.</p>
                 <EnhancedSitemap />
               </div>
               
-              <div id="task-content-contentGeneration" className="section">
+              <div id="task-planning-contentGeneration" className="section">
                 <h3>✨ Content Generation</h3>
                 <p>Generate content based on your questionnaire and sitemap configuration.</p>
                 <ContentGenerator
                   onContentGenerated={handleContentGenerationComplete}
                 />
               </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="section-deployment" className="workflow-section">
+          <div className="tab-content">
+            <div className="tab-content__header">
+              <h2>🚀 Deployment & Updates</h2>
+              <p>Deploy your generated content to GitHub repository and WordPress site.</p>
+            </div>
+            
+            <div className="deployment-sections">
+              {questionnaireState.activeMode === 'template-markdown' && (
+                <div id="task-deployment-repositoryUpdate" className="section">
+                  <h3>🔄 Update Repository</h3>
+                  <p>Push generated content and updates to your GitHub repository.</p>
+                  <RepositoryUpdater />
+                </div>
+              )}
               
-              <div id="task-content-repositoryUpdate" className="section">
-                <h3>🔄 Update Repository</h3>
-                <p>Push generated content and updates to your GitHub repository.</p>
-                <RepositoryUpdater />
-              </div>
-              
-              <div id="task-content-wordpressUpdate" className="section">
+              <div id="task-deployment-wordpressUpdate" className="section">
                 <h3>🌐 Update WordPress</h3>
                 <p>Push generated content directly to your WordPress site via the REST API.</p>
                 <WordPressUpdater />

@@ -10,6 +10,7 @@ interface SitemapItemProps {
   showTextarea: boolean;
   showDeleteButton: boolean;
   showItemNumber: boolean;
+  isCompactMode?: boolean;
   onEdit: (itemId: string, newModel: string, newQuery: string) => void;
   onRemove: (itemId: string) => void;
 }
@@ -22,6 +23,7 @@ const SitemapItem: React.FC<SitemapItemProps> = ({
   showTextarea, 
   showDeleteButton,
   showItemNumber,
+  isCompactMode = false,
   onEdit, 
   onRemove 
 }) => {
@@ -32,7 +34,7 @@ const SitemapItem: React.FC<SitemapItemProps> = ({
   };
 
   return (
-    <li className="sitemap-item">
+    <li className={`sitemap-item ${isCompactMode ? 'sitemap-item--compact' : 'sitemap-item--expanded'}`}>
       {showItemNumber && (
         <div className="sitemap-item__number">{itemNumber}</div>
       )}

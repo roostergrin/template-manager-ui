@@ -200,7 +200,7 @@ Dr. Smith has been practicing orthodontics for over 15 years...
     <div className="questionnaire-manager">
       <div className="questionnaire-manager__header">
         <div className="questionnaire-manager__title-row">
-          <h1 className="questionnaire-manager__title">Questionnaire Manager</h1>
+          <h1 className="questionnaire-manager__title">Content Input Manager</h1>
           <ProgressIndicator 
             status={workflowState.progressState.setup.questionnaire} 
             size="large"
@@ -212,7 +212,7 @@ Dr. Smith has been practicing orthodontics for over 15 years...
         </p>
         {isQuestionnaireCompleted() && (
           <div className="questionnaire-manager__completion-notice">
-            ✅ Questionnaire completed! You can now proceed to content planning.
+            ✅ Content input completed! You can now proceed to content planning.
           </div>
         )}
       </div>

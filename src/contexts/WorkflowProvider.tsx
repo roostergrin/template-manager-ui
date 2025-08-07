@@ -11,13 +11,13 @@ export interface ProgressState {
     repoCreation: ProgressStatus
     awsProvisioning: ProgressStatus
   }
-  setup: {
+  planning: {
     questionnaire: ProgressStatus
     assetSync: ProgressStatus
-  }
-  content: {
     sitemapPlanning: ProgressStatus
     contentGeneration: ProgressStatus
+  }
+  deployment: {
     repositoryUpdate: ProgressStatus
     wordpressUpdate: ProgressStatus
   }
@@ -93,13 +93,13 @@ const initialProgressState: ProgressState = {
     repoCreation: 'pending',
     awsProvisioning: 'pending',
   },
-  setup: {
+  planning: {
     questionnaire: 'pending',
     assetSync: 'pending',
-  },
-  content: {
     sitemapPlanning: 'pending',
     contentGeneration: 'pending',
+  },
+  deployment: {
     repositoryUpdate: 'pending',
     wordpressUpdate: 'pending',
   },
@@ -108,7 +108,7 @@ const initialProgressState: ProgressState = {
 const progressSections: ProgressSection[] = [
   {
     id: 'infrastructure',
-    title: 'Infrastructure & Assets',
+    title: 'Infrastructure Setup',
     icon: '🏗️',
     tasks: [
       {
@@ -124,9 +124,9 @@ const progressSections: ProgressSection[] = [
     ],
   },
   {
-    id: 'setup',
-    title: 'Setup & Configuration',
-    icon: '📝',
+    id: 'planning',
+    title: 'Planning & Content Generation',
+    icon: '📋',
     tasks: [
       {
         id: 'questionnaire',
@@ -138,13 +138,6 @@ const progressSections: ProgressSection[] = [
         title: 'Asset Synchronization',
         description: 'Sync scraped assets and content',
       },
-    ],
-  },
-  {
-    id: 'content',
-    title: 'Content Planning & Generation',
-    icon: '🗺️',
-    tasks: [
       {
         id: 'sitemapPlanning',
         title: 'Sitemap Planning',
@@ -155,6 +148,13 @@ const progressSections: ProgressSection[] = [
         title: 'Content Generation',
         description: 'Generate AI-powered content',
       },
+    ],
+  },
+  {
+    id: 'deployment',
+    title: 'Deployment & Updates',
+    icon: '🚀',
+    tasks: [
       {
         id: 'repositoryUpdate',
         title: 'Repository Update',

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useQuestionnaire } from '../contexts/QuestionnaireProvider';
 
 export type ProgressStatus = 'pending' | 'in-progress' | 'completed' | 'error';
 
@@ -7,14 +8,15 @@ export interface ProgressState {
     repoCreation: ProgressStatus;
     awsProvisioning: ProgressStatus;
   };
-  setup: {
+  planning: {
     questionnaire: ProgressStatus;
     assetSync: ProgressStatus;
-  };
-  content: {
     sitemapPlanning: ProgressStatus;
     contentGeneration: ProgressStatus;
-    deployment: ProgressStatus;
+  };
+  deployment: {
+    repositoryUpdate: ProgressStatus;
+    wordpressUpdate: ProgressStatus;
   };
 }
 
@@ -34,13 +36,13 @@ const initialProgressState: ProgressState = {
     repoCreation: 'pending',
     awsProvisioning: 'pending',
   },
-  setup: {
+  planning: {
     questionnaire: 'pending',
     assetSync: 'pending',
-  },
-  content: {
     sitemapPlanning: 'pending',
     contentGeneration: 'pending',
+  },
+  deployment: {
     repositoryUpdate: 'pending',
     wordpressUpdate: 'pending',
   },
@@ -49,7 +51,7 @@ const initialProgressState: ProgressState = {
 const progressSections: ProgressSection[] = [
   {
     id: 'infrastructure',
-    title: 'Infrastructure & Assets',
+    title: 'Infrastructure Setup',
     icon: '🏗️',
     tasks: [
       {
@@ -65,9 +67,9 @@ const progressSections: ProgressSection[] = [
     ],
   },
   {
-    id: 'setup',
-    title: 'Setup & Configuration',
-    icon: '📝',
+    id: 'planning',
+    title: 'Planning & Content Generation',
+    icon: '📋',
     tasks: [
       {
         id: 'questionnaire',
@@ -79,13 +81,6 @@ const progressSections: ProgressSection[] = [
         title: 'Asset Synchronization',
         description: 'Sync scraped assets and content',
       },
-    ],
-  },
-  {
-    id: 'content',
-    title: 'Content Planning & Generation',
-    icon: '🗺️',
-    tasks: [
       {
         id: 'sitemapPlanning',
         title: 'Sitemap Planning',
@@ -96,6 +91,13 @@ const progressSections: ProgressSection[] = [
         title: 'Content Generation',
         description: 'Generate AI-powered content',
       },
+    ],
+  },
+  {
+    id: 'deployment',
+    title: 'Deployment & Updates',
+    icon: '🚀',
+    tasks: [
       {
         id: 'repositoryUpdate',
         title: 'Repository Update',
@@ -113,6 +115,8 @@ const progressSections: ProgressSection[] = [
 const STORAGE_KEY = 'template-manager-progress';
 
 const useProgressTracking = () => {
+  const { state: questionnaireState } = useQuestionnaire();
+  
   const [progressState, setProgressState] = useState<ProgressState>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
@@ -175,8 +179,8 @@ const useProgressTracking = () => {
   const getOverallProgress = useCallback((): number => {
     const allTasks = [
       ...Object.values(progressState.infrastructure),
-      ...Object.values(progressState.setup),
-      ...Object.values(progressState.content),
+      ...Object.values(progressState.planning),
+      ...Object.values(progressState.deployment),
     ];
     
     const completedTasks = allTasks.filter(status => status === 'completed').length;
@@ -184,7 +188,7 @@ const useProgressTracking = () => {
   }, [progressState]);
 
   const canNavigateToSection = useCallback((targetSection: keyof ProgressState): boolean => {
-    const sectionOrder: (keyof ProgressState)[] = ['infrastructure', 'setup', 'content'];
+    const sectionOrder: (keyof ProgressState)[] = ['infrastructure', 'planning', 'deployment'];
     const currentIndex = sectionOrder.indexOf(activeSection);
     const targetIndex = sectionOrder.indexOf(targetSection);
     
@@ -227,9 +231,36 @@ const useProgressTracking = () => {
     return null;
   }, [progressState, getSectionStatus]);
 
+  // Filter sections based on template selection
+  const filteredProgressSections = useCallback(() => {
+    const isExpressTemplate = questionnaireState.activeMode === 'template-markdown';
+    
+    return progressSections.map(section => {
+      if (section.id === 'planning') {
+        // Hide asset synchronization from table of contents always
+        return {
+          ...section,
+          tasks: section.tasks.filter(task => task.id !== 'assetSync')
+        };
+      } else if (section.id === 'deployment') {
+        // Only show repository update for express templates
+        return {
+          ...section,
+          tasks: section.tasks.filter(task => {
+            if (task.id === 'repositoryUpdate') {
+              return isExpressTemplate;
+            }
+            return true;
+          })
+        };
+      }
+      return section;
+    });
+  }, [questionnaireState.activeMode]);
+
   return {
     progressState,
-    progressSections,
+    progressSections: filteredProgressSections(),
     activeSection,
     setActiveSection,
     updateTaskStatus,

@@ -1,3 +1,66 @@
+@use '../styles/variables'
+
+.provision-site-section
+  background: variables.$bg-surface
+  border: 1px solid variables.$border-color
+  border-radius: variables.$radius-md
+  padding: 20px
+  box-shadow: variables.$shadow-sm
+
+  &__header
+    display: flex
+    justify-content: space-between
+    align-items: center
+    margin-bottom: 16px
+
+  &__title
+    margin: 0
+
+  &__input-group
+    margin-bottom: 12px
+
+  &__label
+    font-weight: 600
+
+  &__input
+    background: #fff
+
+  &__radio-group
+    display: flex
+    gap: 16px
+    margin-top: 8px
+
+  &__radio-label
+    display: inline-flex
+    align-items: center
+    gap: 8px
+
+  &__button
+    margin-top: 8px
+    background: variables.$color-primary
+    color: #fff
+    border: none
+    border-radius: variables.$radius-sm
+    padding: 10px 16px
+    cursor: pointer
+    font-weight: 600
+
+    &:hover
+      background: variables.$color-primary-600
+
+  &__error
+    margin-top: 10px
+    color: variables.$color-danger
+
+  &__success
+    margin-top: 12px
+
+  &__json
+    background: variables.$bg-subtle
+    border: 1px solid variables.$border-color
+    padding: 10px
+    border-radius: variables.$radius-sm
+
 .provision-site-section
   margin: 2rem 0
   padding: 1.5rem

@@ -1,3 +1,5 @@
+@use '../../styles/variables'
+
 .progress-indicator
   display: inline-flex
   align-items: center
@@ -44,42 +46,42 @@
 
   // Status variants
   &--pending
-    color: #6c757d
+    color: variables.$text-muted
     
     .progress-indicator__icon
-      background: rgba(108, 117, 125, 0.1)
-      border: 1px solid rgba(108, 117, 125, 0.3)
+      background: rgba(148, 163, 184, 0.12)
+      border: 1px solid rgba(148, 163, 184, 0.32)
 
   &--in-progress
-    color: #0d6efd
+    color: variables.$color-primary
     
     .progress-indicator__icon
-      background: rgba(13, 110, 253, 0.1)
-      border: 1px solid rgba(13, 110, 253, 0.3)
+      background: rgba(99, 102, 241, 0.12)
+      border: 1px solid rgba(99, 102, 241, 0.32)
       animation: pulse-blue 2s infinite
 
   &--completed
-    color: #198754
+    color: variables.$color-accent
     
     .progress-indicator__icon
-      background: rgba(25, 135, 84, 0.1)
-      border: 1px solid rgba(25, 135, 84, 0.3)
+      background: rgba(34, 197, 94, 0.12)
+      border: 1px solid rgba(34, 197, 94, 0.32)
 
   &--error
-    color: #dc3545
+    color: variables.$color-danger
     
     .progress-indicator__icon
-      background: rgba(220, 53, 69, 0.1)
-      border: 1px solid rgba(220, 53, 69, 0.3)
+      background: rgba(239, 68, 68, 0.12)
+      border: 1px solid rgba(239, 68, 68, 0.32)
       animation: shake 0.5s ease-in-out
 
 @keyframes pulse-blue
   0%
-    box-shadow: 0 0 0 0 rgba(13, 110, 253, 0.4)
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4)
   70%
-    box-shadow: 0 0 0 10px rgba(13, 110, 253, 0)
+    box-shadow: 0 0 0 10px rgba(99, 102, 241, 0)
   100%
-    box-shadow: 0 0 0 0 rgba(13, 110, 253, 0)
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0)
 
 @keyframes shake
   0%, 100%

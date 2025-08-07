@@ -1,12 +1,12 @@
 import React from 'react';
 import { QuestionnaireData } from '../types/SitemapTypes';
 import { isMarkdownData, getEffectiveQuestionnaireData } from '../utils/questionnaireDataUtils';
-import usePages from '../hooks/usePages';
-import useViewControls from '../hooks/useViewControls';
 import useImportExport from '../hooks/useImportExport';
 import useGenerateSitemap from '../hooks/useGenerateSitemap';
 // import useGenerateContent from '../hooks/useGenerateContent';
 import { getBackendSiteTypeForModelGroup } from '../utils/modelGroupKeyToBackendSiteType';
+import { useQuestionnaire } from '../contexts/QuestionnaireProvider';
+import { useSitemap } from '../contexts/SitemapProvider';
 import SiteSelector from './SiteSelector';
 import DefaultTemplateSelector from './DefaultTemplateSelector/DefaultTemplateSelector';
 import GenerateSitemapButton from './GenerateSitemapButton';
@@ -19,7 +19,6 @@ import JsonExportImport from './Sitemap/JsonExportImport';
 import GenerateContentProgress from './GenerateContentProgress';
 
 export interface SitemapProps {
-  currentModels: string[];
   selectedModelGroupKey: string;
   setSelectedModelGroupKey: (key: string) => void;
   modelGroups: Record<string, string[]>;
@@ -29,7 +28,6 @@ export interface SitemapProps {
 }
 
 const Sitemap: React.FC<SitemapProps> = ({
-  currentModels,
   selectedModelGroupKey,
   setSelectedModelGroupKey,
   modelGroups,
@@ -37,25 +35,17 @@ const Sitemap: React.FC<SitemapProps> = ({
   questionnaireData,
   setQuestionnaireData,
 }) => {
-  // Page logic
-  const pagesApi = usePages();
-  // View toggles/layout
-  const view = useViewControls();
+  // Get sitemap context
+  const { state, actions } = useSitemap();
+  
+  // Get questionnaire mode to conditionally show components
+  const { state: questionnaireState } = useQuestionnaire();
   
   // Get the effective questionnaire data (either structured or markdown-based)
   const effectiveQuestionnaireData = getEffectiveQuestionnaireData(questionnaireData);
   
   // Import/export logic
-  const { exportJson, importJson } = useImportExport({
-    pages: pagesApi.pages,
-    selectedModelGroupKey,
-    modelGroups,
-    questionnaireData: effectiveQuestionnaireData,
-    importPages: pagesApi.importPagesFromJson,
-    onSelectModelGroup: setSelectedModelGroupKey,
-    onSetModelGroups: setModelGroups,
-    onSetQuestionnaireData: setQuestionnaireData,
-  });
+  const { exportJson, importJson } = useImportExport();
   // Backend
   const [generateSitemapData, generateSitemapStatus, generateSitemap] = useGenerateSitemap();
   const backendSiteType = getBackendSiteTypeForModelGroup(selectedModelGroupKey) || '';
@@ -79,48 +69,28 @@ const Sitemap: React.FC<SitemapProps> = ({
           onModelGroupChange={setSelectedModelGroupKey}
         />
         <h3 className="text-lg font-semibold mb-2">Load a Generated Sitemap</h3>
-        <GeneratedSitemapSelector onSelectSitemap={pagesApi.handleSelectStoredSitemap} />
+        <GeneratedSitemapSelector onSelectSitemap={actions.handleSelectStoredSitemap} />
         <hr className="my-4 border-gray-300" />
-        <GenerateSitemapButton
-          questionnaireData={effectiveQuestionnaireData}
-          generateSitemap={generateSitemap}
-          generateSitemapStatus={generateSitemapStatus}
-          generateSitemapData={generateSitemapData}
-          onSitemapGenerated={pagesApi.handleGeneratedSitemap}
-          controls={{
-            usePageJson: view.usePageJson,
-            toggleUsePageJson: view.toggleUsePageJson,
-            backendSiteType,
-          }}
-        />
+        {questionnaireState.activeMode !== 'template-markdown' && (
+          <GenerateSitemapButton
+            questionnaireData={effectiveQuestionnaireData}
+            generateSitemap={generateSitemap}
+            generateSitemapStatus={generateSitemapStatus}
+            generateSitemapData={generateSitemapData}
+            onSitemapGenerated={actions.handleGeneratedSitemap}
+            controls={{
+              backendSiteType,
+            }}
+          />
+        )}
         <DefaultTemplateSelector
           selectedModelGroupKey={selectedModelGroupKey}
-          onTemplateSelect={pagesApi.importPagesFromJson}
+          onTemplateSelect={actions.importPagesFromJson}
         />
       </div>
-      <ViewControls {...view} />
-      <LayoutControls
-        useGridLayout={view.useGridLayout}
-        toggleUseGridLayout={view.toggleUseGridLayout}
-        gridColumnWidth={view.gridColumnWidth}
-        setGridColumnWidth={view.setGridColumnWidth}
-      />
-      <PageList
-        pages={pagesApi.pages}
-        useGridLayout={view.useGridLayout}
-        gridColumnWidth={view.gridColumnWidth}
-        showItemNumbers={view.showItemNumbers}
-        showPageIds={view.showPageIds}
-        showDeleteButtons={view.showDeleteButtons}
-        showSelect={view.showSelect}
-        showTextarea={view.showTextarea}
-        currentModels={currentModels}
-        updatePageTitle={pagesApi.updatePageTitle}
-        updatePageWordpressId={pagesApi.updatePageWordpressId}
-        updatePageItems={pagesApi.updatePageItems}
-        removePage={pagesApi.removePage}
-        addPage={pagesApi.addPage}
-      />
+      <ViewControls />
+      <LayoutControls />
+      <PageList />
       <JsonExportImport exportJson={exportJson} importJson={importJson} />
       {/* <SitemapContentExport
         pages={pagesApi.pages}
@@ -128,7 +98,7 @@ const Sitemap: React.FC<SitemapProps> = ({
         onExport={handleExportedContent}
       /> */}
       <GenerateContentProgress
-        pages={pagesApi.pages}
+        pages={state.pages}
         questionnaireData={effectiveQuestionnaireData}
         siteType={backendSiteType}
       />

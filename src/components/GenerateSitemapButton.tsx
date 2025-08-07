@@ -2,6 +2,7 @@ import React, { useEffect, useCallback } from 'react';
 import { MutationStatus } from '@tanstack/react-query';
 import LoadingOverlay from './LoadingOverlay';
 import { QuestionnaireData, GenerateSitemapRequest, GenerateSitemapResponse } from '../types/SitemapTypes';
+import './GenerateSitemapButton.sass';
 
 type ControlsProps = {
   backendSiteType: string;
@@ -45,26 +46,41 @@ const GenerateSitemapButton: React.FC<GenerateSitemapButtonProps> = ({
   }, [questionnaireData, backendSiteType, generateSitemap]);
 
   return (
-    <div className="flex flex-col gap-2 items-start mb-4">
-      <div className="flex items-center gap-4">
-        <span className="text-gray-700 font-medium" aria-label="Current Site Type" tabIndex={0}>
-          Current Site Type:
-          <span className="text-blue-700 ml-1">{backendSiteType}</span>
-        </span>
-        <span className="text-gray-700">
+    <div className="generate-sitemap-button">
+      <div className="generate-sitemap-button__info-section">
+        <div 
+          className="generate-sitemap-button__site-type-info" 
+          aria-label="Current Site Type" 
+          tabIndex={0}
+        >
+          <span className="generate-sitemap-button__site-type-label">
+            Current Site Type:
+          </span>
+          <span className="generate-sitemap-button__site-type-value">
+            {backendSiteType}
+          </span>
+        </div>
+        <div className="generate-sitemap-button__page-json-info">
           Using Page JSON
-        </span>
+        </div>
       </div>
-      {generateSitemapStatus === 'pending' && <LoadingOverlay />}
-      <button
-        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
-        onClick={handleClick}
-        aria-label="Generate Sitemap"
-        tabIndex={0}
-        disabled={generateSitemapStatus === 'pending'}
-      >
-        Generate Sitemap
-      </button>
+      
+      <div className="generate-sitemap-button__action-section">
+        <button
+          className="generate-sitemap-button__button"
+          onClick={handleClick}
+          aria-label="Generate Sitemap"
+          tabIndex={0}
+          disabled={generateSitemapStatus === 'pending'}
+        >
+          Generate Sitemap
+        </button>
+        {generateSitemapStatus === 'pending' && (
+          <div className="generate-sitemap-button__loading-overlay">
+            <LoadingOverlay />
+          </div>
+        )}
+      </div>
     </div>
   );
 };

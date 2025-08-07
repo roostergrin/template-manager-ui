@@ -1,19 +1,21 @@
+@use '../../styles/variables'
+
 .sidebar-navigation
-  width: 320px
+  width: variables.$sidebar-width
   height: 100vh
-  background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%)
-  border-right: 2px solid #dee2e6
+  background: #ffffff
+  border-right: 1px solid variables.$border-color
   display: flex
   flex-direction: column
-  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1)
+  box-shadow: variables.$shadow-sm
   position: fixed
   left: 0
   top: 0
-  z-index: 1000
+  z-index: variables.$z-sidebar
   transition: all 0.3s ease
 
   &--collapsed
-    width: 80px
+    width: variables.$sidebar-width-collapsed
 
     .sidebar-navigation__title,
     .sidebar-navigation__progress,
@@ -30,9 +32,9 @@
       font-size: 1.5rem
 
   &__header
-    padding: 1.5rem 1rem
-    border-bottom: 1px solid #dee2e6
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)
+    padding: 1rem
+    border-bottom: 1px solid variables.$border-color
+    background: linear-gradient(135deg, variables.$color-primary 0%, variables.$color-primary-700 100%)
     color: white
     display: flex
     align-items: center
@@ -54,7 +56,7 @@
     white-space: nowrap
 
   &__toggle
-    background: rgba(255, 255, 255, 0.2)
+    background: rgba(255, 255, 255, 0.18)
     border: 1px solid rgba(255, 255, 255, 0.3)
     color: white
     border-radius: 4px
@@ -77,8 +79,8 @@
 
   &__progress
     padding: 1rem
-    border-bottom: 1px solid #dee2e6
-    background: rgba(255, 255, 255, 0.5)
+    border-bottom: 1px solid variables.$border-color
+    background: rgba(255, 255, 255, 0.6)
 
   &__progress-header
     display: flex
@@ -89,12 +91,12 @@
   &__progress-label
     font-size: 0.875rem
     font-weight: 500
-    color: #495057
+    color: variables.$text-secondary
 
   &__progress-percentage
     font-size: 0.875rem
     font-weight: 600
-    color: #198754
+    color: variables.$color-accent
 
   &__progress-bar
     height: 6px
@@ -104,7 +106,7 @@
 
   &__progress-fill
     height: 100%
-    background: linear-gradient(90deg, #198754 0%, #20c997 100%)
+    background: linear-gradient(90deg, variables.$color-accent 0%, rgba(34, 197, 94, 0.9) 100%)
     border-radius: 3px
     transition: width 0.5s ease
 
@@ -112,6 +114,7 @@
     flex: 1
     overflow-y: auto
     padding: 0.5rem 0
+    scroll-behavior: smooth
 
   &__section
     margin-bottom: 0.25rem
@@ -130,18 +133,18 @@
     position: relative
 
     &:hover
-      background: rgba(102, 126, 234, 0.1)
+      background: rgba(99, 102, 241, 0.08)
       transform: translateX(4px)
 
     &:focus
-      outline: 2px solid #667eea
+      outline: 2px solid variables.$color-primary
       outline-offset: -2px
 
     &--active
-      background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%)
-      border-right: 4px solid #667eea
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.18) 0%, rgba(67, 56, 202, 0.18) 100%)
+      border-right: 4px solid variables.$color-primary
       font-weight: 600
-      box-shadow: inset 0 0 10px rgba(102, 126, 234, 0.1)
+      box-shadow: inset 0 0 10px rgba(99, 102, 241, 0.1)
 
       &:hover
         transform: none
@@ -154,12 +157,12 @@
         top: 0
         bottom: 0
         width: 3px
-        background: linear-gradient(180deg, #667eea 0%, #764ba2 100%)
+        background: linear-gradient(180deg, variables.$color-primary 0%, variables.$color-primary-700 100%)
         animation: pulse-active 2s ease-in-out infinite
 
     &--has-active-task
-      background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%)
-      border-right: 2px solid rgba(102, 126, 234, 0.3)
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(67, 56, 202, 0.08) 100%)
+      border-right: 2px solid rgba(99, 102, 241, 0.3)
 
       &:hover
         background: linear-gradient(135deg, rgba(102, 126, 234, 0.12) 0%, rgba(118, 75, 162, 0.12) 100%)
@@ -194,7 +197,7 @@
   &__tasks
     padding: 0.5rem 0 0.5rem 3rem
     background: rgba(248, 249, 250, 0.8)
-    border-left: 2px solid #e9ecef
+    border-left: 2px solid variables.$border-color
     margin-left: 1rem
 
   &__task
@@ -210,19 +213,19 @@
     border-bottom: 1px solid rgba(241, 243, 244, 0.5)
 
     &:hover
-      background: rgba(102, 126, 234, 0.08)
+      background: rgba(99, 102, 241, 0.08)
       transform: translateX(2px)
 
     &:focus
-      outline: 1px solid #667eea
+      outline: 1px solid variables.$color-primary
       outline-offset: 1px
 
     &:last-child
       border-bottom: none
 
     &--active
-      background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%)
-      border-left: 3px solid #667eea
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.16) 0%, rgba(67, 56, 202, 0.16) 100%)
+      border-left: 3px solid variables.$color-primary
       font-weight: 600
       transform: translateX(2px)
 
@@ -230,7 +233,7 @@
         background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%)
 
       .sidebar-navigation__task-title
-        color: #667eea
+        color: variables.$color-primary
         font-weight: 600
 
   &__task-header
@@ -242,11 +245,11 @@
   &__task-title
     font-size: 0.8rem
     font-weight: 500
-    color: #495057
+    color: variables.$text-secondary
 
   &__task-description
     font-size: 0.75rem
-    color: #6c757d
+    color: variables.$text-muted
     margin: 0
     padding-left: 2rem
     line-height: 1.3
@@ -268,7 +271,7 @@
 
   &__scroll-thumb
     width: 100%
-    background: linear-gradient(180deg, #667eea 0%, #764ba2 100%)
+    background: linear-gradient(180deg, variables.$color-primary 0%, variables.$color-primary-700 100%)
     border-radius: 2px
     transition: all 0.3s ease
 

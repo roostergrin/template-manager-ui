@@ -1,10 +1,12 @@
+@use '../../styles/variables'
+
 .enhanced-preview-section
-  background: #f8f9fa
-  border: 1px solid #dee2e6
-  border-radius: 12px
+  background: variables.$bg-surface
+  border: 1px solid variables.$border-color
+  border-radius: variables.$radius-md
   padding: 24px
   margin-bottom: 24px
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1)
+  box-shadow: variables.$shadow-sm
   
   .preview-header
     display: flex
@@ -12,11 +14,11 @@
     align-items: center
     margin-bottom: 20px
     padding-bottom: 16px
-    border-bottom: 2px solid #dee2e6
+    border-bottom: 2px solid variables.$border-color
     
     h4
       margin: 0
-      color: #495057
+      color: variables.$text-secondary
       font-size: 20px
       font-weight: 600
       
@@ -26,7 +28,7 @@
       
       .expand-all-btn,
       .collapse-all-btn
-        background: #6c757d
+        background: variables.$color-primary
         color: white
         border: none
         padding: 8px 16px
@@ -37,13 +39,13 @@
         transition: all 0.2s ease
         
         &:hover
-          background: #5a6268
+          background: variables.$color-primary-600
           transform: translateY(-1px)
           
   .preview-format
     margin-bottom: 24px
     padding: 12px 16px
-    background: #e3f2fd
+    background: #eef2ff
     border-radius: 6px
     font-size: 14px
     font-weight: 500
@@ -55,10 +57,10 @@
     
   .page-preview-card
     background: white
-    border: 1px solid #dee2e6
-    border-radius: 12px
+    border: 1px solid variables.$border-color
+    border-radius: variables.$radius-md
     overflow: hidden
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05)
+    box-shadow: variables.$shadow-sm
     transition: all 0.2s ease
     
     &:hover
@@ -69,8 +71,8 @@
       justify-content: space-between
       align-items: flex-start
       padding: 20px
-      background: #f8f9fa
-      border-bottom: 1px solid #dee2e6
+      background: variables.$bg-subtle
+      border-bottom: 1px solid variables.$border-color
       
       .page-info
         display: flex
@@ -80,12 +82,12 @@
         
         .page-name
           font-weight: 600
-          color: #495057
+          color: variables.$text-secondary
           font-size: 18px
           
         .page-id
           font-size: 12px
-          color: #6c757d
+          color: variables.$text-muted
           background: #e9ecef
           padding: 4px 8px
           border-radius: 12px
@@ -120,7 +122,7 @@
         
         .expand-btn,
         .edit-btn
-          background: #007bff
+          background: variables.$color-primary
           color: white
           border: none
           padding: 10px 16px
@@ -132,14 +134,14 @@
           white-space: nowrap
           
           &:hover
-            background: #0056b3
+            background: variables.$color-primary-600
             transform: translateY(-1px)
             
         .edit-btn
-          background: #28a745
+          background: variables.$color-accent
           
           &:hover
-            background: #1e7e34
+            background: darken(variables.$color-accent, 6%)
             
     .page-content-preview
       padding: 24px
@@ -171,21 +173,21 @@
             .seo-preview
               margin-bottom: 16px
               padding: 12px
-              background: #e7f3ff
-              border-left: 4px solid #007bff
+              background: #eef2ff
+              border-left: 4px solid variables.$color-primary
               border-radius: 4px
               
               strong
-                color: #0056b3
+                color: variables.$color-primary-700
                 display: block
                 margin-bottom: 8px
                 
               .seo-json-preview
-                background: #f8f9fa
+                background: variables.$bg-subtle
                 padding: 12px
                 border-radius: 4px
                 font-size: 11px
-                border: 1px solid #dee2e6
+                border: 1px solid variables.$border-color
                 max-height: 200px
                 overflow-y: auto
                 
@@ -219,11 +221,11 @@
               overflow-x: auto
               
           .json-preview
-            background: #f8f9fa
+            background: variables.$bg-subtle
             padding: 12px
             border-radius: 4px
             font-size: 11px
-            border: 1px solid #dee2e6
+            border: 1px solid variables.$border-color
             max-height: 400px
             overflow-y: auto
             white-space: pre-wrap
@@ -252,7 +254,7 @@
           gap: 12px
           
           .save-btn
-            background: #28a745
+            background: variables.$color-accent
             color: white
             border: none
             padding: 10px 20px
@@ -263,11 +265,11 @@
             transition: all 0.2s ease
             
             &:hover
-              background: #1e7e34
+              background: darken(variables.$color-accent, 6%)
               transform: translateY(-1px)
               
           .cancel-btn
-            background: #dc3545
+            background: variables.$color-danger
             color: white
             border: none
             padding: 10px 20px
@@ -278,7 +280,7 @@
             transition: all 0.2s ease
             
             &:hover
-              background: #c82333
+              background: darken(variables.$color-danger, 6%)
               transform: translateY(-1px)
               
       .edit-content
@@ -334,26 +336,26 @@
             
             h6
               margin-bottom: 8px
-              color: #495057
+              color: variables.$text-secondary
               font-size: 14px
               
             .valid
-              color: #28a745
+              color: variables.$color-accent
               font-weight: 600
               
             .invalid
-              color: #dc3545
+              color: variables.$color-danger
               font-weight: 600
               
             .content-analyzer
               padding: 12px
-              background: #f8f9fa
-              border-left: 4px solid #17a2b8
+              background: variables.$bg-subtle
+              border-left: 4px solid variables.$color-info
               border-radius: 4px
               
               h6
                 margin-bottom: 8px
-                color: #117a8b
+                color: darken(variables.$color-info, 15%)
                 font-size: 14px
                 
               .analysis-item
@@ -361,7 +363,7 @@
                 font-size: 12px
                 
                 span
-                  color: #495057
+                  color: variables.$text-secondary
 
   .global-content-preview
     margin-top: 24px
@@ -372,7 +374,7 @@
     
     h5
       margin-bottom: 12px
-      color: #495057
+      color: variables.$text-secondary
       
     .global-details
       summary
@@ -392,13 +394,13 @@
   .preview-summary
     margin-top: 24px
     padding: 20px
-    background: #f8f9fa
+    background: variables.$bg-subtle
     border-radius: 8px
-    border: 1px solid #dee2e6
+    border: 1px solid variables.$border-color
     
     h5
       margin-bottom: 16px
-      color: #495057
+      color: variables.$text-secondary
       
     .summary-stats
       display: grid
@@ -419,7 +421,7 @@
           color: #495057
           
         .stat-value
-          background: #007bff
+          background: variables.$color-primary
           color: white
           padding: 4px 8px
           border-radius: 4px

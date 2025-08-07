@@ -9,6 +9,7 @@ const PageList: React.FC = () => {
   
   const {
     pages,
+    viewMode,
     useGridLayout,
     gridColumnWidth,
     showItemNumbers,
@@ -29,18 +30,22 @@ const PageList: React.FC = () => {
   // Get current models from AppConfig context
   const selectedModelGroupKey = appConfigState.selectedModelGroupKey || Object.keys(appConfigState.modelGroups)[0];
   const currentModels = appConfigState.modelGroups[selectedModelGroupKey]?.models || [];
+  // Determine layout based on viewMode and useGridLayout
+  const isCompactMode = viewMode === 'list';
+  const useFlexLayout = isCompactMode || !useGridLayout;
+  
   return (
     <div
       className="app__page-container mb-6"
-      style={useGridLayout
+      style={useFlexLayout
         ? {
-            display: 'grid',
-            gridTemplateColumns: `repeat(auto-fill, minmax(${gridColumnWidth}px, 1fr))`,
-            gap: '1rem',
-          }
-        : {
             display: 'flex',
             flexDirection: 'column',
+            gap: isCompactMode ? '0.5rem' : '1rem',
+          }
+        : {
+            display: 'grid',
+            gridTemplateColumns: `repeat(auto-fill, minmax(${gridColumnWidth}px, 1fr))`,
             gap: '1rem',
           }}
     >
@@ -54,6 +59,7 @@ const PageList: React.FC = () => {
           showDeleteButtons={showDeleteButtons}
           showSelect={showSelect}
           showTextarea={showTextarea}
+          isCompactMode={isCompactMode}
         />
       ))}
       <button

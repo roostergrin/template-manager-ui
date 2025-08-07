@@ -1,0 +1,103 @@
+.app__page
+  background-color: #fff
+  border: 1px solid #e0e0e0
+  border-radius: 8px
+  padding: 1rem
+  margin-bottom: 1rem
+
+  &--compact
+    padding: 0.5rem
+    margin-bottom: 0.5rem
+    border-radius: 4px
+    
+    .app__page-header
+      margin-bottom: 0.5rem
+      
+      .app__page-title-input
+        padding: 0.25rem 0.5rem
+        font-size: 0.85rem
+        
+      .app__page-wordpress-id-input
+        padding: 0.25rem 0.5rem
+        font-size: 0.75rem
+        
+      .app__delete-page-button
+        padding: 0.25rem 0.5rem
+        font-size: 0.75rem
+
+  &--expanded
+    padding: 1.5rem
+    margin-bottom: 1.5rem
+    border-radius: 8px
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1)
+    
+    .app__page-header
+      margin-bottom: 1rem
+      
+      .app__page-title-input
+        padding: 0.5rem 0.75rem
+        font-size: 1rem
+        font-weight: 500
+        
+      .app__page-wordpress-id-input
+        padding: 0.5rem 0.75rem
+        font-size: 0.9rem
+        
+      .app__delete-page-button
+        padding: 0.5rem 0.75rem
+        font-size: 0.9rem
+
+  &-header
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    margin-bottom: 0.75rem
+    
+  &-number
+    color: #666
+    font-size: 0.8rem
+    min-width: 2rem
+    
+  &-title-input
+    border: 1px solid #ccc
+    border-radius: 4px
+    flex: 1
+    
+    &:focus
+      border-color: #007acc
+      outline: none
+      box-shadow: 0 0 0 2px rgba(0, 122, 204, 0.2)
+      
+  &-wordpress-id-input
+    border: 1px solid #ccc
+    border-radius: 4px
+    width: 80px
+    
+    &:focus
+      border-color: #007acc
+      outline: none
+      box-shadow: 0 0 0 2px rgba(0, 122, 204, 0.2)
+      
+  &__delete-page-button
+    background-color: #fee
+    border: 1px solid #fcc
+    border-radius: 4px
+    color: #c33
+    cursor: pointer
+    
+    &:hover
+      background-color: #fdd
+      border-color: #faa
+
+  &__add-page-button
+    background-color: #e8f5e8
+    border: 1px solid #4caf50
+    border-radius: 4px
+    color: #2e7d32
+    cursor: pointer
+    padding: 0.75rem 1.5rem
+    font-weight: 500
+    
+    &:hover
+      background-color: #c8e6c9
+      border-color: #388e3c

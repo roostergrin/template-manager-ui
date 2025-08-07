@@ -13,6 +13,7 @@ interface SitemapSectionProps {
   showTextarea: boolean;
   showDeleteButtons: boolean;
   showItemNumbers: boolean;
+  isCompactMode?: boolean;
   onItemsChange: (newItems: SitemapItemType[]) => void;
 }
 
@@ -26,6 +27,7 @@ const SitemapSection: React.FC<SitemapSectionProps> = ({
   showTextarea,
   showDeleteButtons,
   showItemNumbers,
+  isCompactMode = false,
   onItemsChange 
 }) => {
   // Add item function
@@ -45,7 +47,7 @@ const SitemapSection: React.FC<SitemapSectionProps> = ({
   };
 
   return (
-    <div className="sitemap-section">
+    <div className={`sitemap-section ${isCompactMode ? 'sitemap-section--compact' : 'sitemap-section--expanded'}`}>
       <ul className="sitemap-section__list">
         {items.map((item, index) => (
           <SitemapItemComponent
@@ -59,6 +61,7 @@ const SitemapSection: React.FC<SitemapSectionProps> = ({
             showItemNumber={showItemNumbers}
             onEdit={editItem}
             onRemove={removeItem}
+            isCompactMode={isCompactMode}
           />
         ))}
       </ul>

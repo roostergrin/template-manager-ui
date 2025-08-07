@@ -80,18 +80,20 @@ const EnhancedSitemap: React.FC = () => {
         <h3 className="text-lg font-semibold mb-2">Load a Generated Sitemap</h3>
         <GeneratedSitemapSelector onSelectSitemap={sitemapActions.handleSelectStoredSitemap} />
         <hr className="my-4 border-gray-300" />
-        <GenerateSitemapButton
-          questionnaireData={effectiveQuestionnaireData}
-          generateSitemap={generateSitemap}
-          generateSitemapStatus={generateSitemapStatus}
-          generateSitemapData={generateSitemapData}
-          onSitemapGenerated={sitemapActions.handleGeneratedSitemap}
-          controls={{
-            usePageJson: sitemapState.usePageJson,
-            toggleUsePageJson: sitemapActions.toggleUsePageJson,
-            backendSiteType,
-          }}
-        />
+        {questionnaireState.activeMode !== 'template-markdown' && (
+          <GenerateSitemapButton
+            questionnaireData={effectiveQuestionnaireData}
+            generateSitemap={generateSitemap}
+            generateSitemapStatus={generateSitemapStatus}
+            generateSitemapData={generateSitemapData}
+            onSitemapGenerated={sitemapActions.handleGeneratedSitemap}
+            controls={{
+              usePageJson: sitemapState.usePageJson,
+              toggleUsePageJson: sitemapActions.toggleUsePageJson,
+              backendSiteType,
+            }}
+          />
+        )}
         <DefaultTemplateSelector
           selectedModelGroupKey={selectedModelGroupKey}
           onTemplateSelect={sitemapActions.importPagesFromJson}

@@ -1,0 +1,47 @@
+@use 'sass:map'
+@use './variables'
+
+=container
+  width: 100%
+  max-width: variables.$container-max
+  margin-left: auto
+  margin-right: auto
+  padding-left: variables.$space-6
+  padding-right: variables.$space-6
+
+=focus-ring
+  outline: none
+  box-shadow: variables.$focus-ring
+
+=elevate($level: 'md')
+  @if $level == 'sm'
+    box-shadow: variables.$shadow-sm
+  @else if $level == 'md'
+    box-shadow: variables.$shadow-md
+  @else if $level == 'lg'
+    box-shadow: variables.$shadow-lg
+
+=scrollbar
+  scrollbar-width: thin
+  scrollbar-color: variables.$gray-300 transparent
+  &::-webkit-scrollbar
+    width: 10px
+    height: 10px
+  &::-webkit-scrollbar-thumb
+    background: variables.$gray-300
+    border-radius: 9999px
+  &::-webkit-scrollbar-track
+    background: transparent
+
+=media($breakpoint)
+  @if $breakpoint == 'sm'
+    @media (max-width: 640px)
+      @content
+  @else if $breakpoint == 'md'
+    @media (max-width: 768px)
+      @content
+  @else if $breakpoint == 'lg'
+    @media (max-width: 1024px)
+      @content
+
+

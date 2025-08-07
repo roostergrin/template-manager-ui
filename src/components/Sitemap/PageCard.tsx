@@ -3,6 +3,7 @@ import { SitemapSection, SitemapItem } from '../../types/SitemapTypes';
 import SitemapSectionComponent from '../SitemapSection/SitemapSection';
 import { useSitemap } from '../../contexts/SitemapProvider';
 import { useAppConfig } from '../../contexts/AppConfigProvider';
+import './PageCard.sass';
 
 type PageCardProps = {
   page: SitemapSection;
@@ -12,6 +13,7 @@ type PageCardProps = {
   showDeleteButtons?: boolean;
   showSelect?: boolean;
   showTextarea?: boolean;
+  isCompactMode?: boolean;
 };
 
 const PageCard: React.FC<PageCardProps> = ({
@@ -22,6 +24,7 @@ const PageCard: React.FC<PageCardProps> = ({
   showDeleteButtons = true,
   showSelect = false,
   showTextarea = false,
+  isCompactMode = false,
 }) => {
   const { actions: sitemapActions } = useSitemap();
   const { state: appConfigState } = useAppConfig();
@@ -29,7 +32,7 @@ const PageCard: React.FC<PageCardProps> = ({
   const selectedModelGroupKey = appConfigState.selectedModelGroupKey || Object.keys(appConfigState.modelGroups)[0];
   const currentModels = appConfigState.modelGroups[selectedModelGroupKey]?.models || [];
   return (
-    <div className="app__page app__page--compact">
+    <div className={`app__page ${isCompactMode ? 'app__page--compact' : 'app__page--expanded'}`}>
       <div className="app__page-header flex items-center gap-2 mb-2">
         {showItemNumbers && (
           <span className="app__page-number font-mono text-xs text-gray-500">{`${index + 1}.0`}</span>
@@ -75,6 +78,7 @@ const PageCard: React.FC<PageCardProps> = ({
         showTextarea={showTextarea}
         showDeleteButtons={showDeleteButtons}
         showItemNumbers={showItemNumbers}
+        isCompactMode={isCompactMode}
         onItemsChange={newItems => sitemapActions.updatePageItems(page.id, newItems)}
       />
     </div>

@@ -47,7 +47,7 @@ export const QuestionnaireProvider: React.FC<QuestionnaireProviderProps> = ({
   initialState: providedInitialState
 }) => {
   // Initialize with provided initial state values or defaults
-  const initialMode = providedInitialState?.activeMode || 'scrape'
+  const initialMode = providedInitialState?.activeMode || 'content-document'
   const initialDataSourceValue = providedInitialState?.dataSource || 'structured'
   const initialData = providedInitialState?.data || {}
   const initialLoading = providedInitialState?.isLoading || false
