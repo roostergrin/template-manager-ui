@@ -5,6 +5,7 @@ const initialProgressState: ProgressState = {
   infrastructure: {
     repoCreation: 'pending',
     awsProvisioning: 'pending',
+    pleskProvisioning: 'pending',
   },
   planning: {
     questionnaire: 'pending',
@@ -33,6 +34,11 @@ const progressSections: ProgressSection[] = [
         id: 'awsProvisioning',
         title: 'AWS Resources',
         description: 'Provision S3, CloudFront, and CodePipeline',
+      },
+      {
+        id: 'pleskProvisioning',
+        title: 'WordPress (Plesk)',
+        description: 'Create Plesk subscription and prepare WordPress',
       },
     ],
   },

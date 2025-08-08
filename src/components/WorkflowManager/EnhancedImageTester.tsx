@@ -189,7 +189,7 @@ const EnhancedImageTester: React.FC<EnhancedImageTesterProps> = ({
         throw new Error('No image URLs found to sync');
       }
 
-      const response = await fetch('https://localhost:8000/sync-scraped-images/', {
+      const response = await fetch('http://localhost:8000/sync-scraped-images/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -231,7 +231,7 @@ const EnhancedImageTester: React.FC<EnhancedImageTesterProps> = ({
     setStatusResponse(null);
 
     try {
-      const response = await fetch(`https://localhost:8000/scraped-images/status/${siteIdentifier}`);
+      const response = await fetch(`http://localhost:8000/scraped-images/status/${siteIdentifier}`);
       
       if (!response.ok) {
         const errorData = await response.json();

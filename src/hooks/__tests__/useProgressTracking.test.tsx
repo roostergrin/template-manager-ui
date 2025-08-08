@@ -33,6 +33,7 @@ describe('useProgressTracking', () => {
       infrastructure: {
         repoCreation: 'pending',
         awsProvisioning: 'pending',
+        pleskProvisioning: 'pending',
       },
       planning: {
         questionnaire: 'pending',
@@ -130,6 +131,7 @@ describe('useProgressTracking', () => {
       act(() => {
         result.current.updateTaskStatus('infrastructure', 'repoCreation', 'completed')
         result.current.updateTaskStatus('infrastructure', 'awsProvisioning', 'completed')
+        result.current.updateTaskStatus('infrastructure', 'pleskProvisioning', 'completed')
       })
       
       expect(result.current.getSectionStatus('infrastructure')).toBe('completed')
@@ -184,13 +186,13 @@ describe('useProgressTracking', () => {
     it('should calculate correct percentage for some completed tasks', () => {
       const { result } = renderHook(() => useProgressTracking(), { wrapper: TestWrapper })
       
-      // Complete 2 out of 8 total tasks
+      // Complete 2 out of 9 total tasks (includes pleskProvisioning)
       act(() => {
         result.current.updateTaskStatus('infrastructure', 'repoCreation', 'completed')
         result.current.updateTaskStatus('infrastructure', 'awsProvisioning', 'completed')
       })
       
-      expect(result.current.getOverallProgress()).toBe(25) // 2 out of 8 = 25%
+      expect(result.current.getOverallProgress()).toBe(22) // 2 out of 9 ≈ 22%
     })
 
     it('should return 100% when all tasks are completed', () => {
@@ -235,6 +237,7 @@ describe('useProgressTracking', () => {
       act(() => {
         result.current.updateTaskStatus('infrastructure', 'repoCreation', 'completed')
         result.current.updateTaskStatus('infrastructure', 'awsProvisioning', 'completed')
+        result.current.updateTaskStatus('infrastructure', 'pleskProvisioning', 'completed')
       })
       
       expect(result.current.canNavigateToSection('planning')).toBe(true)
@@ -320,6 +323,7 @@ describe('useProgressTracking', () => {
       act(() => {
         result.current.updateTaskStatus('infrastructure', 'repoCreation', 'completed')
         result.current.updateTaskStatus('infrastructure', 'awsProvisioning', 'completed')
+        result.current.updateTaskStatus('infrastructure', 'pleskProvisioning', 'completed')
       })
       
       const nextTask = result.current.getNextIncompleteTask()
@@ -339,7 +343,7 @@ describe('useProgressTracking', () => {
       act(() => {
         const sections = ['infrastructure', 'planning', 'deployment'] as const
         const tasks = {
-          infrastructure: ['repoCreation', 'awsProvisioning'],
+          infrastructure: ['repoCreation', 'awsProvisioning', 'pleskProvisioning'],
           planning: ['questionnaire', 'assetSync', 'sitemapPlanning', 'contentGeneration'],
           deployment: ['repositoryUpdate', 'wordpressUpdate']
         }
