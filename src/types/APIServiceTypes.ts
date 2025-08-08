@@ -107,3 +107,43 @@ export interface SiteProvisionResponse {
   message?: string;
   error?: APIError;
 } 
+
+// Plesk / WordPress Provisioning Types
+export interface CreateSubscriptionRequest {
+  plesk_ip: string;
+  domain: string;
+  subdomain: string;
+}
+
+export interface CreateSubscriptionResponse {
+  success?: boolean;
+  domain?: string;
+  subdomain?: string;
+  credentials?: Record<string, string>;
+  // Allow additional fields returned by the backend
+  [key: string]: unknown;
+}
+
+// Copy Plesk Subscription Types
+export interface CopySubscriptionRequest {
+  source_domain: string;
+  target_domain: string;
+  server: string; // e.g., "default" | "sunset" | "uluwatu"
+  subdomain: string;
+  copy_files: boolean;
+  copy_databases: boolean;
+  update_config_files: boolean;
+}
+
+export interface CopySubscriptionResponse {
+  success?: boolean;
+  source_domain?: string;
+  target_domain?: string;
+  subdomain?: string;
+  credentials?: Record<string, unknown>;
+  target_credentials?: Record<string, unknown>;
+  operations?: Record<string, unknown>;
+  errors?: string[];
+  message?: string;
+  [key: string]: unknown;
+}

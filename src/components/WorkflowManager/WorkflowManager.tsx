@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import QuestionnaireManager from '../QuestionnaireManager/QuestionnaireManager';
 import EnhancedSitemap from './EnhancedSitemap';
 import EnhancedProvisionSection from './EnhancedProvisionSection';
+import ProvisionWordPressSection from './ProvisionWordPressSection';
 import EnhancedImageTester from './EnhancedImageTester';
 import GitHubRepoCreator from './GitHubRepoCreator';
 import ContentGenerator from './ContentGenerator';
@@ -84,6 +85,11 @@ const WorkflowManager: React.FC = () => {
                 <EnhancedProvisionSection 
                   onProvisioningComplete={handleProvisioningComplete}
                 />
+              </div>
+              <div id="task-infrastructure-pleskProvisioning" className="section">
+                <h3>🛠️ Provision WordPress (Plesk)</h3>
+                <p>Create a Plesk subscription and prepare a WordPress instance for the site.</p>
+                <ProvisionWordPressSection />
               </div>
             </div>
           </div>

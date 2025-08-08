@@ -453,7 +453,7 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
         <div className="info-content">
           <span className="info-icon">ℹ️</span>
           <div className="info-text">
-            <strong>Backend Server Required:</strong> This feature requires a backend server running on <code>https://localhost:8000</code> with the <code>/update-wordpress/</code> endpoint configured. 
+            <strong>Backend Server Required:</strong> This feature requires a backend server running on <code>http://localhost:8000</code> with the <code>/update-wordpress/</code> endpoint configured. 
             If you see "empty response" errors, the server may be running but the WordPress endpoint is not properly set up.
           </div>
         </div>
@@ -466,7 +466,7 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
           <div className="info-text">
             <strong>HTTPS Certificate Fix:</strong> If you get "ERR_CERT_AUTHORITY_INVALID" errors:
             <br />
-            <strong>1.</strong> Open <a href="https://localhost:8000" target="_blank" rel="noopener noreferrer">https://localhost:8000</a> in a new tab
+            <strong>1.</strong> Open <a href="http://localhost:8000" target="_blank" rel="noopener noreferrer">http://localhost:8000</a> in a new tab
             <br />
             <strong>2.</strong> Click "Advanced" → "Proceed to localhost (unsafe)"
             <br />

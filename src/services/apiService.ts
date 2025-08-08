@@ -18,7 +18,7 @@ class APIClient {
     this.retryDelay = config.retryDelay || 1000;
 
     this.instance = axios.create({
-      baseURL: config.baseURL || import.meta.env.VITE_API_BASE_URL || 'https://localhost:8000/',
+      baseURL: config.baseURL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/',
       timeout: config.timeout || 30000,
       headers: {
         'Content-Type': 'application/json',

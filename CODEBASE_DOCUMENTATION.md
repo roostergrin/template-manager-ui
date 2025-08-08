@@ -330,7 +330,7 @@ graph LR
 **⚙️ Configuration:**
 ```typescript
 {
-  baseURL: process.env.VITE_API_BASE_URL || 'https://localhost:8000/',
+  baseURL: process.env.VITE_API_BASE_URL || 'http://localhost:8000/',
   timeout: 30000,
   retries: 3,
   retryDelay: 1000
@@ -625,7 +625,7 @@ test('should add new page to sitemap', () => {
 
 | Variable | Default | Purpose |
 |----------|---------|---------|
-| **🔗 VITE_API_BASE_URL** | `https://localhost:8000/` | Backend API endpoint |
+| **🔗 VITE_API_BASE_URL** | `http://localhost:8000/` | Backend API endpoint |
 
 **📝 Usage:**
 ```bash
