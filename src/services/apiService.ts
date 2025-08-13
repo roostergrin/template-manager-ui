@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosHeaders, AxiosInstance, AxiosRequestConfig } from 'axios';
 import { createAPIError, handleAPIResponse, logAPIError, APIError } from './apiErrorHandler';
 
 export interface APIClientConfig {
@@ -6,6 +6,28 @@ export interface APIClientConfig {
   timeout?: number;
   retries?: number;
   retryDelay?: number;
+}
+
+let inMemoryInternalApiKey: string | null = null;
+
+export function setInMemoryInternalApiKey(token: string | null) {
+  inMemoryInternalApiKey = token && token.length > 0 ? token : null;
+}
+
+function getInternalApiKey(): string | null {
+  try {
+    const fromMemory = inMemoryInternalApiKey;
+    const fromEnvRaw = (import.meta as unknown as { env?: Record<string, string> })?.env?.VITE_INTERNAL_API_KEY || (import.meta as unknown as { env?: Record<string, string> })?.env?.VITE_INTERNAL_API_TOKEN || null;
+    const fromEnv = typeof fromEnvRaw === 'string'
+      ? fromEnvRaw.split(',')[0]?.trim()
+      : null;
+    const chosen = fromMemory || fromEnv || null;
+    return chosen && chosen.length > 0 ? chosen : null;
+  } catch {
+    const fallbackRaw = (import.meta as unknown as { env?: Record<string, string> })?.env?.VITE_INTERNAL_API_KEY || (import.meta as unknown as { env?: Record<string, string> })?.env?.VITE_INTERNAL_API_TOKEN || null;
+    const fallback = typeof fallbackRaw === 'string' ? fallbackRaw.split(',')[0]?.trim() : null;
+    return fallback && fallback.length > 0 ? fallback : null;
+  }
 }
 
 class APIClient {
@@ -33,6 +55,12 @@ class APIClient {
     this.instance.interceptors.request.use(
       (config) => {
         console.log(`📡 API Request: ${config.method?.toUpperCase()} ${config.url}`);
+        const internalApiKey = getInternalApiKey();
+        if (internalApiKey) {
+          const headers = new AxiosHeaders(config.headers);
+          headers.set('X-API-Key', internalApiKey);
+          config.headers = headers;
+        }
         return config;
       },
       (error) => {

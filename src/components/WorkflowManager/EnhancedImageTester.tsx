@@ -1,4 +1,8 @@
 import React, { useState, useEffect } from 'react';
+
+declare global {
+  interface Window { __INTERNAL_API_TOKEN__?: string }
+}
 import '../ScrapedImageTester/ScrapedImageTester.sass';
 
 interface EnhancedImageTesterProps {
@@ -193,6 +197,7 @@ const EnhancedImageTester: React.FC<EnhancedImageTesterProps> = ({
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...(window.__INTERNAL_API_TOKEN__ ? { 'X-API-Key': window.__INTERNAL_API_TOKEN__ as string } : {}),
         },
         body: JSON.stringify({
           site_identifier: siteIdentifier,
@@ -231,7 +236,11 @@ const EnhancedImageTester: React.FC<EnhancedImageTesterProps> = ({
     setStatusResponse(null);
 
     try {
-      const response = await fetch(`http://localhost:8000/scraped-images/status/${siteIdentifier}`);
+      const response = await fetch(`http://localhost:8000/scraped-images/status/${siteIdentifier}`, {
+        headers: {
+          ...(window.__INTERNAL_API_TOKEN__ ? { 'X-API-Key': window.__INTERNAL_API_TOKEN__ as string } : {}),
+        }
+      });
       
       if (!response.ok) {
         const errorData = await response.json();
