@@ -37,12 +37,13 @@ export const createAPIError = (error: unknown, fallbackMessage = 'An unexpected 
     let message = fallbackMessage;
     if (typeof data === 'string') {
       message = data;
-    } else if (data?.message) {
-      message = data.message;
-    } else if (data?.detail) {
-      message = data.detail;
-    } else if (data?.error) {
-      message = typeof data.error === 'string' ? data.error : data.error.message || fallbackMessage;
+    } else if (data && typeof data === 'object' && 'message' in (data as any)) {
+      message = (data as any).message as string;
+    } else if (data && typeof data === 'object' && 'detail' in (data as any)) {
+      message = (data as any).detail as string;
+    } else if (data && typeof data === 'object' && 'error' in (data as any)) {
+      const err: any = (data as any).error;
+      message = typeof err === 'string' ? err : err?.message || fallbackMessage;
     } else if (axiosError.message) {
       message = axiosError.message;
     }
@@ -50,8 +51,8 @@ export const createAPIError = (error: unknown, fallbackMessage = 'An unexpected 
     return new APIError(
       message,
       status,
-      data?.code || axiosError.code,
-      data?.details,
+      (data as any)?.code || axiosError.code,
+      (data as any)?.details,
       axiosError
     );
   }

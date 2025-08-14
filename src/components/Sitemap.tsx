@@ -1,5 +1,5 @@
 import React from 'react';
-import { QuestionnaireData } from '../types/SitemapTypes';
+import { QuestionnaireData } from '../types/APIServiceTypes';
 import { isMarkdownData, getEffectiveQuestionnaireData } from '../utils/questionnaireDataUtils';
 import useImportExport from '../hooks/useImportExport';
 import useGenerateSitemap from '../hooks/useGenerateSitemap';
@@ -20,19 +20,19 @@ import GenerateContentProgress from './GenerateContentProgress';
 export interface SitemapProps {
   selectedModelGroupKey: string;
   setSelectedModelGroupKey: (key: string) => void;
-  modelGroups: Record<string, string[]>;
-  setModelGroups: (groups: Record<string, string[]>) => void;
+  modelGroups?: Record<string, string[]>;
+  setModelGroups?: (groups: Record<string, string[]>) => void;
   questionnaireData: QuestionnaireData;
-  setQuestionnaireData: (data: QuestionnaireData) => void;
+  setQuestionnaireData?: (data: QuestionnaireData) => void;
 }
 
 const Sitemap: React.FC<SitemapProps> = ({
   selectedModelGroupKey,
   setSelectedModelGroupKey,
-  modelGroups,
-  setModelGroups,
+  // modelGroups,
+  // setModelGroups,
   questionnaireData,
-  setQuestionnaireData,
+  // setQuestionnaireData,
 }) => {
   // Get sitemap context
   const { state, actions } = useSitemap();
@@ -41,7 +41,7 @@ const Sitemap: React.FC<SitemapProps> = ({
   const { state: questionnaireState } = useQuestionnaire();
   
   // Get the effective questionnaire data (either structured or markdown-based)
-  const effectiveQuestionnaireData = getEffectiveQuestionnaireData(questionnaireData);
+  const effectiveQuestionnaireData: QuestionnaireData = getEffectiveQuestionnaireData(questionnaireData);
   
   // Import/export logic
   const { exportJson, importJson } = useImportExport();
@@ -72,7 +72,7 @@ const Sitemap: React.FC<SitemapProps> = ({
         <hr className="my-4 border-gray-300" />
         {questionnaireState.activeMode !== 'template-markdown' && (
           <GenerateSitemapButton
-            questionnaireData={effectiveQuestionnaireData}
+            questionnaireData={effectiveQuestionnaireData as any}
             generateSitemap={generateSitemap}
             generateSitemapStatus={generateSitemapStatus}
             generateSitemapData={generateSitemapData}

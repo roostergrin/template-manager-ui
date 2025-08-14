@@ -1,5 +1,5 @@
-import React, { useContext } from "react";
-import { GithubRepoContext } from "../context/GithubRepoContext";
+import React from "react";
+import { useGithubRepo } from "../context/GithubRepoContext";
 
 interface GithubUpdateSectionProps {
   githubStatus: string;
@@ -12,7 +12,9 @@ const GithubUpdateSection: React.FC<GithubUpdateSectionProps> = ({
   handleUpdateGithub,
   disabled,
 }) => {
-  const { githubOwner, setGithubOwner, githubRepo, setGithubRepo } = useContext(GithubRepoContext);
+  const { state, actions } = useGithubRepo();
+  const { githubOwner, githubRepo } = state;
+  const { setGithubOwner, setGithubRepo } = actions;
 
   return (
     <div className="github-update-section">

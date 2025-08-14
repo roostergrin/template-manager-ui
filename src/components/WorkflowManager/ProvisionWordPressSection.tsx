@@ -8,7 +8,7 @@ interface ProvisionWordPressSectionProps {
 }
 
 const ProvisionWordPressSection: React.FC<ProvisionWordPressSectionProps> = ({
-  onProvisioned,
+  // onProvisioned,
 }) => {
   const servers = useMemo(
     () => [
@@ -28,7 +28,7 @@ const ProvisionWordPressSection: React.FC<ProvisionWordPressSectionProps> = ({
     copyResponse,
     copyStatus,
     copySubscription,
-    copyError,
+    /* copyError */,
   ] = useCreatePleskSubscription();
 
   const [copyErrorMessage, setCopyErrorMessage] = useState<string | null>(null);
@@ -37,7 +37,7 @@ const ProvisionWordPressSection: React.FC<ProvisionWordPressSectionProps> = ({
   const [sourceDomain, setSourceDomain] = useState<string>("");
   const [targetDomain, setTargetDomain] = useState<string>("");
   const [availableSubscriptions, setAvailableSubscriptions] = useState<string[]>([]);
-  const [isLoadingSubs, setIsLoadingSubs] = useState<boolean>(false);
+  // const [isLoadingSubs, setIsLoadingSubs] = useState<boolean>(false);
   const [subsError, setSubsError] = useState<string | null>(null);
 
   const handleCopy = async () => {
@@ -58,7 +58,7 @@ const ProvisionWordPressSection: React.FC<ProvisionWordPressSectionProps> = ({
   };
 
   const loadSubscriptions = async () => {
-    setIsLoadingSubs(true);
+          // setIsLoadingSubs(true);
     setSubsError(null);
     try {
       const res = await listSubscriptions(pleskIp);
@@ -67,7 +67,7 @@ const ProvisionWordPressSection: React.FC<ProvisionWordPressSectionProps> = ({
     } catch (e) {
       setSubsError(e instanceof Error ? e.message : "Failed to load subscriptions");
     } finally {
-      setIsLoadingSubs(false);
+      // setIsLoadingSubs(false);
     }
   };
 

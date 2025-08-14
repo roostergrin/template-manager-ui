@@ -59,8 +59,6 @@ const SitemapItem: React.FC<SitemapItemProps> = ({
         <button
           className="sitemap-item__handle"
           aria-label="Drag item"
-          tabIndex={0}
-          role="button"
           {...attributes}
           {...listeners}
         >

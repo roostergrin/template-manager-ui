@@ -34,7 +34,7 @@ export const CardFieldTemplate = (props: CardFieldTemplateProps) => {
         {description && (
           <div className="questionnaire-form__description">{description}</div>
         )}
-        {items && items.map((element, i) => (
+        {items && items.map((element) => (
           <div key={element.key} className="questionnaire-form__array-item">
             {element.children}
             {element.hasRemove && (

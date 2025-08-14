@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import { createAPIError, handleAPIResponse, logAPIError, APIError } from './apiErrorHandler';
 
 export interface APIClientConfig {

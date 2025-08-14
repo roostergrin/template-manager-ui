@@ -89,23 +89,23 @@ interface WorkflowContextValue {
   progressSections: ProgressSection[]
 }
 
-const initialProgressState: ProgressState = {
-  infrastructure: {
-    repoCreation: 'pending',
-    awsProvisioning: 'pending',
-    pleskProvisioning: 'pending',
-  },
-  planning: {
-    questionnaire: 'pending',
-    assetSync: 'pending',
-    sitemapPlanning: 'pending',
-    contentGeneration: 'pending',
-  },
-  deployment: {
-    repositoryUpdate: 'pending',
-    wordpressUpdate: 'pending',
-  },
-}
+  // const initialProgressState: ProgressState = {
+  //   infrastructure: {
+  //     repoCreation: 'pending',
+  //     awsProvisioning: 'pending',
+  //     pleskProvisioning: 'pending',
+  //   },
+  //   planning: {
+  //     questionnaire: 'pending',
+  //     assetSync: 'pending',
+  //     sitemapPlanning: 'pending',
+  //     contentGeneration: 'pending',
+  //   },
+  //   deployment: {
+  //     repositoryUpdate: 'pending',
+  //     wordpressUpdate: 'pending',
+  //   },
+  // }
 
 const progressSections: ProgressSection[] = [
   {

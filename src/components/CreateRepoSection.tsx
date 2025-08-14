@@ -1,5 +1,4 @@
-import React, { useContext, useState } from "react";
-import { GithubRepoContext } from "../context/GithubRepoContext";
+import React, { useState } from "react";
 
 interface CreateRepoSectionProps {
   newRepoName: string;
@@ -22,8 +21,7 @@ const CreateRepoSection: React.FC<CreateRepoSectionProps> = ({
   error,
   createRepoData,
 }) => {
-  const { githubOwner, setGithubOwner } = useContext(GithubRepoContext);
-  const { githubRepo, setGithubRepo } = useContext(GithubRepoContext);
+  // This component does not need repo context directly; inputs are local
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {

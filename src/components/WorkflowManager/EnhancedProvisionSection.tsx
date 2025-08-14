@@ -1,6 +1,6 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import useProvisionSite from "../../hooks/useProvisionSite";
-import { GithubRepoContext } from "../../context/GithubRepoContext";
+import { useGithubRepo } from "../../context/GithubRepoContext";
 import useProgressTracking from "../../hooks/useProgressTracking";
 import ProgressIndicator from "../Common/ProgressIndicator";
 import "../ProvisionSiteSection.sass";
@@ -12,7 +12,9 @@ interface EnhancedProvisionSectionProps {
 const EnhancedProvisionSection: React.FC<EnhancedProvisionSectionProps> = ({
   onProvisioningComplete
 }) => {
-  const { githubOwner, setGithubOwner, githubRepo, setGithubRepo } = useContext(GithubRepoContext);
+  const { state, actions } = useGithubRepo();
+  const { githubOwner, githubRepo } = state;
+  const { setGithubOwner, setGithubRepo } = actions;
   const [bucketName, setBucketName] = useState("");
   const [githubBranch, setGithubBranch] = useState("master");
   const [pageType, setPageType] = useState<"template" | "landing">("template");

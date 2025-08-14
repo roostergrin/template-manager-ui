@@ -205,7 +205,7 @@ const PageList: React.FC = () => {
           </div>
         </div>
         <SortableContext items={pageIds} strategy={verticalListSortingStrategy}>
-          {filteredPages.map((page, index) => (
+          {filteredPages.map((page) => (
             <PageCard
               key={page.id}
               page={page}

@@ -17,7 +17,6 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
     setActiveSection,
     getSectionStatus,
     getOverallProgress,
-    canNavigateToSection,
     progressState,
   } = useProgressTracking();
 
@@ -92,7 +91,7 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
 
         const containerRect = mainContainer.getBoundingClientRect();
 
-        let currentSection = 'infrastructure';
+         let currentSection: typeof activeSection = 'infrastructure';
         let currentTask: string | null = null;
         let bestScore = -1;
         
@@ -115,7 +114,7 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
           
           if (score > bestScore && score > 0.3) { // Minimum 30% visibility for tasks
             bestScore = score;
-            currentSection = task.sectionId;
+            currentSection = task.sectionId as typeof activeSection;
             currentTask = task.taskId;
           }
         }
@@ -214,7 +213,7 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
       {/* Navigation Sections */}
       <nav className="sidebar-navigation__nav">
         {progressSections.map((section) => {
-          const sectionStatus = getSectionStatus(section.id);
+           const sectionStatus = getSectionStatus(section.id);
           const isActive = activeSection === section.id;
           const hasActiveTask = activeSection === section.id && activeTask !== null;
 

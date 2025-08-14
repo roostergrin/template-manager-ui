@@ -14,7 +14,7 @@ export type FillFormResponse = {
 
 const fillForm = async (data: FillFormRequest): Promise<FillFormResponse> => {
   const response = await api.post<FillFormResponse>('/fill-form/', data);
-  return response.data;
+  return response;
 };
 
 export default fillForm; 

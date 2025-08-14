@@ -1,5 +1,6 @@
 @use './variables'
 @use './mixins'
+@use 'sass:color'
 
 // Expose variables locally
 $color-primary: variables.$color-primary
@@ -114,7 +115,7 @@ p
   background: $color-secondary
   color: white
   &:hover
-    background: darken($color-secondary, 6%)
+    background: color.adjust($color-secondary, $lightness: -6%)
 
 .btn--outline
   background: transparent
@@ -133,13 +134,13 @@ p
   background: $color-danger
   color: #fff
   &:hover
-    background: darken($color-danger, 6%)
+    background: color.adjust($color-danger, $lightness: -6%)
 
 .btn--success
   background: $color-accent
   color: #fff
   &:hover
-    background: darken($color-accent, 6%)
+    background: color.adjust($color-accent, $lightness: -6%)
 
 // Inputs
 input, select, textarea

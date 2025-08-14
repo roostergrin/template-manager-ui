@@ -1,14 +1,14 @@
 // Questionnaire Data Types
 export interface QuestionnaireData {
-  siteName: string;
-  siteDescription: string;
-  primaryColors: string[];
-  secondaryColors: string[];
-  fonts: string[];
-  style: string;
-  targetAudience: string;
-  businessGoals: string[];
-  additionalFeatures: string[];
+  siteName?: string;
+  siteDescription?: string;
+  primaryColors?: string[];
+  secondaryColors?: string[];
+  fonts?: string[];
+  style?: string;
+  targetAudience?: string;
+  businessGoals?: string[];
+  additionalFeatures?: string[];
   [key: string]: unknown;
 }
 
@@ -29,7 +29,7 @@ export interface PageData {
 }
 
 export interface SitemapData {
-  pages: PageData[];
+  pages: unknown; // Accepts various page structures from UI
   questionnaireData: QuestionnaireData;
 }
 
@@ -41,7 +41,8 @@ export interface GenerateContentRequest {
 }
 
 export interface GenerateContentResponse {
-  page_data: Record<string, PageData>;
+  // Flexible response; keys are page identifiers
+  [key: string]: unknown;
 }
 
 export interface GenerateGlobalResponse {
@@ -56,7 +57,7 @@ export interface GenerateGlobalResponse {
 export interface UpdateRepoDataRequest {
   owner: string;
   repo: string;
-  pages_data: Record<string, PageData>;
+  pages_data: Record<string, unknown>;
   global_data: Record<string, unknown>;
 }
 
@@ -106,6 +107,9 @@ export interface SiteProvisionResponse {
   bucket_name?: string;
   message?: string;
   error?: APIError;
+  // Optional CloudFront URLs returned by backend
+  cloudfront_distribution_url?: string;
+  assets_distribution_url?: string;
 } 
 
 // Plesk / WordPress Provisioning Types

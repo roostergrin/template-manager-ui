@@ -1,4 +1,5 @@
 @use '../../styles/variables'
+@use 'sass:color'
 
 .enhanced-preview-section
   background: variables.$bg-surface
@@ -141,7 +142,7 @@
           background: variables.$color-accent
           
           &:hover
-            background: darken(variables.$color-accent, 6%)
+            background: color.adjust(variables.$color-accent, $lightness: -6%)
             
     .page-content-preview
       padding: 24px
@@ -265,7 +266,7 @@
             transition: all 0.2s ease
             
             &:hover
-              background: darken(variables.$color-accent, 6%)
+              background: color.adjust(variables.$color-accent, $lightness: -6%)
               transform: translateY(-1px)
               
           .cancel-btn
@@ -280,7 +281,7 @@
             transition: all 0.2s ease
             
             &:hover
-              background: darken(variables.$color-danger, 6%)
+              background: color.adjust(variables.$color-danger, $lightness: -6%)
               transform: translateY(-1px)
               
       .edit-content
@@ -355,7 +356,7 @@
               
               h6
                 margin-bottom: 8px
-                color: darken(variables.$color-info, 15%)
+                color: color.adjust(variables.$color-info, $lightness: -15%)
                 font-size: 14px
                 
               .analysis-item

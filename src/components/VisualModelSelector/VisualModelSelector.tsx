@@ -22,8 +22,8 @@ interface VisualModelSelectorProps {
 
 const VisualModelSelector: React.FC<VisualModelSelectorProps> = ({
   models,
-  title,
-  pageID,
+  // title,
+  // pageID,
   pageNumber,
   items,
   onItemsChange
@@ -110,14 +110,14 @@ const VisualModelSelector: React.FC<VisualModelSelectorProps> = ({
                 </div>
                 <div className="block-button custom-site-repeater__button">
                   <div className="block-button__wrapper">
-                    <div className="block-button__background"></div>
-                    <div className="base-icon block-button__arrow" aria-hidden="">
+          <div className="block-button__background"></div>
+          <div className="base-icon block-button__arrow" aria-hidden="true">
                       <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                         <path d="M11 8L17 14L11 20" stroke="white" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"></path>
                       </svg>
                     </div>
                     <div className="block-button__label">Select model</div>
-                    <div className="base-icon block-button__arrow block-button__arrow--hover" aria-hidden="">
+          <div className="base-icon block-button__arrow block-button__arrow--hover" aria-hidden="true">
                       <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                         <path d="M11 8L17 14L11 20" stroke="white" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"></path>
                       </svg>

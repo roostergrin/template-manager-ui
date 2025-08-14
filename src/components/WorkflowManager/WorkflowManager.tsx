@@ -10,10 +10,10 @@ import RepositoryUpdater from './RepositoryUpdater';
 import WordPressUpdater from './WordPressUpdater';
 import SidebarNavigation from '../Sidebar/SidebarNavigation';
 import { useQuestionnaire } from '../../contexts/QuestionnaireProvider';
-import { useSitemap } from '../../contexts/SitemapProvider';
+// import { useSitemap } from '../../contexts/SitemapProvider';
 import { useWorkflow } from '../../contexts/WorkflowProvider';
-import { useAppConfig } from '../../contexts/AppConfigProvider';
-import { getBackendSiteTypeForModelGroup } from '../../utils/modelGroupKeyToBackendSiteType';
+// import { useAppConfig } from '../../contexts/AppConfigProvider';
+// import { getBackendSiteTypeForModelGroup } from '../../utils/modelGroupKeyToBackendSiteType';
 import '../Common/ProgressIndicator.sass';
 import '../Sidebar/SidebarNavigation.sass';
 import './WorkflowManager.sass';
@@ -21,24 +21,24 @@ import './WorkflowManager.sass';
 const WorkflowManager: React.FC = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
   const [provisioningData, setProvisioningData] = useState<any>(null);
-  const [repoData, setRepoData] = useState<any>(null);
+  // const [repoData, setRepoData] = useState<any>(null);
 
   // Use contexts instead of local state and props
   const { state: questionnaireState } = useQuestionnaire();
-  const { state: sitemapState } = useSitemap();
-  const { state: workflowState, actions: workflowActions } = useWorkflow();
-  const { state: appConfigState } = useAppConfig();
+  // const { state: sitemapState } = useSitemap();
+  const { actions: workflowActions } = useWorkflow();
+  // const { state: appConfigState } = useAppConfig();
 
-  const questionnaireData = questionnaireState.data;
-  const sitemapPages = sitemapState.pages;
-  const selectedModelGroupKey = appConfigState.selectedModelGroupKey || Object.keys(appConfigState.modelGroups)[0];
-  const modelGroups = appConfigState.modelGroups;
+  // const questionnaireData = questionnaireState.data;
+  // const sitemapPages = sitemapState.pages;
+  // const selectedModelGroupKey = appConfigState.selectedModelGroupKey || Object.keys(appConfigState.modelGroups)[0];
+  // const modelGroups = appConfigState.modelGroups;
 
-  const currentModels = modelGroups[selectedModelGroupKey]?.models || [];
-  const siteType = getBackendSiteTypeForModelGroup(selectedModelGroupKey) || 'stinson';
+  // const currentModels = modelGroups[selectedModelGroupKey]?.models || [];
+  // const siteType = getBackendSiteTypeForModelGroup(selectedModelGroupKey) || 'stinson';
 
-  const handleRepoCreated = useCallback((data: any) => {
-    setRepoData(data);
+  const handleRepoCreated = useCallback((_data: any) => {
+    // setRepoData(data);
     workflowActions.updateTaskStatus('infrastructure', 'repoCreation', 'completed');
   }, [workflowActions]);
 
@@ -47,17 +47,16 @@ const WorkflowManager: React.FC = () => {
     workflowActions.updateTaskStatus('infrastructure', 'awsProvisioning', 'completed');
   }, [workflowActions]);
 
-  const handleQuestionnaireComplete = useCallback(() => {
-    workflowActions.updateTaskStatus('planning', 'questionnaire', 'completed');
-  }, [workflowActions]);
+  // const handleQuestionnaireComplete = useCallback(() => {
+  //   workflowActions.updateTaskStatus('planning', 'questionnaire', 'completed');
+  // }, [workflowActions]);
 
   const handleContentGenerationComplete = useCallback((pagesContent: object, globalContent: object) => {
-    workflowActions.addContent({
-      id: `content-${Date.now()}`,
+    workflowActions.addGeneratedContent({
       type: 'page-content',
       title: 'Generated Content',
       content: { pages: pagesContent, global: globalContent },
-      created: new Date().toISOString()
+      metadata: {},
     });
     workflowActions.updateTaskStatus('planning', 'contentGeneration', 'completed');
   }, [workflowActions]);

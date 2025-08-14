@@ -38,9 +38,9 @@ const QuestionnaireManager: React.FC = () => {
   // Track progress changes
   useEffect(() => {
     const completed = isQuestionnaireCompleted();
-    const currentStatus = workflowState.progressState.setup.questionnaire;
+    const currentStatus = workflowState.progressState.planning.questionnaire;
     
-    let newStatus;
+    let newStatus: 'pending' | 'in-progress' | 'completed' | 'error';
     if (completed) {
       newStatus = 'completed';
     } else if (questionnaireState.activeMode === 'scrape' && fillFormData) {
@@ -55,9 +55,9 @@ const QuestionnaireManager: React.FC = () => {
     
     // Only update if the status actually changed
     if (currentStatus !== newStatus) {
-      workflowActions.updateTaskStatus('setup', 'questionnaire', newStatus);
+      workflowActions.updateTaskStatus('planning', 'questionnaire', newStatus);
     }
-  }, [questionnaireState.activeMode, questionnaireState.data.templateMarkdown, questionnaireState.data.contentDocument, fillFormData, workflowState.progressState.setup.questionnaire, isQuestionnaireCompleted, workflowActions]);
+  }, [questionnaireState.activeMode, questionnaireState.data.templateMarkdown, questionnaireState.data.contentDocument, fillFormData, workflowState.progressState.planning.questionnaire, workflowActions]);
 
 
   const handleFillForm = (scrape: boolean, useSelenium: boolean, scroll: boolean) => {
@@ -202,7 +202,7 @@ Dr. Smith has been practicing orthodontics for over 15 years...
         <div className="questionnaire-manager__title-row">
           <h1 className="questionnaire-manager__title">Content Input Manager</h1>
           <ProgressIndicator 
-            status={workflowState.progressState.setup.questionnaire} 
+            status={workflowState.progressState.planning.questionnaire} 
             size="large"
             showLabel={true}
           />
