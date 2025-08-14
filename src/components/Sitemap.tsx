@@ -29,10 +29,10 @@ export interface SitemapProps {
 const Sitemap: React.FC<SitemapProps> = ({
   selectedModelGroupKey,
   setSelectedModelGroupKey,
-  modelGroups,
-  setModelGroups,
+  // modelGroups,
+  // setModelGroups,
   questionnaireData,
-  setQuestionnaireData,
+  // setQuestionnaireData,
 }) => {
   // Get sitemap context
   const { state, actions } = useSitemap();
@@ -72,7 +72,7 @@ const Sitemap: React.FC<SitemapProps> = ({
         <hr className="my-4 border-gray-300" />
         {questionnaireState.activeMode !== 'template-markdown' && (
           <GenerateSitemapButton
-            questionnaireData={effectiveQuestionnaireData}
+            questionnaireData={effectiveQuestionnaireData as any}
             generateSitemap={generateSitemap}
             generateSitemapStatus={generateSitemapStatus}
             generateSitemapData={generateSitemapData}

@@ -21,7 +21,7 @@ interface SitemapSectionProps {
 
 const SitemapSection: React.FC<SitemapSectionProps> = ({ 
   models, 
-  title, 
+  // title, 
   pageID, 
   pageNumber, 
   items, 

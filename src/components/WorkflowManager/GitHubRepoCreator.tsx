@@ -10,7 +10,7 @@ interface GitHubRepoCreatorProps {
 }
 
 const GitHubRepoCreator: React.FC<GitHubRepoCreatorProps> = ({ onRepoCreated }) => {
-  const { state, actions } = useGithubRepo();
+  const { actions } = useGithubRepo();
   const { setGithubOwner, setGithubRepo } = actions;
   const [newRepoName, setNewRepoName] = useState('');
   const [templateRepoName, setTemplateRepoName] = useState('ai-template-stinson');

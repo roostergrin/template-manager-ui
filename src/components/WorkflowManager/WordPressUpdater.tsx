@@ -15,10 +15,10 @@ interface SitemapPageInfo {
   [key: string]: unknown;
 }
 
-interface SitemapData {
-  pages?: SitemapPageInfo[] | Record<string, SitemapPageInfo>;
-  [key: string]: unknown;
-}
+// interface SitemapData {
+//   pages?: SitemapPageInfo[] | Record<string, SitemapPageInfo>;
+//   [key: string]: unknown;
+// }
 
 interface WordPressUpdaterProps {
   onUpdateComplete?: () => void;
@@ -109,7 +109,7 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
       let pageId = pageName; // fallback to page name
       
       if (typeof pageInfo === 'object' && pageInfo !== null) {
-        const info = pageInfo as SitemapPageInfo;
+        const info = pageInfo as unknown as SitemapPageInfo;
         pageId = String(info.page_id || info.wordpress_id || pageName);
       }
 
@@ -248,7 +248,7 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
         if (sitemapData?.pages) {
           if (Array.isArray(sitemapData.pages)) {
             // Handle array format
-            sitemapData.pages.forEach((page: SitemapPageInfo & { title?: string }) => {
+            sitemapData.pages.forEach((page: any) => {
               if (page.title && (page.page_id || page.wordpress_id)) {
                 pageIdMapping[page.title] = page.page_id || page.wordpress_id || '';
               }
@@ -257,7 +257,7 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
             // Handle object format
             for (const [pageName, pageInfo] of Object.entries(sitemapData.pages)) {
               if (typeof pageInfo === 'object' && pageInfo !== null) {
-                const info = pageInfo as SitemapPageInfo;
+                const info = pageInfo as unknown as SitemapPageInfo;
                 if (info.page_id || info.wordpress_id) {
                   pageIdMapping[pageName] = info.page_id || info.wordpress_id || '';
                 }
@@ -314,8 +314,8 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
             // If the current key doesn't match expected key, transform it
             if (currentSectionsKey !== expectedSectionsKey) {
               const transformedContent = { ...content };
-                              transformedContent[expectedSectionsKey] = sectionsArray;
-                delete transformedContent[currentSectionsKey];
+                              (transformedContent as any)[expectedSectionsKey] = sectionsArray;
+                delete (transformedContent as any)[currentSectionsKey];
                 transformedData[finalPageKey] = transformedContent;
                 
                 console.log(`📄 Transformed sections key for ${pageKey} -> ${finalPageKey}: ${currentSectionsKey} -> ${expectedSectionsKey}`, {

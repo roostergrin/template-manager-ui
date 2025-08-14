@@ -22,7 +22,7 @@ const SitemapContentExport: React.FC<SitemapContentExportProps> = ({
   questionnaireData,
   onExport,
 }) => {
-  const [generateContent, generateContentStatus] = useGenerateContent();
+  const [, generateContentStatus, generateContentMutation] = useGenerateContent();
   const [exportedData, setExportedData] = useState<ExportedSitemapContent | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -31,20 +31,16 @@ const SitemapContentExport: React.FC<SitemapContentExportProps> = ({
 
   const handleGenerate = useCallback(() => {
     setError(null);
-    generateContent(
-      { sitemap_data: { pages, questionnaireData: effectiveQuestionnaireData }, site_type: 'stinson', assign_images: true },
-      {
-        onSuccess: (generatedContent: any) => {
-          const data: ExportedSitemapContent = { pages, questionnaireData: effectiveQuestionnaireData, generatedContent };
-          setExportedData(data);
-          onExport(data);
-        },
-        onError: () => {
-          setError("Failed to generate content. Please try again.");
-        },
-      }
-    );
-  }, [pages, effectiveQuestionnaireData, generateContent, onExport]);
+    generateContentMutation({ sitemap_data: { pages, questionnaireData: effectiveQuestionnaireData }, site_type: 'stinson', assign_images: true })
+      .then((generatedContent: any) => {
+        const data: ExportedSitemapContent = { pages, questionnaireData: effectiveQuestionnaireData, generatedContent };
+        setExportedData(data);
+        onExport(data);
+      })
+      .catch(() => {
+        setError("Failed to generate content. Please try again.");
+      });
+  }, [pages, effectiveQuestionnaireData, generateContentMutation, onExport]);
 
   const handleDownload = useCallback(() => {
     if (!exportedData) return;

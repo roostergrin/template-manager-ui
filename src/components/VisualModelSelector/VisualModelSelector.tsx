@@ -22,8 +22,8 @@ interface VisualModelSelectorProps {
 
 const VisualModelSelector: React.FC<VisualModelSelectorProps> = ({
   models,
-  title,
-  pageID,
+  // title,
+  // pageID,
   pageNumber,
   items,
   onItemsChange
