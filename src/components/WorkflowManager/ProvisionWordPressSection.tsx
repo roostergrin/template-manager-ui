@@ -7,13 +7,11 @@ interface ProvisionWordPressSectionProps {
   onProvisioned?: (data: any) => void;
 }
 
-const ProvisionWordPressSection: React.FC<ProvisionWordPressSectionProps> = ({
-  // onProvisioned,
-}) => {
+const ProvisionWordPressSection: React.FC<ProvisionWordPressSectionProps> = () => {
   const servers = useMemo(
     () => [
-      { id: "sunset", label: "Sunset (Templates)" },
-      { id: "uluwatu", label: "Uluwatu (Landing pages)" },
+      { id: "sunset", label: "Sunset (Templates) 44.237.72.16" },
+      { id: "uluwatu", label: "Uluwatu (Landing pages) 44.236.196.209" },
     ],
     []
   );
