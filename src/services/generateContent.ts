@@ -15,8 +15,8 @@ export interface GenerateContentResponse {
 const generateContent = async (
   data: GenerateContentRequest
 ): Promise<GenerateContentResponse> => {
-  const res = await apiService("/generate-content/", { method: "POST", data });
-  return res.data;
+  const res = await apiService.post<GenerateContentResponse>("/generate-content/", data);
+  return res;
 };
 
 export default generateContent; 

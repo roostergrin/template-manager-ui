@@ -52,12 +52,11 @@ const WorkflowManager: React.FC = () => {
   }, [workflowActions]);
 
   const handleContentGenerationComplete = useCallback((pagesContent: object, globalContent: object) => {
-    workflowActions.addContent({
-      id: `content-${Date.now()}`,
+    workflowActions.addGeneratedContent({
       type: 'page-content',
       title: 'Generated Content',
       content: { pages: pagesContent, global: globalContent },
-      created: new Date().toISOString()
+      metadata: {},
     });
     workflowActions.updateTaskStatus('planning', 'contentGeneration', 'completed');
   }, [workflowActions]);

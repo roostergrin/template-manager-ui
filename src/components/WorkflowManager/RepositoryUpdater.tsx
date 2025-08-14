@@ -1,5 +1,5 @@
-import React, { useState, useContext, useCallback } from 'react';
-import { GithubRepoContext } from '../../context/GithubRepoContext';
+import React, { useState, useCallback } from 'react';
+import { useGithubRepo } from '../../context/GithubRepoContext';
 import useUpdateGithubRepoDataFiles from '../../hooks/useUpdateGithubRepoDataFiles';
 import { useWorkflow } from '../../contexts/WorkflowProvider';
 import ProgressIndicator from '../Common/ProgressIndicator';
@@ -12,7 +12,9 @@ interface RepositoryUpdaterProps {
 const RepositoryUpdater: React.FC<RepositoryUpdaterProps> = ({
   onUpdateComplete
 }) => {
-  const { githubOwner, setGithubOwner, githubRepo, setGithubRepo } = useContext(GithubRepoContext);
+  const { state, actions } = useGithubRepo();
+  const { githubOwner, githubRepo } = state;
+  const { setGithubOwner, setGithubRepo } = actions;
   const [, githubStatus, updateGithub] = useUpdateGithubRepoDataFiles();
   const [error, setError] = useState<string | null>(null);
   const { state: workflowState, actions: workflowActions } = useWorkflow();
@@ -35,7 +37,7 @@ const RepositoryUpdater: React.FC<RepositoryUpdaterProps> = ({
       return;
     }
 
-    updateTaskStatus('content', 'repositoryUpdate', 'in-progress');
+    workflowActions.updateTaskStatus('deployment', 'repositoryUpdate', 'in-progress');
 
     try {
       await updateGithub({
@@ -45,14 +47,14 @@ const RepositoryUpdater: React.FC<RepositoryUpdaterProps> = ({
         global_data: globalContent,
       });
       
-      workflowActions.updateTaskStatus('content', 'repositoryUpdate', 'completed');
+      workflowActions.updateTaskStatus('deployment', 'repositoryUpdate', 'completed');
       
       if (onUpdateComplete) {
         onUpdateComplete();
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred while updating repository');
-      workflowActions.updateTaskStatus('content', 'repositoryUpdate', 'error');
+      workflowActions.updateTaskStatus('deployment', 'repositoryUpdate', 'error');
     }
   }, [githubOwner, githubRepo, pagesContent, globalContent, updateGithub, onUpdateComplete, workflowActions]);
 
@@ -63,8 +65,8 @@ const RepositoryUpdater: React.FC<RepositoryUpdaterProps> = ({
     <div className="repository-updater">
       <div className="repository-updater__header">
         <h4 className="repository-updater__title">Repository Update Status</h4>
-        <ProgressIndicator 
-          status={workflowState.progressState.content.repositoryUpdate} 
+          <ProgressIndicator 
+          status={workflowState.progressState.deployment.repositoryUpdate} 
           size="medium"
           showLabel={true}
         />

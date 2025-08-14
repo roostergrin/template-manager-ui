@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useContext } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { generateContentQueryFunction } from "../services/generateContentService";
 import { generateGlobalQueryFunction } from "../services/generateGlobalService";
@@ -12,11 +12,11 @@ import CreateRepoSection from "./CreateRepoSection";
 import GithubUpdateSection from "./GithubUpdateSection";
 import StatusSection from "./StatusSection";
 import "./GenerateContentProgress.sass";
-import { GithubRepoContext } from "../context/GithubRepoContext";
+import { useGithubRepo } from "../context/GithubRepoContext";
 
 export interface GenerateContentProgressProps {
-  pages: unknown;
-  questionnaireData: unknown;
+  pages: any;
+  questionnaireData: any;
   siteType: string;
 }
 
@@ -32,14 +32,16 @@ const GenerateContentProgress: React.FC<GenerateContentProgressProps> = ({
   const [createRepoData, createRepoStatus, createRepo] = useCreateGithubRepoFromTemplate();
   const [newRepoName, setNewRepoName] = useState("");
   const [templateRepoName, setTemplateRepoName] = useState("");
-  const [pagesContent, setPagesContent] = useState<object | null>(null);
-  const [globalContent, setGlobalContent] = useState<object | null>(null);
+  const [pagesContent, setPagesContent] = useState<Record<string, unknown> | null>(null);
+  const [globalContent, setGlobalContent] = useState<Record<string, unknown> | null>(null);
   const [downloadUrlPages, setDownloadUrlPages] = useState<string | null>(null);
   const [downloadUrlGlobal, setDownloadUrlGlobal] = useState<string | null>(null);
   const [useRgTemplateAssets, setUseRgTemplateAssets] = useState(true);
 
   // Use context for githubOwner and githubRepo
-  const { githubOwner, setGithubOwner, githubRepo, setGithubRepo } = useContext(GithubRepoContext);
+  const { state, actions } = useGithubRepo();
+  const { githubOwner, githubRepo } = state;
+  const { setGithubOwner, setGithubRepo } = actions;
 
   // Get the effective questionnaire data (either structured or markdown-based)
   const effectiveQuestionnaireData = getEffectiveQuestionnaireData(questionnaireData);
@@ -79,8 +81,9 @@ const GenerateContentProgress: React.FC<GenerateContentProgressProps> = ({
   // Update state when data is ready
   useEffect(() => {
     if (globalData) {
-      setGlobalContent(globalData);
-      const jsonGlobal = JSON.stringify(globalData, null, 2);
+      const extracted = (globalData as any)?.global_data ?? (globalData as unknown as Record<string, unknown>);
+      setGlobalContent(extracted);
+      const jsonGlobal = JSON.stringify(extracted, null, 2);
       const blobGlobal = new Blob([jsonGlobal], { type: "application/json" });
       setDownloadUrlGlobal(URL.createObjectURL(blobGlobal));
     }

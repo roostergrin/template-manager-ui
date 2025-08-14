@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useCallback } from "react";
-import { SitemapSection, QuestionnaireData } from "../types/SitemapTypes";
+import { SitemapSection } from "../types/SitemapTypes";
+import { QuestionnaireData } from "../types/APIServiceTypes";
 import { getEffectiveQuestionnaireData, isMarkdownData } from "../utils/questionnaireDataUtils";
 import useGenerateContent from "../hooks/useGenerateContent";
 
@@ -31,14 +32,14 @@ const SitemapContentExport: React.FC<SitemapContentExportProps> = ({
   const handleGenerate = useCallback(() => {
     setError(null);
     generateContent(
-      { pages, questionnaireData: effectiveQuestionnaireData },
+      { sitemap_data: { pages, questionnaireData: effectiveQuestionnaireData }, site_type: 'stinson', assign_images: true },
       {
         onSuccess: (generatedContent: any) => {
           const data: ExportedSitemapContent = { pages, questionnaireData: effectiveQuestionnaireData, generatedContent };
           setExportedData(data);
           onExport(data);
         },
-        onError: (err: any) => {
+        onError: () => {
           setError("Failed to generate content. Please try again.");
         },
       }

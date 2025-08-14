@@ -225,21 +225,10 @@ const EnhancedPreviewSection: React.FC<EnhancedPreviewSectionProps> = ({
                       <div className="api-request-preview">
                         <strong>WordPress API Request Preview:</strong>
                         <code className="api-code">
-                          {`POST ${apiUrl}wp-json/wp/v2/pages/${pageKey}
+                   {`POST ${apiUrl}wp-json/wp/v2/pages/${pageKey}
 {
   "acf": {
-    "seo": {
-      "page_title": "${seoData?.page_title || '...'}",
-      "page_description": "${seoData?.page_description || '...'}",
-      "page_keywords": "${seoData?.page_keywords || '...'}",
-      "social_meta": {
-        "og_meta": {
-          "title": "${seoData?.social_meta?.og_meta?.title || '...'}",
-          "description": "${seoData?.social_meta?.og_meta?.description || '...'}",
-          "image": "${seoData?.social_meta?.og_meta?.image || '...'}"
-        }
-      }
-    },
+    "seo": {},
     "sections": [${sections.length} components]
   }
 }`}

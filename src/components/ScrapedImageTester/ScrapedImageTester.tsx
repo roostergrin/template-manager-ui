@@ -101,9 +101,9 @@ const ScrapedImageTester: React.FC = () => {
 
       console.log('Sending request:', requestData);
 
-      const response = await api.post('/sync-scraped-images/', requestData);
-      setSyncResult(response.data);
-      console.log('Sync response:', response.data);
+      const response = await api.post<SyncResponse>('/sync-scraped-images/', requestData);
+      setSyncResult(response);
+      console.log('Sync response:', response);
     } catch (err: any) {
       console.error('Sync error:', err);
       setError(err.response?.data?.detail || err.message || 'Failed to sync images');
@@ -131,9 +131,9 @@ const ScrapedImageTester: React.FC = () => {
       const url = `/scraped-images/status/${siteIdentifier}${params.toString() ? '?' + params.toString() : ''}`;
       console.log('Checking status at:', url);
 
-      const response = await api.get(url);
-      setStatusResult(response.data);
-      console.log('Status response:', response.data);
+      const response = await api.get<StatusResponse>(url);
+      setStatusResult(response);
+      console.log('Status response:', response);
     } catch (err: any) {
       console.error('Status error:', err);
       setError(err.response?.data?.detail || err.message || 'Failed to get status');

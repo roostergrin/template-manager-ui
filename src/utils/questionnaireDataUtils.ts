@@ -1,4 +1,4 @@
-import { QuestionnaireData } from '../types/SitemapTypes';
+import { QuestionnaireData } from '../types/APIServiceTypes';
 
 /**
  * Utility functions for handling questionnaire data in both structured and markdown formats
@@ -42,24 +42,7 @@ export const getEffectiveQuestionnaireData = (data: unknown): QuestionnaireData 
   }
   
   // Return structured data as-is, with fallback defaults
-  return data as QuestionnaireData || {
-    practiceDetails: '',
-    siteVision: '',
-    primaryAudience: '',
-    secondaryAudience: '',
-    demographics: '',
-    uniqueQualities: '',
-    contentCreation: 'new',
-    hasBlog: false,
-    blogType: '',
-    topTreatments: '',
-    writingStyle: '',
-    topicsToAvoid: '',
-    communityEngagement: '',
-    testimonials: '',
-    patientExperience: '',
-    financialOptions: ''
-  };
+  return (data as QuestionnaireData) || {};
 };
 
 // Extract markdown content from either markdown or structured data

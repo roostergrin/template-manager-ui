@@ -1,5 +1,5 @@
-import React, { useState, useContext, useCallback } from 'react';
-import { GithubRepoContext } from '../../context/GithubRepoContext';
+import React, { useState, useCallback } from 'react';
+import { useGithubRepo } from '../../context/GithubRepoContext';
 import useCreateGithubRepoFromTemplate from '../../hooks/useCreateGithubRepoFromTemplate';
 import useProgressTracking from '../../hooks/useProgressTracking';
 import ProgressIndicator from '../Common/ProgressIndicator';
@@ -10,7 +10,8 @@ interface GitHubRepoCreatorProps {
 }
 
 const GitHubRepoCreator: React.FC<GitHubRepoCreatorProps> = ({ onRepoCreated }) => {
-  const { githubOwner, setGithubOwner, githubRepo, setGithubRepo } = useContext(GithubRepoContext);
+  const { state, actions } = useGithubRepo();
+  const { setGithubOwner, setGithubRepo } = actions;
   const [newRepoName, setNewRepoName] = useState('');
   const [templateRepoName, setTemplateRepoName] = useState('ai-template-stinson');
   const [createRepoData, createRepoStatus, createRepo] = useCreateGithubRepoFromTemplate();

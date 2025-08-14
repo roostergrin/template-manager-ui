@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { getEffectiveQuestionnaireData, isMarkdownData } from '../../utils/questionnaireDataUtils';
+import { QuestionnaireData } from '../../types/APIServiceTypes';
 import { useQuestionnaire } from '../../contexts/QuestionnaireProvider';
 import { useSitemap } from '../../contexts/SitemapProvider';
 import { useWorkflow } from '../../contexts/WorkflowProvider';
@@ -28,7 +29,7 @@ const EnhancedSitemap: React.FC = () => {
   const pages = sitemapState.pages;
   
   // Get the effective questionnaire data (either structured or markdown-based)
-  const effectiveQuestionnaireData = getEffectiveQuestionnaireData(questionnaireData);
+  const effectiveQuestionnaireData = getEffectiveQuestionnaireData(questionnaireData) as QuestionnaireData;
   
   // Ensure query inputs are visible
   const toggledRef = React.useRef(false);
@@ -42,17 +43,17 @@ const EnhancedSitemap: React.FC = () => {
   
   // Track sitemap planning progress - using context instead of props
   useEffect(() => {
-    const currentStatus = workflowState.progressState.content.sitemapPlanning;
+    const currentStatus = workflowState.progressState.planning.sitemapPlanning;
     const shouldBeCompleted = pages.length > 0;
     const shouldBePending = pages.length === 0;
     
     // Only update if the status actually needs to change
     if (shouldBeCompleted && currentStatus !== 'completed') {
-      workflowActions.updateTaskStatus('content', 'sitemapPlanning', 'completed');
+      workflowActions.updateTaskStatus('planning', 'sitemapPlanning', 'completed');
     } else if (shouldBePending && currentStatus !== 'pending') {
-      workflowActions.updateTaskStatus('content', 'sitemapPlanning', 'pending');
+      workflowActions.updateTaskStatus('planning', 'sitemapPlanning', 'pending');
     }
-  }, [pages.length, workflowState.progressState.content.sitemapPlanning, workflowActions.updateTaskStatus]);
+  }, [pages.length, workflowState.progressState.planning.sitemapPlanning, workflowActions]);
   
   // Import/export logic
   const { exportJson, importJson } = useImportExport();
@@ -66,7 +67,7 @@ const EnhancedSitemap: React.FC = () => {
       <div className="sitemap-header">
         <h2 className="text-2xl font-bold mb-4">Sitemap Builder</h2>
         <ProgressIndicator 
-          status={workflowState.progressState.content.sitemapPlanning} 
+          status={workflowState.progressState.planning.sitemapPlanning} 
           size="medium"
           showLabel={true}
         />
@@ -97,8 +98,6 @@ const EnhancedSitemap: React.FC = () => {
             generateSitemapData={generateSitemapData}
             onSitemapGenerated={sitemapActions.handleGeneratedSitemap}
             controls={{
-              usePageJson: sitemapState.usePageJson,
-              toggleUsePageJson: sitemapActions.toggleUsePageJson,
               backendSiteType,
             }}
           />

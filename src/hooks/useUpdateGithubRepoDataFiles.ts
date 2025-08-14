@@ -4,7 +4,7 @@ import { UpdateRepoDataRequest, UpdateRepoDataResponse } from "../types/APIServi
 
 const useUpdateGithubRepoDataFiles = () => {
   const mutation = useMutation<UpdateRepoDataResponse, Error, UpdateRepoDataRequest>({
-    mutationFn: (request) => updateGithubRepoDataFilesService({ queryKey: ["update-github-repo-data-files", request] })
+    mutationFn: (request) => updateGithubRepoDataFilesService(request)
   });
   return [mutation.data, mutation.status as QueryStatus, mutation.mutateAsync] as [UpdateRepoDataResponse | undefined, QueryStatus, (request: UpdateRepoDataRequest) => Promise<UpdateRepoDataResponse>];
 };

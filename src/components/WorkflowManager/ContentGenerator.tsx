@@ -20,8 +20,8 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
   const [shouldFetch, setShouldFetch] = useState(false);
   const [isStarted, setIsStarted] = useState(false);
   const [useRgTemplateAssets, setUseRgTemplateAssets] = useState(true);
-  const [pagesContent, setPagesContent] = useState<object | null>(null);
-  const [globalContent, setGlobalContent] = useState<object | null>(null);
+  const [pagesContent, setPagesContent] = useState<Record<string, unknown> | null>(null);
+  const [globalContent, setGlobalContent] = useState<Record<string, unknown> | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadMode, setUploadMode] = useState<'generate' | 'upload'>('generate');
 
@@ -183,12 +183,9 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
 
   useEffect(() => {
     console.log('🌐 Global useEffect FIRED - Status:', globalStatus, 'Data present:', !!globalData);
-    console.log('🌐 Global useEffect - globalData type:', typeof globalData, 'keys:', globalData ? Object.keys(globalData) : 'none');
     if (globalStatus === 'success' && globalData) {
-      console.log('✅ Setting global content:', Object.keys(globalData));
-      setGlobalContent(globalData);
-    } else {
-      console.log('❌ Not setting global content - status:', globalStatus, 'data:', !!globalData);
+      const extracted = (globalData as any)?.global_data ?? (globalData as unknown as Record<string, unknown>);
+      setGlobalContent(extracted);
     }
   }, [globalStatus, globalData]);
 

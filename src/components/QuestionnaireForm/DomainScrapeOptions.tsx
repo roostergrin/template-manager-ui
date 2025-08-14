@@ -6,7 +6,7 @@ export type DomainScrapeOptionsProps = {
   domain: string;
   setDomain: (v: string) => void;
   handleFillForm: (scrape: boolean, useSelenium: boolean, scroll: boolean) => void;
-  fillFormStatus: MutationStatus;
+  fillFormStatus?: MutationStatus;
   fillFormData?: FillFormResponse;
   mockScrapeDomain: (domain: string) => void;
 };
@@ -15,8 +15,8 @@ const DomainScrapeOptions: React.FC<DomainScrapeOptionsProps> = ({
   domain,
   setDomain,
   handleFillForm,
-  fillFormStatus,
-  fillFormData,
+  // fillFormStatus,
+  // fillFormData,
   mockScrapeDomain,
 }) => {
   const [scrape, setScrape] = useState(true);
