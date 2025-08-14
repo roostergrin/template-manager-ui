@@ -12,12 +12,12 @@ const ProvisionWordPressSection: React.FC<ProvisionWordPressSectionProps> = ({
 }) => {
   const servers = useMemo(
     () => [
-      { id: "default", label: "Default" },
-      { id: "sunset", label: "Sunset (Preferred)" },
+      { id: "uluwatu", label: "Uluwatu" },
+      { id: "sunset", label: "Sunset" },
     ],
     []
   );
-  const [pleskIp, setPleskIp] = useState<string>("sunset");
+  const [pleskIp, setPleskIp] = useState<string>("uluwatu");
   // Deprecated fields removed from UI
 
   const [
