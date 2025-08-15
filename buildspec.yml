@@ -1,0 +1,34 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - echo Build started on `date`
+      - echo Installing dependencies...
+      - npm ci
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Running linter...
+      - npm run lint
+      - echo Running tests...
+      - npm run test:run
+      - echo Building the React application...
+      - npm run build:prod
+      - echo Build completed on `date`
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Listing build output...
+      - ls -la dist/
+
+artifacts:
+  files:
+    - '**/*'
+  base-directory: 'dist'
+  name: template-manager-ui-artifacts
+
+cache:
+  paths:
+    - 'node_modules/**/*'

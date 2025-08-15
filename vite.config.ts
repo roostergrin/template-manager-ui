@@ -4,6 +4,22 @@ import react from '@vitejs/plugin-react-swc'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  base: '/', // Ensure proper base path for S3/CloudFront
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets',
+    sourcemap: false, // Disable source maps in production for security
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          tanstack: ['@tanstack/react-query'],
+          rjsf: ['@rjsf/core', '@rjsf/validator-ajv8'],
+          dnd: ['@dnd-kit/core', '@dnd-kit/sortable', '@dnd-kit/utilities', '@dnd-kit/modifiers']
+        }
+      }
+    }
+  },
   css: {
     preprocessorOptions: {
       scss: {
