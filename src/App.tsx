@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import WorkflowManager from './components/WorkflowManager/WorkflowManager';
+import TestGenerateContent from './pages/TestGenerateContent';
 import GithubRepoProvider from './context/GithubRepoContext';
 import { QuestionnaireProvider } from './contexts/QuestionnaireProvider';
 import { SitemapProvider } from './contexts/SitemapProvider';
@@ -107,7 +108,11 @@ const App: React.FC = () => {
                           <GithubRepoProvider>
                 <TokenGate>
                   <div className="app">
-                    <WorkflowManager />
+                    {typeof window !== 'undefined' && window.location.pathname.includes('/test-generate-content') ? (
+                      <TestGenerateContent />
+                    ) : (
+                      <WorkflowManager />
+                    )}
                   </div>
                 </TokenGate>
               </GithubRepoProvider>

@@ -16,7 +16,7 @@ const defaultSettings: AppSettings = {
   timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
   autoSave: true,
   debugMode: false,
-  apiTimeout: 30000,
+  apiTimeout: 300000, // 5 minutes for long-running operations
   maxRetries: 3
 }
 

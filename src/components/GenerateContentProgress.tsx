@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { generateContentQueryFunction } from "../services/generateContentService";
 import { generateGlobalQueryFunction } from "../services/generateGlobalService";
@@ -43,18 +43,11 @@ const GenerateContentProgress: React.FC<GenerateContentProgressProps> = ({
   const { githubOwner, githubRepo } = state;
   const { setGithubOwner, setGithubRepo } = actions;
 
-  // Get the effective questionnaire data (either structured or markdown-based)
-  const effectiveQuestionnaireData = getEffectiveQuestionnaireData(questionnaireData);
+  // Get the effective questionnaire data (memoized to keep identity stable)
+  const effectiveQuestionnaireData = useMemo(() => getEffectiveQuestionnaireData(questionnaireData), [questionnaireData]);
 
-  // Prepare request object
-  const req: GenerateContentRequest = {
-    sitemap_data: {
-      pages,
-      questionnaireData: effectiveQuestionnaireData,
-    },
-    site_type: siteType,
-    assign_images: useRgTemplateAssets,
-  };
+  // Prepare a stable request snapshot when starting generation
+  const [requestSnapshot, setRequestSnapshot] = useState<GenerateContentRequest | null>(null);
 
   // Fetch global content
   const {
@@ -62,9 +55,9 @@ const GenerateContentProgress: React.FC<GenerateContentProgressProps> = ({
     status: globalStatus,
     error: globalError,
   } = useQuery({
-    queryKey: ["generate-global", req],
+    queryKey: ["generate-global", requestSnapshot as GenerateContentRequest],
     queryFn: generateGlobalQueryFunction,
-    enabled: shouldFetch,
+    enabled: shouldFetch && !!requestSnapshot,
   });
 
   // Fetch pages content
@@ -73,9 +66,9 @@ const GenerateContentProgress: React.FC<GenerateContentProgressProps> = ({
     status: pagesStatus,
     error: pagesError,
   } = useQuery({
-    queryKey: ["generate-content", req],
+    queryKey: ["generate-content", requestSnapshot as GenerateContentRequest],
     queryFn: generateContentQueryFunction,
-    enabled: shouldFetch,
+    enabled: shouldFetch && !!requestSnapshot,
   });
 
   // Update state when data is ready
@@ -110,15 +103,26 @@ const GenerateContentProgress: React.FC<GenerateContentProgressProps> = ({
 
   // Handler to start both fetches
   const handleGenerateContent = useCallback(() => {
-    setShouldFetch(false); // reset to allow re-fetch
+    setShouldFetch(false);
     setIsStarted(true);
     setPagesContent(null);
     setGlobalContent(null);
     setDownloadUrlPages(null);
     setDownloadUrlGlobal(null);
     setError(null);
-    setTimeout(() => setShouldFetch(true), 0); // allow React Query to re-trigger
-  }, []);
+    // Capture the request snapshot for this run
+    const snapshot: GenerateContentRequest = {
+      sitemap_data: {
+        pages,
+        questionnaireData: effectiveQuestionnaireData,
+      },
+      site_type: siteType,
+      assign_images: useRgTemplateAssets,
+    };
+    setRequestSnapshot(snapshot);
+    // allow React Query to re-trigger with stable snapshot
+    setTimeout(() => setShouldFetch(true), 0);
+  }, [pages, effectiveQuestionnaireData, siteType, useRgTemplateAssets]);
 
   // Download handlers
   const handleDownloadPages = useCallback(() => {

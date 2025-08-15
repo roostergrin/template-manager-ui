@@ -60,7 +60,7 @@ const mockSettings: AppSettings = {
   timezone: 'Europe/London',
   autoSave: false,
   debugMode: true,
-  apiTimeout: 60000,
+  apiTimeout: 300000,
   maxRetries: 5
 }
 
@@ -113,7 +113,7 @@ describe('AppConfigProvider', () => {
           language: 'en',
           autoSave: true,
           debugMode: false,
-          apiTimeout: 30000,
+          apiTimeout: 300000,
           maxRetries: 3
         }),
         userPreferences: {
@@ -396,7 +396,7 @@ describe('AppConfigProvider', () => {
         language: 'en',
         autoSave: true,
         debugMode: false,
-        apiTimeout: 30000,
+        apiTimeout: 300000,
         maxRetries: 3
       })
       // Timezone should be set to something

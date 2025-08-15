@@ -331,7 +331,7 @@ graph LR
 ```typescript
 {
   baseURL: process.env.VITE_API_BASE_URL || 'http://localhost:8000/',
-  timeout: 30000,
+  timeout: 300000, // 5 minutes for long-running operations
   retries: 3,
   retryDelay: 1000
 }

@@ -30,7 +30,7 @@ describe('APIClient', () => {
     it('should create instance with default config', () => {
       const defaultClient = new APIClient();
       expect(defaultClient.axios.defaults.baseURL).toContain('localhost:8000');
-      expect(defaultClient.axios.defaults.timeout).toBe(30000);
+      expect(defaultClient.axios.defaults.timeout).toBe(300000);
     });
 
     it('should create instance with custom config', () => {

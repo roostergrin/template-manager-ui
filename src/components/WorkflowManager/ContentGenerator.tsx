@@ -38,8 +38,8 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
   const selectedModelGroupKey = appConfigState.selectedModelGroupKey || Object.keys(appConfigState.modelGroups)[0];
   const siteType = getBackendSiteTypeForModelGroup(selectedModelGroupKey) || 'stinson';
 
-  // Get the effective questionnaire data
-  const effectiveQuestionnaireData = getEffectiveQuestionnaireData(questionnaireData);
+  // Get the effective questionnaire data (memoized to avoid identity changes)
+  const effectiveQuestionnaireData = useMemo(() => getEffectiveQuestionnaireData(questionnaireData), [questionnaireData]);
 
   // File upload handlers
   const validateContentStructure = useCallback((content: any, type: 'pages' | 'global'): string | null => {
@@ -123,15 +123,8 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
     if (globalInput) globalInput.value = '';
   }, []);
 
-  // Prepare request object with useMemo to prevent unnecessary re-renders
-  const req: GenerateContentRequest = useMemo(() => ({
-    sitemap_data: {
-      pages,
-      questionnaireData: effectiveQuestionnaireData,
-    },
-    site_type: siteType,
-    assign_images: useRgTemplateAssets,
-  }), [pages, effectiveQuestionnaireData, siteType, useRgTemplateAssets]);
+  // Stable request snapshot captured at generation start
+  const [requestSnapshot, setRequestSnapshot] = useState<GenerateContentRequest | null>(null);
 
   // Fetch global content
   const {
@@ -139,9 +132,9 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
     status: globalStatus,
     error: globalError,
   } = useQuery({
-    queryKey: ['generate-global', req],
+    queryKey: ['generate-global', requestSnapshot as GenerateContentRequest],
     queryFn: generateGlobalQueryFunction,
-    enabled: shouldFetch,
+    enabled: shouldFetch && !!requestSnapshot,
   });
 
   // Fetch pages content
@@ -150,9 +143,9 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
     status: pagesStatus,
     error: pagesError,
   } = useQuery({
-    queryKey: ['generate-content', req],
+    queryKey: ['generate-content', requestSnapshot as GenerateContentRequest],
     queryFn: generateContentQueryFunction,
-    enabled: shouldFetch,
+    enabled: shouldFetch && !!requestSnapshot,
   });
 
   // Debug logging for query states
@@ -166,8 +159,8 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
     console.log('🌍 Global Data:', globalData ? 'Present' : 'Missing');
     console.log('❌ Pages Error:', pagesError?.message || 'None');
     console.log('❌ Global Error:', globalError?.message || 'None');
-    console.log('🔑 Request Object:', req);
-  }, [shouldFetch, isStarted, pagesStatus, globalStatus, pagesData, globalData, pagesError, globalError, req]);
+    console.log('🔑 Request Snapshot:', requestSnapshot);
+  }, [shouldFetch, isStarted, pagesStatus, globalStatus, pagesData, globalData, pagesError, globalError, requestSnapshot]);
 
   // Handle successful content generation
   useEffect(() => {
@@ -194,7 +187,7 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
     if (pagesContent && globalContent && onContentGenerated) {
       onContentGenerated(pagesContent, globalContent);
     }
-  }, [pagesContent, globalContent, onContentGenerated]);
+  }, [pagesContent, globalContent]);
 
   // Reset to idle after both queries complete
   useEffect(() => {
@@ -216,13 +209,24 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
     queryClient.invalidateQueries({ queryKey: ['generate-global'] });
     console.log('🧹 Invalidated React Query cache');
     
+    // Capture stable snapshot of the request
+    const snapshot: GenerateContentRequest = {
+      sitemap_data: {
+        pages,
+        questionnaireData: effectiveQuestionnaireData,
+      },
+      site_type: siteType,
+      assign_images: useRgTemplateAssets,
+    };
+    setRequestSnapshot(snapshot);
+
     setIsStarted(true);
     setShouldFetch(true);
     setPagesContent(null);
     setGlobalContent(null);
     
     console.log('🧹 Clearing previous content states');
-  }, [queryClient]);
+  }, [queryClient, pages, effectiveQuestionnaireData, siteType, useRgTemplateAssets]);
 
   const handleUseRgTemplateAssetsChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     setUseRgTemplateAssets(event.target.checked);
