@@ -5,8 +5,15 @@ import react from '@vitejs/plugin-react-swc'
 export default defineConfig({
   plugins: [react()],
   esbuild: {
-    logOverride: { 'this-is-undefined-in-esm': 'silent' }
+    logOverride: { 
+      'this-is-undefined-in-esm': 'silent',
+      'empty-import-meta': 'silent',
+      'suspicious-boolean-not': 'silent'
+    },
+    ignoreAnnotations: true,
+    legalComments: 'none'
   },
+  logLevel: 'silent',
   base: '/', // Ensure proper base path for S3/CloudFront
   build: {
     outDir: 'dist',
