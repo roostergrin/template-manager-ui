@@ -19,10 +19,10 @@ const ProvisionWordPressSection: React.FC<ProvisionWordPressSectionProps> = () =
   // Deprecated fields removed from UI
 
   const [
-    _createResponse,
-    _createStatus,
-    _createSubscription,
-    _createError,
+    /* _createResponse */,
+    /* _createStatus */,
+    /* _createSubscription */,
+    /* _createError */,
     copyResponse,
     copyStatus,
     copySubscription,

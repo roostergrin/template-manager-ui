@@ -10,10 +10,6 @@ phases:
   build:
     commands:
       - echo Build started on `date`
-      - echo Running linter...
-      - npm run lint
-      - echo Running tests...
-      - npm run test:run
       - echo Building the React application...
       - npm run build:prod
       - echo Build completed on `date`

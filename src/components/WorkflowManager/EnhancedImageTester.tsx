@@ -136,7 +136,7 @@ const EnhancedImageTester: React.FC<EnhancedImageTesterProps> = ({
           if (extractedUrls.length > 0) {
             setImageUrls(extractedUrls.join('\n'));
           }
-        } catch (error) {
+        } catch {
           setSyncError('Invalid JSON file');
         }
       };
@@ -310,7 +310,7 @@ const EnhancedImageTester: React.FC<EnhancedImageTesterProps> = ({
           original: url,
           cloudfront: cloudfrontUrl
         };
-      } catch (error) {
+      } catch {
         const extension = url.split('.').pop()?.split('?')[0] || 'jpg';
         const cloudfrontUrl = `https://${cloudfrontDomain}/scraped-images/invalid-url_${Date.now()}.${extension}`;
         
@@ -350,7 +350,7 @@ const EnhancedImageTester: React.FC<EnhancedImageTesterProps> = ({
       
       const updatedJson = replaceUrls(parsed);
       return JSON.stringify(updatedJson, null, 2);
-    } catch (error) {
+    } catch {
       return '';
     }
   };

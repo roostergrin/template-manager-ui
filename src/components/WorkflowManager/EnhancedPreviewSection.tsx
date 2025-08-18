@@ -79,7 +79,7 @@ const EnhancedPreviewSection: React.FC<EnhancedPreviewSectionProps> = ({
       
       setEditingPage(null);
       setEditContent('');
-    } catch (error) {
+    } catch {
       alert('Invalid JSON format. Please check your syntax.');
     }
   };
@@ -277,7 +277,7 @@ const EnhancedPreviewSection: React.FC<EnhancedPreviewSectionProps> = ({
                           try {
                             JSON.parse(editContent);
                             return <span className="valid">✅ Valid JSON</span>;
-                          } catch (error) {
+                          } catch {
                             return <span className="invalid">❌ Invalid JSON</span>;
                           }
                         })()}
@@ -297,7 +297,7 @@ const EnhancedPreviewSection: React.FC<EnhancedPreviewSectionProps> = ({
                               </div>
                             </div>
                           );
-                        } catch (error) {
+                        } catch {
                           return null;
                         }
                       })()}
