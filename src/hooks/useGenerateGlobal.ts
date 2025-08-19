@@ -4,7 +4,14 @@ import { GenerateContentRequest, GenerateGlobalResponse } from "../types/APIServ
 
 const useGenerateGlobal = () => {
   const mutation = useMutation<GenerateGlobalResponse, Error, GenerateContentRequest>({
-    mutationFn: generateGlobalService
+    mutationFn: generateGlobalService,
+    retry: false,
+    onSuccess: (data) => {
+      console.log('Global content generated successfully:', data);
+    },
+    onError: (error) => {
+      console.error('Error generating global content:', error);
+    },
   });
   return [mutation.data, mutation.status as QueryStatus, mutation.mutateAsync] as [GenerateGlobalResponse | undefined, QueryStatus, (request: GenerateContentRequest) => Promise<GenerateGlobalResponse>];
 };

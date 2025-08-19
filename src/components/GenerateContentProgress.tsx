@@ -89,8 +89,10 @@ const GenerateContentProgress: React.FC<GenerateContentProgressProps> = ({
 
   useEffect(() => {
     if (pagesData) {
-      setPagesContent(pagesData);
-      const jsonPages = JSON.stringify(pagesData, null, 2);
+      // Extract just the pages data from the API response (remove the "pages" wrapper)
+      const actualPagesData = (pagesData as any)?.pages || pagesData;
+      setPagesContent(actualPagesData);
+      const jsonPages = JSON.stringify(actualPagesData, null, 2);
       const blobPages = new Blob([jsonPages], { type: "application/json" });
       setDownloadUrlPages(URL.createObjectURL(blobPages));
     }

@@ -5,8 +5,9 @@ import { GenerateSitemapRequest, GenerateSitemapResponse } from '../types/Sitema
 const useGenerateSitemap = () => {
   const mutation = useMutation<GenerateSitemapResponse, unknown, GenerateSitemapRequest>({
     mutationFn: generateSitemapService,
+    retry: false,
     onSuccess: (data) => {
-      console.log('Sitemap generated:', data);
+      console.log('Sitemap generated successfully:', data);
     },
     onError: (error) => {
       console.error('Error generating sitemap:', error);

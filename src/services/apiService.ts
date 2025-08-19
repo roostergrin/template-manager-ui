@@ -36,12 +36,12 @@ class APIClient {
   private retryDelay: number;
 
   constructor(config: APIClientConfig = {}) {
-    this.retries = config.retries || 3;
+    this.retries = config.retries || 0;
     this.retryDelay = config.retryDelay || 1000;
 
     this.instance = axios.create({
       baseURL: config.baseURL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/',
-      timeout: config.timeout || 300000, // 5 minutes for long-running operations
+      timeout: config.timeout || 900000, // 15 minutes for long-running operations
       headers: {
         'Content-Type': 'application/json',
       },
@@ -120,11 +120,34 @@ class APIClient {
 
   async post<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> {
     try {
-      const response = await this.instance.post<T>(url, data, config);
+      // For specific long-running operations, use extended timeout
+      const extendedTimeoutConfig = this.getExtendedTimeoutConfig(url, config);
+      const response = await this.instance.post<T>(url, data, extendedTimeoutConfig);
       return handleAPIResponse(response);
     } catch (error) {
       throw createAPIError(error, `POST ${url} failed`);
     }
+  }
+
+  private getExtendedTimeoutConfig(url: string, config?: AxiosRequestConfig): AxiosRequestConfig {
+    // Identify long-running operations that need extended timeouts
+    const longRunningEndpoints = [
+      '/generate-sitemap/',
+      '/generate-content',
+      '/generate-global',
+      '/provision-site'
+    ];
+
+    const isLongRunningOperation = longRunningEndpoints.some(endpoint => url.includes(endpoint));
+    
+    if (isLongRunningOperation) {
+      return {
+        ...config,
+        timeout: 1800000, // 30 minutes for AI generation operations
+      };
+    }
+
+    return config || {};
   }
 
   async put<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> {

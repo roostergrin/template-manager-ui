@@ -49,8 +49,16 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
         return 'Pages content must be an object with page data';
       }
       
+      // Handle both direct format { "8": [...] } and wrapped format { "pages": { "8": [...] } }
+      const actualPagesData = content?.pages || content;
+      
+      // Check if the actual pages data is valid
+      if (typeof actualPagesData !== 'object' || Array.isArray(actualPagesData)) {
+        return 'Pages data must be an object with page IDs as keys';
+      }
+      
       // Check if it has at least one page
-      const keys = Object.keys(content);
+      const keys = Object.keys(actualPagesData);
       if (keys.length === 0) {
         return 'Pages content appears to be empty';
       }
@@ -87,7 +95,11 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
         }
 
         if (type === 'pages') {
-          setPagesContent(content);
+          // Extract just the pages data from uploaded content (remove the "pages" wrapper if present)
+          const actualPagesData = content?.pages || content;
+          console.log('📁 Uploaded pages file - Raw content keys:', Object.keys(content));
+          console.log('📁 Uploaded pages file - Extracted pages data keys:', Object.keys(actualPagesData));
+          setPagesContent(actualPagesData);
         } else {
           setGlobalContent(content);
         }
@@ -167,8 +179,12 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
     console.log('📝 Pages useEffect FIRED - Status:', pagesStatus, 'Data present:', !!pagesData);
     console.log('📝 Pages useEffect - pagesData type:', typeof pagesData, 'keys:', pagesData ? Object.keys(pagesData) : 'none');
     if (pagesStatus === 'success' && pagesData) {
-      console.log('✅ Setting pages content:', Object.keys(pagesData));
-      setPagesContent(pagesData);
+      // Extract just the pages data from the API response (remove the "pages" wrapper)
+      const actualPagesData = (pagesData as any)?.pages || pagesData;
+      console.log('✅ Setting pages content (extracted from API response):', Object.keys(actualPagesData));
+      console.log('🔍 Raw API response keys:', Object.keys(pagesData));
+      console.log('🔍 Extracted pages data keys:', Object.keys(actualPagesData));
+      setPagesContent(actualPagesData);
     } else {
       console.log('❌ Not setting pages content - status:', pagesStatus, 'data:', !!pagesData);
     }

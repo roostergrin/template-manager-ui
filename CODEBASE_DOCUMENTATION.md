@@ -331,11 +331,18 @@ graph LR
 ```typescript
 {
   baseURL: process.env.VITE_API_BASE_URL || 'http://localhost:8000/',
-  timeout: 300000, // 5 minutes for long-running operations
-  retries: 3,
+  timeout: 900000, // 15 minutes for long-running operations
+  extendedTimeout: 1800000, // 30 minutes for AI generation operations
+  retries: 0, // No automatic retries
   retryDelay: 1000
 }
 ```
+
+**🔧 Extended Timeout Operations:**
+- `/generate-sitemap/` - 30 minutes
+- `/generate-content` - 30 minutes  
+- `/generate-global` - 30 minutes
+- `/provision-site` - 30 minutes
 
 ---
 
