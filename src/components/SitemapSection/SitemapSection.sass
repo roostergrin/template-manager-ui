@@ -1,16 +1,21 @@
 @use '../../styles/_variables.sass' as *
+@use '../../styles/forms'
+
 .sitemap-section
   color: $text-secondary
   margin-bottom: $space-3
+
   &__header
+    @extend %component-header
+
+  &__title
+    @extend %component-title
+
+  &__header-controls
+    margin-left: auto
     display: flex
-    align-items: center
-    background-color: $bg-subtle
-    padding: $space-2
-    border-radius: $radius-sm
-    margin-bottom: 0
-    &-controls
-      margin-left: auto
+    gap: 0.5rem
+
   &__collapse-button
     background: $bg-surface
     border: 1px solid $border-color
@@ -18,9 +23,7 @@
     font-size: 0.9rem
     padding: 0 $space-2
     border-radius: $radius-sm
-  &__title
-    font-weight: bold
-    margin-left: $space-2
+
   &__edit-button
     background-color: $bg-subtle
     border: 1px solid $border-color
@@ -29,39 +32,47 @@
     cursor: pointer
     &:hover
       background-color: #eef2ff
+
   &__list
     list-style-type: none
     padding: 0
     margin: 0 0 $space-2 0
+
   &__item
     display: flex
     align-items: center
     margin-bottom: $space-2
+
   &__select-container
     display: flex
     flex: 1
     margin: 0 $space-2
+
   &__select
     width: 25%
     padding: $space-2
     border: 1px solid $border-color
     border-radius: $radius-sm
     margin-right: $space-2
+
   &__input
     flex: 1
     padding: $space-2
     border: 1px solid $border-color
     border-radius: $radius-sm
+
   &__button
     background-color: $bg-subtle
     border: 1px solid $border-color
     border-radius: $radius-sm
     padding: 0.2rem $space-2
     cursor: pointer
+
   &__controls
     display: flex
     justify-content: flex-end
     gap: $space-2
+
   &__add-button
     background-color: $bg-subtle
     border: 1px solid $border-color

@@ -47,6 +47,9 @@ const GenerateSitemapButton: React.FC<GenerateSitemapButtonProps> = ({
 
   return (
     <div className="generate-sitemap-button">
+      <div className="generate-sitemap-button__header">
+        <h3 className="generate-sitemap-button__title">Generate Sitemap</h3>
+      </div>
       <div className="generate-sitemap-button__info-section">
         <div 
           className="generate-sitemap-button__site-type-info" 

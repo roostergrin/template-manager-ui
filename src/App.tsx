@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import WorkflowManager from './components/WorkflowManager/WorkflowManager';
 import TestGenerateContent from './pages/TestGenerateContent';
+import GithubFileUpdaterDemo from './pages/GithubFileUpdaterDemo';
 import GithubRepoProvider from './context/GithubRepoContext';
 import { QuestionnaireProvider } from './contexts/QuestionnaireProvider';
 import { SitemapProvider } from './contexts/SitemapProvider';
@@ -110,6 +111,8 @@ const App: React.FC = () => {
                   <div className="app">
                     {typeof window !== 'undefined' && window.location.pathname.includes('/test-generate-content') ? (
                       <TestGenerateContent />
+                    ) : typeof window !== 'undefined' && window.location.pathname.includes('/github-file-updater') ? (
+                      <GithubFileUpdaterDemo />
                     ) : (
                       <WorkflowManager />
                     )}

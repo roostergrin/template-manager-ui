@@ -288,102 +288,107 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
       )}
 
       {/* Mode Selection */}
-      <div className="mode-selection">
-        <div className="mode-tabs">
+      <div className="content-mode-selector">
+        <h4 className="content-mode-selector__title">Select Content Method</h4>
+        <div className="content-mode-selector__options">
           <button
-            className={`mode-tab ${uploadMode === 'generate' ? 'mode-tab--active' : ''}`}
+            className={`content-mode-selector__option ${uploadMode === 'generate' ? 'content-mode-selector__option--active' : ''}`}
             onClick={() => setUploadMode('generate')}
           >
-            🤖 Generate Content
+            <span className="content-mode-selector__option-label">🤖 Generate Content</span>
+            <span className="content-mode-selector__option-description">Automatically create content from questionnaire</span>
           </button>
           <button
-            className={`mode-tab ${uploadMode === 'upload' ? 'mode-tab--active' : ''}`}
+            className={`content-mode-selector__option ${uploadMode === 'upload' ? 'content-mode-selector__option--active' : ''}`}
             onClick={() => setUploadMode('upload')}
           >
-            📁 Upload Content
+            <span className="content-mode-selector__option-label">📁 Upload Content</span>
+            <span className="content-mode-selector__option-description">Upload pre-existing content files</span>
           </button>
         </div>
       </div>
 
-      {uploadMode === 'generate' ? (
-        <>
-          {/* Options */}
-          <div className="options-section">
-            <div className="checkbox-wrapper">
-              <input
-                type="checkbox"
-                id="use-rg-template-assets"
-                checked={useRgTemplateAssets}
-                onChange={handleUseRgTemplateAssetsChange}
-              />
-              <label htmlFor="use-rg-template-assets">
-                Use images from rg-templates-assets
-              </label>
-            </div>
-          </div>
-
-          {/* Generate Button */}
-          <button
-            className="generate-button"
-            onClick={handleGenerateContent}
-            disabled={isGenerating}
-          >
-            {isGenerating ? 'Generating Content...' : 'Generate Content'}
-          </button>
-        </>
-      ) : (
-        <>
-          {/* Manual Upload Section */}
-          <div className="upload-section">
-            <div className="upload-info">
-              <h4>📁 Upload Pre-Generated Content</h4>
-              <p>Upload your previously generated content JSON files to skip the generation process.</p>
-            </div>
-
-            <div className="upload-controls">
-              <div className="upload-group">
-                <label htmlFor="pages-upload" className="upload-label">
-                  📄 Pages Content (JSON)
-                </label>
+      <div className="content-generator__content">
+        {uploadMode === 'generate' ? (
+          <>
+            {/* Options */}
+            <div className="options-section">
+              <div className="checkbox-wrapper">
                 <input
-                  type="file"
-                  id="pages-upload"
-                  accept=".json"
-                  onChange={handlePagesFileChange}
-                  className="file-input"
+                  type="checkbox"
+                  className="checkbox"
+                  id="use-rg-template-assets"
+                  checked={useRgTemplateAssets}
+                  onChange={handleUseRgTemplateAssetsChange}
                 />
-                {pagesContent && (
-                  <span className="upload-status upload-status--success">
-                    ✅ Pages content loaded
-                  </span>
-                )}
-              </div>
-
-              <div className="upload-group">
-                <label htmlFor="global-upload" className="upload-label">
-                  🌐 Global Content (JSON)
+                <label htmlFor="use-rg-template-assets">
+                  Use images from rg-templates-assets
                 </label>
-                <input
-                  type="file"
-                  id="global-upload"
-                  accept=".json"
-                  onChange={handleGlobalFileChange}
-                  className="file-input"
-                />
-                {globalContent && (
-                  <span className="upload-status upload-status--success">
-                    ✅ Global content loaded
-                  </span>
-                )}
               </div>
             </div>
 
-            {/* Sample Structure Guide */}
-            <details className="sample-structure">
-              <summary>💡 View Expected JSON Structure</summary>
-              <div className="structure-content">
-                <div className="structure-example">
-                  <h6>Pages Content Structure:</h6>
+            {/* Generate Button */}
+            <button
+              className="generate-button"
+              onClick={handleGenerateContent}
+              disabled={isGenerating}
+            >
+              {isGenerating ? 'Generating Content...' : 'Generate Content'}
+            </button>
+          </>
+        ) : (
+          <>
+            {/* Manual Upload Section */}
+            <div className="upload-section">
+              <div className="upload-info">
+                <h4>📁 Upload Pre-Generated Content</h4>
+                <p>Upload your previously generated content JSON files to skip the generation process.</p>
+              </div>
+
+              <div className="upload-controls">
+                <div className="upload-group">
+                  <label htmlFor="pages-upload" className="upload-label">
+                    📄 Pages Content (JSON)
+                  </label>
+                  <input
+                    type="file"
+                    id="pages-upload"
+                    accept=".json"
+                    onChange={handlePagesFileChange}
+                    className="file-input"
+                  />
+                  {pagesContent && (
+                    <span className="upload-status upload-status--success">
+                      ✅ Pages content loaded
+                    </span>
+                  )}
+                </div>
+
+                <div className="upload-group">
+                  <label htmlFor="global-upload" className="upload-label">
+                    🌐 Global Content (JSON)
+                  </label>
+                  <input
+                    type="file"
+                    id="global-upload"
+                    accept=".json"
+                    onChange={handleGlobalFileChange}
+                    className="file-input"
+                  />
+                  {globalContent && (
+                    <span className="upload-status upload-status--success">
+                      ✅ Global content loaded
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Sample Structure Guide */}
+              <details className="sample-structure">
+                <summary>💡 View Expected JSON Structure</summary>
+                <div className="structure-content">
+                  <div className="structure-example">
+                    <h6>Pages Content Structure:</h6>
                   <pre>{`{
   "homepage": {
     "hero": {
@@ -501,20 +506,21 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
               </div>
             )}
           </div>
-
-          {uploadMode === 'upload' && (
-            <div className="upload-success-info">
-              <p>💡 <strong>Tip:</strong> Your uploaded content is now ready to be used in the Repository Updater and WordPress Updater sections.</p>
-            </div>
-          )}
-
-          {uploadMode === 'generate' && (
-            <div className="generation-success-info">
-              <p>💡 <strong>Next Steps:</strong> Your generated content is now ready! You can download the JSON files or proceed to the WordPress Updater section to push this content to your site.</p>
-            </div>
-          )}
         </div>
       )}
+        
+      {uploadMode === 'upload' && (
+        <div className="upload-success-info">
+          <p>💡 <strong>Tip:</strong> Your uploaded content is now ready to be used in the Repository Updater and WordPress Updater sections.</p>
+        </div>
+      )}
+
+      {uploadMode === 'generate' && (
+        <div className="generation-success-info">
+          <p>💡 <strong>Next Steps:</strong> Your generated content is now ready! You can download the JSON files or proceed to the WordPress Updater section to push this content to your site.</p>
+        </div>
+      )}
+    </div>
     </div>
   );
 };

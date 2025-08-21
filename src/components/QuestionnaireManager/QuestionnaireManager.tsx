@@ -199,17 +199,13 @@ Dr. Smith has been practicing orthodontics for over 15 years...
   return (
     <div className="questionnaire-manager">
       <div className="questionnaire-manager__header">
-        <div className="questionnaire-manager__title-row">
-          <h1 className="questionnaire-manager__title">Content Input Manager</h1>
-          <ProgressIndicator 
-            status={workflowState.progressState.planning.questionnaire} 
-            size="large"
-            showLabel={true}
-          />
-        </div>
-        <p className="questionnaire-manager__description">
-          Choose how you want to input your practice information for website generation.
-        </p>
+        <h4 className="questionnaire-manager__title">Content Input Manager</h4>
+        <ProgressIndicator 
+          status={workflowState.progressState.planning.questionnaire} 
+          size="large"
+          showLabel={true}
+        />
+        
         {isQuestionnaireCompleted() && (
           <div className="questionnaire-manager__completion-notice">
             ✅ Content input completed! You can now proceed to content planning.

@@ -47,7 +47,7 @@ const QuestionnaireModeSelector: React.FC<QuestionnaireModeSelector> = ({
 
   return (
     <div className="questionnaire-mode-selector">
-      <h2 className="questionnaire-mode-selector__title">Select Input Method</h2>
+      <h4 className="questionnaire-mode-selector__title">Select Input Method</h4>
       <div className="questionnaire-mode-selector__options">
         {modes.map((mode) => (
           <button

@@ -40,9 +40,9 @@ const GeneratedSitemapSelector: React.FC<GeneratedSitemapSelectorProps> = ({ onS
 
   return (
     <div className="flex flex-col gap-2 mb-4">
-      <label htmlFor="generated-sitemap-selector" className="text-gray-700 font-medium">
+      {/* <label htmlFor="generated-sitemap-selector" className="text-gray-700 font-medium">
         Load a Generated Sitemap:
-      </label>
+      </label> */}
       <select
         id="generated-sitemap-selector"
         className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400"

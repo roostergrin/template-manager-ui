@@ -15,6 +15,7 @@ interface SitemapContextState {
   isLoading: boolean
   error: string | null
   lastSaved: string | null
+  sitemapSource: 'loaded' | 'generated' | null
   // View controls
   showSelect: boolean
   showTextarea: boolean
@@ -146,7 +147,7 @@ export const SitemapProvider: React.FC<SitemapProviderProps> = ({
   
   const { error, isLoading, setError, clearError, setLoading } = useErrorState(initialState.error || null)
   
-  const { lastSaved, importPagesFromJson, handleGeneratedSitemap, handleSelectStoredSitemap } = useSitemapImport()
+  const { lastSaved, sitemapSource, importPagesFromJson, handleGeneratedSitemap, handleSelectStoredSitemap } = useSitemapImport()
 
   // Enhanced functions that coordinate between hooks
   const selectAllPages = () => {
@@ -212,6 +213,7 @@ export const SitemapProvider: React.FC<SitemapProviderProps> = ({
     isLoading,
     error,
     lastSaved,
+    sitemapSource,
     showSelect,
     showTextarea,
     showDeleteButtons,

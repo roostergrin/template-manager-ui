@@ -1,4 +1,5 @@
 import React from 'react';
+import './JsonExportImport.sass';
 
 type JsonExportImportProps = {
   exportJson: () => void;
@@ -20,9 +21,9 @@ const JsonExportImport: React.FC<JsonExportImportProps> = ({ exportJson, importJ
   };
 
   return (
-    <div className="flex gap-4 items-center mt-2 mb-4">
+    <div className="json-export-import">
       <button
-        className="app__export-json-button bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        className="secondary-button"
         onClick={exportJson}
         aria-label="Export JSON"
         tabIndex={0}
@@ -35,7 +36,6 @@ const JsonExportImport: React.FC<JsonExportImportProps> = ({ exportJson, importJ
         onChange={handleImport}
         aria-label="Import JSON"
         tabIndex={0}
-        className="border rounded px-2 py-1"
       />
     </div>
   );

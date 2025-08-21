@@ -1,0 +1,35 @@
+@use '../../styles/forms'
+
+.json-export-import
+  display: flex
+  gap: 1rem
+  align-items: center
+  margin: 0.5rem 0 1rem
+
+  .secondary-button
+    @extend %secondary-button
+
+  .file-input
+    cursor: pointer
+    
+    &::file-selector-button
+      display: none
+    
+    // Style the file input to look like a button
+    &::-webkit-file-upload-button
+      display: none
+    
+    // For Firefox
+    &::before
+      content: 'Import JSON'
+      display: inline-block
+      cursor: pointer
+
+  @media (max-width: 768px)
+    flex-direction: column
+    align-items: stretch
+    gap: 0.75rem
+
+    .secondary-button
+      width: 100%
+      text-align: center

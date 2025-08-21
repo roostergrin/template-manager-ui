@@ -11,6 +11,7 @@ const ProvisionWordPressSection: React.FC<ProvisionWordPressSectionProps> = () =
   const servers = useMemo(
     () => [
       { id: "sunset", label: "Sunset (Templates) 44.237.72.16" },
+      { id: "kewalos", label: "Kewalos (Custom) 44.237.149.155" },
       { id: "uluwatu", label: "Uluwatu (Landing pages) 44.236.196.209" },
     ],
     []
@@ -76,18 +77,17 @@ const ProvisionWordPressSection: React.FC<ProvisionWordPressSectionProps> = () =
   }, [pleskIp]);
 
   return (
-    <div className="provision-site-section" role="region" aria-label="Copy WordPress Subscription">
+    <div role="region" aria-label="Copy WordPress Subscription">
       <div className="provision-site-section__header">
         <h4 className="provision-site-section__title">Plesk / WordPress Provisioning</h4>
       </div>
 
-      <div className="provision-site-section__input-group">
-        <label className="provision-site-section__label" htmlFor="plesk-ip">
+      <div className="form-group">
+        <label htmlFor="plesk-ip">
           Server
         </label>
         <select
           id="plesk-ip"
-          className="provision-site-section__input"
           value={pleskIp}
           onChange={(e) => setPleskIp(e.target.value)}
           aria-label="Plesk server"
@@ -100,14 +100,13 @@ const ProvisionWordPressSection: React.FC<ProvisionWordPressSectionProps> = () =
         </select>
       </div>
 
-      <h4 className="provision-site-section__title">Copy Existing Subscription</h4>
-      <div className="provision-site-section__input-group">
-        <label className="provision-site-section__label" htmlFor="copy-source-domain">
-          Source Domain
-        </label>
-        <input
-          id="copy-source-domain"
-          className="provision-site-section__input"
+      <div>
+        <div className="form-group">
+          <label htmlFor="copy-source-domain">
+            Source Domain
+          </label>
+          <input
+            id="copy-source-domain"
           type="text"
           value={sourceDomain}
           onChange={(e) => setSourceDomain(e.target.value)}
@@ -121,27 +120,27 @@ const ProvisionWordPressSection: React.FC<ProvisionWordPressSectionProps> = () =
           ))}
         </datalist>
         {subsError && (
-          <div className="provision-site-section__error" role="alert" style={{ marginTop: 6 }}>
+          <div className="error-message" role="alert" style={{ marginTop: 6 }}>
             {subsError}
           </div>
         )}
       </div>
-      <div className="provision-site-section__input-group">
-        <label className="provision-site-section__label" htmlFor="copy-target-domain">
-          Target Domain
-        </label>
-        <input
-          id="copy-target-domain"
-          className="provision-site-section__input"
+        <div className="form-group">
+          <label htmlFor="copy-target-domain">
+            Target Domain
+          </label>
+          <input
+            id="copy-target-domain"
           type="text"
           value={targetDomain}
           onChange={(e) => setTargetDomain(e.target.value)}
           placeholder="example-copy.com"
           aria-label="Target domain"
         />
+        </div>
       </div>
       <button
-        className="provision-site-section__button"
+        className="primary-button"
         onClick={handleCopy}
         disabled={!sourceDomain || !targetDomain || copyStatus === "pending"}
         aria-label="Copy Plesk subscription"
@@ -150,13 +149,13 @@ const ProvisionWordPressSection: React.FC<ProvisionWordPressSectionProps> = () =
       </button>
 
       {copyErrorMessage && (
-        <div className="provision-site-section__error" role="alert">
+        <div className="error-message" role="alert">
           {copyErrorMessage}
         </div>
       )}
 
       {copyStatus === "success" && copyResponse && (
-        <div className="provision-site-section__success" role="status">
+        <div className="success-section" role="status">
           <div className="success-summary">
             <h4>✅ Subscription Copied</h4>
             <div className="success-details">
@@ -176,7 +175,7 @@ const ProvisionWordPressSection: React.FC<ProvisionWordPressSectionProps> = () =
             <summary style={{ cursor: "pointer", fontWeight: "bold" }}>
               View Full Copy Response
             </summary>
-            <pre className="provision-site-section__json">
+            <pre className="json-display">
               {JSON.stringify(copyResponse, null, 2)}
             </pre>
           </details>
@@ -188,7 +187,7 @@ const ProvisionWordPressSection: React.FC<ProvisionWordPressSectionProps> = () =
         <div style={{ marginTop: 12, display: "grid", gap: 8 }}>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             <button
-              className="provision-site-section__button"
+              className="secondary-button"
               onClick={async () => {
                 try {
                   const res = await testSSHConnection(pleskIp);
@@ -201,7 +200,7 @@ const ProvisionWordPressSection: React.FC<ProvisionWordPressSectionProps> = () =
               Test SSH
             </button>
             <button
-              className="provision-site-section__button"
+              className="secondary-button"
               onClick={async () => {
                 try {
                   const res = await listSubscriptions(pleskIp);

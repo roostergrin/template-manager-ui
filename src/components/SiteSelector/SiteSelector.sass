@@ -3,13 +3,16 @@
   padding: 20px 0
   
   &__container
-    display: flex
-    flex-wrap: wrap
+    display: grid
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr))
     gap: 20px
     justify-content: center
+
+    @media (max-width: 768px)
+      grid-template-columns: 1fr
   
   &__item
-    width: 280px
+    // width: 280px
     border-radius: 8px
     overflow: hidden
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1)
@@ -22,7 +25,7 @@
       box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15)
     
     &--active
-      border: 2px solid #4d4ec1
+      outline: 2px solid #4d4ec1
       
     &--coming-soon
       cursor: default
@@ -81,9 +84,10 @@
     text-transform: uppercase
   
   &__item-title
+    justify-content: center
     font-size: 18px
     font-weight: 600
-    margin: 15px 15px 10px
+    margin: 15px 15px 10px !important
     text-align: center
   
   &__item-adjectives
@@ -116,6 +120,7 @@
     
     &:hover
       background-color: #e8e8e8
+      text-decoration: none
     
   &__button-label
     font-size: 14px

@@ -57,7 +57,7 @@ const EnhancedProvisionSection: React.FC<EnhancedProvisionSectionProps> = ({
   };
 
   return (
-    <div className="provision-site-section" role="region" aria-label="Provision Site">
+    <div role="region" aria-label="Provision Site">
       <div className="provision-site-section__header">
         <h4 className="provision-site-section__title">AWS Infrastructure Provisioning</h4>
         <ProgressIndicator 
@@ -67,11 +67,10 @@ const EnhancedProvisionSection: React.FC<EnhancedProvisionSectionProps> = ({
         />
       </div>
       
-      <div className="provision-site-section__input-group">
-        <label className="provision-site-section__label" htmlFor="github-owner">GitHub Owner</label>
+      <div className="form-group">
+        <label htmlFor="github-owner">GitHub Owner</label>
         <input
           id="github-owner"
-          className="provision-site-section__input"
           type="text"
           value={githubOwner}
           onChange={e => setGithubOwner(e.target.value)}
@@ -80,11 +79,10 @@ const EnhancedProvisionSection: React.FC<EnhancedProvisionSectionProps> = ({
           tabIndex={0}
         />
       </div>
-      <div className="provision-site-section__input-group">
-        <label className="provision-site-section__label" htmlFor="github-repo">GitHub Repo</label>
+      <div className="form-group">
+        <label htmlFor="github-repo">GitHub Repo</label>
         <input
           id="github-repo"
-          className="provision-site-section__input"
           type="text"
           value={githubRepo}
           onChange={e => setGithubRepo(e.target.value)}
@@ -93,11 +91,10 @@ const EnhancedProvisionSection: React.FC<EnhancedProvisionSectionProps> = ({
           tabIndex={0}
         />
       </div>
-      <div className="provision-site-section__input-group">
-        <label className="provision-site-section__label" htmlFor="github-branch">GitHub Branch</label>
+      <div className="form-group">
+        <label htmlFor="github-branch">GitHub Branch</label>
         <input
           id="github-branch"
-          className="provision-site-section__input"
           type="text"
           value={githubBranch}
           onChange={e => setGithubBranch(e.target.value)}
@@ -106,11 +103,10 @@ const EnhancedProvisionSection: React.FC<EnhancedProvisionSectionProps> = ({
           tabIndex={0}
         />
       </div>
-      <div className="provision-site-section__input-group">
-        <label className="provision-site-section__label" htmlFor="bucket-name">S3 Bucket Name</label>
+      <div className="form-group">
+        <label htmlFor="bucket-name">S3 Bucket Name</label>
         <input
           id="bucket-name"
-          className="provision-site-section__input"
           type="text"
           value={bucketName}
           onChange={e => setBucketName(e.target.value)}
@@ -119,37 +115,35 @@ const EnhancedProvisionSection: React.FC<EnhancedProvisionSectionProps> = ({
           tabIndex={0}
         />
       </div>
-      <div className="provision-site-section__input-group">
-        <label className="provision-site-section__label">Page Type</label>
-        <div className="provision-site-section__radio-group">
-          <label className="provision-site-section__radio-label">
+      <div className="form-group">
+        <label>Page Type</label>
+        <div className="radio-group">
+          <div className="radio-option">
             <input
               type="radio"
               name="page-type"
               value="template"
               checked={pageType === "template"}
               onChange={() => setPageType("template")}
-              className="provision-site-section__radio"
               aria-label="Template page"
             />
-            Template Page
-          </label>
-          <label className="provision-site-section__radio-label">
+            <span>Template Page</span>
+          </div>
+          <div className="radio-option">
             <input
               type="radio"
               name="page-type"
               value="landing"
               checked={pageType === "landing"}
               onChange={() => setPageType("landing")}
-              className="provision-site-section__radio"
               aria-label="Landing page"
             />
-            Landing Page
-          </label>
+            <span>Landing Page</span>
+          </div>
         </div>
       </div>
       <button
-        className="provision-site-section__button"
+        className="primary-button"
         onClick={handleProvision}
         disabled={!bucketName || !githubOwner || !githubRepo || !githubBranch || status === "pending"}
         aria-label="Provision site with S3 and CloudFront"
@@ -159,10 +153,10 @@ const EnhancedProvisionSection: React.FC<EnhancedProvisionSectionProps> = ({
         {status === "pending" ? "Provisioning..." : "Provision Site"}
       </button>
       {error && (
-        <div className="provision-site-section__error" role="alert">{error}</div>
+        <div className="error-message" role="alert">{error}</div>
       )}
       {status === "success" && response && (
-        <div className="provision-site-section__success" role="status">
+        <div className="success-section" role="status">
           <div className="success-summary">
             <h4>🎉 Provisioning Successful!</h4>
             <div className="success-details">
@@ -195,7 +189,7 @@ const EnhancedProvisionSection: React.FC<EnhancedProvisionSectionProps> = ({
           </div>
           <details style={{ marginTop: '15px' }}>
             <summary style={{ cursor: 'pointer', fontWeight: 'bold' }}>View Full Response</summary>
-            <pre className="provision-site-section__json">{JSON.stringify(response, null, 2)}</pre>
+            <pre className="json-display">{JSON.stringify(response, null, 2)}</pre>
           </details>
         </div>
       )}

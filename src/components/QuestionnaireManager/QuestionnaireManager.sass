@@ -1,185 +1,51 @@
+@use '../../styles/forms'
+
 .questionnaire-manager
-  max-width: 1200px
-  margin: 0 auto
-  padding: 2rem
-
   &__header
-    text-align: center
-    margin-bottom: 2rem
-
-  &__title-row
-    display: flex
-    align-items: center
-    justify-content: center
-    gap: 1rem
-    margin-bottom: 1rem
+    @extend %component-header
 
   &__title
-    font-size: 2.5rem
-    font-weight: 700
-    color: #1f2937
-    line-height: 1.2
-    margin: 0
-
-  &__description
-    font-size: 1.125rem
-    color: #6b7280
-    line-height: 1.6
-    margin-bottom: 1rem
-
-  &__completion-notice
-    background: linear-gradient(135deg, #d1f2eb 0%, #a3e4d7 100%)
-    border: 2px solid #27ae60
-    border-radius: 8px
-    padding: 1rem
-    margin-top: 1rem
-    color: #0e4b3a
-    font-weight: 600
-    font-size: 1rem
-    max-width: 600px
-    margin: 0 auto
+    @extend %component-title
 
   &__content
-    margin-top: 2rem
+    margin-top: 0
 
-  &__scraped-data
-    margin-top: 2rem
-    padding: 1.5rem
-    background-color: #f9fafb
-    border: 1px solid #e5e7eb
-    border-radius: 8px
+  .form-group
+    @extend %form-group
 
-    h3
-      font-size: 1.125rem
-      font-weight: 600
-      color: #374151
-      margin-bottom: 1rem
+  .form-section
+    @extend %form-section
 
-    pre
-      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace
-      font-size: 0.75rem
-      color: #374151
-      background-color: #ffffff
-      padding: 1rem
-      border-radius: 6px
-      border: 1px solid #d1d5db
-      overflow: auto
-      max-height: 300px
+  .form-row
+    @extend %form-row
 
-  &__debug
-    margin-top: 3rem
-    padding-top: 2rem
-    border-top: 1px solid #e5e7eb
+  .primary-button, .generate-button, .submit-button
+    @extend %primary-button
 
-    details
-      summary
-        font-size: 0.875rem
-        font-weight: 600
-        color: #6b7280
-        cursor: pointer
-        padding: 0.5rem
-        background-color: #f3f4f6
-        border-radius: 4px
-        margin-bottom: 1rem
+  .secondary-button
+    @extend %secondary-button
 
-        &:hover
-          background-color: #e5e7eb
+  .error-message
+    @extend %error-message
 
-      pre
-        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace
-        font-size: 0.75rem
-        color: #374151
-        background-color: #f9fafb
-        padding: 1rem
-        border-radius: 6px
-        border: 1px solid #d1d5db
-        overflow: auto
-        max-height: 400px
+  .success-section
+    @extend %success-section
 
-  &__markdown-info
+  .info-banner
+    @extend %info-banner
+
+  .radio-group
+    @extend %radio-group
+
+  .auto-filled-notice
+    @extend %auto-filled-notice
+
+  &__completion-notice
+    @extend %success-section
     margin-top: 1rem
     padding: 1rem
-    background-color: #e0f2fe
-    border: 1px solid #0288d1
-    border-radius: 6px
-    
-    p
-      margin: 0
-      font-size: 0.875rem
-      color: #01579b
-      line-height: 1.4
+    text-align: center
+    font-weight: 600
 
-    strong
-      font-weight: 600
-
-// Dark mode support
-@media (prefers-color-scheme: dark)
-  .questionnaire-manager
-    &__title
-      color: #f3f4f6
-
-    &__description
-      color: #9ca3af
-
-    &__markdown-info
-      background-color: #1e3a8a
-      border-color: #3b82f6
-
-      p
-        color: #bfdbfe
-
-    &__scraped-data
-      background-color: #1f2937
-      border-color: #374151
-
-      h3
-        color: #f3f4f6
-
-      pre
-        background-color: #111827
-        color: #e5e7eb
-        border-color: #374151
-
-    &__debug
-      border-color: #374151
-
-      details
-        summary
-          color: #9ca3af
-          background-color: #374151
-
-          &:hover
-            background-color: #4b5563
-
-        pre
-          background-color: #1f2937
-          color: #e5e7eb
-          border-color: #374151
-
-// Responsive design
-@media (max-width: 1024px)
-  .questionnaire-manager
-    padding: 1.5rem
-
-    &__title
-      font-size: 2rem
-
-@media (max-width: 768px)
-  .questionnaire-manager
-    padding: 1rem
-
-    &__title
-      font-size: 1.75rem
-
-    &__description
-      font-size: 1rem
-
-    &__scraped-data
-      padding: 1rem
-
-      pre
-        font-size: 0.7rem
-
-    &__debug
-      pre
-        font-size: 0.7rem 
+// Include responsive form styles
+@include forms.form-responsive

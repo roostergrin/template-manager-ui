@@ -15,6 +15,7 @@ import GenerateSitemapButton from '../GenerateSitemapButton';
 import GeneratedSitemapSelector from '../GeneratedSitemapSelector';
 import SitemapViewToggle from '../Sitemap/SitemapViewToggle';
 import JsonExportImport from '../Sitemap/JsonExportImport';
+import './EnhancedSitemap.sass';
 
 const EnhancedSitemap: React.FC = () => {
   // Use contexts instead of props
@@ -44,8 +45,8 @@ const EnhancedSitemap: React.FC = () => {
   // Track sitemap planning progress - using context instead of props
   useEffect(() => {
     const currentStatus = workflowState.progressState.planning.sitemapPlanning;
-    const shouldBeCompleted = pages.length > 0;
-    const shouldBePending = pages.length === 0;
+    const shouldBeCompleted = sitemapState.sitemapSource && pages.length > 0;
+    const shouldBePending = !sitemapState.sitemapSource || pages.length === 0;
     
     // Only update if the status actually needs to change
     if (shouldBeCompleted && currentStatus !== 'completed') {
@@ -53,7 +54,7 @@ const EnhancedSitemap: React.FC = () => {
     } else if (shouldBePending && currentStatus !== 'pending') {
       workflowActions.updateTaskStatus('planning', 'sitemapPlanning', 'pending');
     }
-  }, [pages.length, workflowState.progressState.planning.sitemapPlanning, workflowActions]);
+  }, [sitemapState.sitemapSource, pages.length, workflowState.progressState.planning.sitemapPlanning, workflowActions]);
   
   // Import/export logic
   const { exportJson, importJson } = useImportExport();
@@ -65,12 +66,14 @@ const EnhancedSitemap: React.FC = () => {
   return (
     <div className="relative">
       <div className="sitemap-header">
-        <h2 className="text-2xl font-bold mb-4">Sitemap Builder</h2>
-        <ProgressIndicator 
-          status={workflowState.progressState.planning.sitemapPlanning} 
-          size="medium"
-          showLabel={true}
-        />
+        <h4 className="sitemap-header__title">Sitemap Builder</h4>
+        <div className="sitemap-header__progress">
+          <ProgressIndicator 
+            status={workflowState.progressState.planning.sitemapPlanning} 
+            size="medium"
+            showLabel={true}
+          />
+        </div>
       </div>
       
       {/* Data Source Indicator */}
@@ -87,30 +90,37 @@ const EnhancedSitemap: React.FC = () => {
           selectedModelGroupKey={selectedModelGroupKey}
           onModelGroupChange={(key) => appConfigActions.setSelectedModelGroup(key)}
         />
-        <h3 className="text-lg font-semibold mb-2">Load a Generated Sitemap</h3>
-        <GeneratedSitemapSelector onSelectSitemap={sitemapActions.handleSelectStoredSitemap} />
-        <hr className="my-4 border-gray-300" />
-        {questionnaireState.activeMode !== 'template-markdown' && (
-          <GenerateSitemapButton
-            questionnaireData={effectiveQuestionnaireData as any}
-            generateSitemap={generateSitemap}
-            generateSitemapStatus={generateSitemapStatus}
-            generateSitemapData={generateSitemapData}
-            onSitemapGenerated={sitemapActions.handleGeneratedSitemap}
-            controls={{
-              backendSiteType,
-            }}
-          />
-        )}
-        <DefaultTemplateSelector
-          selectedModelGroupKey={selectedModelGroupKey}
-          onTemplateSelect={sitemapActions.importPagesFromJson}
-        />
+        
+        
+        <div className="sitemap-actions-row">
+          {questionnaireState.activeMode !== 'template-markdown' && (
+            <GenerateSitemapButton
+              questionnaireData={effectiveQuestionnaireData as any}
+              generateSitemap={generateSitemap}
+              generateSitemapStatus={generateSitemapStatus}
+              generateSitemapData={generateSitemapData}
+              onSitemapGenerated={sitemapActions.handleGeneratedSitemap}
+              controls={{
+                backendSiteType,
+              }}
+            />
+          )}
+          
+          <div className="template-selector-card">
+            <h3 className="text-lg font-semibold mb-2">Load a Previous Sitemap</h3>
+            <GeneratedSitemapSelector onSelectSitemap={sitemapActions.handleSelectStoredSitemap} />
+          </div>
+        </div>
+        
       </div>
       
-      <SitemapViewToggle />
-      
-      <JsonExportImport exportJson={exportJson} importJson={importJson} />
+      {/* Only show sitemap view and export/import if a sitemap has been loaded or generated */}
+      {sitemapState.sitemapSource && pages.length > 0 && (
+        <>
+          <SitemapViewToggle />
+          <JsonExportImport exportJson={exportJson} importJson={importJson} />
+        </>
+      )}
     </div>
   );
 };

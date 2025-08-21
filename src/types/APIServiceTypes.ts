@@ -66,6 +66,30 @@ export interface UpdateRepoDataResponse {
   message?: string;
 }
 
+// Single File Update Types
+export interface UpdateGithubRepoFileRequest {
+  owner: string;
+  repo: string;
+  path: string;
+  content: string;
+  message?: string;
+  branch?: string;
+  sha?: string; // Required if updating existing file
+}
+
+export interface UpdateGithubRepoFileResponse {
+  success: boolean;
+  message?: string;
+  commit?: {
+    sha: string;
+    url: string;
+  };
+  content?: {
+    sha: string;
+    download_url: string;
+  };
+}
+
 export interface CreateRepoRequest {
   new_name: string;
   template_repo: string;

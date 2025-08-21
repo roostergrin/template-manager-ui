@@ -23,6 +23,7 @@ const mapImportedPages = (pagesObj: Record<string, any>): SitemapSection[] => {
 
 const useSitemapImport = () => {
   const [lastSaved, setLastSaved] = useState<string | null>(null)
+  const [sitemapSource, setSitemapSource] = useState<'loaded' | 'generated' | null>(null)
 
   const importPagesFromJson = (jsonData: string): SitemapSection[] | null => {
     try {
@@ -30,6 +31,7 @@ const useSitemapImport = () => {
       if (importedData.pages) {
         const pages = mapImportedPages(importedData.pages)
         setLastSaved(new Date().toISOString())
+        setSitemapSource('loaded')
         return pages
       }
       return null
@@ -65,12 +67,14 @@ const useSitemapImport = () => {
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(arr))
 
     setLastSaved(new Date().toISOString())
+    setSitemapSource('generated')
     return newPages
   }
 
   const handleSelectStoredSitemap = (stored: StoredSitemap): SitemapSection[] | null => {
     if (stored && stored.sitemap && (stored.sitemap as any).pages) {
       setLastSaved(stored.created)
+      setSitemapSource('loaded')
       return mapImportedPages((stored.sitemap as any).pages)
     }
     return null
@@ -78,6 +82,7 @@ const useSitemapImport = () => {
 
   return {
     lastSaved,
+    sitemapSource,
     importPagesFromJson,
     handleGeneratedSitemap,
     handleSelectStoredSitemap

@@ -47,6 +47,7 @@ const initialProgressState: ProgressState = {
   deployment: {
     repositoryUpdate: 'pending',
     wordpressUpdate: 'pending',
+    frontendUpdate: 'pending',
   },
 };
 
@@ -114,6 +115,11 @@ const progressSections: ProgressSection[] = [
         id: 'wordpressUpdate',
         title: 'WordPress Update',
         description: 'Deploy to WordPress site',
+      },
+      {
+        id: 'frontendUpdate',
+        title: 'Frontend Updates',
+        description: 'Update individual repository files',
       },
     ],
   },

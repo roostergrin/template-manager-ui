@@ -4,6 +4,7 @@ import { SortableContext, arrayMove, verticalListSortingStrategy, sortableKeyboa
 import { useSitemap } from '../../contexts/SitemapProvider';
 import PageCard from './PageCard';
 import { SitemapItem, SitemapSection } from '../../types/SitemapTypes';
+import './PageList.sass';
 
 type ActiveDragType = 'page' | 'item' | null;
 
@@ -16,7 +17,7 @@ const PageList: React.FC = () => {
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
   
-  const { pages, viewMode, showItems } = state;
+  const { pages, viewMode, showItems, sitemapSource } = state;
   
   const { addPage } = actions;
   // Determine item density from view mode; layout is always full-width single column
@@ -150,6 +151,15 @@ const PageList: React.FC = () => {
     actions.setShowItems(false);
   }, [actions]);
 
+  // Don't show the sitemap container until a sitemap has been loaded or generated
+  if (!sitemapSource || pages.length === 0) {
+    return (
+      <div className="text-center py-8 text-gray-500">
+        <p>No sitemap loaded. Please generate a new sitemap or load an existing one.</p>
+      </div>
+    );
+  }
+
   return (
     <DndContext sensors={sensors} onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
       <div
@@ -161,29 +171,38 @@ const PageList: React.FC = () => {
         }}
       >
         <div className="app__page-filter flex items-center gap-2 mb-2" style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 16,
           background: 'var(--filter-bg, #f8fafc)',
           border: '1px solid var(--filter-border, #e2e8f0)',
           borderRadius: 8,
-          padding: '8px 10px'
+          padding: '1rem'
         }}>
-          <input
-            type="text"
-            value={filterText}
-            onChange={(e) => setFilterText(e.target.value)}
-            className="border rounded px-2 py-1 text-sm flex-1"
-            placeholder="Filter by page title, model, or query…"
-            aria-label="Filter sitemap"
-          />
-          {filterText && (
-            <button
-              className="border rounded px-2 py-1 text-xs"
-              onClick={() => setFilterText('')}
-              aria-label="Clear filter"
-            >
-              Clear
-            </button>
-          )}
-          <div className="app__page-filter-controls" role="group" aria-label="Toggle item visibility globally" style={{ display: 'flex', alignItems: 'center', gap: 8, marginLeft: 8 }}>
+          <h3>
+            {sitemapSource === 'generated' && 'Generated '}
+            {sitemapSource === 'loaded' && 'Loaded '}
+            Sitemap
+          </h3>
+          
+          <div className="app__page-filter-controls" role="group" aria-label="Toggle item visibility globally" style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%'}}>
+            <input
+              type="text"
+              value={filterText}
+              onChange={(e) => setFilterText(e.target.value)}
+              className="border rounded px-2 py-1 text-sm flex-1"
+              placeholder="Filter by page title, model, or query…"
+              aria-label="Filter sitemap"
+            />
+            {filterText && (
+              <button
+                className="border rounded px-2 py-1 text-xs"
+                onClick={() => setFilterText('')}
+                aria-label="Clear filter"
+              >
+                Clear
+              </button>
+            )}
             <button
               className={`app__filter-button ${showItems ? 'app__filter-button--active' : ''}`}
               onClick={handleShowAllItems}
@@ -203,30 +222,31 @@ const PageList: React.FC = () => {
               Hide All Items
             </button>
           </div>
+       
+          <SortableContext items={pageIds} strategy={verticalListSortingStrategy}>
+            {filteredPages.map((page) => (
+              <PageCard
+                key={page.id}
+                page={page}
+                index={pages.findIndex(p => p.id === page.id)}
+                showItemNumbers={true}
+                showPageIds={true}
+                showDeleteButtons={true}
+                showSelect={true}
+                showTextarea={true}
+                isCompactMode={isCompactMode}
+              />
+            ))}
+          </SortableContext>
+          <button
+            className="primary-button"
+            onClick={addPage}
+            aria-label="Add Page"
+            tabIndex={0}
+          >
+            Add Page
+          </button>
         </div>
-        <SortableContext items={pageIds} strategy={verticalListSortingStrategy}>
-          {filteredPages.map((page) => (
-            <PageCard
-              key={page.id}
-              page={page}
-              index={pages.findIndex(p => p.id === page.id)}
-              showItemNumbers={true}
-              showPageIds={true}
-              showDeleteButtons={true}
-              showSelect={true}
-              showTextarea={true}
-              isCompactMode={isCompactMode}
-            />
-          ))}
-        </SortableContext>
-        <button
-          className="app__add-page-button bg-green-600 text-white rounded px-4 py-2 hover:bg-green-700"
-          onClick={addPage}
-          aria-label="Add Page"
-          tabIndex={0}
-        >
-          Add Page
-        </button>
       </div>
     </DndContext>
   );

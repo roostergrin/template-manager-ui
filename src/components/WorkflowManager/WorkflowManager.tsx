@@ -8,6 +8,7 @@ import GitHubRepoCreator from './GitHubRepoCreator';
 import ContentGenerator from './ContentGenerator';
 import RepositoryUpdater from './RepositoryUpdater';
 import WordPressUpdater from './WordPressUpdater';
+import GithubFileUpdater from '../GithubFileUpdater';
 import SidebarNavigation from '../Sidebar/SidebarNavigation';
 import { useQuestionnaire } from '../../contexts/QuestionnaireProvider';
 // import { useSitemap } from '../../contexts/SitemapProvider';
@@ -157,6 +158,12 @@ const WorkflowManager: React.FC = () => {
                 <p>Push generated content directly to your WordPress site via the REST API.</p>
                 <WordPressUpdater />
               </div>
+              
+              {/* <div id="task-deployment-frontendUpdate" className="section">
+                <h3>⚡ Frontend Updates</h3>
+                <p>Update individual files in your GitHub repository for frontend customizations.</p>
+                <GithubFileUpdater />
+              </div> */}
             </div>
           </div>
         </div>

@@ -1,6 +1,6 @@
 @use '../../styles/forms'
 
-.github-repo-creator
+.github-file-updater
   &__header
     @extend %component-header
 
@@ -16,7 +16,7 @@
   .form-row
     @extend %form-row
 
-  .primary-button, .create-button
+  .primary-button, .update-button
     @extend %primary-button
 
   .secondary-button
@@ -31,18 +31,10 @@
   .info-banner
     @extend %info-banner
 
-  // GitHub-specific styling
-  .repo-details
-    margin-bottom: 20px
-    
-    .detail-item
-      margin-bottom: 8px
-      color: #155724
-      font-size: 0.95rem
-      
-      strong
-        font-weight: 600
+  .radio-group
+    @extend %radio-group
 
+  // GitHub-specific styling
   .repo-url-section
     margin-bottom: 20px
     
@@ -101,6 +93,19 @@
       &:hover
         background: #0056b3
         text-decoration: none
+
+  // Status styling
+  .status-section
+    @extend %status-section
+    
+  .status-item
+    @extend %status-item
+    
+  .status-label
+    @extend %status-label
+    
+  .status-value
+    @extend %status-value
 
 // Include responsive form styles
 @include forms.form-responsive

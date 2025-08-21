@@ -21,14 +21,14 @@ const DefaultTemplateSelector: React.FC<DefaultTemplateSelectorProps> = ({
     onSelectRef.current = onTemplateSelect;
   }, [onTemplateSelect]);
 
-  // Auto-select the first template when component mounts or selectedModelGroupKey changes
-  useEffect(() => {
-    if (availableTemplates.length > 0) {
-      const firstTemplate = availableTemplates[0];
-      const jsonString = JSON.stringify(firstTemplate.data);
-      onSelectRef.current(jsonString);
-    }
-  }, [availableTemplates]);
+  // Don't auto-select templates - let user explicitly choose
+  // useEffect(() => {
+  //   if (availableTemplates.length > 0) {
+  //     const firstTemplate = availableTemplates[0];
+  //     const jsonString = JSON.stringify(firstTemplate.data);
+  //     onSelectRef.current(jsonString);
+  //   }
+  // }, [availableTemplates]);
   
   if (availableTemplates.length === 0) {
     return (
@@ -38,7 +38,33 @@ const DefaultTemplateSelector: React.FC<DefaultTemplateSelectorProps> = ({
     );
   }
 
-  return null;
+  const handleTemplateSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedIndex = parseInt(event.target.value);
+    if (selectedIndex >= 0 && selectedIndex < availableTemplates.length) {
+      const selectedTemplate = availableTemplates[selectedIndex];
+      const jsonString = JSON.stringify(selectedTemplate.data);
+      onTemplateSelect(jsonString);
+    }
+  };
+
+  return (
+    <div className="default-template-selector">
+      <div className="template-select-container">
+        <select 
+          id="template-selector"
+          onChange={handleTemplateSelect}
+          defaultValue=""
+        >
+          <option value="">Select a template...</option>
+          {availableTemplates.map((template, index) => (
+            <option key={template.name} value={index}>
+              {template.name}
+            </option>
+          ))}
+        </select>
+      </div>
+    </div>
+  );
 };
 
 export default DefaultTemplateSelector; 
