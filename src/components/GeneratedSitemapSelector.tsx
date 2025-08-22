@@ -43,21 +43,23 @@ const GeneratedSitemapSelector: React.FC<GeneratedSitemapSelectorProps> = ({ onS
       {/* <label htmlFor="generated-sitemap-selector" className="text-gray-700 font-medium">
         Load a Generated Sitemap:
       </label> */}
-      <select
-        id="generated-sitemap-selector"
-        className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-        value={selectedIndex}
-        onChange={handleChange}
-        aria-label="Select a previously generated sitemap"
-        tabIndex={0}
-      >
-        <option value={-1}>Select a sitemap...</option>
-        {sitemaps.map((s, idx) => (
-          <option key={s.created} value={idx}>
-            {s.name} ({new Date(s.created).toLocaleString()})
-          </option>
-        ))}
-      </select>
+      <div className="form-group">
+        <select
+          id="generated-sitemap-selector"
+          className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          value={selectedIndex}
+          onChange={handleChange}
+          aria-label="Select a previously generated sitemap"
+          tabIndex={0}
+        >
+          <option value={-1}>Select a sitemap...</option>
+          {sitemaps.map((s, idx) => (
+            <option key={s.created} value={idx}>
+              {s.name} ({new Date(s.created).toLocaleString()})
+            </option>
+          ))}
+        </select>
+      </div>
     </div>
   );
 };

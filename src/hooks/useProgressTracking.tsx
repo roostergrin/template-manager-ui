@@ -18,6 +18,7 @@ export interface ProgressState {
   deployment: {
     repositoryUpdate: ProgressStatus;
     wordpressUpdate: ProgressStatus;
+    frontendUpdate: ProgressStatus;
   };
 }
 

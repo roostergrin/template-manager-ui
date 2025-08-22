@@ -202,7 +202,7 @@ Dr. Smith has been practicing orthodontics for over 15 years...
         <h4 className="questionnaire-manager__title">Content Input Manager</h4>
         <ProgressIndicator 
           status={workflowState.progressState.planning.questionnaire} 
-          size="large"
+          size="small"
           showLabel={true}
         />
         

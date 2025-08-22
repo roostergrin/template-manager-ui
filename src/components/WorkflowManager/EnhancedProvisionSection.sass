@@ -1,6 +1,6 @@
 @use '../../styles/forms'
 
-.github-repo-creator
+.enhanced-provision-section
   &__header
     @extend %component-header
 
@@ -16,7 +16,7 @@
   .form-row
     @extend %form-row
 
-  .primary-button, .create-button
+  .primary-button
     @extend %primary-button
 
   .secondary-button
@@ -31,8 +31,20 @@
   .info-banner
     @extend %info-banner
 
-  // GitHub-specific styling (minimal since global styling handles most elements)
-  // All styling is now handled by the global %success-section placeholder
+  .radio-group
+    @extend %radio-group
+
+  // AWS-specific styling (if any additional customization needed)
+  .success-details
+    .detail-item a
+      color: #0056b3
+      text-decoration: none
+      font-weight: 500
+      transition: color 0.3s ease
+      
+      &:hover
+        color: #003d82
+        text-decoration: underline
 
 // Include responsive form styles
 @include forms.form-responsive

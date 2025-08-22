@@ -12,6 +12,14 @@
 
   .form-section
     @extend %form-section
+    
+    h5
+      margin: 0 0 1rem 0
+      font-size: 1.1rem
+      font-weight: 600
+      color: #374151
+      padding-bottom: 0.5rem
+      border-bottom: 1px solid #e5e7eb
 
   .form-row
     @extend %form-row
@@ -28,71 +36,11 @@
   .success-section
     @extend %success-section
 
+  .json-display
+    @extend %json-display
+
   .info-banner
     @extend %info-banner
-
-  .radio-group
-    @extend %radio-group
-
-  // GitHub-specific styling
-  .repo-url-section
-    margin-bottom: 20px
-    
-    label
-      display: block
-      font-weight: 600
-      margin-bottom: 8px
-      color: #155724
-      font-size: 0.95rem
-    
-    .url-copy-container
-      display: flex
-      align-items: center
-      background: rgba(255, 255, 255, 0.7)
-      border: 1px solid #b3d4b3
-      border-radius: 6px
-      padding: 8px 12px
-      
-      .repo-url
-        flex: 1
-        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace
-        font-size: 0.9rem
-        color: #155724
-        background: none
-        border: none
-        overflow-x: auto
-        white-space: nowrap
-      
-      .copy-button
-        margin-left: 12px
-        padding: 6px 12px
-        background: #28a745
-        color: white
-        border: none
-        border-radius: 4px
-        font-size: 0.85rem
-        font-weight: 500
-        cursor: pointer
-        transition: background-color 0.3s ease
-        white-space: nowrap
-        
-        &:hover
-          background: #218838
-
-  .repo-links
-    .repo-link
-      display: inline-block
-      padding: 10px 16px
-      background: #007bff
-      color: white
-      text-decoration: none
-      border-radius: 6px
-      font-weight: 500
-      transition: background-color 0.3s ease
-      
-      &:hover
-        background: #0056b3
-        text-decoration: none
 
   // Status styling
   .status-section
@@ -106,6 +54,188 @@
     
   .status-value
     @extend %status-value
+
+  // File input styling
+  input[type="file"]
+    padding: 0.75rem
+    border: 2px dashed #d1d5db
+    border-radius: 8px
+    background: #f9fafb
+    cursor: pointer
+    transition: border-color 0.2s ease, background-color 0.2s ease
+    font-size: 0.9rem
+    width: 100%
+    
+    &:hover
+      border-color: #9ca3af
+      background: #f3f4f6
+      
+    &:focus
+      outline: 2px solid #6366f1
+      outline-offset: 2px
+      border-color: #6366f1
+      
+    &:disabled
+      cursor: not-allowed
+      opacity: 0.6
+      
+  small
+    display: block
+    margin-top: 0.5rem
+    font-size: 0.875rem
+    color: #6b7280
+    font-style: italic
+    line-height: 1.4
+
+  // Select input styling
+  select
+    @extend %form-group
+    padding: 0.75rem
+    border: 1px solid #d1d5db
+    border-radius: 6px
+    background: #ffffff
+    font-size: 0.9rem
+    cursor: pointer
+    transition: border-color 0.2s ease, box-shadow 0.2s ease
+    margin-bottom: 0 !important
+    
+    &:focus
+      outline: 2px solid #6366f1
+      outline-offset: 2px
+      border-color: #6366f1
+      
+    &:disabled
+      cursor: not-allowed
+      opacity: 0.6
+      background: #f3f4f6
+
+  // Router structure styling (similar to sample-structure)
+  .router-structure
+    margin: 1.5rem 0
+    border: 1px solid #e1e5e9
+    border-radius: 8px
+    overflow: hidden
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05)
+
+    summary
+      padding: 1rem 1.25rem
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)
+      cursor: pointer
+      font-weight: 600
+      color: #374151
+      border-bottom: 1px solid #e1e5e9
+      transition: all 0.2s ease
+      list-style: none
+      position: relative
+      user-select: none
+
+      &:hover
+        background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%)
+
+      &::-webkit-details-marker
+        display: none
+
+      &::marker
+        display: none
+
+      &::before
+        content: "▶"
+        display: inline-block
+        margin-right: 0.75rem
+        transition: transform 0.2s ease
+        color: #6366f1
+        font-weight: bold
+
+    &[open] summary
+      border-bottom-color: #d1d5db
+      
+      &::before
+        transform: rotate(90deg)
+
+    .structure-content
+      padding: 0
+      background: #fafafa
+
+    .structure-example
+      padding: 1.5rem
+      border-bottom: 1px solid #e5e7eb
+
+      &:last-child
+        border-bottom: none
+        margin-bottom: 0
+
+      h6
+        margin: 0 0 1rem 0
+        font-size: 1rem
+        font-weight: 600
+        color: #374151
+        display: flex
+        align-items: center
+        gap: 0.5rem
+        
+        &::before
+          content: "🗺️"
+          font-size: 0.875rem
+
+      pre
+        @extend %json-display
+        margin: 0
+        border-radius: 6px
+        font-size: 0.8rem
+
+  // Unified update section styling
+  .unified-update-section
+    margin: 2rem 0
+    padding: 1.5rem
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)
+    border: 1px solid #0ea5e9
+    border-radius: 12px
+    text-align: center
+    box-shadow: 0 4px 6px rgba(14, 165, 233, 0.1)
+    
+    .update-frontend-button
+      @extend %primary-button
+      font-size: 1.1rem
+      padding: 1rem 2rem
+      min-width: 200px
+      background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)
+      border: none
+      box-shadow: 0 4px 14px rgba(14, 165, 233, 0.3)
+      transition: all 0.3s ease
+      margin-bottom: 0 !important
+      
+      &:hover:not(:disabled)
+        background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%)
+        box-shadow: 0 6px 20px rgba(14, 165, 233, 0.4)
+        transform: translateY(-2px)
+        
+      &:disabled
+        background: #9ca3af
+        box-shadow: none
+        transform: none
+        cursor: not-allowed
+        
+    .progress-info
+      margin-top: 1rem
+      padding: 1rem
+      background: rgba(255, 255, 255, 0.8)
+      border-radius: 8px
+      border: 1px solid rgba(14, 165, 233, 0.2)
+      
+      p
+        margin: 0 0 0.5rem 0
+        font-weight: 600
+        color: #0369a1
+        
+      small
+        color: #6b7280
+        font-style: normal
+
+  // Individual results styling
+  .individual-results
+    margin-top: 2rem
+    padding-top: 1rem
+    border-top: 1px solid #e5e7eb
 
 // Include responsive form styles
 @include forms.form-responsive

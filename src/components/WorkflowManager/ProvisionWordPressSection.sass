@@ -1,0 +1,66 @@
+@use '../../styles/forms'
+
+.provision-wordpress-section
+  &__header
+    @extend %component-header
+
+  &__title
+    @extend %component-title
+
+  .form-group
+    @extend %form-group
+
+  .form-section
+    @extend %form-section
+
+  .form-row
+    @extend %form-row
+
+  .primary-button
+    @extend %primary-button
+
+  .secondary-button
+    @extend %secondary-button
+
+  .error-message
+    @extend %error-message
+
+  .success-section
+    @extend %success-section
+
+  .info-banner
+    @extend %info-banner
+
+  .radio-group
+    @extend %radio-group
+
+  // WordPress/Plesk-specific styling
+  .server-selection
+    margin-bottom: 20px
+    
+  .domain-inputs
+    display: flex
+    flex-direction: column
+    gap: 1rem
+    
+  .advanced-section
+    margin-top: 20px
+    
+    summary
+      cursor: pointer
+      font-weight: 600
+      color: #374151
+      padding: 8px 0
+      
+    .advanced-controls
+      margin-top: 12px
+      display: grid
+      gap: 8px
+      
+      .button-row
+        display: flex
+        gap: 8px
+        flex-wrap: wrap
+
+// Include responsive form styles
+@include forms.form-responsive

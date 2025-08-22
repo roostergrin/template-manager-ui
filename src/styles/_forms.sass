@@ -12,6 +12,11 @@
   border-radius: 8px
   border: 1px solid #e1e5e9
 
+  // Progress indicator styling within headers
+  .progress-indicator
+    flex-shrink: 0
+    margin-left: auto
+
 %component-title
   margin: 0
   font-size: 1.2rem
@@ -166,6 +171,9 @@
       color: #155724
       font-size: 1.3rem
 
+  .success-details
+    margin-bottom: 15px
+
   .detail-item
     margin-bottom: 8px
     color: #155724
@@ -173,6 +181,161 @@
     
     strong
       font-weight: 600
+
+  .repo-links, .site-links
+    margin-top: 15px
+    display: flex
+    gap: 10px
+    flex-wrap: wrap
+
+    .repo-link, .site-link
+      display: inline-block
+      padding: 10px 16px
+      background: #007bff
+      color: white
+      text-decoration: none
+      border-radius: 6px
+      font-weight: 500
+      transition: background-color 0.3s ease
+      
+      &:hover
+        background: #0056b3
+        text-decoration: none
+
+  // Support for different content types
+  .update-summary, .content-summary
+    margin-bottom: 15px
+    
+    .summary-item
+      display: flex
+      justify-content: space-between
+      align-items: center
+      margin-bottom: 8px
+      padding: 6px 0
+      border-bottom: 1px solid rgba(21, 87, 36, 0.1)
+      
+      &:last-child
+        border-bottom: none
+        margin-bottom: 0
+      
+      .summary-label
+        color: #155724
+        font-weight: 500
+        font-size: 0.95rem
+      
+      .summary-value
+        color: #155724
+        font-weight: 600
+        font-size: 0.95rem
+
+  // Support for content previews
+  .content-previews
+    .preview-block
+      margin-bottom: 15px
+      
+      &:last-child
+        margin-bottom: 0
+      
+      .preview-header
+        display: flex
+        justify-content: space-between
+        align-items: center
+        margin-bottom: 8px
+        
+        h5
+          margin: 0
+          color: #155724
+          font-size: 1rem
+          font-weight: 600
+        
+        .download-button
+          padding: 6px 12px
+          background: #28a745
+          color: white
+          border: none
+          border-radius: 4px
+          font-size: 0.85rem
+          font-weight: 500
+          cursor: pointer
+          transition: background-color 0.3s ease
+          
+          &:hover
+            background: #218838
+
+  // Support for URLs and copy sections
+  .repo-url-section, .url-section
+    margin-bottom: 15px
+    
+    label
+      display: block
+      font-weight: 600
+      margin-bottom: 8px
+      color: #155724
+      font-size: 0.95rem
+    
+    .url-copy-container
+      display: flex
+      align-items: center
+      background: rgba(255, 255, 255, 0.7)
+      border: 1px solid #b3d4b3
+      border-radius: 6px
+      padding: 8px 12px
+      
+      .repo-url, .site-url
+        flex: 1
+        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace
+        font-size: 0.9rem
+        color: #155724
+        background: none
+        border: none
+        overflow-x: auto
+        white-space: nowrap
+      
+      .copy-button
+        margin-left: 12px
+        padding: 6px 12px
+        background: #28a745
+        color: white
+        border: none
+        border-radius: 4px
+        font-size: 0.85rem
+        font-weight: 500
+        cursor: pointer
+        transition: background-color 0.3s ease
+        white-space: nowrap
+        
+        &:hover
+          background: #218838
+
+  // Support for credentials sections
+  .credentials-section
+    margin-bottom: 15px
+    padding: 15px
+    background: rgba(21, 87, 36, 0.03)
+    border: 1px solid rgba(21, 87, 36, 0.1)
+    border-radius: 8px
+    
+    h5
+      margin: 0 0 12px 0
+      color: #155724
+      font-size: 1.1rem
+      font-weight: 600
+      display: flex
+      align-items: center
+      gap: 0.5rem
+    
+    code
+      background: rgba(255, 255, 255, 0.8)
+      border: 1px solid rgba(21, 87, 36, 0.2)
+      padding: 4px 8px
+      border-radius: 4px
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace
+      font-size: 0.85rem
+      color: #155724
+      font-weight: 500
+      margin-left: 8px
+      user-select: all
+      cursor: text
 
 %info-banner
   background: #e3f2fd

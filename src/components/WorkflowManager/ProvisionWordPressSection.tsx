@@ -1,6 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
 import useCreatePleskSubscription from "../../hooks/useCreatePleskSubscription";
-import "../ProvisionSiteSection.sass";
+import { useGithubRepo } from "../../context/GithubRepoContext";
+import useProgressTracking from "../../hooks/useProgressTracking";
+import ProgressIndicator from "../Common/ProgressIndicator";
+import "./ProvisionWordPressSection.sass";
 import { listSubscriptions, testSSHConnection } from "../../services/pleskAdminService";
 
 interface ProvisionWordPressSectionProps {
@@ -8,6 +11,10 @@ interface ProvisionWordPressSectionProps {
 }
 
 const ProvisionWordPressSection: React.FC<ProvisionWordPressSectionProps> = () => {
+  const { state } = useGithubRepo();
+  const { githubRepo } = state;
+  const { progressState, updateTaskStatus } = useProgressTracking();
+  
   const servers = useMemo(
     () => [
       { id: "sunset", label: "Sunset (Templates) 44.237.72.16" },
@@ -39,8 +46,17 @@ const ProvisionWordPressSection: React.FC<ProvisionWordPressSectionProps> = () =
   // const [isLoadingSubs, setIsLoadingSubs] = useState<boolean>(false);
   const [subsError, setSubsError] = useState<string | null>(null);
 
+  // Auto-populate target domain based on GitHub repo name
+  useEffect(() => {
+    if (githubRepo) {
+      setTargetDomain(`${githubRepo}.com`);
+    }
+  }, [githubRepo]);
+
   const handleCopy = async () => {
     setCopyErrorMessage(null);
+    updateTaskStatus('infrastructure', 'pleskProvisioning', 'in-progress');
+    
     try {
       await copySubscription({
         source_domain: sourceDomain,
@@ -51,8 +67,10 @@ const ProvisionWordPressSection: React.FC<ProvisionWordPressSectionProps> = () =
         copy_databases: true,
         update_config_files: true,
       });
+      updateTaskStatus('infrastructure', 'pleskProvisioning', 'completed');
     } catch (e) {
       setCopyErrorMessage(e instanceof Error ? e.message : "Failed to copy subscription");
+      updateTaskStatus('infrastructure', 'pleskProvisioning', 'error');
     }
   };
 
@@ -77,9 +95,14 @@ const ProvisionWordPressSection: React.FC<ProvisionWordPressSectionProps> = () =
   }, [pleskIp]);
 
   return (
-    <div role="region" aria-label="Copy WordPress Subscription">
-      <div className="provision-site-section__header">
-        <h4 className="provision-site-section__title">Plesk / WordPress Provisioning</h4>
+    <div className="provision-wordpress-section" role="region" aria-label="Copy WordPress Subscription">
+      <div className="provision-wordpress-section__header">
+        <h4 className="provision-wordpress-section__title">Plesk / WordPress Provisioning</h4>
+        <ProgressIndicator
+          status={progressState.infrastructure.pleskProvisioning} 
+          size="small"
+          showLabel={true}
+        />
       </div>
 
       <div className="form-group">
@@ -156,36 +179,46 @@ const ProvisionWordPressSection: React.FC<ProvisionWordPressSectionProps> = () =
 
       {copyStatus === "success" && copyResponse && (
         <div className="success-section" role="status">
-          <div className="success-summary">
-            <h4>✅ Subscription Copied</h4>
-            <div className="success-details">
-              {"target_domain" in copyResponse && (
-                <div>
-                  <strong>Target Domain:</strong> {(copyResponse as any).target_domain}
-                </div>
-              )}
-              {"subdomain" in copyResponse && (
-                <div>
-                  <strong>Subdomain:</strong> {(copyResponse as any).subdomain}
-                </div>
-              )}
-            </div>
+          <div className="success-header">
+            <h4>🎉 WordPress Subscription Copied Successfully!</h4>
           </div>
-          <details style={{ marginTop: "15px" }}>
-            <summary style={{ cursor: "pointer", fontWeight: "bold" }}>
-              View Full Copy Response
-            </summary>
-            <pre className="json-display">
-              {JSON.stringify(copyResponse, null, 2)}
-            </pre>
-          </details>
+          
+          <div className="success-details">
+            {"target_domain" in copyResponse && (
+              <div className="detail-item">
+                <strong>Created Domain:</strong> {(copyResponse as any).target_domain}
+              </div>
+            )}
+            {"subdomain" in copyResponse && (
+              <div className="detail-item">
+                <strong>API Subdomain:</strong> {(copyResponse as any).subdomain}
+              </div>
+            )}
+            {"credentials" in copyResponse && (
+              <>
+                <div className="detail-item">
+                  <strong>FTP Username:</strong> {(copyResponse as any).credentials.ftp.username}
+                </div>
+                <div className="detail-item">
+                  <strong>FTP Password:</strong> {(copyResponse as any).credentials.ftp.password}
+                </div>
+                <div className="detail-item">
+                  <strong>Database Username:</strong> {(copyResponse as any).credentials.database.username}
+                </div>
+                <div className="detail-item">
+                  <strong>Database Password:</strong> {(copyResponse as any).credentials.database.password}
+                </div>
+              </>
+            )}
+          </div>
         </div>
       )}
 
-      <details style={{ marginTop: 16 }}>
-        <summary style={{ cursor: "pointer", fontWeight: 600 }}>Advanced</summary>
-        <div style={{ marginTop: 12, display: "grid", gap: 8 }}>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+      <div className="advanced-section">
+        <details>
+          <summary>Advanced</summary>
+          <div className="advanced-controls">
+            <div className="button-row">
             <button
               className="secondary-button"
               onClick={async () => {
@@ -213,9 +246,10 @@ const ProvisionWordPressSection: React.FC<ProvisionWordPressSectionProps> = () =
             >
               List Subscriptions
             </button>
+            </div>
           </div>
-        </div>
-      </details>
+        </details>
+      </div>
     </div>
   );
 };

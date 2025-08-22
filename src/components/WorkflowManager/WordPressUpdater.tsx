@@ -5,6 +5,9 @@ import { getBackendSiteTypeForModelGroup } from '../../utils/modelGroupKeyToBack
 import { useWorkflow } from '../../contexts/WorkflowProvider';
 import { useSitemap } from '../../contexts/SitemapProvider';
 import { useAppConfig } from '../../contexts/AppConfigProvider';
+import { useGithubRepo } from '../../context/GithubRepoContext';
+import useProgressTracking from '../../hooks/useProgressTracking';
+import ProgressIndicator from '../Common/ProgressIndicator';
 import './WordPressUpdater.sass';
 
 
@@ -31,6 +34,9 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
   const { state: workflowState } = useWorkflow();
   const { state: sitemapState } = useSitemap();
   const { state: appConfigState } = useAppConfig();
+  const { state: githubState } = useGithubRepo();
+  const { githubRepo, pageType } = githubState;
+  const { progressState, updateTaskStatus } = useProgressTracking();
 
   // Extract data from contexts
   const latestContent = workflowState.generatedContent.find(content => content.type === 'page-content');
@@ -47,6 +53,14 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
   const [localError, setLocalError] = useState<string | null>(null);
   const [testContent, setTestContent] = useState<string>('');
   const [useTestContent, setUseTestContent] = useState<boolean>(false);
+
+  // Auto-populate API URL based on GitHub repo name and page type
+  useEffect(() => {
+    if (githubRepo) {
+      const subdomain = pageType === 'template' ? 'api' : 'landingapi';
+      setApiUrl(`https://${subdomain}.${githubRepo}.com/`);
+    }
+  }, [githubRepo, pageType]);
 
   // Generate default test content using page IDs from sitemap
   const generateDefaultTestContent = useCallback(() => {
@@ -193,6 +207,7 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
 
   const handleUpdateWordPress = useCallback(async () => {
     setLocalError(null);
+    updateTaskStatus('deployment', 'wordpressUpdate', 'in-progress');
     
     // Check content availability
     let contentToUse = pagesContent;
@@ -433,14 +448,16 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
       console.log('📝 Full Data Being Sent:', JSON.stringify(updateData, null, 2));
 
       await updateWordPress(updateData);
+      updateTaskStatus('deployment', 'wordpressUpdate', 'completed');
       
       if (onUpdateComplete) {
         onUpdateComplete();
       }
     } catch (err) {
       setLocalError(err instanceof Error ? err.message : 'An error occurred while updating WordPress');
+      updateTaskStatus('deployment', 'wordpressUpdate', 'error');
     }
-  }, [apiUrl, username, password, pagesContent, globalContent, updateWordPress, onUpdateComplete, useNewFormat, sitemapData, testContent, useTestContent, selectedModelGroupKey]);
+  }, [apiUrl, username, password, pagesContent, globalContent, updateWordPress, onUpdateComplete, useNewFormat, sitemapData, testContent, useTestContent, selectedModelGroupKey, updateTaskStatus]);
 
   const isDisabled = !apiUrl || !username || !password || (!pagesContent || !globalContent) && (!useTestContent || !testContent) || status === 'pending';
   const hasContent = (pagesContent && globalContent) || (useTestContent && testContent);
@@ -448,6 +465,14 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
 
   return (
     <div className="wordpress-updater">
+      <div className="wordpress-updater__header">
+        <h4 className="wordpress-updater__title">WordPress Content Update</h4>
+        <ProgressIndicator 
+          status={progressState.deployment.wordpressUpdate} 
+          size="small"
+          showLabel={true}
+        />
+      </div>
 
       {/* Content Status */}
       <div className="content-status">

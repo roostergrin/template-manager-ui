@@ -159,11 +159,11 @@ const WorkflowManager: React.FC = () => {
                 <WordPressUpdater />
               </div>
               
-              {/* <div id="task-deployment-frontendUpdate" className="section">
+              <div id="task-deployment-frontendUpdate" className="section">
                 <h3>⚡ Frontend Updates</h3>
                 <p>Update individual files in your GitHub repository for frontend customizations.</p>
                 <GithubFileUpdater />
-              </div> */}
+              </div>
             </div>
           </div>
         </div>

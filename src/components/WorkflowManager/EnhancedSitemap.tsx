@@ -70,7 +70,7 @@ const EnhancedSitemap: React.FC = () => {
         <div className="sitemap-header__progress">
           <ProgressIndicator 
             status={workflowState.progressState.planning.sitemapPlanning} 
-            size="medium"
+            size="small"
             showLabel={true}
           />
         </div>

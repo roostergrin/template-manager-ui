@@ -135,7 +135,8 @@ class APIClient {
       '/generate-sitemap/',
       '/generate-content',
       '/generate-global',
-      '/provision-site'
+      '/provision-site',
+      '/generate-router/'
     ];
 
     const isLongRunningOperation = longRunningEndpoints.some(endpoint => url.includes(endpoint));

@@ -10,9 +10,9 @@ interface GitHubRepoCreatorProps {
 }
 
 const GitHubRepoCreator: React.FC<GitHubRepoCreatorProps> = ({ onRepoCreated }) => {
-  const { actions } = useGithubRepo();
+  const { state, actions } = useGithubRepo();
+  const { githubRepo } = state;
   const { setGithubOwner, setGithubRepo } = actions;
-  const [newRepoName, setNewRepoName] = useState('');
   const [templateRepoName, setTemplateRepoName] = useState('ai-template-stinson');
   const [createRepoData, createRepoStatus, createRepo] = useCreateGithubRepoFromTemplate();
   const [error, setError] = useState<string | null>(null);
@@ -25,7 +25,7 @@ const GitHubRepoCreator: React.FC<GitHubRepoCreatorProps> = ({ onRepoCreated }) 
     
     try {
       const result = await createRepo({ 
-        new_name: newRepoName, 
+        new_name: githubRepo, 
         template_repo: templateRepoName 
       });
       setGithubOwner(result.owner);
@@ -40,7 +40,7 @@ const GitHubRepoCreator: React.FC<GitHubRepoCreatorProps> = ({ onRepoCreated }) 
       setError(err instanceof Error ? err.message : 'An error occurred');
       updateTaskStatus('infrastructure', 'repoCreation', 'error');
     }
-  }, [newRepoName, templateRepoName, createRepo, setGithubOwner, setGithubRepo, onRepoCreated, updateTaskStatus]);
+  }, [githubRepo, templateRepoName, createRepo, setGithubOwner, setGithubRepo, onRepoCreated, updateTaskStatus]);
 
   const handleCopy = useCallback(() => {
     if (createRepoData) {
@@ -56,7 +56,7 @@ const GitHubRepoCreator: React.FC<GitHubRepoCreatorProps> = ({ onRepoCreated }) 
         <h4 className="github-repo-creator__title">GitHub Repository Creation</h4>
         <ProgressIndicator 
           status={progressState.infrastructure.repoCreation} 
-          size="medium"
+          size="small"
           showLabel={true}
         />
       </div>
@@ -66,8 +66,8 @@ const GitHubRepoCreator: React.FC<GitHubRepoCreatorProps> = ({ onRepoCreated }) 
         <input
           id="new-repo-name"
           type="text"
-          value={newRepoName}
-          onChange={(e) => setNewRepoName(e.target.value)}
+          value={githubRepo}
+          onChange={(e) => setGithubRepo(e.target.value)}
           placeholder="e.g., my-orthodontist-site"
           disabled={createRepoStatus === 'pending'}
         />
@@ -88,7 +88,7 @@ const GitHubRepoCreator: React.FC<GitHubRepoCreatorProps> = ({ onRepoCreated }) 
       <button
         className="create-button"
         onClick={handleCreateRepo}
-        disabled={!newRepoName || !templateRepoName || createRepoStatus === 'pending'}
+        disabled={!githubRepo || !templateRepoName || createRepoStatus === 'pending'}
       >
         {createRepoStatus === 'pending' ? 'Creating Repository...' : 'Create Repository from Template'}
       </button>

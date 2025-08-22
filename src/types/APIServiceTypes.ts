@@ -90,6 +90,55 @@ export interface UpdateGithubRepoFileResponse {
   };
 }
 
+// File Upload Types
+export interface UpdateGithubRepoFileUploadRequest {
+  owner: string;
+  repo: string;
+  path: string;
+  upload_file: File;
+  message?: string;
+  branch?: string;
+  sha?: string; // Required if updating existing file
+}
+
+export interface UpdateGithubRepoFileUploadResponse {
+  success: boolean;
+  message?: string;
+  commit?: {
+    sha: string;
+    url: string;
+  };
+  content?: {
+    sha: string;
+    download_url: string;
+  };
+}
+
+// Router Generation Types
+export interface GenerateRouterRequest {
+  wordpress_api_url: string;
+  site_type: 'stinson' | 'haightashbury' | 'bayarea' | 'calistoga';
+}
+
+export interface GenerateRouterResponse {
+  success: boolean;
+  message?: string;
+  router_entries?: Array<{
+    name: string;
+    path: string;
+    navigation: boolean;
+    children?: Array<{
+      name: string;
+      hash: string;
+    }>;
+  }>;
+  router_string?: string;
+  export_format?: string;
+  total_pages?: number;
+  navigation_pages?: number;
+  footer_pages?: number;
+}
+
 export interface CreateRepoRequest {
   new_name: string;
   template_repo: string;

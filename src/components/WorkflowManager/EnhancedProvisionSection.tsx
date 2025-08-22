@@ -3,7 +3,7 @@ import useProvisionSite from "../../hooks/useProvisionSite";
 import { useGithubRepo } from "../../context/GithubRepoContext";
 import useProgressTracking from "../../hooks/useProgressTracking";
 import ProgressIndicator from "../Common/ProgressIndicator";
-import "../ProvisionSiteSection.sass";
+import "./EnhancedProvisionSection.sass";
 
 interface EnhancedProvisionSectionProps {
   onProvisioningComplete?: (data: any) => void;
@@ -13,11 +13,17 @@ const EnhancedProvisionSection: React.FC<EnhancedProvisionSectionProps> = ({
   onProvisioningComplete
 }) => {
   const { state, actions } = useGithubRepo();
-  const { githubOwner, githubRepo } = state;
-  const { setGithubOwner, setGithubRepo } = actions;
+  const { githubOwner, githubRepo, pageType } = state;
+  const { setGithubOwner, setGithubRepo, setPageType } = actions;
   const [bucketName, setBucketName] = useState("");
   const [githubBranch, setGithubBranch] = useState("master");
-  const [pageType, setPageType] = useState<"template" | "landing">("template");
+
+  // Auto-populate bucket name based on GitHub repo name
+  useEffect(() => {
+    if (githubRepo) {
+      setBucketName(githubRepo);
+    }
+  }, [githubRepo]);
   const [response, status, provisionSite] = useProvisionSite();
   const [error, setError] = useState<string | null>(null);
   const { progressState, updateTaskStatus } = useProgressTracking();
@@ -57,12 +63,12 @@ const EnhancedProvisionSection: React.FC<EnhancedProvisionSectionProps> = ({
   };
 
   return (
-    <div role="region" aria-label="Provision Site">
-      <div className="provision-site-section__header">
-        <h4 className="provision-site-section__title">AWS Infrastructure Provisioning</h4>
+    <div className="enhanced-provision-section" role="region" aria-label="Provision Site">
+      <div className="enhanced-provision-section__header">
+        <h4 className="enhanced-provision-section__title">AWS Infrastructure Provisioning</h4>
         <ProgressIndicator 
           status={progressState.infrastructure.awsProvisioning} 
-          size="medium"
+          size="small"
           showLabel={true}
         />
       </div>
@@ -157,40 +163,63 @@ const EnhancedProvisionSection: React.FC<EnhancedProvisionSectionProps> = ({
       )}
       {status === "success" && response && (
         <div className="success-section" role="status">
-          <div className="success-summary">
+          <div className="success-header">
             <h4>🎉 Provisioning Successful!</h4>
-            <div className="success-details">
-              <div><strong>Bucket:</strong> {bucketName}</div>
-              {response?.cloudfront_distribution_url && (
-                <div><strong>Site URL:</strong> 
-                  <a
-                    href={response.cloudfront_distribution_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ marginLeft: '8px' }}
-                  >
-                    {response.cloudfront_distribution_url}
-                  </a>
-                </div>
-              )}
-              {response?.assets_distribution_url && (
-                <div><strong>Assets URL:</strong> 
-                  <a
-                    href={response.assets_distribution_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ marginLeft: '8px' }}
-                  >
-                    {response.assets_distribution_url}
-                  </a>
-                </div>
-              )}
-            </div>
           </div>
-          <details style={{ marginTop: '15px' }}>
-            <summary style={{ cursor: 'pointer', fontWeight: 'bold' }}>View Full Response</summary>
-            <pre className="json-display">{JSON.stringify(response, null, 2)}</pre>
-          </details>
+          
+          <div className="success-details">
+            <div className="detail-item">
+              <strong>Bucket Name:</strong> {bucketName}
+            </div>
+            <div className="detail-item">
+              <strong>GitHub Repository:</strong> {githubOwner}/{githubRepo}
+            </div>
+            <div className="detail-item">
+              <strong>Branch:</strong> {githubBranch}
+            </div>
+            <div className="detail-item">
+              <strong>Page Type:</strong> {pageType}
+            </div>
+            {response?.cloudfront_distribution_url && (
+              <div className="detail-item">
+                <strong>Site URL:</strong> 
+                <a
+                  href={response.cloudfront_distribution_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ marginLeft: '8px' }}
+                >
+                  {response.cloudfront_distribution_url}
+                </a>
+              </div>
+            )}
+            {response?.assets_distribution_url && (
+              <div className="detail-item">
+                <strong>Assets URL:</strong> 
+                <a
+                  href={response.assets_distribution_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ marginLeft: '8px' }}
+                >
+                  {response.assets_distribution_url}
+                </a>
+              </div>
+            )}
+          </div>
+
+          {response?.cloudfront_distribution_url && (
+            <div className="repo-links">
+              <a
+                href={response.cloudfront_distribution_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="repo-link"
+              >
+                🌐 View Live Site
+              </a>
+            </div>
+          )}
         </div>
       )}
     </div>

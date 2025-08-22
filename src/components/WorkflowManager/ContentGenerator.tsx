@@ -8,6 +8,8 @@ import { getBackendSiteTypeForModelGroup } from '../../utils/modelGroupKeyToBack
 import { useQuestionnaire } from '../../contexts/QuestionnaireProvider';
 import { useSitemap } from '../../contexts/SitemapProvider';
 import { useAppConfig } from '../../contexts/AppConfigProvider';
+import useProgressTracking from '../../hooks/useProgressTracking';
+import ProgressIndicator from '../Common/ProgressIndicator';
 import './ContentGenerator.sass';
 
 interface ContentGeneratorProps {
@@ -31,6 +33,7 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
   const { state: questionnaireState } = useQuestionnaire();
   const { state: sitemapState } = useSitemap();
   const { state: appConfigState } = useAppConfig();
+  const { progressState, updateTaskStatus } = useProgressTracking();
 
   // Extract data from contexts
   const questionnaireData = questionnaireState.data;
@@ -202,8 +205,9 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
   useEffect(() => {
     if (pagesContent && globalContent && onContentGenerated) {
       onContentGenerated(pagesContent, globalContent);
+      updateTaskStatus('planning', 'contentGeneration', 'completed');
     }
-  }, [pagesContent, globalContent]);
+  }, [pagesContent, globalContent, onContentGenerated, updateTaskStatus]);
 
   // Reset to idle after both queries complete
   useEffect(() => {
@@ -240,9 +244,10 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
     setShouldFetch(true);
     setPagesContent(null);
     setGlobalContent(null);
+    updateTaskStatus('planning', 'contentGeneration', 'in-progress');
     
     console.log('🧹 Clearing previous content states');
-  }, [queryClient, pages, effectiveQuestionnaireData, siteType, useRgTemplateAssets]);
+  }, [queryClient, pages, effectiveQuestionnaireData, siteType, useRgTemplateAssets, updateTaskStatus]);
 
   const handleUseRgTemplateAssetsChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     setUseRgTemplateAssets(event.target.checked);
@@ -276,8 +281,24 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
   const hasError = pagesStatus === 'error' || globalStatus === 'error';
   const isComplete = pagesStatus === 'success' && globalStatus === 'success';
 
+  // Update progress tracking based on status
+  useEffect(() => {
+    if (hasError) {
+      updateTaskStatus('planning', 'contentGeneration', 'error');
+    }
+  }, [hasError, updateTaskStatus]);
+
   return (
     <div className="content-generator">
+      <div className="content-generator__header">
+        <h4 className="content-generator__title">Content Generation</h4>
+        <ProgressIndicator 
+          status={progressState.planning.contentGeneration} 
+          size="small"
+          showLabel={true}
+        />
+      </div>
+
       {/* Data Source Indicator */}
       {isMarkdownData(questionnaireData) && (
         <div className="markdown-info">

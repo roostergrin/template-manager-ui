@@ -6,8 +6,9 @@
 
   &__title
     @extend %component-title
-
-  .form-group
+    margin-bottom: 0
+    
+    .form-group
     @extend %form-group
 
   .form-section
@@ -24,15 +25,15 @@
 
   .password-input-container
     position: relative
-
-  .password-toggle-btn
-    all: unset
-    position: absolute
-    top: 50%
-    transform: translateY(-50%)
-    right: 1rem
-    cursor: pointer
-    z-index: 1
+      
+    .password-toggle-btn
+      all: unset
+      position: absolute
+      top: 50%
+      transform: translateY(-50%)
+      right: 1rem
+      cursor: pointer
+      z-index: 1
 
   .error-message
     @extend %error-message
@@ -81,17 +82,17 @@
     border-radius: 6px
     padding: 12px
     margin-top: 8px
-    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace
+          font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace
     font-size: 0.9rem
     max-height: 200px
-    overflow-y: auto
+          overflow-y: auto
 
   .page-item
     background: rgba(255, 255, 255, 0.7)
     border: 1px solid #e1e5e9
     border-radius: 6px
     padding: 12px
-    margin-bottom: 8px
+          margin-bottom: 8px
     
     .page-title
       font-weight: 600

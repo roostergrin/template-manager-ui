@@ -4,12 +4,14 @@ import React, { createContext, useContext, useState, useCallback, ReactNode, use
 interface GithubRepoContextState {
   githubOwner: string;
   githubRepo: string;
+  pageType: "template" | "landing";
 }
 
 // Context Actions
 interface GithubRepoContextActions {
   setGithubOwner: (owner: string) => void;
   setGithubRepo: (repo: string) => void;
+  setPageType: (pageType: "template" | "landing") => void;
 }
 
 interface GithubRepoContextValue {
@@ -41,6 +43,9 @@ const GithubRepoProvider: React.FC<GithubRepoProviderProps> = ({
   const [githubRepo, setGithubRepoState] = useState<string>(
     providedInitialState?.githubRepo || ""
   );
+  const [pageType, setPageTypeState] = useState<"template" | "landing">(
+    providedInitialState?.pageType || "template"
+  );
 
   // Action Creators with useCallback for performance
   const setGithubOwner = useCallback((owner: string) => {
@@ -51,16 +56,22 @@ const GithubRepoProvider: React.FC<GithubRepoProviderProps> = ({
     setGithubRepoState(repo);
   }, []);
 
+  const setPageType = useCallback((pageType: "template" | "landing") => {
+    setPageTypeState(pageType);
+  }, []);
+
   // Compose state and actions using useMemo for performance
   const state = useMemo((): GithubRepoContextState => ({
     githubOwner,
-    githubRepo
-  }), [githubOwner, githubRepo]);
+    githubRepo,
+    pageType
+  }), [githubOwner, githubRepo, pageType]);
 
   const actions = useMemo((): GithubRepoContextActions => ({
     setGithubOwner,
-    setGithubRepo
-  }), [setGithubOwner, setGithubRepo]);
+    setGithubRepo,
+    setPageType
+  }), [setGithubOwner, setGithubRepo, setPageType]);
 
   const value: GithubRepoContextValue = useMemo(() => ({
     state,
@@ -72,8 +83,10 @@ const GithubRepoProvider: React.FC<GithubRepoProviderProps> = ({
     githubOwner: state.githubOwner,
     setGithubOwner,
     githubRepo: state.githubRepo,
-    setGithubRepo
-  }), [state.githubOwner, state.githubRepo, setGithubOwner, setGithubRepo]);
+    setGithubRepo,
+    pageType: state.pageType,
+    setPageType
+  }), [state.githubOwner, state.githubRepo, state.pageType, setGithubOwner, setGithubRepo, setPageType]);
 
   return (
     <GithubRepoContext.Provider value={value}>
@@ -99,6 +112,8 @@ export interface GithubRepoContextType {
   setGithubOwner: (owner: string) => void;
   githubRepo: string;
   setGithubRepo: (repo: string) => void;
+  pageType: "template" | "landing";
+  setPageType: (pageType: "template" | "landing") => void;
 }
 
 // Legacy context export for backward compatibility - this maintains old behavior

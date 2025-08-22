@@ -67,7 +67,7 @@ const RepositoryUpdater: React.FC<RepositoryUpdaterProps> = ({
         <h4 className="repository-updater__title">Repository Update Status</h4>
           <ProgressIndicator 
           status={workflowState.progressState.deployment.repositoryUpdate} 
-          size="medium"
+          size="small"
           showLabel={true}
         />
       </div>
