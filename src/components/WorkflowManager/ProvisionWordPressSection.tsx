@@ -20,6 +20,7 @@ const ProvisionWordPressSection: React.FC<ProvisionWordPressSectionProps> = () =
       { id: "sunset", label: "Sunset (Templates) 44.237.72.16" },
       { id: "kewalos", label: "Kewalos (Custom) 44.237.149.155" },
       { id: "uluwatu", label: "Uluwatu (Landing pages) 44.236.196.209" },
+      { id: "ssp-ortho", label: "SSP Ortho 3.17.97.149" },
     ],
     []
   );
