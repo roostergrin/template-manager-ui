@@ -21,14 +21,14 @@ const DefaultTemplateSelector: React.FC<DefaultTemplateSelectorProps> = ({
     onSelectRef.current = onTemplateSelect;
   }, [onTemplateSelect]);
 
-  // Don't auto-select templates - let user explicitly choose
-  // useEffect(() => {
-  //   if (availableTemplates.length > 0) {
-  //     const firstTemplate = availableTemplates[0];
-  //     const jsonString = JSON.stringify(firstTemplate.data);
-  //     onSelectRef.current(jsonString);
-  //   }
-  // }, [availableTemplates]);
+  // Auto-select first template when availableTemplates changes
+  useEffect(() => {
+    if (availableTemplates.length > 0) {
+      const firstTemplate = availableTemplates[0];
+      const jsonString = JSON.stringify(firstTemplate.data);
+      onSelectRef.current(jsonString);
+    }
+  }, [availableTemplates]);
   
   if (availableTemplates.length === 0) {
     return (

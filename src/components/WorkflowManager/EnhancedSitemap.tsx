@@ -107,6 +107,14 @@ const EnhancedSitemap: React.FC = () => {
           )}
           
           <div className="template-selector-card">
+            <h3 className="text-lg font-semibold mb-2">Load Template Sitemap</h3>
+            <DefaultTemplateSelector
+              selectedModelGroupKey={selectedModelGroupKey}
+              onTemplateSelect={sitemapActions.importPagesFromJson}
+            />
+          </div>
+          
+          <div className="template-selector-card">
             <h3 className="text-lg font-semibold mb-2">Load a Previous Sitemap</h3>
             <GeneratedSitemapSelector onSelectSitemap={sitemapActions.handleSelectStoredSitemap} />
           </div>
