@@ -35,7 +35,7 @@ const useSitemapImport = () => {
         return pages
       }
       return null
-    } catch (error) {
+    } catch {
       throw new Error('Error importing JSON: Invalid format')
     }
   }
@@ -61,7 +61,9 @@ const useSitemapImport = () => {
     if (prev) {
       try {
         arr = JSON.parse(prev) as StoredSitemap[]
-      } catch {}
+      } catch {
+        // Ignore parsing errors, use empty array
+      }
     }
     arr.push(stored)
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(arr))

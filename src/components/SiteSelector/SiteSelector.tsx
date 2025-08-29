@@ -22,8 +22,8 @@ const SiteSelector: React.FC<SiteSelectorProps> = ({
         {Object.entries(modelGroups).map(([key, group]) => {
           // Handle both old and new format
           if (isModelGroup(group)) {
-            // Check if model is ready (has at least one model)
-            const isReady = group.models && group.models.length > 0;
+            // Check if model is ready (has at least one model OR has templates)
+            const isReady = (group.models && group.models.length > 0) || (group.templates && group.templates.length > 0);
             const isSelected = selectedModelGroupKey === key;
             
             // New format with metadata
