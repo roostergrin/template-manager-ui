@@ -168,7 +168,7 @@ const useProgressTracking = () => {
     }));
   }, []);
 
-  const getSectionStatus = useCallback((section: keyof ProgressState): ProgressStatus => {
+  const getSectionStatus = (section: keyof ProgressState): ProgressStatus => {
     const sectionTasks = Object.values(progressState[section]);
     
     if (sectionTasks.every(status => status === 'completed')) {
@@ -188,9 +188,9 @@ const useProgressTracking = () => {
     }
     
     return 'pending';
-  }, [progressState]);
+  };
 
-  const getOverallProgress = useCallback((): number => {
+  const getOverallProgress = (): number => {
     const allTasks = [
       ...Object.values(progressState.infrastructure),
       ...Object.values(progressState.planning),
@@ -199,7 +199,7 @@ const useProgressTracking = () => {
     
     const completedTasks = allTasks.filter(status => status === 'completed').length;
     return Math.round((completedTasks / allTasks.length) * 100);
-  }, [progressState]);
+  };
 
   const canNavigateToSection = useCallback((targetSection: keyof ProgressState): boolean => {
     const sectionOrder: (keyof ProgressState)[] = ['infrastructure', 'planning', 'deployment'];
@@ -218,14 +218,14 @@ const useProgressTracking = () => {
     }
     
     return true;
-  }, [activeSection, getSectionStatus]);
+  }, [activeSection]);
 
   const resetProgress = useCallback(() => {
     setProgressState(initialProgressState);
     setActiveSection('infrastructure');
   }, []);
 
-  const getNextIncompleteTask = useCallback(() => {
+  const getNextIncompleteTask = () => {
     for (const section of progressSections) {
       const sectionStatus = getSectionStatus(section.id);
       if (sectionStatus !== 'completed') {
@@ -243,7 +243,7 @@ const useProgressTracking = () => {
       }
     }
     return null;
-  }, [progressState, getSectionStatus]);
+  };
 
   // Filter sections based on template selection
   const filteredProgressSections = useCallback(() => {
@@ -272,9 +272,11 @@ const useProgressTracking = () => {
     });
   }, [questionnaireState.activeMode]);
 
+  const memoizedFilteredProgressSections = filteredProgressSections();
+
   return {
     progressState,
-    progressSections: filteredProgressSections(),
+    progressSections: memoizedFilteredProgressSections,
     activeSection,
     setActiveSection,
     updateTaskStatus,

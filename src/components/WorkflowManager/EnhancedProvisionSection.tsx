@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import useProvisionSite from "../../hooks/useProvisionSite";
 import { useGithubRepo } from "../../context/GithubRepoContext";
 import useProgressTracking from "../../hooks/useProgressTracking";
@@ -17,6 +17,7 @@ const EnhancedProvisionSection: React.FC<EnhancedProvisionSectionProps> = ({
   const { setGithubOwner, setGithubRepo, setPageType } = actions;
   const [bucketName, setBucketName] = useState("");
   const [githubBranch, setGithubBranch] = useState("master");
+  const completionCalledRef = useRef(false);
 
   // Auto-populate bucket name based on GitHub repo name
   useEffect(() => {
@@ -30,8 +31,8 @@ const EnhancedProvisionSection: React.FC<EnhancedProvisionSectionProps> = ({
 
   // Notify parent when provisioning is complete
   useEffect(() => {
-    if (status === "success" && response && onProvisioningComplete) {
-      updateTaskStatus('infrastructure', 'awsProvisioning', 'completed');
+    if (status === "success" && response && onProvisioningComplete && !completionCalledRef.current) {
+      completionCalledRef.current = true;
       onProvisioningComplete({
         ...response,
         bucketName, // Include the bucket name used
@@ -46,6 +47,7 @@ const EnhancedProvisionSection: React.FC<EnhancedProvisionSectionProps> = ({
 
   const handleProvision = async () => {
     setError(null);
+    completionCalledRef.current = false; // Reset completion flag
     updateTaskStatus('infrastructure', 'awsProvisioning', 'in-progress');
     
     try {
