@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useRef } from 'react';
 import { MutationStatus } from '@tanstack/react-query';
 import LoadingOverlay from './LoadingOverlay';
 import { QuestionnaireData, GenerateSitemapRequest, GenerateSitemapResponse } from '../types/SitemapTypes';
@@ -26,16 +26,25 @@ const GenerateSitemapButton: React.FC<GenerateSitemapButtonProps> = ({
   controls,
 }) => {
   const { backendSiteType } = controls;
+  const hasProcessedCurrentSuccessRef = useRef<boolean>(false);
 
   useEffect(() => {
     if (
       generateSitemapStatus === 'success' &&
       generateSitemapData?.sitemap_data &&
-      (generateSitemapData.sitemap_data as any).pages
+      (generateSitemapData.sitemap_data as any).pages &&
+      !hasProcessedCurrentSuccessRef.current
     ) {
+      // Mark as processed to prevent duplicate calls
+      hasProcessedCurrentSuccessRef.current = true;
       onSitemapGenerated(generateSitemapData.sitemap_data as unknown);
     }
-  }, [generateSitemapStatus, generateSitemapData, onSitemapGenerated]);
+    
+    // Reset the flag when status changes to pending (new generation starting)
+    if (generateSitemapStatus === 'pending') {
+      hasProcessedCurrentSuccessRef.current = false;
+    }
+  }, [generateSitemapStatus, generateSitemapData]); // Removed onSitemapGenerated from dependencies
 
   const handleClick = useCallback(() => {
     generateSitemap({

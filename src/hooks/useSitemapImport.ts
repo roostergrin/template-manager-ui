@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { SitemapSection, StoredSitemap } from '../types/SitemapTypes'
 
 const LOCAL_STORAGE_KEY = 'generatedSitemaps'
@@ -24,6 +24,7 @@ const mapImportedPages = (pagesObj: Record<string, any>): SitemapSection[] => {
 const useSitemapImport = () => {
   const [lastSaved, setLastSaved] = useState<string | null>(null)
   const [sitemapSource, setSitemapSource] = useState<'loaded' | 'generated' | null>(null)
+  const isProcessingRef = useRef<boolean>(false)
 
   const importPagesFromJson = (jsonData: string): SitemapSection[] | null => {
     try {
@@ -45,32 +46,55 @@ const useSitemapImport = () => {
       return null
     }
 
-    const newPages = mapImportedPages((sitemapData as any).pages)
-    const name = prompt('Enter a name for this sitemap:', `Sitemap ${new Date().toLocaleString()}`) 
-      || `Sitemap ${new Date().toLocaleString()}`
-
-    const stored: StoredSitemap = {
-      name,
-      created: new Date().toISOString(),
-      sitemap: sitemapData,
+    // Prevent concurrent processing
+    if (isProcessingRef.current) {
+      console.warn('Sitemap processing already in progress, skipping duplicate call');
+      return null;
     }
+    
+    isProcessingRef.current = true;
 
-    // Store in localStorage
-    const prev = localStorage.getItem(LOCAL_STORAGE_KEY)
-    let arr: StoredSitemap[] = []
-    if (prev) {
+    try {
+      const newPages = mapImportedPages((sitemapData as any).pages)
+      
+      // Handle the prompt more carefully
+      let name: string;
       try {
-        arr = JSON.parse(prev) as StoredSitemap[]
-      } catch {
-        // Ignore parsing errors, use empty array
+        const userInput = prompt('Enter a name for this sitemap:', `Sitemap ${new Date().toLocaleString()}`);
+        name = userInput !== null && userInput.trim() !== '' 
+          ? userInput.trim() 
+          : `Sitemap ${new Date().toLocaleString()}`;
+      } catch (error) {
+        // Fallback in case prompt fails
+        name = `Sitemap ${new Date().toLocaleString()}`;
       }
-    }
-    arr.push(stored)
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(arr))
 
-    setLastSaved(new Date().toISOString())
-    setSitemapSource('generated')
-    return newPages
+      const stored: StoredSitemap = {
+        name,
+        created: new Date().toISOString(),
+        sitemap: sitemapData,
+      }
+
+      // Store in localStorage
+      const prev = localStorage.getItem(LOCAL_STORAGE_KEY)
+      let arr: StoredSitemap[] = []
+      if (prev) {
+        try {
+          arr = JSON.parse(prev) as StoredSitemap[]
+        } catch {
+          // Ignore parsing errors, use empty array
+        }
+      }
+      arr.push(stored)
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(arr))
+
+      setLastSaved(new Date().toISOString())
+      setSitemapSource('generated')
+      return newPages
+    } finally {
+      // Always reset the processing flag
+      isProcessingRef.current = false;
+    }
   }
 
   const handleSelectStoredSitemap = (stored: StoredSitemap): SitemapSection[] | null => {

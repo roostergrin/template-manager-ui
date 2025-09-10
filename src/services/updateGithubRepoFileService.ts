@@ -28,7 +28,7 @@ const updateGithubRepoFileService = async (request: UpdateGithubRepoFileRequest)
 
     console.log('📋 Transformed request for backend:', backendRequest);
 
-    const response = await apiClient.post<UpdateGithubRepoFileResponse>("/update-github-repo-file", backendRequest);
+    const response = await apiClient.post<UpdateGithubRepoFileResponse>("/update-github-repo-file/", backendRequest);
     
     console.log('✅ GitHub repo file update response:', response);
     console.log('✅ Response type:', typeof response);
