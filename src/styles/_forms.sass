@@ -8,7 +8,7 @@
   justify-content: space-between
   margin-bottom: 1.5rem
   padding: 1rem
-  background: rgba(248, 249, 250, 0.8)
+  background: #ffffff
   border-radius: 8px
   border: 1px solid #e1e5e9
 
@@ -21,7 +21,7 @@
   margin: 0
   font-size: 1.2rem
   font-weight: 600
-  color: #333
+  color: #222
 
 // Form group styling
 %form-group
@@ -31,8 +31,9 @@
     display: block
     font-weight: 600
     margin-bottom: 8px
-    color: #333
+    color: #222
     font-size: 1rem
+    text-transform: capitalize
   
   input, textarea, select
     width: 100%
@@ -45,8 +46,8 @@
     
     &:focus
       outline: none
-      border-color: #667eea
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1)
+      border-color: #4D4EC1
+      box-shadow: 0 0 0 3px rgba(77, 78, 193, 0.1)
     
     &:disabled
       background-color: #f5f5f5
@@ -67,8 +68,8 @@
     cursor: pointer
     
     &:hover
-      border-color: #667eea
-      background: #f8fbff
+      border-color: #4D4EC1
+      background: #ffffff
 
   input[type="radio"], input[type="checkbox"]
     width: auto
@@ -83,15 +84,15 @@
 
 // Form section styling (for grouped form elements)
 %form-section
-  background: rgba(248, 249, 250, 0.8)
+  background: #ffffff
   border: 1px solid #e1e5e9
   border-radius: 8px
   padding: 16px
   margin-bottom: 20px
-  
+
   h4
     margin: 0 0 16px 0
-    color: #333
+    color: #222
     font-size: 1.1rem
     font-weight: 600
 
@@ -107,7 +108,7 @@
 %primary-button
   width: 100%
   padding: 14px 24px
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)
+  background: #4D4EC1
   color: white
   border: none
   border-radius: 8px
@@ -116,20 +117,21 @@
   cursor: pointer
   transition: all 0.3s ease
   margin-bottom: 20px
-  
+
   &:hover:not(:disabled)
+    background: #4244a8
     transform: translateY(-2px)
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3)
-  
+    box-shadow: 0 4px 12px rgba(77, 78, 193, 0.3)
+
   &:disabled
-    background: linear-gradient(135deg, #ccc 0%, #999 100%)
+    background: #ccc
     cursor: not-allowed
     transform: none
     box-shadow: none
 
 %secondary-button
   padding: 10px 16px
-  background: rgb(0, 112, 243)
+  background: #4D4EC1
   color: white
   border: none
   border-radius: 6px
@@ -137,11 +139,11 @@
   font-weight: 600
   cursor: pointer
   transition: all 0.2s ease
-  
+
   &:hover:not(:disabled)
-    background: #5a6268
+    background: #4244a8
     transform: translateY(-1px)
-  
+
   &:disabled
     background: #ccc
     cursor: not-allowed
@@ -387,10 +389,10 @@
       
     span
       font-weight: 500
-      color: #333
-      
+      color: #222
+
     input[type="radio"]:checked + span
-      color: #667eea
+      color: #4D4EC1
       font-weight: 600
       
     // &:has(input:checked)

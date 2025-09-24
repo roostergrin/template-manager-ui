@@ -37,7 +37,7 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
   const { progressState, updateTaskStatus } = useProgressTracking();
 
   // Extract data from contexts
-  const questionnaireData = questionnaireState.data;
+const questionnaireData = questionnaireState.data;
   const pages = sitemapState.pages;
   const selectedModelGroupKey = appConfigState.selectedModelGroupKey || Object.keys(appConfigState.modelGroups)[0];
   const siteType = getBackendSiteTypeForModelGroup(selectedModelGroupKey) || 'stinson';
