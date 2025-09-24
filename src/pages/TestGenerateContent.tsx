@@ -144,6 +144,28 @@ const TestGenerateContent: React.FC = () => {
               <input type="checkbox" checked={assignImages} onChange={e => setAssignImages(e.target.checked)} />
               Assign images
             </label>
+            {assignImages && (
+              <div style={{ 
+                marginTop: 12, 
+                padding: '12px 16px',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                borderRadius: 8,
+                color: '#fff',
+                fontSize: '14px',
+                border: '1px solid #5a67d8'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                  <span style={{ fontSize: '16px' }}>🎨</span>
+                  <strong>Adobe Licensed Assets Mode</strong>
+                </div>
+                <div style={{ fontSize: '13px', opacity: 0.9, lineHeight: 1.4 }}>
+                  When ImageSelectionHints are detected in content, the system will use <strong>keywordMode=AND</strong> to search Adobe's licensed asset library for contextually appropriate images.
+                </div>
+                <div style={{ marginTop: 8, fontSize: '12px', opacity: 0.8 }}>
+                  💡 Hint categories like "Home Hero" → "smiling AND dentist AND patient"
+                </div>
+              </div>
+            )}
           </div>
         </div>
         <div style={cardStyle}>
@@ -174,7 +196,25 @@ const TestGenerateContent: React.FC = () => {
       )}
 
       <div style={cardStyle}>
-        <div style={labelStyle}>Response</div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+          <div style={labelStyle}>Response</div>
+          {assignImages && response && (
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '4px 8px',
+              background: '#f0f9ff',
+              border: '1px solid #0ea5e9',
+              borderRadius: 6,
+              fontSize: '12px',
+              color: '#0369a1'
+            }}>
+              <span>🔍</span>
+              Adobe search enabled
+            </div>
+          )}
+        </div>
         <pre style={preStyle} aria-live="polite">{response ? JSON.stringify(response, null, 2) : 'No response yet.'}</pre>
       </div>
     </div>
