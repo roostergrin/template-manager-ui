@@ -22,6 +22,7 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
   const [shouldFetch, setShouldFetch] = useState(false);
   const [isStarted, setIsStarted] = useState(false);
   const [useRgTemplateAssets, setUseRgTemplateAssets] = useState(true);
+  const [generateGlobal, setGenerateGlobal] = useState(true);
   const [pagesContent, setPagesContent] = useState<Record<string, unknown> | null>(null);
   const [globalContent, setGlobalContent] = useState<Record<string, unknown> | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -149,7 +150,7 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
   } = useQuery({
     queryKey: ['generate-global', requestSnapshot as GenerateContentRequest],
     queryFn: generateGlobalQueryFunction,
-    enabled: shouldFetch && !!requestSnapshot,
+    enabled: shouldFetch && !!requestSnapshot && generateGlobal,
   });
 
   // Fetch pages content
@@ -194,12 +195,15 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
   }, [pagesStatus, pagesData]);
 
   useEffect(() => {
-    console.log('🌐 Global useEffect FIRED - Status:', globalStatus, 'Data present:', !!globalData);
-    if (globalStatus === 'success' && globalData) {
+    console.log('🌐 Global useEffect FIRED - Status:', globalStatus, 'Data present:', !!globalData, 'Generate Global:', generateGlobal);
+    if (!generateGlobal) {
+      // If generate-global is disabled, set empty global content
+      setGlobalContent({});
+    } else if (globalStatus === 'success' && globalData) {
       const extracted = (globalData as any)?.global_data ?? (globalData as unknown as Record<string, unknown>);
       setGlobalContent(extracted);
     }
-  }, [globalStatus, globalData]);
+  }, [globalStatus, globalData, generateGlobal]);
 
   // Notify parent when both contents are ready
   useEffect(() => {
@@ -214,19 +218,21 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
     if (
       isStarted &&
       (pagesStatus === 'success' || pagesStatus === 'error') &&
-      (globalStatus === 'success' || globalStatus === 'error')
+      (!generateGlobal || globalStatus === 'success' || globalStatus === 'error')
     ) {
       setIsStarted(false);
       setShouldFetch(false);
     }
-  }, [isStarted, pagesStatus, globalStatus]);
+  }, [isStarted, pagesStatus, globalStatus, generateGlobal]);
 
   const handleGenerateContent = useCallback(() => {
     console.log('🚀 Starting content generation...');
     
     // Invalidate existing queries to force fresh requests
     queryClient.invalidateQueries({ queryKey: ['generate-content'] });
-    queryClient.invalidateQueries({ queryKey: ['generate-global'] });
+    if (generateGlobal) {
+      queryClient.invalidateQueries({ queryKey: ['generate-global'] });
+    }
     console.log('🧹 Invalidated React Query cache');
     
     // Capture stable snapshot of the request
@@ -247,10 +253,14 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
     updateTaskStatus('planning', 'contentGeneration', 'in-progress');
     
     console.log('🧹 Clearing previous content states');
-  }, [queryClient, pages, effectiveQuestionnaireData, siteType, useRgTemplateAssets, updateTaskStatus]);
+  }, [queryClient, pages, effectiveQuestionnaireData, siteType, useRgTemplateAssets, generateGlobal, updateTaskStatus]);
 
   const handleUseRgTemplateAssetsChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     setUseRgTemplateAssets(event.target.checked);
+  }, []);
+
+  const handleGenerateGlobalChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    setGenerateGlobal(event.target.checked);
   }, []);
 
   const createDownloadUrl = useCallback((content: object, filename: string) => {
@@ -277,9 +287,9 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
     }
   }, [globalContent, createDownloadUrl]);
 
-  const isGenerating = isStarted && (pagesStatus === 'pending' || globalStatus === 'pending');
-  const hasError = pagesStatus === 'error' || globalStatus === 'error';
-  const isComplete = pagesStatus === 'success' && globalStatus === 'success';
+  const isGenerating = isStarted && (pagesStatus === 'pending' || (generateGlobal && globalStatus === 'pending'));
+  const hasError = pagesStatus === 'error' || (generateGlobal && globalStatus === 'error');
+  const isComplete = pagesStatus === 'success' && (!generateGlobal || globalStatus === 'success');
 
   // Update progress tracking based on status
   useEffect(() => {
@@ -338,14 +348,42 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
                 <input
                   type="checkbox"
                   className="checkbox"
+                  id="generate-global"
+                  checked={generateGlobal}
+                  onChange={handleGenerateGlobalChange}
+                />
+                <label htmlFor="generate-global">
+                  Generate global content (site-wide information)
+                </label>
+              </div>
+              
+              <div className="checkbox-wrapper">
+                <input
+                  type="checkbox"
+                  className="checkbox"
                   id="use-rg-template-assets"
                   checked={useRgTemplateAssets}
                   onChange={handleUseRgTemplateAssetsChange}
                 />
                 <label htmlFor="use-rg-template-assets">
-                  Use images from rg-templates-assets
+                  Assign images automatically (includes Adobe licensed assets)
                 </label>
               </div>
+              
+              {useRgTemplateAssets && (
+                <div className="adobe-assets-indicator">
+                  <div className="adobe-assets-header">
+                    <span className="adobe-icon">🎨</span>
+                    <strong>Adobe Licensed Assets Mode</strong>
+                  </div>
+                  <div className="adobe-assets-description">
+                    When ImageSelectionHints are detected in content, the system will use <strong>keywordMode=AND</strong> to search Adobe's licensed asset library for contextually appropriate images.
+                  </div>
+                  <div className="adobe-assets-example">
+                    💡 Hint categories like "Home Hero" → "smiling AND dentist AND patient"
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Generate Button */}
@@ -470,8 +508,8 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
         </div>
         <div className="status-item">
           <span className="status-label">Global Content:</span>
-          <span className={`status-value ${globalContent ? 'status-value--success' : `status-value--${globalStatus}`}`}>
-            {globalContent ? 'loaded' : globalStatus === 'pending' ? 'generating' : globalStatus === 'error' ? 'error' : 'idle'}
+          <span className={`status-value ${globalContent ? 'status-value--success' : !generateGlobal ? 'status-value--disabled' : `status-value--${globalStatus}`}`}>
+            {!generateGlobal ? 'disabled' : globalContent ? 'loaded' : globalStatus === 'pending' ? 'generating' : globalStatus === 'error' ? 'error' : 'idle'}
           </span>
         </div>
       </div>
@@ -484,7 +522,7 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
               <strong>Pages Error:</strong> {pagesError.message}
             </div>
           )}
-          {globalError && (
+          {globalError && generateGlobal && (
             <div className="error-message">
               <strong>Global Error:</strong> {globalError.message}
             </div>

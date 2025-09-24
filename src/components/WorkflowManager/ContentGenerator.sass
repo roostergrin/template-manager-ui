@@ -61,6 +61,10 @@
     
   .status-value
     @extend %status-value
+    
+    &--disabled
+      color: #6b7280
+      opacity: 0.7
 
   .checkbox-wrapper
     display: flex
@@ -69,6 +73,42 @@
   label
     width: 100%
     margin: 0
+
+  // Adobe Assets Indicator
+  .adobe-assets-indicator
+    margin-top: 1rem
+    padding: 0.75rem 1rem
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)
+    border-radius: 8px
+    color: #ffffff
+    font-size: 0.875rem
+    border: 1px solid #5a67d8
+    
+    .adobe-assets-header
+      display: flex
+      align-items: center
+      gap: 0.5rem
+      margin-bottom: 0.5rem
+      
+      .adobe-icon
+        font-size: 1rem
+      
+      strong
+        font-weight: 600
+    
+    .adobe-assets-description
+      font-size: 0.8125rem
+      opacity: 0.9
+      line-height: 1.4
+      margin-bottom: 0.5rem
+      
+      strong
+        font-weight: 600
+    
+    .adobe-assets-example
+      font-size: 0.75rem
+      opacity: 0.8
+      font-style: italic
 
   // Sample structure guide styling
   .sample-structure

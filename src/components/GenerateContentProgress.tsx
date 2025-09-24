@@ -214,10 +214,10 @@ const GenerateContentProgress: React.FC<GenerateContentProgressProps> = ({
               className="generate-content-progress__checkbox"
               checked={useRgTemplateAssets}
               onChange={handleUseRgTemplateAssetsChange}
-              aria-label="Use images from rg-templates-assets"
+              aria-label="Use images from licensed-adobe-assets"
             />
             <label htmlFor="use-rg-template-assets" className="generate-content-progress__checkbox-label">
-              Use images from rg-templates-assets
+              Use high-quality Adobe Stock images
             </label>
           </div>
         </div>
