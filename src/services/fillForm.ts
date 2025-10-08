@@ -5,6 +5,7 @@ export type FillFormRequest = {
   domain: string;
   use_selenium?: boolean;
   scroll?: boolean;
+  max_pages?: number;
 };
 
 export type FillFormResponse = {

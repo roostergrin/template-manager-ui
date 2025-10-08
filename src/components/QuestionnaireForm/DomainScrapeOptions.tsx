@@ -5,7 +5,7 @@ import { FillFormResponse } from "../../services/fillForm";
 export type DomainScrapeOptionsProps = {
   domain: string;
   setDomain: (v: string) => void;
-  handleFillForm: (scrape: boolean, useSelenium: boolean, scroll: boolean) => void;
+  handleFillForm: (scrape: boolean, useSelenium: boolean, scroll: boolean, maxPages?: number) => void;
   fillFormStatus?: MutationStatus;
   fillFormData?: FillFormResponse;
   mockScrapeDomain: (domain: string) => void;
@@ -22,6 +22,7 @@ const DomainScrapeOptions: React.FC<DomainScrapeOptionsProps> = ({
   const [scrape, setScrape] = useState(true);
   const [useSelenium, setUseSelenium] = useState(false);
   const [scroll, setScroll] = useState(false);
+  const [maxPages, setMaxPages] = useState<number | undefined>(undefined);
   const [domainError, setDomainError] = useState(false);
 
   const handleDomainChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -35,7 +36,7 @@ const DomainScrapeOptions: React.FC<DomainScrapeOptionsProps> = ({
       return;
     }
     setDomainError(false);
-    handleFillForm(scrape, useSelenium, scroll);
+    handleFillForm(scrape, useSelenium, scroll, maxPages);
   };
 
   const handleMockScrapeClick = () => {
@@ -67,6 +68,19 @@ const DomainScrapeOptions: React.FC<DomainScrapeOptionsProps> = ({
           Please enter a domain.
         </span>
       )}
+      <div className="form-group">
+        <label htmlFor="max-pages-input">Max Pages (optional)</label>
+        <input
+          id="max-pages-input"
+          type="number"
+          min="1"
+          value={maxPages ?? ''}
+          onChange={(e) => setMaxPages(e.target.value ? parseInt(e.target.value, 10) : undefined)}
+          placeholder="Leave empty for unlimited"
+          aria-label="Maximum Pages"
+          tabIndex={0}
+        />
+      </div>
       <div className="radio-group">
         <div className="radio-option">
           <input

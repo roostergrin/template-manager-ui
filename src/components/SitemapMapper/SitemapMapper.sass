@@ -1,0 +1,391 @@
+.sitemap-mapper
+  padding: 2rem
+  max-width: 1600px
+  margin: 0 auto
+
+  &__header
+    display: flex
+    justify-content: space-between
+    align-items: flex-start
+    margin-bottom: 2rem
+    padding-bottom: 1rem
+    border-bottom: 2px solid #e0e0e0
+
+    .header-title
+      h2
+        margin: 0 0 0.5rem 0
+        color: #333
+
+      p
+        margin: 0
+        color: #666
+        font-size: 0.95rem
+
+  &__stats
+    display: flex
+    gap: 1.5rem
+    margin-bottom: 2rem
+    padding: 1rem
+    background: #f8f9fa
+    border-radius: 8px
+
+    .stat-item
+      display: flex
+      align-items: center
+      gap: 0.5rem
+
+      .stat-label
+        color: #666
+        font-size: 0.9rem
+
+      .stat-value
+        font-weight: bold
+        font-size: 1.2rem
+        color: #333
+
+        &.success
+          color: #28a745
+
+        &.warning
+          color: #ffc107
+
+  &__content
+    display: grid
+    grid-template-columns: 1fr 1fr
+    gap: 2rem
+    margin-bottom: 2rem
+
+    .column-hint
+      margin: 0 0 1rem 0
+      color: #666
+      font-size: 0.85rem
+      font-style: italic
+
+    h3
+      margin: 0 0 0.5rem 0
+      color: #333
+      font-size: 1.2rem
+
+    .scraped-pages-column,
+    .sitemap-pages-column
+      background: white
+      border: 2px solid #e0e0e0
+      border-radius: 8px
+      padding: 1.5rem
+      min-height: 500px
+
+    .scraped-pages-list,
+    .sitemap-pages-list
+      display: flex
+      flex-direction: column
+      gap: 0.75rem
+      max-height: 600px
+      overflow-y: auto
+      padding-right: 0.5rem
+
+      &::-webkit-scrollbar
+        width: 8px
+
+      &::-webkit-scrollbar-track
+        background: #f1f1f1
+        border-radius: 4px
+
+      &::-webkit-scrollbar-thumb
+        background: #888
+        border-radius: 4px
+
+        &:hover
+          background: #555
+
+    .scraped-page-item
+      background: #f8f9fa
+      border: 2px solid #e9ecef
+      border-radius: 6px
+      padding: 1rem
+      cursor: grab
+      transition: all 0.2s
+      user-select: none
+
+      &:hover
+        border-color: #667eea
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2)
+
+      &.mapped
+        opacity: 0.6
+        border-style: dashed
+
+        .mapped-badge
+          background: #28a745
+          color: white
+          padding: 0.2rem 0.6rem
+          border-radius: 12px
+          font-size: 0.75rem
+          font-weight: 500
+
+      &.preview
+        border-color: #667eea
+        background: #f0f4ff
+
+      &:active
+        cursor: grabbing
+
+      .item-header
+        display: flex
+        align-items: center
+        gap: 0.75rem
+        margin-bottom: 0.5rem
+
+        .drag-handle
+          color: #999
+          font-size: 1.2rem
+          cursor: grab
+
+        .item-info
+          flex: 1
+
+          .item-title
+            font-weight: 600
+            color: #333
+            margin-bottom: 0.25rem
+
+          .item-meta
+            font-size: 0.85rem
+            color: #666
+            font-family: monospace
+
+      .item-stats
+        display: flex
+        gap: 1rem
+        font-size: 0.85rem
+        color: #666
+
+    .sitemap-page-item
+      background: white
+      border: 2px solid #e0e0e0
+      border-radius: 6px
+      padding: 1rem
+      transition: all 0.2s
+      cursor: pointer
+
+      &:hover
+        border-color: #667eea
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15)
+
+      &.selected
+        border-color: #667eea
+        background: #f0f4ff
+
+      &.has-mapping
+        border-left: 4px solid #28a745
+
+      &.no-mapping
+        border-left: 4px solid #ffc107
+
+      .item-header
+        margin-bottom: 0.75rem
+
+        .item-info
+          .item-title
+            font-weight: 600
+            color: #333
+            margin-bottom: 0.25rem
+
+          .item-meta
+            font-size: 0.85rem
+            color: #666
+            font-family: monospace
+            margin-bottom: 0.25rem
+
+          .item-component
+            font-size: 0.8rem
+            color: #999
+            background: #f1f3f5
+            padding: 0.2rem 0.5rem
+            border-radius: 4px
+            display: inline-block
+
+      .mapping-info
+        background: #f8f9fa
+        padding: 0.75rem
+        border-radius: 4px
+        display: flex
+        flex-direction: column
+        gap: 0.5rem
+
+        .mapped-to
+          display: flex
+          gap: 0.5rem
+
+          .label
+            color: #666
+            font-size: 0.85rem
+
+          .value
+            color: #333
+            font-weight: 500
+            font-size: 0.85rem
+
+        .confidence-badge
+          display: flex
+          align-items: center
+          gap: 0.5rem
+
+          .confidence-indicator
+            width: 12px
+            height: 12px
+            border-radius: 50%
+
+          .confidence-label
+            font-size: 0.8rem
+            color: #666
+
+        .btn--small
+          align-self: flex-start
+          padding: 0.3rem 0.6rem
+          font-size: 0.8rem
+
+      .no-mapping-info
+        background: #fff3cd
+        padding: 0.75rem
+        border-radius: 4px
+
+        p
+          margin: 0 0 0.5rem 0
+          color: #856404
+          font-size: 0.85rem
+
+        .mapping-select
+          width: 100%
+          padding: 0.5rem
+          border: 1px solid #ced4da
+          border-radius: 4px
+          font-size: 0.85rem
+
+          &:focus
+            outline: none
+            border-color: #667eea
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1)
+
+  &__preview
+    background: #f8f9fa
+    border: 2px solid #e0e0e0
+    border-radius: 8px
+    padding: 1.5rem
+    margin-bottom: 2rem
+
+    h4
+      margin: 0 0 1rem 0
+      color: #333
+
+    .preview-content
+      h5
+        margin: 0 0 0.5rem 0
+        color: #333
+        font-size: 1.1rem
+
+      .preview-url
+        margin: 0 0 1rem 0
+        color: #666
+        font-size: 0.85rem
+        font-family: monospace
+
+      .preview-stats
+        display: flex
+        gap: 1rem
+        margin-bottom: 1rem
+        padding-bottom: 1rem
+        border-bottom: 1px solid #e0e0e0
+
+        span
+          font-size: 0.85rem
+          color: #666
+
+      .preview-sections
+        display: flex
+        flex-direction: column
+        gap: 0.75rem
+
+        .preview-section
+          background: white
+          padding: 0.75rem
+          border-radius: 4px
+          border: 1px solid #e0e0e0
+
+          .section-type
+            background: #667eea
+            color: white
+            padding: 0.2rem 0.5rem
+            border-radius: 4px
+            font-size: 0.75rem
+            font-weight: 500
+            text-transform: uppercase
+            margin-bottom: 0.5rem
+            display: inline-block
+
+          p
+            margin: 0.5rem 0 0 0
+            font-size: 0.85rem
+            color: #666
+            line-height: 1.4
+
+  &__warning
+    background: #fff3cd
+    border: 1px solid #ffc107
+    border-radius: 8px
+    padding: 1rem 1.5rem
+    margin-bottom: 2rem
+    display: flex
+    align-items: center
+    gap: 1rem
+
+    .warning-icon
+      font-size: 1.5rem
+
+    span
+      color: #856404
+      font-size: 0.95rem
+
+  &__actions
+    text-align: center
+    padding-top: 2rem
+    border-top: 2px solid #e0e0e0
+
+    .btn--large
+      padding: 1rem 3rem
+      font-size: 1.1rem
+
+// Button styles
+.btn
+  border: none
+  border-radius: 6px
+  cursor: pointer
+  font-weight: 500
+  transition: all 0.2s
+  padding: 0.5rem 1rem
+
+  &--primary
+    background: #667eea
+    color: white
+
+    &:hover
+      background: #5568d3
+      transform: translateY(-1px)
+      box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3)
+
+  &--secondary
+    background: #6c757d
+    color: white
+
+    &:hover
+      background: #5a6268
+
+  &--danger
+    background: #dc3545
+    color: white
+
+    &:hover
+      background: #c82333
+
+  &--small
+    padding: 0.3rem 0.6rem
+    font-size: 0.8rem
