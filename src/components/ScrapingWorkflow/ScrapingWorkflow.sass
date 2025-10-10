@@ -297,6 +297,29 @@
     padding: 1rem 2rem
     font-size: 1.1rem
 
+  &--history
+    display: inline-flex
+    align-items: center
+    gap: 0.5rem
+    margin-bottom: 1.5rem
+
+.scrape-step-header
+  display: flex
+  justify-content: flex-end
+  margin-bottom: 1rem
+
+.scrape-history-section
+  margin-bottom: 2rem
+  animation: slideDown 0.3s ease-out
+
+@keyframes slideDown
+  from
+    opacity: 0
+    transform: translateY(-10px)
+  to
+    opacity: 1
+    transform: translateY(0)
+
 @media (max-width: 768px)
   .scraping-workflow
     &__progress

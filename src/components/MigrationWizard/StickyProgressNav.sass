@@ -1,0 +1,85 @@
+.sticky-progress-nav
+  position: sticky
+  top: 0
+  background: white
+  border-bottom: 2px solid #e2e8f0
+  z-index: 100
+  padding: 1rem 2rem
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05)
+
+  &__steps
+    display: flex
+    gap: 0.5rem
+    max-width: 1400px
+    margin: 0 auto
+    overflow-x: auto
+    -webkit-overflow-scrolling: touch
+
+    &::-webkit-scrollbar
+      height: 4px
+
+    &::-webkit-scrollbar-track
+      background: #f1f1f1
+
+    &::-webkit-scrollbar-thumb
+      background: #cbd5e0
+      border-radius: 2px
+
+  &__step
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    padding: 0.75rem 1.25rem
+    border: 2px solid #e2e8f0
+    border-radius: 8px
+    background: white
+    font-weight: 600
+    font-size: 0.875rem
+    cursor: pointer
+    transition: all 0.2s
+    white-space: nowrap
+    flex-shrink: 0
+
+    &:hover
+      border-color: #cbd5e0
+      background: #f7fafc
+
+    &--active
+      border-color: #4299e1
+      background: #ebf8ff
+      color: #2c5282
+
+      .sticky-progress-nav__step-icon
+        background: #4299e1
+        color: white
+
+    &--completed
+      border-color: #48bb78
+
+      .sticky-progress-nav__step-icon
+        background: #48bb78
+        color: white
+
+  &__step-icon
+    display: flex
+    align-items: center
+    justify-content: center
+    width: 28px
+    height: 28px
+    border-radius: 50%
+    background: #e2e8f0
+    font-size: 0.875rem
+    transition: all 0.2s
+
+  &__step-label
+    // Label styles
+
+@media (max-width: 768px)
+  .sticky-progress-nav
+    padding: 0.75rem 1rem
+
+  .sticky-progress-nav__step-label
+    display: none
+
+  .sticky-progress-nav__step
+    padding: 0.75rem

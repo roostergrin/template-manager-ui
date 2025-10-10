@@ -8,6 +8,12 @@ type ControlsProps = {
   backendSiteType: string;
 };
 
+type ScrapedContentInfo = {
+  domain: string;
+  pagesCount: number;
+  timestamp?: string;
+};
+
 export type GenerateSitemapButtonProps = {
   questionnaireData: QuestionnaireData;
   generateSitemap: (params: GenerateSitemapRequest) => void;
@@ -15,6 +21,7 @@ export type GenerateSitemapButtonProps = {
   generateSitemapData?: GenerateSitemapResponse;
   onSitemapGenerated: (sitemapData: unknown) => void;
   controls: ControlsProps;
+  scrapedContent?: ScrapedContentInfo;
 };
 
 const GenerateSitemapButton: React.FC<GenerateSitemapButtonProps> = ({
@@ -24,6 +31,7 @@ const GenerateSitemapButton: React.FC<GenerateSitemapButtonProps> = ({
   generateSitemapData,
   onSitemapGenerated,
   controls,
+  scrapedContent,
 }) => {
   const { backendSiteType } = controls;
   const hasProcessedCurrentSuccessRef = useRef<boolean>(false);
@@ -57,12 +65,37 @@ const GenerateSitemapButton: React.FC<GenerateSitemapButtonProps> = ({
   return (
     <div className="generate-sitemap-button">
       <div className="generate-sitemap-button__header">
-        <h3 className="generate-sitemap-button__title">Generate Sitemap</h3>
+        <h3 className="generate-sitemap-button__title">Generate New Sitemap <span className="generate-sitemap-button__beta-badge">Beta</span></h3>
       </div>
+
+      {scrapedContent && (
+        <div className="generate-sitemap-button__content-source">
+          <h4 className="generate-sitemap-button__content-source-title">Content Source</h4>
+          <div className="generate-sitemap-button__content-info">
+            <div className="generate-sitemap-button__info-item">
+              <span className="generate-sitemap-button__info-label">Domain:</span>
+              <span className="generate-sitemap-button__info-value">{scrapedContent.domain}</span>
+            </div>
+            <div className="generate-sitemap-button__info-item">
+              <span className="generate-sitemap-button__info-label">Pages:</span>
+              <span className="generate-sitemap-button__info-value">{scrapedContent.pagesCount}</span>
+            </div>
+            {scrapedContent.timestamp && (
+              <div className="generate-sitemap-button__info-item">
+                <span className="generate-sitemap-button__info-label">Scraped:</span>
+                <span className="generate-sitemap-button__info-value">
+                  {new Date(scrapedContent.timestamp).toLocaleDateString()}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       <div className="generate-sitemap-button__info-section">
-        <div 
-          className="generate-sitemap-button__site-type-info" 
-          aria-label="Current Site Type" 
+        <div
+          className="generate-sitemap-button__site-type-info"
+          aria-label="Current Site Type"
           tabIndex={0}
         >
           <span className="generate-sitemap-button__site-type-label">
@@ -76,7 +109,7 @@ const GenerateSitemapButton: React.FC<GenerateSitemapButtonProps> = ({
           Using Page JSON
         </div>
       </div>
-      
+
       <div className="generate-sitemap-button__action-section">
         <button
           className="generate-sitemap-button__button"

@@ -8,9 +8,7 @@ import { useAppConfig } from '../../contexts/AppConfigProvider';
 import useImportExport from '../../hooks/useImportExport';
 import useGenerateSitemap from '../../hooks/useGenerateSitemap';
 import { getBackendSiteTypeForModelGroup } from '../../utils/modelGroupKeyToBackendSiteType';
-import ProgressIndicator from '../Common/ProgressIndicator';
 import SiteSelector from '../SiteSelector';
-import DefaultTemplateSelector from '../DefaultTemplateSelector/DefaultTemplateSelector';
 import GenerateSitemapButton from '../GenerateSitemapButton';
 import GeneratedSitemapSelector from '../GeneratedSitemapSelector';
 import SitemapViewToggle from '../Sitemap/SitemapViewToggle';
@@ -65,17 +63,6 @@ const EnhancedSitemap: React.FC = () => {
 
   return (
     <div className="relative">
-      <div className="sitemap-header">
-        <h4 className="sitemap-header__title">Sitemap Builder</h4>
-        <div className="sitemap-header__progress">
-          <ProgressIndicator 
-            status={workflowState.progressState.planning.sitemapPlanning} 
-            size="small"
-            showLabel={true}
-          />
-        </div>
-      </div>
-      
       {/* Data Source Indicator */}
       {isMarkdownData(questionnaireData) && (
         <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
@@ -84,14 +71,14 @@ const EnhancedSitemap: React.FC = () => {
           </p>
         </div>
       )}
-      
+
       <div className="app__header mb-6">
         <SiteSelector
           selectedModelGroupKey={selectedModelGroupKey}
           onModelGroupChange={(key) => appConfigActions.setSelectedModelGroup(key)}
         />
-        
-        
+
+
         <div className="sitemap-actions-row">
           {questionnaireState.activeMode !== 'template-markdown' && (
             <GenerateSitemapButton
@@ -105,23 +92,15 @@ const EnhancedSitemap: React.FC = () => {
               }}
             />
           )}
-          
-          <div className="template-selector-card">
-            <h3 className="text-lg font-semibold mb-2">Load Template Sitemap</h3>
-            <DefaultTemplateSelector
-              selectedModelGroupKey={selectedModelGroupKey}
-              onTemplateSelect={sitemapActions.importPagesFromJson}
-            />
-          </div>
-          
+
           <div className="template-selector-card">
             <h3 className="text-lg font-semibold mb-2">Load a Previous Sitemap</h3>
             <GeneratedSitemapSelector onSelectSitemap={sitemapActions.handleSelectStoredSitemap} />
           </div>
         </div>
-        
+
       </div>
-      
+
       {/* Only show sitemap view and export/import if a sitemap has been loaded or generated */}
       {sitemapState.sitemapSource && pages.length > 0 && (
         <>

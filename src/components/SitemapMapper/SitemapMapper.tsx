@@ -46,11 +46,12 @@ const SitemapMapper: React.FC<SitemapMapperProps> = ({
       let bestMatch: { pageKey: string; confidence: number } | null = null;
       let highestConfidence = 0;
 
-      scrapedContent.pages.forEach((scrapedPage) => {
-        const confidence = calculateMatchConfidence(sitemapPage, scrapedPage);
+      // Iterate through scraped pages (now an object with page keys)
+      Object.keys(scrapedContent.pages).forEach((pageKey) => {
+        const confidence = calculateMatchConfidence(sitemapPage, pageKey);
         if (confidence > highestConfidence) {
           highestConfidence = confidence;
-          bestMatch = { pageKey: scrapedPage.page_key, confidence };
+          bestMatch = { pageKey, confidence };
         }
       });
 
@@ -66,26 +67,24 @@ const SitemapMapper: React.FC<SitemapMapperProps> = ({
 
   const calculateMatchConfidence = (
     sitemapPage: SitemapPage,
-    scrapedPage: { page_key: string; title: string; url: string }
+    scrapedPageKey: string
   ): number => {
     let confidence = 0;
 
     // Match by path similarity
     const sitemapPath = sitemapPage.path.toLowerCase();
-    const scrapedUrl = scrapedPage.url.toLowerCase();
-    const scrapedPageKey = scrapedPage.page_key.toLowerCase();
+    const pageKey = scrapedPageKey.toLowerCase();
 
-    if (scrapedUrl.includes(sitemapPath) || sitemapPath.includes(scrapedPageKey)) {
+    if (sitemapPath.includes(pageKey) || pageKey.includes(sitemapPath.replace('/', ''))) {
       confidence += 0.5;
     }
 
     // Match by title similarity
     const sitemapTitle = sitemapPage.title.toLowerCase();
-    const scrapedTitle = scrapedPage.title.toLowerCase();
 
-    if (sitemapTitle === scrapedTitle) {
+    if (sitemapTitle === pageKey) {
       confidence += 0.5;
-    } else if (sitemapTitle.includes(scrapedTitle) || scrapedTitle.includes(sitemapTitle)) {
+    } else if (sitemapTitle.includes(pageKey) || pageKey.includes(sitemapTitle)) {
       confidence += 0.3;
     }
 
@@ -101,7 +100,7 @@ const SitemapMapper: React.FC<SitemapMapperProps> = ({
     Object.entries(commonPages).forEach(([path, keywords]) => {
       if (sitemapPath.includes(path)) {
         keywords.forEach((keyword) => {
-          if (scrapedPageKey.includes(keyword) || scrapedUrl.includes(keyword)) {
+          if (pageKey.includes(keyword)) {
             confidence += 0.2;
           }
         });
@@ -167,7 +166,8 @@ const SitemapMapper: React.FC<SitemapMapperProps> = ({
   };
 
   const getScrapedPage = (pageKey: string) => {
-    return scrapedContent.pages.find((p) => p.page_key === pageKey);
+    // Return markdown content for the given page key
+    return scrapedContent.pages[pageKey] ? { page_key: pageKey, markdown: scrapedContent.pages[pageKey] } : null;
   };
 
   const getSitemapPage = (path: string) => {
@@ -213,30 +213,29 @@ const SitemapMapper: React.FC<SitemapMapperProps> = ({
           <h3>📄 Scraped Pages</h3>
           <p className="column-hint">Drag pages from here to map them</p>
           <div className="scraped-pages-list">
-            {scrapedContent.pages.map((page) => {
-              const isMapped = getMappedScrapedPageKeys().has(page.page_key);
+            {Object.keys(scrapedContent.pages).map((pageKey) => {
+              const isMapped = getMappedScrapedPageKeys().has(pageKey);
+              const markdown = scrapedContent.pages[pageKey];
+              const wordCount = markdown.split(/\s+/).length;
+
               return (
                 <div
-                  key={page.page_key}
+                  key={pageKey}
                   className={`scraped-page-item ${isMapped ? 'mapped' : ''} ${
-                    previewScrapedPage === page.page_key ? 'preview' : ''
+                    previewScrapedPage === pageKey ? 'preview' : ''
                   }`}
                   draggable
-                  onDragStart={() => handleDragStart(page.page_key)}
-                  onMouseEnter={() => setPreviewScrapedPage(page.page_key)}
+                  onDragStart={() => handleDragStart(pageKey)}
+                  onMouseEnter={() => setPreviewScrapedPage(pageKey)}
                   onMouseLeave={() => setPreviewScrapedPage(null)}
                 >
                   <div className="item-header">
                     <span className="drag-handle">⋮⋮</span>
                     <div className="item-info">
-                      <div className="item-title">{page.title}</div>
-                      <div className="item-meta">{page.page_key}</div>
+                      <div className="item-title">{pageKey}</div>
+                      <div className="item-meta">{wordCount} words</div>
                     </div>
                     {isMapped && <span className="mapped-badge">✓ Mapped</span>}
-                  </div>
-                  <div className="item-stats">
-                    <span>{page.sections.length} sections</span>
-                    <span>{page.images.length} images</span>
                   </div>
                 </div>
               );
@@ -278,7 +277,7 @@ const SitemapMapper: React.FC<SitemapMapperProps> = ({
                     <div className="mapping-info">
                       <div className="mapped-to">
                         <span className="label">Mapped to:</span>
-                        <span className="value">{scrapedPage.title}</span>
+                        <span className="value">{scrapedPage.page_key}</span>
                       </div>
                       <div className="confidence-badge">
                         <span
@@ -309,9 +308,9 @@ const SitemapMapper: React.FC<SitemapMapperProps> = ({
                         onClick={(e) => e.stopPropagation()}
                       >
                         <option value="">Select a page...</option>
-                        {scrapedContent.pages.map((page) => (
-                          <option key={page.page_key} value={page.page_key}>
-                            {page.title} ({page.page_key})
+                        {Object.keys(scrapedContent.pages).map((pageKey) => (
+                          <option key={pageKey} value={pageKey}>
+                            {pageKey}
                           </option>
                         ))}
                       </select>
@@ -331,22 +330,18 @@ const SitemapMapper: React.FC<SitemapMapperProps> = ({
           {(() => {
             const page = getScrapedPage(previewScrapedPage);
             if (!page) return null;
+            const wordCount = page.markdown.split(/\s+/).length;
+            const preview = page.markdown.substring(0, 500);
+
             return (
               <div className="preview-content">
-                <h5>{page.title}</h5>
-                <p className="preview-url">{page.url}</p>
+                <h5>{page.page_key}</h5>
                 <div className="preview-stats">
-                  <span>{page.sections.length} sections</span>
-                  <span>{page.images.length} images</span>
-                  <span>{page.metadata.content_length} chars</span>
+                  <span>{wordCount} words</span>
+                  <span>{page.markdown.length} characters</span>
                 </div>
-                <div className="preview-sections">
-                  {page.sections.slice(0, 3).map((section, idx) => (
-                    <div key={idx} className="preview-section">
-                      <span className="section-type">{section.type}</span>
-                      <p>{section.content.substring(0, 150)}...</p>
-                    </div>
-                  ))}
+                <div className="preview-markdown">
+                  <pre>{preview}...</pre>
                 </div>
               </div>
             );

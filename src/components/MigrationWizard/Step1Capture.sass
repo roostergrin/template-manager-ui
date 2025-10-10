@@ -1,0 +1,56 @@
+.step-1-capture
+  &__header
+    display: flex
+    justify-content: center
+    margin-top: 1.5rem
+    margin-bottom: 1rem
+
+    .btn--history
+      display: inline-flex
+      align-items: center
+      gap: 0.5rem
+      padding: 0.75rem 1.5rem
+      background: #6c757d
+      color: white
+      border: none
+      border-radius: 6px
+      cursor: pointer
+      font-weight: 500
+      transition: all 0.2s
+
+      &:hover
+        background: #5a6268
+
+  &__history
+    margin-bottom: 1.5rem
+    animation: slideDown 0.3s ease-out
+
+  &__progress
+    text-align: center
+    padding: 2rem
+    background: #f7fafc
+    border-radius: 8px
+    margin-top: 2rem
+
+    .progress-spinner
+      font-size: 3rem
+      animation: spin 2s linear infinite
+      margin-bottom: 1rem
+
+    p
+      color: #4a5568
+      font-weight: 500
+
+@keyframes slideDown
+  from
+    opacity: 0
+    transform: translateY(-10px)
+  to
+    opacity: 1
+    transform: translateY(0)
+
+@keyframes spin
+  from
+    transform: rotate(0deg)
+  to
+    transform: rotate(360deg)

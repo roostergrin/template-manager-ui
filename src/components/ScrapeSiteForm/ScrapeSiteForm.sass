@@ -1,273 +1,366 @@
 .scrape-site-form
-  max-width: 800px
+  max-width: 900px
   margin: 0 auto
   padding: 2rem
 
-  &__header
-    text-align: center
-    margin-bottom: 2rem
-
-    h2
-      margin: 0 0 0.75rem 0
-      color: #333
-      font-size: 1.8rem
-
-    p
-      margin: 0
-      color: #666
-      font-size: 1rem
-      line-height: 1.5
-
   &__form
     background: white
-    border: 1px solid #e0e0e0
-    border-radius: 8px
+    border: 1px solid #e2e8f0
+    border-radius: 12px
     padding: 2rem
-    margin-bottom: 2rem
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05)
 
-    .form-group
+    .form-domain-row
       margin-bottom: 1.5rem
 
-      label
-        display: block
-        margin-bottom: 0.5rem
-        color: #333
-        font-weight: 500
-        font-size: 0.95rem
-
-        .required
-          color: #dc3545
-          margin-left: 0.25rem
-
-      input[type="text"]
+      .input-wrapper
+        position: relative
+        display: flex
+        align-items: center
         width: 100%
-        padding: 0.75rem
-        border: 2px solid #e0e0e0
-        border-radius: 6px
-        font-size: 1rem
-        transition: border-color 0.2s
+
+        .url-prefix
+          position: absolute
+          left: 1rem
+          color: #a0aec0
+          font-size: 0.9375rem
+          pointer-events: none
+          user-select: none
+
+        .domain-input
+          width: 100%
+          padding: 0.875rem 1rem 0.875rem 5.5rem
+          border: 1px solid #e2e8f0
+          border-radius: 8px
+          font-size: 1rem
+          transition: all 0.2s
+          background: #fafafa
+
+          &:focus
+            outline: none
+            border-color: #667eea
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1)
+            background: white
+
+          &.error
+            border-color: #e53e3e
+
+          &:disabled
+            background: #f7fafc
+            cursor: not-allowed
+            opacity: 0.6
+
+          &::placeholder
+            color: #cbd5e0
+
+      .error-message
+        display: block
+        color: #e53e3e
+        font-size: 0.8125rem
+        margin-top: 0.5rem
+
+    .form-controls
+      display: flex
+      align-items: flex-end
+      gap: 1rem
+      padding-top: 1rem
+      border-top: 1px solid #f0f0f0
+
+      @media (max-width: 768px)
+        flex-direction: column
+        align-items: stretch
+
+    .control-group
+      display: flex
+      align-items: flex-end
+      gap: 1rem
+      flex: 1
+      flex-wrap: wrap
+
+      @media (max-width: 768px)
+        flex-direction: column
+        align-items: stretch
+
+    .option-field
+      display: flex
+      flex-direction: row
+      gap: 1rem
+
+      &--checkbox
+        justify-content: flex-end
+        padding-bottom: 0.125rem
+
+      .option-label
+        display: flex
+        align-items: center
+        gap: 0.375rem
+        color: #4a5568
+        font-weight: 500
+        font-size: 0.8125rem
+
+        span
+          display: flex
+          align-items: center
+
+        .tooltip-wrapper
+          position: relative
+          display: inline-flex
+          align-items: center
+          cursor: help
+
+          &::after
+            content: attr(data-tooltip)
+            position: absolute
+            bottom: calc(100% + 8px)
+            left: 50%
+            transform: translateX(-50%)
+            background: #2d3748
+            color: white
+            padding: 0.625rem 0.875rem
+            border-radius: 6px
+            font-size: 0.8125rem
+            opacity: 0
+            pointer-events: none
+            transition: opacity 0.2s, transform 0.2s
+            z-index: 1000
+            line-height: 1.5
+            width: 320px
+            white-space: normal
+            text-transform: none !important
+            font-weight: normal !important
+
+          &::before
+            content: ''
+            position: absolute
+            bottom: 100%
+            left: 50%
+            transform: translateX(-50%) translateY(4px)
+            border: 5px solid transparent
+            border-top-color: #2d3748
+            opacity: 0
+            pointer-events: none
+            transition: opacity 0.2s, transform 0.2s
+            z-index: 1000
+
+          &:hover::after,
+          &:hover::before
+            opacity: 1
+
+          &:hover::after
+            transform: translateX(-50%) translateY(-4px)
+
+          &:hover::before
+            transform: translateX(-50%)
+
+        .tooltip-icon
+          color: #a0aec0
+          flex-shrink: 0
+          transition: color 0.2s
+
+        .tooltip-wrapper:hover .tooltip-icon
+          color: #4D4EC1
+
+      .option-input
+        width: 120px
+        padding: 0.625rem 0.75rem
+        border: 1px solid #e2e8f0
+        border-radius: 8px
+        font-size: 0.9375rem
+        transition: all 0.2s
 
         &:focus
           outline: none
           border-color: #667eea
           box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1)
 
-        &.error
-          border-color: #dc3545
-
         &:disabled
-          background: #f8f9fa
+          background: #f7fafc
           cursor: not-allowed
+          opacity: 0.6
 
-      .error-message
-        display: block
-        margin-top: 0.5rem
-        color: #dc3545
-        font-size: 0.85rem
+        &::placeholder
+          color: #cbd5e0
 
-      .help-text
-        display: block
-        margin-top: 0.5rem
-        color: #666
-        font-size: 0.85rem
-        line-height: 1.4
+        @media (max-width: 768px)
+          width: 100%
 
-        code
-          background: #f1f3f5
-          padding: 0.2rem 0.4rem
-          border-radius: 3px
-          font-family: monospace
-          font-size: 0.85em
-          color: #495057
-
-    .form-group-row
-      display: flex
-      flex-direction: column
-      gap: 1rem
-      margin-bottom: 1.5rem
-
-      .checkbox-group
-        background: #f8f9fa
-        border: 1px solid #e9ecef
-        border-radius: 6px
-        padding: 1rem
-        transition: background 0.2s
-
-        &:hover
-          background: #f0f4ff
-
-        .checkbox-label
-          display: flex
-          align-items: flex-start
-          gap: 0.75rem
-          cursor: pointer
-
-          input[type="checkbox"]
-            margin-top: 0.25rem
-            width: 18px
-            height: 18px
-            cursor: pointer
-            flex-shrink: 0
-
-            &:disabled
-              cursor: not-allowed
-              opacity: 0.5
-
-          .checkbox-text
-            flex: 1
-            display: flex
-            flex-direction: column
-            gap: 0.25rem
-
-            strong
-              color: #333
-              font-size: 0.95rem
-              display: block
-
-            small
-              color: #666
-              font-size: 0.85rem
-              line-height: 1.4
-              display: block
-
-    .error-banner
-      background: #f8d7da
-      border: 1px solid #f5c6cb
-      border-radius: 6px
-      padding: 1rem
-      margin-bottom: 1.5rem
-      display: flex
-      align-items: center
-      gap: 0.75rem
-
-      .error-icon
-        font-size: 1.3rem
-
-      .error-text
-        color: #721c24
-        flex: 1
-        font-size: 0.9rem
-
-    .form-actions
-      margin-top: 2rem
-
-      .btn
-        width: 100%
-        padding: 1rem 2rem
-        font-size: 1.1rem
-        border: none
-        border-radius: 6px
-        cursor: pointer
-        font-weight: 600
-        transition: all 0.2s
+      .checkbox-label
         display: flex
         align-items: center
-        justify-content: center
         gap: 0.5rem
+        cursor: pointer
+        font-size: 0.875rem
+        color: #4a5568
+        font-weight: 500
+        user-select: none
 
-        &--primary
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)
-          color: white
-
-          &:hover:not(:disabled)
-            transform: translateY(-2px)
-            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4)
+        input[type="checkbox"]
+          width: 16px
+          height: 16px
+          cursor: pointer
+          accent-color: #4D4EC1
 
           &:disabled
-            opacity: 0.6
             cursor: not-allowed
-            transform: none
+            opacity: 0.5
 
-        .icon,
-        .spinner
-          font-size: 1.2rem
-
-        .spinner
-          animation: spin 1s linear infinite
-
-  &__info
-    background: #f8f9fa
-    border: 1px solid #e0e0e0
-    border-radius: 8px
-    padding: 2rem
-
-    h3
-      margin: 0 0 1.5rem 0
-      color: #333
-      font-size: 1.2rem
-      text-align: center
-
-    .info-steps
-      display: flex
-      flex-direction: column
-      gap: 1.5rem
-
-      .info-step
-        display: flex
-        gap: 1rem
-        align-items: flex-start
-
-        .step-number
-          background: #667eea
-          color: white
-          width: 40px
-          height: 40px
-          border-radius: 50%
+        span
           display: flex
           align-items: center
-          justify-content: center
-          font-weight: bold
-          font-size: 1.2rem
-          flex-shrink: 0
 
-        .step-content
-          flex: 1
+        .tooltip-wrapper
+          position: relative
+          display: inline-flex
+          align-items: center
+          cursor: help
+          margin-left: 0.25rem
 
-          h4
-            margin: 0 0 0.5rem 0
-            color: #333
-            font-size: 1rem
-
-          p
-            margin: 0
-            color: #666
-            font-size: 0.9rem
+          &::after
+            content: attr(data-tooltip)
+            position: absolute
+            bottom: calc(100% + 8px)
+            left: 50%
+            transform: translateX(-50%)
+            background: #2d3748
+            color: white
+            padding: 0.625rem 0.875rem
+            border-radius: 6px
+            font-size: 0.8125rem
+            opacity: 0
+            pointer-events: none
+            transition: opacity 0.2s, transform 0.2s
+            z-index: 1000
             line-height: 1.5
+            width: 320px
+            white-space: normal
+            text-transform: none !important
+            font-weight: normal !important
 
-@media (max-width: 768px)
-  .scrape-site-form
-    padding: 1rem
+          &::before
+            content: ''
+            position: absolute
+            bottom: 100%
+            left: 50%
+            transform: translateX(-50%) translateY(4px)
+            border: 5px solid transparent
+            border-top-color: #2d3748
+            opacity: 0
+            pointer-events: none
+            transition: opacity 0.2s, transform 0.2s
+            z-index: 1000
 
-    &__header
-      h2
-        font-size: 1.5rem
+          &:hover::after,
+          &:hover::before
+            opacity: 1
 
-      p
-        font-size: 0.9rem
+          &:hover::after
+            transform: translateX(-50%) translateY(-4px)
 
-    &__form
-      padding: 1.5rem
+          &:hover::before
+            transform: translateX(-50%)
 
-    &__info
-      padding: 1.5rem
+        .tooltip-icon
+          color: #a0aec0
+          flex-shrink: 0
+          transition: color 0.2s
 
-      .info-steps
-        .info-step
-          .step-number
-            width: 32px
-            height: 32px
-            font-size: 1rem
+        .tooltip-wrapper:hover .tooltip-icon
+          color: #4D4EC1
 
-          .step-content
-            h4
-              font-size: 0.95rem
+    .btn-scrape
+      padding: 0.75rem 2rem
+      background: #4D4EC1
+      color: white
+      border: none
+      border-radius: 8px
+      font-size: 0.9375rem
+      font-weight: 600
+      cursor: pointer
+      transition: all 0.2s
+      display: flex
+      align-items: center
+      justify-content: center
+      gap: 0.5rem
+      white-space: nowrap
+      box-shadow: 0 2px 4px rgba(77, 78, 193, 0.2)
+      min-width: 160px
 
-            p
-              font-size: 0.85rem
+      &:hover:not(:disabled)
+        background: #3d3e9f
+        box-shadow: 0 4px 8px rgba(77, 78, 193, 0.3)
+        transform: translateY(-1px)
 
-// Keyframes animation (outside component scope)
+      &:active:not(:disabled)
+        transform: translateY(0)
+
+      &:disabled
+        opacity: 0.6
+        cursor: not-allowed
+        transform: none
+
+      .btn-icon
+        flex-shrink: 0
+
+        &.spinning
+          animation: spin 1s linear infinite
+
+      @media (max-width: 768px)
+        width: 100%
+        justify-content: center
+
+    .error-banner
+      background: #fff5f5
+      border: 1px solid #feb2b2
+      border-radius: 8px
+      padding: 0.875rem 1rem
+      margin-top: 1rem
+
+      .error-text
+        color: #c53030
+        font-size: 0.875rem
+        line-height: 1.4
+
 @keyframes spin
   from
     transform: rotate(0deg)
   to
     transform: rotate(360deg)
+
+@media (max-width: 1024px)
+  .scrape-site-form
+    padding: 1.5rem
+
+    &__header
+      .header-icon
+        display: none
+
+      .header-content
+        h2
+          font-size: 1.25rem
+
+        p
+          font-size: 0.875rem
+
+@media (max-width: 768px)
+  .scrape-site-form
+    padding: 1rem
+
+    &__form
+      padding: 1rem
+
+      .form-main-row
+        gap: 0.75rem
+
+      .form-group
+        min-width: 100%
+
+      .form-options
+        flex-direction: column
+        align-items: flex-start
+        width: 100%
+
+      .option-field
+        width: 100%
+
+        .option-input
+          width: 100%

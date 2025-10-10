@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { History, Target, CheckCircle, AlertTriangle, Eye, ArrowLeft, PartyPopper, RotateCcw } from 'lucide-react';
 import ScrapeSiteForm, { ScrapeSiteFormData } from '../ScrapeSiteForm';
 import ScrapedContentViewer, { ScrapedContent } from '../ScrapedContentViewer';
 import SitemapMapper from '../SitemapMapper';
 import ContextPreview from '../ContextPreview';
+import ScrapeHistory from '../ScrapeHistory';
 import api from '../../services/apiService';
 import './ScrapingWorkflow.sass';
 
@@ -41,20 +43,51 @@ const ScrapingWorkflow: React.FC<ScrapingWorkflowProps> = ({ onComplete, initial
     sitemapPage: SitemapPage;
     scrapedPageKey: string | null;
   } | null>(null);
+  const [showHistory, setShowHistory] = useState(false);
+
+  // Auto-load most recent scrape on component mount
+  useEffect(() => {
+    const loadLatestScrape = async () => {
+      try {
+        const response = await api.get<{
+          success: boolean;
+          metadata?: any;
+          content?: {
+            metadata: any;
+            scraped_content: ScrapedContent;
+          };
+        }>('/scraped-samples/latest');
+
+        if (response.success && response.content) {
+          setScrapedContent(response.content.scraped_content);
+          setCurrentStep('review');
+        }
+      } catch (err) {
+        // No latest scrape available - stay on scrape step
+        console.log('No recent scrape found, starting fresh');
+      }
+    };
+
+    loadLatestScrape();
+  }, []);
 
   const handleScrapeSite = async (formData: ScrapeSiteFormData) => {
     setLoading(true);
     setError(null);
 
     try {
-      const response = await api.post<ScrapedContent>('/scrape-site/', {
+      const response = await api.post<{
+        metadata: any;
+        scraped_content: ScrapedContent;
+      }>('/scrape-site/', {
         domain: formData.domain,
         use_selenium: formData.use_selenium,
         scroll: formData.scroll,
         max_pages: formData.max_pages,
       });
 
-      setScrapedContent(response);
+      // Extract scraped_content from the nested response
+      setScrapedContent(response.scraped_content);
       setCurrentStep('review');
     } catch (err: any) {
       setError(err.response?.data?.detail || err.message || 'Failed to scrape site');
@@ -129,6 +162,13 @@ const ScrapingWorkflow: React.FC<ScrapingWorkflowProps> = ({ onComplete, initial
     setMappings([]);
     setError(null);
     setSelectedPreviewMapping(null);
+    setShowHistory(false);
+  };
+
+  const handleLoadFromHistory = (content: ScrapedContent) => {
+    setScrapedContent(content);
+    setCurrentStep('review');
+    setShowHistory(false);
   };
 
   const getStepNumber = (step: WorkflowStep): number => {
@@ -172,7 +212,25 @@ const ScrapingWorkflow: React.FC<ScrapingWorkflowProps> = ({ onComplete, initial
       {/* Step Content */}
       <div className="scraping-workflow__content">
         {currentStep === 'scrape' && (
-          <ScrapeSiteForm onSubmit={handleScrapeSite} loading={loading} error={error} />
+          <>
+            <ScrapeSiteForm onSubmit={handleScrapeSite} loading={loading} error={error} />
+
+            <div className="scrape-step-footer">
+              <button
+                className="btn btn--secondary btn--history"
+                onClick={() => setShowHistory(!showHistory)}
+              >
+                <History size={18} />
+                {showHistory ? 'Hide' : 'Show'} History
+              </button>
+            </div>
+
+            {showHistory && (
+              <div className="scrape-history-section">
+                <ScrapeHistory onLoadScrape={handleLoadFromHistory} />
+              </div>
+            )}
+          </>
         )}
 
         {currentStep === 'review' && scrapedContent && (
@@ -196,7 +254,10 @@ const ScrapingWorkflow: React.FC<ScrapingWorkflowProps> = ({ onComplete, initial
         {currentStep === 'preview' && scrapedContent && sitemap && (
           <div className="preview-step">
             <div className="preview-header">
-              <h2>🎯 Preview Content Mapping</h2>
+              <h2>
+                <Target size={28} style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '0.5rem' }} />
+                Preview Content Mapping
+              </h2>
               <p>Review how scraped content will be used for each page</p>
             </div>
 
@@ -205,9 +266,8 @@ const ScrapingWorkflow: React.FC<ScrapingWorkflowProps> = ({ onComplete, initial
                 const mapping = mappings.find(
                   (m) => m.sitemapPagePath === sitemapPage.path
                 );
-                const scrapedPage = mapping?.scrapedPageKey
-                  ? scrapedContent.pages.find((p) => p.page_key === mapping.scrapedPageKey)
-                  : null;
+                const scrapedPageKey = mapping?.scrapedPageKey || null;
+                const scrapedPageExists = scrapedPageKey && scrapedContent.pages[scrapedPageKey];
 
                 return (
                   <div key={sitemapPage.path} className="preview-mapping-card">
@@ -216,14 +276,16 @@ const ScrapingWorkflow: React.FC<ScrapingWorkflowProps> = ({ onComplete, initial
                       <span className="path-badge">{sitemapPage.path}</span>
                     </div>
                     <div className="card-content">
-                      {scrapedPage ? (
+                      {scrapedPageExists ? (
                         <div className="mapped-info">
-                          <span className="mapped-label">✅ Mapped to:</span>
-                          <span className="mapped-value">{scrapedPage.title}</span>
+                          <CheckCircle size={16} style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '0.25rem' }} />
+                          <span className="mapped-label">Mapped to:</span>
+                          <span className="mapped-value">{scrapedPageKey}</span>
                         </div>
                       ) : (
                         <div className="unmapped-info">
-                          <span className="unmapped-label">⚠️ No mapping</span>
+                          <AlertTriangle size={16} style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '0.25rem' }} />
+                          <span className="unmapped-label">No mapping</span>
                           <span className="unmapped-value">
                             Will use questionnaire data
                           </span>
@@ -239,7 +301,8 @@ const ScrapingWorkflow: React.FC<ScrapingWorkflowProps> = ({ onComplete, initial
                         })
                       }
                     >
-                      👁️ Preview
+                      <Eye size={16} />
+                      Preview
                     </button>
                   </div>
                 );
@@ -251,10 +314,12 @@ const ScrapingWorkflow: React.FC<ScrapingWorkflowProps> = ({ onComplete, initial
                 className="btn btn--secondary"
                 onClick={() => setCurrentStep('map')}
               >
-                ← Back to Mapping
+                <ArrowLeft size={18} />
+                Back to Mapping
               </button>
               <button className="btn btn--primary btn--large" onClick={handleComplete}>
-                ✅ Complete & Generate Content
+                <CheckCircle size={20} />
+                Complete & Generate Content
               </button>
             </div>
           </div>
@@ -262,7 +327,9 @@ const ScrapingWorkflow: React.FC<ScrapingWorkflowProps> = ({ onComplete, initial
 
         {currentStep === 'complete' && (
           <div className="complete-step">
-            <div className="complete-icon">🎉</div>
+            <div className="complete-icon">
+              <PartyPopper size={80} />
+            </div>
             <h2>Scraping Workflow Complete!</h2>
             <p>
               Your content has been scraped, organized, and mapped to your sitemap. You can now
@@ -270,7 +337,7 @@ const ScrapingWorkflow: React.FC<ScrapingWorkflowProps> = ({ onComplete, initial
             </p>
             <div className="complete-stats">
               <div className="stat">
-                <span className="stat-value">{scrapedContent?.pages.length || 0}</span>
+                <span className="stat-value">{scrapedContent?.metadata.total_pages || 0}</span>
                 <span className="stat-label">Pages Scraped</span>
               </div>
               <div className="stat">
@@ -280,12 +347,13 @@ const ScrapingWorkflow: React.FC<ScrapingWorkflowProps> = ({ onComplete, initial
                 <span className="stat-label">Pages Mapped</span>
               </div>
               <div className="stat">
-                <span className="stat-value">{scrapedContent?.metadata.total_sections || 0}</span>
-                <span className="stat-label">Total Sections</span>
+                <span className="stat-value">{scrapedContent?.domain || 'N/A'}</span>
+                <span className="stat-label">Domain</span>
               </div>
             </div>
             <button className="btn btn--secondary" onClick={handleReset}>
-              🔄 Start New Scraping
+              <RotateCcw size={20} />
+              Start New Scraping
             </button>
           </div>
         )}
@@ -297,10 +365,11 @@ const ScrapingWorkflow: React.FC<ScrapingWorkflowProps> = ({ onComplete, initial
           <div className="preview-modal" onClick={(e) => e.stopPropagation()}>
             <ContextPreview
               scrapedPage={
-                selectedPreviewMapping.scrapedPageKey
-                  ? scrapedContent.pages.find(
-                      (p) => p.page_key === selectedPreviewMapping.scrapedPageKey
-                    ) || null
+                selectedPreviewMapping.scrapedPageKey && scrapedContent.pages[selectedPreviewMapping.scrapedPageKey]
+                  ? {
+                      page_key: selectedPreviewMapping.scrapedPageKey,
+                      markdown: scrapedContent.pages[selectedPreviewMapping.scrapedPageKey]
+                    }
                   : null
               }
               sitemapPage={selectedPreviewMapping.sitemapPage}

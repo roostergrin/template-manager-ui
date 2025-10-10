@@ -1,21 +1,65 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { DndContext, DragEndEvent, DragOverEvent, DragStartEvent, KeyboardSensor, PointerSensor, UniqueIdentifier, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, arrayMove, verticalListSortingStrategy, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { useSitemap } from '../../contexts/SitemapProvider';
 import PageCard from './PageCard';
-import { SitemapItem, SitemapSection } from '../../types/SitemapTypes';
+import { SitemapItem, SitemapSection, StoredSitemap } from '../../types/SitemapTypes';
 import './PageList.sass';
 
 type ActiveDragType = 'page' | 'item' | null;
 
-const PageList: React.FC = () => {
+interface PageListProps {
+  headerControls?: React.ReactNode;
+  contentSourceInfo?: {
+    domain: string;
+    pagesCount: number;
+  };
+  additionalActions?: React.ReactNode;
+  exportImportControls?: React.ReactNode;
+}
+
+const LOCAL_STORAGE_KEY = 'generatedSitemaps';
+
+const getStoredSitemaps = (): StoredSitemap[] => {
+  const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
+  if (!raw) return [];
+  try {
+    return JSON.parse(raw) as StoredSitemap[];
+  } catch {
+    return [];
+  }
+};
+
+const PageList: React.FC<PageListProps> = ({
+  headerControls,
+  contentSourceInfo,
+  additionalActions,
+  exportImportControls
+}) => {
   const { state, actions } = useSitemap();
   const [activeDragType, setActiveDragType] = useState<ActiveDragType>(null);
   const [filterText, setFilterText] = useState<string>('');
+  const [hasAttemptedAutoLoad, setHasAttemptedAutoLoad] = useState<boolean>(false);
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
+
+  // Auto-load the most recent sitemap if none is loaded
+  useEffect(() => {
+    if (!state.sitemapSource && !hasAttemptedAutoLoad) {
+      const storedSitemaps = getStoredSitemaps();
+      if (storedSitemaps.length > 0) {
+        // Sort by creation date (most recent first) and load the first one
+        const mostRecent = storedSitemaps.sort((a, b) =>
+          new Date(b.created).getTime() - new Date(a.created).getTime()
+        )[0];
+
+        actions.handleSelectStoredSitemap(mostRecent);
+      }
+      setHasAttemptedAutoLoad(true);
+    }
+  }, [state.sitemapSource, hasAttemptedAutoLoad, actions]);
   
   const { pages, viewMode, showItems, sitemapSource } = state;
   
@@ -151,11 +195,20 @@ const PageList: React.FC = () => {
     actions.setShowItems(false);
   }, [actions]);
 
-  // Don't show the sitemap container until a sitemap has been loaded or generated
+  // Show loading state while attempting auto-load
+  if (!sitemapSource && !hasAttemptedAutoLoad) {
+    return (
+      <div className="text-center py-8 text-gray-500">
+        <p>Loading sitemap...</p>
+      </div>
+    );
+  }
+
+  // Show empty state only if no sitemap exists at all after auto-load attempt
   if (!sitemapSource || pages.length === 0) {
     return (
       <div className="text-center py-8 text-gray-500">
-        <p>No sitemap loaded. Please generate a new sitemap or load an existing one.</p>
+        <p>No sitemaps available. Generate your first sitemap to get started.</p>
       </div>
     );
   }
@@ -179,13 +232,48 @@ const PageList: React.FC = () => {
           borderRadius: 8,
           padding: '1rem'
         }}>
-          <h3>
-            {sitemapSource === 'generated' && 'Generated '}
-            {sitemapSource === 'loaded' && 'Loaded '}
-            Sitemap
-          </h3>
-          
-          <div className="app__page-filter-controls" role="group" aria-label="Toggle item visibility globally" style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%'}}>
+          {/* Header Row: Title + Content Source */}
+          <div className="page-list__header-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
+            <h3 style={{ margin: 0 }}>
+              {sitemapSource === 'generated' && 'Generated '}
+              {sitemapSource === 'loaded' && 'Loaded '}
+              Sitemap
+            </h3>
+            {contentSourceInfo && (
+              <div className="page-list__content-source" style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12,
+                fontSize: '0.875rem',
+                padding: '0.5rem 0.75rem',
+                background: '#fff',
+                borderRadius: 6,
+                border: '1px solid #e2e8f0'
+              }}>
+                <span style={{ fontWeight: 600, color: '#64748b' }}>Source:</span>
+                <span style={{ fontWeight: 500, color: '#1e293b' }}>{contentSourceInfo.domain}</span>
+                <span style={{ color: '#94a3b8' }}>•</span>
+                <span style={{ color: '#64748b' }}>{contentSourceInfo.pagesCount} pages</span>
+              </div>
+            )}
+          </div>
+
+          {/* Header Controls Row: Template Selector + Generate + Load */}
+          {headerControls && (
+            <div className="page-list__header-controls" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', paddingBottom: 12, borderBottom: '1px solid #e2e8f0' }}>
+              {headerControls}
+            </div>
+          )}
+
+          {/* Additional Actions */}
+          {additionalActions && (
+            <div className="page-list__additional-actions" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', paddingBottom: 12, borderBottom: '1px solid #e2e8f0' }}>
+              {additionalActions}
+            </div>
+          )}
+
+          {/* Filter + Show/Hide Controls */}
+          <div className="app__page-filter-controls" role="group" aria-label="Toggle item visibility globally" style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', flexWrap: 'wrap'}}>
             <input
               type="text"
               value={filterText}
@@ -193,6 +281,7 @@ const PageList: React.FC = () => {
               className="border rounded px-2 py-1 text-sm flex-1"
               placeholder="Filter by page title, model, or query…"
               aria-label="Filter sitemap"
+              style={{ minWidth: 200 }}
             />
             {filterText && (
               <button
@@ -222,6 +311,13 @@ const PageList: React.FC = () => {
               Hide All Items
             </button>
           </div>
+
+          {/* Export/Import Controls */}
+          {exportImportControls && (
+            <div className="page-list__export-import" style={{ paddingTop: 12, borderTop: '1px solid #e2e8f0' }}>
+              {exportImportControls}
+            </div>
+          )}
        
           <SortableContext items={pageIds} strategy={verticalListSortingStrategy}>
             {filteredPages.map((page) => (

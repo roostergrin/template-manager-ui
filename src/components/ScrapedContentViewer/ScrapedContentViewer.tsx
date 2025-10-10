@@ -1,405 +1,385 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import { Globe, ChevronDown, ChevronRight, CheckCircle, AlertCircle, Copy, Check, ChevronsDown, ChevronsUp, Clock, ExternalLink, Image } from 'lucide-react';
 import './ScrapedContentViewer.sass';
-
-interface ScrapedImage {
-  url: string;
-  alt?: string;
-}
-
-interface ScrapedSection {
-  type: string;
-  content: string;
-  images: ScrapedImage[];
-}
-
-interface ScrapedPage {
-  page_key: string;
-  title: string;
-  url: string;
-  sections: ScrapedSection[];
-  images: ScrapedImage[];
-  metadata: {
-    total_sections: number;
-    total_images: number;
-    content_length: number;
-  };
-}
-
-interface GlobalContent {
-  header: string;
-  footer: string;
-}
 
 export interface ScrapedContent {
   success: boolean;
   domain: string;
-  global_content: GlobalContent;
-  pages: ScrapedPage[];
-  metadata: {
-    total_pages: number;
-    total_images: number;
-    total_sections: number;
-    scraped_at: string;
+  global_markdown: string;
+  pages: {
+    [key: string]: string;
   };
-  raw_markdown?: {
-    global: string;
-    pages: { [key: string]: string };
+  metadata: {
+    scraped_at: string;
+    total_pages: number;
+    use_selenium: boolean;
+    scroll: boolean;
   };
 }
 
 interface ScrapedContentViewerProps {
   scrapedContent: ScrapedContent;
-  onEdit?: (content: ScrapedContent) => void;
   onNext?: () => void;
-  onRegenerate?: () => void;
+}
+
+interface PageNode {
+  url: string;
+  fullUrl: string;
+  markdown: string;
+  children: PageNode[];
+  depth: number;
 }
 
 const ScrapedContentViewer: React.FC<ScrapedContentViewerProps> = ({
   scrapedContent,
-  onEdit,
   onNext,
-  onRegenerate,
 }) => {
-  const [expandedPages, setExpandedPages] = useState<Set<string>>(new Set());
-  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
-  const [showGlobal, setShowGlobal] = useState(true);
-  const [viewMode, setViewMode] = useState<'structured' | 'json' | 'markdown'>('structured');
-  const [editingContent, setEditingContent] = useState<ScrapedContent>(scrapedContent);
+  const [expandedMarkdownPages, setExpandedMarkdownPages] = useState<Set<string>>(new Set());
+  const [expandedParentPages, setExpandedParentPages] = useState<Set<string>>(new Set());
+  const [showGlobalMarkdown, setShowGlobalMarkdown] = useState(false);
+  const [showPagesSection, setShowPagesSection] = useState(false);
+  const [copiedPage, setCopiedPage] = useState<string | null>(null);
 
-  const togglePage = (pageKey: string) => {
-    const newExpanded = new Set(expandedPages);
+  const buildPageTree = useMemo(() => {
+    const pages = Object.entries(scrapedContent.pages);
+    const tree: PageNode[] = [];
+    const pageMap = new Map<string, PageNode>();
+
+    // Create all nodes
+    pages.forEach(([url, markdown]) => {
+      // Convert __ to / in the URL path
+      const pathWithSlashes = url.replace(/__/g, '/');
+
+      // Ensure URL starts with /
+      const normalizedUrl = pathWithSlashes.startsWith('/') ? pathWithSlashes : `/${pathWithSlashes}`;
+
+      const fullUrl = url.startsWith('http')
+        ? url.replace(/__/g, '/')
+        : `https://${scrapedContent.domain}${normalizedUrl}`;
+
+      const node: PageNode = {
+        url: normalizedUrl,
+        fullUrl,
+        markdown,
+        children: [],
+        depth: 0,
+      };
+      pageMap.set(normalizedUrl, node);
+    });
+
+    // Build hierarchy - only nest if it's a proper path hierarchy
+    pages.forEach(([url]) => {
+      const pathWithSlashes = url.replace(/__/g, '/');
+      const normalizedUrl = pathWithSlashes.startsWith('/') ? pathWithSlashes : `/${pathWithSlashes}`;
+      const node = pageMap.get(normalizedUrl)!;
+      let parentFound = false;
+
+      // Check if this URL is a child of any other URL
+      pages.forEach(([potentialParentUrl]) => {
+        const parentPathWithSlashes = potentialParentUrl.replace(/__/g, '/');
+        const normalizedParentUrl = parentPathWithSlashes.startsWith('/') ? parentPathWithSlashes : `/${parentPathWithSlashes}`;
+
+        if (normalizedUrl !== normalizedParentUrl && normalizedUrl.startsWith(normalizedParentUrl + '/')) {
+          const parentNode = pageMap.get(normalizedParentUrl);
+          if (parentNode) {
+            // Make sure it's a direct child (not a grandchild)
+            const relativePath = normalizedUrl.slice(normalizedParentUrl.length + 1);
+            const segments = relativePath.split('/').filter(s => s.length > 0);
+
+            if (segments.length === 1) {
+              parentNode.children.push(node);
+              node.depth = parentNode.depth + 1;
+              parentFound = true;
+            }
+          }
+        }
+      });
+
+      if (!parentFound) {
+        tree.push(node);
+      }
+    });
+
+    // Sort children
+    const sortNodes = (nodes: PageNode[]) => {
+      nodes.sort((a, b) => a.url.localeCompare(b.url));
+      nodes.forEach(node => sortNodes(node.children));
+    };
+    sortNodes(tree);
+
+    return tree;
+  }, [scrapedContent.pages, scrapedContent.domain]);
+
+  const toggleMarkdownPage = (pageKey: string) => {
+    const newExpanded = new Set(expandedMarkdownPages);
     if (newExpanded.has(pageKey)) {
       newExpanded.delete(pageKey);
     } else {
       newExpanded.add(pageKey);
     }
-    setExpandedPages(newExpanded);
+    setExpandedMarkdownPages(newExpanded);
   };
 
-  const toggleSection = (sectionId: string) => {
-    const newExpanded = new Set(expandedSections);
-    if (newExpanded.has(sectionId)) {
-      newExpanded.delete(sectionId);
+  const toggleParentPage = (pageKey: string) => {
+    const newExpanded = new Set(expandedParentPages);
+    if (newExpanded.has(pageKey)) {
+      newExpanded.delete(pageKey);
     } else {
-      newExpanded.add(sectionId);
+      newExpanded.add(pageKey);
     }
-    setExpandedSections(newExpanded);
+    setExpandedParentPages(newExpanded);
   };
 
-  const expandAll = () => {
-    const allPageKeys = editingContent.pages.map(p => getPageKey(p));
-    setExpandedPages(new Set(allPageKeys));
+  const getAllPageUrls = (nodes: PageNode[]): string[] => {
+    const urls: string[] = [];
+    const traverse = (node: PageNode) => {
+      urls.push(node.url);
+      node.children.forEach(traverse);
+    };
+    nodes.forEach(traverse);
+    return urls;
+  };
 
-    const allSectionIds: string[] = [];
-    editingContent.pages.forEach(page => {
-      page.sections.forEach((_, idx) => {
-        allSectionIds.push(`${getPageKey(page)}-section-${idx}`);
-      });
+  const handleExpandAll = () => {
+    setShowGlobalMarkdown(true);
+    setShowPagesSection(true);
+    const allUrls = getAllPageUrls(buildPageTree);
+    setExpandedMarkdownPages(new Set(allUrls));
+    setExpandedParentPages(new Set(allUrls));
+  };
+
+  const handleCollapseAll = () => {
+    setShowGlobalMarkdown(false);
+    setShowPagesSection(false);
+    setExpandedMarkdownPages(new Set());
+    setExpandedParentPages(new Set());
+  };
+
+  const handleCopyMarkdown = (pageKey: string, markdown: string) => {
+    navigator.clipboard.writeText(markdown);
+    setCopiedPage(pageKey);
+    setTimeout(() => setCopiedPage(null), 2000);
+  };
+
+  const countWords = (text: string): number => {
+    return text.trim().split(/\s+/).length;
+  };
+
+  const countImages = (markdown: string): number => {
+    // Count markdown image syntax: ![alt](url)
+    const imageMatches = markdown.match(/!\[.*?\]\(.*?\)/g);
+    return imageMatches ? imageMatches.length : 0;
+  };
+
+  const getTotalImages = useMemo(() => {
+    let total = countImages(scrapedContent.global_markdown || '');
+    Object.values(scrapedContent.pages).forEach(markdown => {
+      total += countImages(markdown);
     });
-    setExpandedSections(new Set(allSectionIds));
+    return total;
+  }, [scrapedContent.global_markdown, scrapedContent.pages]);
+
+  const handleVisitPage = (url: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    window.open(url, '_blank', 'noopener,noreferrer');
   };
 
-  const collapseAll = () => {
-    setExpandedPages(new Set());
-    setExpandedSections(new Set());
-  };
+  const renderPageNode = (node: PageNode): React.ReactNode => {
+    const hasChildren = node.children.length > 0;
+    const isContentExpanded = expandedParentPages.has(node.url);
 
-  const handleSectionContentEdit = (pageKey: string, sectionIdx: number, newContent: string) => {
-    const updatedContent = { ...editingContent };
-    const pageIndex = updatedContent.pages.findIndex(p => getPageKey(p) === pageKey);
-    if (pageIndex !== -1) {
-      const section = updatedContent.pages[pageIndex].sections[sectionIdx];
-      // Update both 'content' and 'text' properties to maintain compatibility
-      if ('content' in section) {
-        section.content = newContent;
-      }
-      if ('text' in section) {
-        section.text = newContent;
-      }
-      setEditingContent(updatedContent);
-      if (onEdit) {
-        onEdit(updatedContent);
-      }
-    }
-  };
+    return (
+      <div key={node.url} className="tree-subitem">
+        <div className="tree-subitem__header">
+          <div
+            className="tree-subitem__header-main"
+            onClick={() => toggleParentPage(node.url)}
+          >
+            {isContentExpanded ? (
+              <ChevronDown size={14} className="tree-subitem__chevron" />
+            ) : (
+              <ChevronRight size={14} className="tree-subitem__chevron" />
+            )}
+            <Globe size={14} className="tree-subitem__icon" />
+            <span className="tree-subitem__title">{node.fullUrl}</span>
+            <span className="tree-subitem__meta">
+              <span className="meta-words">{countWords(node.markdown)} words</span>
+              <span className="meta-images">{countImages(node.markdown)} images</span>
+            </span>
+          </div>
+          <button
+            className="btn btn--visit"
+            onClick={(e) => handleVisitPage(node.fullUrl, e)}
+            title="Visit page"
+          >
+            <ExternalLink size={14} />
+          </button>
+        </div>
 
-  const handleGlobalContentEdit = (field: 'header' | 'footer', newContent: string) => {
-    const updatedContent = { ...editingContent };
-    updatedContent.global_content[field] = newContent;
-    setEditingContent(updatedContent);
-    if (onEdit) {
-      onEdit(updatedContent);
-    }
-  };
+        {/* Show markdown content when expanded */}
+        {isContentExpanded && (
+          <div className="tree-subitem__content">
+            <div className="markdown-display">
+              <div className="markdown-display__header">
+                <div className="markdown-display__url-section">
+                  <Globe size={16} />
+                  <span className="markdown-display__url">{node.fullUrl}</span>
+                </div>
+                <button
+                  className="btn btn--copy"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCopyMarkdown(node.url, node.markdown);
+                  }}
+                >
+                  {copiedPage === node.url ? <Check size={16} /> : <Copy size={16} />}
+                  {copiedPage === node.url ? 'Copied!' : 'Copy as Markdown'}
+                </button>
+              </div>
+              <pre className="markdown-display__content">
+                {node.markdown}
+              </pre>
+            </div>
+          </div>
+        )}
 
-  // Helper to get global content text (handles both string and object formats)
-  const getGlobalContentText = (content: any): string => {
-    if (typeof content === 'string') return content;
-    if (content && typeof content === 'object' && content.text) return content.text;
-    return '';
-  };
-
-  // Helper to get section content (handles both 'content' and 'text' properties)
-  const getSectionContent = (section: any): string => {
-    return section.content || section.text || '';
-  };
-
-  // Helper to get page key (handles both 'page_key' and 'slug' properties)
-  const getPageKey = (page: any): string => {
-    return page.page_key || page.slug || page.url;
+        {/* Always show children (nested structure) */}
+        {hasChildren && (
+          <div className="tree-subitem__children">
+            {node.children.map((child) => renderPageNode(child))}
+          </div>
+        )}
+      </div>
+    );
   };
 
   return (
     <div className="scraped-content-viewer">
-      <div className="scraped-content-viewer__header">
-        <div className="header-title">
-          <h2>🌐 Scraped Content from {editingContent.domain}</h2>
-          <p className="scraped-date">
-            Scraped on {new Date(editingContent.metadata.scraped_at).toLocaleString()}
-          </p>
-        </div>
-        <div className="header-actions">
-          <button
-            className={`btn ${viewMode === 'structured' ? 'btn--primary' : 'btn--secondary'}`}
-            onClick={() => setViewMode('structured')}
-          >
-            📋 Structured
-          </button>
-          <button
-            className={`btn ${viewMode === 'markdown' ? 'btn--primary' : 'btn--secondary'}`}
-            onClick={() => setViewMode('markdown')}
-            disabled={!editingContent.raw_markdown}
-            title={!editingContent.raw_markdown ? 'Markdown not available' : 'View original markdown'}
-          >
-            📝 Markdown
-          </button>
-          <button
-            className={`btn ${viewMode === 'json' ? 'btn--primary' : 'btn--secondary'}`}
-            onClick={() => setViewMode('json')}
-          >
-            {} JSON
-          </button>
-          {viewMode === 'structured' && (
-            <>
-              <button className="btn btn--secondary" onClick={expandAll}>
-                📖 Expand All
+      {scrapedContent.global_markdown && scrapedContent.pages ? (
+        <div className="scraped-content-viewer__tree">
+          {/* Root Domain Section */}
+          <div className="tree-section tree-section--root">
+            <div className="tree-section__header">
+              <Globe size={20} className="tree-section__icon tree-section__icon--globe" />
+              <h3 className="tree-section__title">{scrapedContent.domain}</h3>
+              <button
+                className="btn btn--expand-toggle"
+                onClick={expandedMarkdownPages.size === 0 && !showGlobalMarkdown && !showPagesSection ? handleExpandAll : handleCollapseAll}
+              >
+                {expandedMarkdownPages.size === 0 && !showGlobalMarkdown && !showPagesSection ? (
+                  <>
+                    <ChevronsDown size={16} />
+                    <span>Expand All</span>
+                  </>
+                ) : (
+                  <>
+                    <ChevronsUp size={16} />
+                    <span>Collapse All</span>
+                  </>
+                )}
               </button>
-              <button className="btn btn--secondary" onClick={collapseAll}>
-                📕 Collapse All
-              </button>
-            </>
-          )}
-          {onRegenerate && (
-            <button className="btn btn--warning" onClick={onRegenerate}>
-              🔄 Re-scrape
-            </button>
-          )}
-        </div>
-      </div>
+            </div>
 
-      {viewMode === 'structured' && (
-        <div className="scraped-content-viewer__stats">
-          <div className="stat-card">
-            <div className="stat-value">{editingContent.metadata.total_pages}</div>
-            <div className="stat-label">Pages</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-value">{editingContent.metadata.total_sections}</div>
-            <div className="stat-label">Sections</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-value">{editingContent.metadata.total_images}</div>
-            <div className="stat-label">Images</div>
-          </div>
-        </div>
-      )}
+            <div className="tree-section__meta">
+              <span className="meta-item">
+                <span className="meta-label">#</span> {countWords(scrapedContent.global_markdown) + Object.values(scrapedContent.pages).reduce((sum, md) => sum + countWords(md), 0)} words
+              </span>
+              <span className="meta-item">
+                <Globe size={14} /> {scrapedContent.metadata.total_pages} pages
+              </span>
+              <span className="meta-item">
+                <Image size={14} /> {getTotalImages} images
+              </span>
+              <span className="meta-item">
+                <Clock size={14} /> {new Date(scrapedContent.metadata.scraped_at).toLocaleDateString('en-US', {
+                  month: '2-digit',
+                  day: '2-digit',
+                  year: 'numeric'
+                })}
+              </span>
+            </div>
 
-      {viewMode === 'markdown' ? (
-        <div className="scraped-content-viewer__markdown">
-          {editingContent.raw_markdown ? (
-            <>
-              <div className="markdown-section">
-                <h3>Global Content</h3>
-                <textarea
-                  className="markdown-editor"
-                  value={editingContent.raw_markdown.global}
-                  readOnly
-                  rows={10}
-                  spellCheck={false}
-                />
+            {/* Global Content Section */}
+            <div className="tree-item tree-item--global">
+              <div
+                className="tree-item__header"
+                onClick={() => setShowGlobalMarkdown(!showGlobalMarkdown)}
+              >
+                {showGlobalMarkdown ? (
+                  <ChevronDown size={16} className="tree-item__chevron" />
+                ) : (
+                  <ChevronRight size={16} className="tree-item__chevron" />
+                )}
+                <Globe size={16} className="tree-item__icon" />
+                <span className="tree-item__title">Global Content</span>
+                <span className="tree-item__meta">
+                  <span className="meta-words">{countWords(scrapedContent.global_markdown)} words</span>
+                  <span className="meta-images">{countImages(scrapedContent.global_markdown)} images</span>
+                </span>
               </div>
-              <div className="markdown-section">
-                <h3>Pages</h3>
-                {Object.entries(editingContent.raw_markdown.pages).map(([pageKey, markdown]) => (
-                  <div key={pageKey} className="page-markdown">
-                    <h4>{pageKey}</h4>
-                    <textarea
-                      className="markdown-editor"
-                      value={markdown}
-                      readOnly
-                      rows={15}
-                      spellCheck={false}
-                    />
+              {showGlobalMarkdown && (
+                <div className="tree-item__content">
+                  <div className="markdown-display">
+                    <div className="markdown-display__header">
+                      <div className="markdown-display__url-section">
+                        <Globe size={16} />
+                        <span className="markdown-display__url">Global Content</span>
+                      </div>
+                      <button
+                        className="btn btn--copy"
+                        onClick={() => handleCopyMarkdown('global', scrapedContent.global_markdown)}
+                      >
+                        {copiedPage === 'global' ? <Check size={16} /> : <Copy size={16} />}
+                        {copiedPage === 'global' ? 'Copied!' : 'Copy as Markdown'}
+                      </button>
+                    </div>
+                    <pre className="markdown-display__content">
+                      {scrapedContent.global_markdown}
+                    </pre>
                   </div>
-                ))}
-              </div>
-            </>
-          ) : (
-            <div className="no-markdown">
-              <p>⚠️ Markdown content not available. This may be from an older scrape.</p>
-            </div>
-          )}
-        </div>
-      ) : viewMode === 'json' ? (
-        <div className="scraped-content-viewer__json">
-          <textarea
-            className="json-editor"
-            value={JSON.stringify(editingContent, null, 2)}
-            onChange={(e) => {
-              try {
-                const parsed = JSON.parse(e.target.value);
-                setEditingContent(parsed);
-                if (onEdit) {
-                  onEdit(parsed);
-                }
-              } catch (err) {
-                // Invalid JSON, don't update
-              }
-            }}
-            spellCheck={false}
-          />
-        </div>
-      ) : (
-        <>
-          {/* Global Content Section */}
-          <div className="scraped-content-viewer__global">
-        <div className="global-header" onClick={() => setShowGlobal(!showGlobal)}>
-          <h3>
-            {showGlobal ? '▼' : '▶'} Global Content (Header & Footer)
-          </h3>
-        </div>
-        {showGlobal && (
-          <div className="global-content">
-            <div className="global-section">
-              <h4>Header</h4>
-              <textarea
-                className="content-edit"
-                value={getGlobalContentText(editingContent.global_content.header)}
-                onChange={(e) => handleGlobalContentEdit('header', e.target.value)}
-                rows={5}
-              />
-            </div>
-            <div className="global-section">
-              <h4>Footer</h4>
-              <textarea
-                className="content-edit"
-                value={getGlobalContentText(editingContent.global_content.footer)}
-                onChange={(e) => handleGlobalContentEdit('footer', e.target.value)}
-                rows={5}
-              />
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Pages Section */}
-      <div className="scraped-content-viewer__pages">
-        <h3>Pages</h3>
-        {editingContent.pages.map((page) => {
-          const pageKey = getPageKey(page);
-          const isExpanded = expandedPages.has(pageKey);
-          return (
-            <div key={pageKey} className="page-card">
-              <div className="page-header" onClick={() => togglePage(pageKey)}>
-                <div className="page-title">
-                  <span className="expand-icon">{isExpanded ? '▼' : '▶'}</span>
-                  <h4>{page.title}</h4>
-                  <span className="page-url">{page.url}</span>
-                </div>
-                <div className="page-stats">
-                  <span className="badge">{page.sections.length} sections</span>
-                  <span className="badge">{page.images?.length || 0} images</span>
-                </div>
-              </div>
-
-              {isExpanded && (
-                <div className="page-content">
-                  {page.sections.length === 0 ? (
-                    <p className="no-content">No sections found on this page</p>
-                  ) : (
-                    page.sections.map((section, idx) => {
-                      const sectionId = `${pageKey}-section-${idx}`;
-                      const isSectionExpanded = expandedSections.has(sectionId);
-                      return (
-                        <div key={sectionId} className="section-card">
-                          <div
-                            className="section-header"
-                            onClick={() => toggleSection(sectionId)}
-                          >
-                            <span className="expand-icon">
-                              {isSectionExpanded ? '▼' : '▶'}
-                            </span>
-                            <span className="section-type">{section.type}</span>
-                            <span className="section-preview">
-                              {getSectionContent(section).substring(0, 80)}
-                              {getSectionContent(section).length > 80 ? '...' : ''}
-                            </span>
-                          </div>
-
-                          {isSectionExpanded && (
-                            <div className="section-content">
-                              <textarea
-                                className="content-edit"
-                                value={getSectionContent(section)}
-                                onChange={(e) =>
-                                  handleSectionContentEdit(
-                                    pageKey,
-                                    idx,
-                                    e.target.value
-                                  )
-                                }
-                                rows={8}
-                              />
-                              {section.images?.length > 0 && (
-                                <div className="section-images">
-                                  <h5>Images ({section.images.length})</h5>
-                                  <div className="image-grid">
-                                    {section.images.map((img, imgIdx) => (
-                                      <div key={imgIdx} className="image-item">
-                                        <img
-                                          src={img.url}
-                                          alt={img.alt || `Image ${imgIdx + 1}`}
-                                          onError={(e) => {
-                                            const target = e.target as HTMLImageElement;
-                                            target.style.display = 'none';
-                                          }}
-                                        />
-                                        <p className="image-url">{img.url}</p>
-                                      </div>
-                                    ))}
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })
-                  )}
                 </div>
               )}
             </div>
-          );
-        })}
-      </div>
-        </>
+
+            {/* Pages Section */}
+            <div className="tree-item tree-item--pages">
+              <div
+                className="tree-item__header"
+                onClick={() => setShowPagesSection(!showPagesSection)}
+              >
+                {showPagesSection ? (
+                  <ChevronDown size={16} className="tree-item__chevron" />
+                ) : (
+                  <ChevronRight size={16} className="tree-item__chevron" />
+                )}
+                <Globe size={16} className="tree-item__icon" />
+                <span className="tree-item__title">Pages</span>
+                <span className="tree-item__meta">
+                  <span className="meta-count">{scrapedContent.metadata.total_pages} pages</span>
+                  <span className="meta-words">{Object.values(scrapedContent.pages).reduce((sum, md) => sum + countWords(md), 0)} words</span>
+                </span>
+              </div>
+              {showPagesSection && (
+                <div className="tree-item__content">
+                  {buildPageTree.map((node) => renderPageNode(node))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="no-markdown">
+          <AlertCircle size={20} style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '0.5rem' }} />
+          <p style={{ display: 'inline' }}>Markdown content not available. This may be from an older scrape.</p>
+        </div>
       )}
 
       {/* Next Steps */}
       {onNext && (
         <div className="scraped-content-viewer__actions">
           <button className="btn btn--primary btn--large" onClick={onNext}>
-            ✅ Continue to Mapping
+            <CheckCircle size={20} />
+            <span>Continue to Mapping</span>
           </button>
         </div>
       )}
