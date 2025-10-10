@@ -12,6 +12,7 @@ interface SitemapContextState {
   pages: SitemapSection[]
   selectedPages: string[]
   viewMode: 'grid' | 'list'
+  layoutType: 'standard' | 'toc'
   isLoading: boolean
   error: string | null
   lastSaved: string | null
@@ -51,6 +52,8 @@ interface SitemapContextActions {
   
   // View controls
   setViewMode: (mode: 'grid' | 'list') => void
+  setLayoutType: (type: 'standard' | 'toc') => void
+  toggleLayoutType: () => void
   toggleShowSelect: () => void
   toggleShowTextarea: () => void
   toggleShowDeleteButtons: () => void
@@ -58,7 +61,7 @@ interface SitemapContextActions {
   toggleShowPageIds: () => void
   setShowItems: (show: boolean) => void
   toggleUsePageJson: () => void
-  
+
   // Layout controls
   toggleUseGridLayout: () => void
   setGridColumnWidth: (width: number) => void
@@ -114,6 +117,7 @@ export const SitemapProvider: React.FC<SitemapProviderProps> = ({
   
   const {
     viewMode,
+    layoutType,
     showSelect,
     showTextarea,
     showDeleteButtons,
@@ -124,6 +128,8 @@ export const SitemapProvider: React.FC<SitemapProviderProps> = ({
     useGridLayout,
     gridColumnWidth,
     setViewMode,
+    setLayoutType,
+    toggleLayoutType,
     toggleShowSelect,
     toggleShowTextarea,
     toggleShowDeleteButtons,
@@ -212,6 +218,7 @@ export const SitemapProvider: React.FC<SitemapProviderProps> = ({
     pages: allPages,
     selectedPages,
     viewMode,
+    layoutType,
     isLoading,
     error,
     lastSaved,
@@ -242,6 +249,8 @@ export const SitemapProvider: React.FC<SitemapProviderProps> = ({
     selectAllPages,
     deselectAllPages,
     setViewMode,
+    setLayoutType,
+    toggleLayoutType,
     toggleShowSelect,
     toggleShowTextarea,
     toggleShowDeleteButtons,

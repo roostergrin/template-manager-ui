@@ -3,6 +3,7 @@ import { DndContext, DragEndEvent, DragOverEvent, DragStartEvent, KeyboardSensor
 import { SortableContext, arrayMove, verticalListSortingStrategy, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { useSitemap } from '../../contexts/SitemapProvider';
 import PageCard from './PageCard';
+import PageListTOCItem from './PageListTOC';
 import { SitemapItem, SitemapSection, StoredSitemap } from '../../types/SitemapTypes';
 import './PageList.sass';
 
@@ -60,10 +61,10 @@ const PageList: React.FC<PageListProps> = ({
       setHasAttemptedAutoLoad(true);
     }
   }, [state.sitemapSource, hasAttemptedAutoLoad, actions]);
-  
-  const { pages, viewMode, showItems, sitemapSource } = state;
-  
-  const { addPage } = actions;
+
+  const { pages, viewMode, showItems, sitemapSource, layoutType } = state;
+
+  const { addPage, toggleLayoutType } = actions;
   // Determine item density from view mode; layout is always full-width single column
   const isCompactMode = viewMode === 'list';
   
@@ -260,23 +261,36 @@ const PageList: React.FC<PageListProps> = ({
               </button>
             )}
             <button
-              className={`app__filter-button ${showItems ? 'app__filter-button--active' : ''}`}
-              onClick={handleShowAllItems}
-              aria-pressed={showItems}
-              aria-label="Show all items (Item Mode)"
+              className={`app__filter-button ${layoutType === 'toc' ? 'app__filter-button--active' : ''}`}
+              onClick={toggleLayoutType}
+              aria-pressed={layoutType === 'toc'}
+              aria-label="Toggle TOC view"
               tabIndex={0}
             >
-              Show All Items
+              {layoutType === 'toc' ? '📋 TOC View' : '📄 Standard View'}
             </button>
-            <button
-              className={`app__filter-button ${!showItems ? 'app__filter-button--active' : ''}`}
-              onClick={handleHideAllItems}
-              aria-pressed={!showItems}
-              aria-label="Hide all items (Page Mode)"
-              tabIndex={0}
-            >
-              Hide All Items
-            </button>
+            {layoutType === 'standard' && (
+              <>
+                <button
+                  className={`app__filter-button ${showItems ? 'app__filter-button--active' : ''}`}
+                  onClick={handleShowAllItems}
+                  aria-pressed={showItems}
+                  aria-label="Show all items (Item Mode)"
+                  tabIndex={0}
+                >
+                  Show All Items
+                </button>
+                <button
+                  className={`app__filter-button ${!showItems ? 'app__filter-button--active' : ''}`}
+                  onClick={handleHideAllItems}
+                  aria-pressed={!showItems}
+                  aria-label="Hide all items (Page Mode)"
+                  tabIndex={0}
+                >
+                  Hide All Items
+                </button>
+              </>
+            )}
           </div>
 
           {/* Export/Import Controls */}
@@ -285,21 +299,33 @@ const PageList: React.FC<PageListProps> = ({
               {exportImportControls}
             </div>
           )}
-       
+
           <SortableContext items={pageIds} strategy={verticalListSortingStrategy}>
-            {filteredPages.map((page) => (
-              <PageCard
-                key={page.id}
-                page={page}
-                index={pages.findIndex(p => p.id === page.id)}
-                showItemNumbers={true}
-                showPageIds={true}
-                showDeleteButtons={true}
-                showSelect={true}
-                showTextarea={true}
-                isCompactMode={isCompactMode}
-              />
-            ))}
+            {layoutType === 'toc' ? (
+              // TOC View - compact table of contents style
+              filteredPages.map((page) => (
+                <PageListTOCItem
+                  key={page.id}
+                  page={page}
+                  index={pages.findIndex(p => p.id === page.id)}
+                />
+              ))
+            ) : (
+              // Standard View - original PageCard layout
+              filteredPages.map((page) => (
+                <PageCard
+                  key={page.id}
+                  page={page}
+                  index={pages.findIndex(p => p.id === page.id)}
+                  showItemNumbers={true}
+                  showPageIds={true}
+                  showDeleteButtons={true}
+                  showSelect={true}
+                  showTextarea={true}
+                  isCompactMode={isCompactMode}
+                />
+              ))
+            )}
           </SortableContext>
           <button
             className="primary-button"
