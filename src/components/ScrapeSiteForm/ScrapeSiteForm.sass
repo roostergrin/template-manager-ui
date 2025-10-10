@@ -1,7 +1,6 @@
 .scrape-site-form
-  max-width: 900px
+  max-width: 1400px
   margin: 0 auto
-  padding: 2rem
 
   &__form
     background: white
@@ -303,6 +302,40 @@
 
         &.spinning
           animation: spin 1s linear infinite
+
+      @media (max-width: 768px)
+        width: 100%
+        justify-content: center
+
+    .btn-history
+      padding: 0.75rem 1.5rem
+      background: white
+      color: #4a5568
+      border: 2px solid transparent
+      border-radius: 8px
+      font-size: 0.9375rem
+      font-weight: 600
+      cursor: pointer
+      transition: all 0.2s
+      display: flex
+      align-items: center
+      justify-content: center
+      gap: 0.5rem
+      white-space: nowrap
+      min-width: 160px
+
+      &:hover:not(:disabled)
+        border-color: #4D4EC1
+        color: #4D4EC1
+        transform: translateY(-1px)
+
+      &:active:not(:disabled)
+        transform: translateY(0)
+
+      &:disabled
+        opacity: 0.6
+        cursor: not-allowed
+        transform: none
 
       @media (max-width: 768px)
         width: 100%

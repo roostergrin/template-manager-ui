@@ -223,57 +223,24 @@ const PageList: React.FC<PageListProps> = ({
           gap: isCompactMode ? '0.5rem' : '1rem',
         }}
       >
-        <div className="app__page-filter flex items-center gap-2 mb-2" style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 16,
-          background: 'var(--filter-bg, #f8fafc)',
-          border: '1px solid var(--filter-border, #e2e8f0)',
-          borderRadius: 8,
-          padding: '1rem'
-        }}>
-          {/* Header Row: Title + Content Source */}
-          <div className="page-list__header-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
-            <h3 style={{ margin: 0 }}>
-              {sitemapSource === 'generated' && 'Generated '}
-              {sitemapSource === 'loaded' && 'Loaded '}
-              Sitemap
-            </h3>
-            {contentSourceInfo && (
-              <div className="page-list__content-source" style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 12,
-                fontSize: '0.875rem',
-                padding: '0.5rem 0.75rem',
-                background: '#fff',
-                borderRadius: 6,
-                border: '1px solid #e2e8f0'
-              }}>
-                <span style={{ fontWeight: 600, color: '#64748b' }}>Source:</span>
-                <span style={{ fontWeight: 500, color: '#1e293b' }}>{contentSourceInfo.domain}</span>
-                <span style={{ color: '#94a3b8' }}>•</span>
-                <span style={{ color: '#64748b' }}>{contentSourceInfo.pagesCount} pages</span>
-              </div>
-            )}
-          </div>
+        <div className="app__page-filter flex items-center gap-2 mb-2">
 
           {/* Header Controls Row: Template Selector + Generate + Load */}
           {headerControls && (
-            <div className="page-list__header-controls" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', paddingBottom: 12, borderBottom: '1px solid #e2e8f0' }}>
+            <div className="page-list__header-controls">
               {headerControls}
             </div>
           )}
 
           {/* Additional Actions */}
           {additionalActions && (
-            <div className="page-list__additional-actions" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', paddingBottom: 12, borderBottom: '1px solid #e2e8f0' }}>
+            <div className="">
               {additionalActions}
             </div>
           )}
 
           {/* Filter + Show/Hide Controls */}
-          <div className="app__page-filter-controls" role="group" aria-label="Toggle item visibility globally" style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', flexWrap: 'wrap'}}>
+          <div className="app__page-filter-controls" role="group" aria-label="Toggle item visibility globally">
             <input
               type="text"
               value={filterText}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Loader2, History } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import ScrapeSiteForm, { ScrapeSiteFormData } from '../ScrapeSiteForm/ScrapeSiteForm';
 import ScrapeHistory from '../ScrapeHistory';
 import { useMigrationWizard } from '../../contexts/MigrationWizardProvider';
@@ -88,21 +88,15 @@ const Step1Capture: React.FC = () => {
         onSubmit={handleScrapeSubmit}
         loading={loading}
         error={error}
+        onToggleHistory={() => setShowHistory(!showHistory)}
+        showHistory={showHistory}
       />
 
-      <div className="step-1-capture__header">
-        <button
-          className="btn btn--secondary btn--history"
-          onClick={() => setShowHistory(!showHistory)}
-        >
-          <History size={16} />
-          {showHistory ? 'Hide' : 'Show'} History
-        </button>
-      </div>
-
       {showHistory && (
-        <div className="step-1-capture__history">
-          <ScrapeHistory onLoadScrape={handleLoadFromHistory} />
+        <div className="step-1-capture__history-section">
+          <div className="step-1-capture__history">
+            <ScrapeHistory onLoadScrape={handleLoadFromHistory} />
+          </div>
         </div>
       )}
 

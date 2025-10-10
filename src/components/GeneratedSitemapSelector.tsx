@@ -8,6 +8,7 @@ export type StoredSitemap = {
 
 export type GeneratedSitemapSelectorProps = {
   onSelectSitemap: (sitemap: StoredSitemap) => void;
+  resetTrigger?: number;
 };
 
 const LOCAL_STORAGE_KEY = 'generatedSitemaps';
@@ -22,13 +23,20 @@ const getStoredSitemaps = (): StoredSitemap[] => {
   }
 };
 
-const GeneratedSitemapSelector: React.FC<GeneratedSitemapSelectorProps> = ({ onSelectSitemap }) => {
+const GeneratedSitemapSelector: React.FC<GeneratedSitemapSelectorProps> = ({ onSelectSitemap, resetTrigger }) => {
   const [sitemaps, setSitemaps] = React.useState<StoredSitemap[]>([]);
   const [selectedIndex, setSelectedIndex] = React.useState<number>(-1);
 
   React.useEffect(() => {
     setSitemaps(getStoredSitemaps());
   }, []);
+
+  // Reset the selector when resetTrigger changes
+  React.useEffect(() => {
+    if (resetTrigger !== undefined) {
+      setSelectedIndex(-1);
+    }
+  }, [resetTrigger]);
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const idx = Number(e.target.value);

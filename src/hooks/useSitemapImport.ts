@@ -21,9 +21,10 @@ const mapImportedPages = (pagesObj: Record<string, any>): SitemapSection[] => {
   })
 }
 
-const useSitemapImport = () => {
+const useSitemapImport = (siteType?: string) => {
   const [lastSaved, setLastSaved] = useState<string | null>(null)
   const [sitemapSource, setSitemapSource] = useState<'loaded' | 'generated' | null>(null)
+  const [sitemapName, setSitemapName] = useState<string | null>(null)
   const isProcessingRef = useRef<boolean>(false)
 
   const importPagesFromJson = (jsonData: string): SitemapSection[] | null => {
@@ -33,6 +34,7 @@ const useSitemapImport = () => {
         const pages = mapImportedPages(importedData.pages)
         setLastSaved(new Date().toISOString())
         setSitemapSource('loaded')
+        setSitemapName(null) // Reset to default when importing JSON
         return pages
       }
       return null
@@ -41,7 +43,13 @@ const useSitemapImport = () => {
     }
   }
 
-  const handleGeneratedSitemap = (sitemapData: unknown): SitemapSection[] | null => {
+  const resetToDefault = (): void => {
+    setLastSaved(null)
+    setSitemapSource(null)
+    setSitemapName(null)
+  }
+
+  const handleGeneratedSitemap = (sitemapData: unknown, siteTypeOverride?: string): SitemapSection[] | null => {
     if (!sitemapData || typeof sitemapData !== 'object' || !(sitemapData as any).pages) {
       return null
     }
@@ -73,6 +81,7 @@ const useSitemapImport = () => {
         name,
         created: new Date().toISOString(),
         sitemap: sitemapData,
+        siteType: siteTypeOverride || siteType,
       }
 
       // Store in localStorage
@@ -90,6 +99,7 @@ const useSitemapImport = () => {
 
       setLastSaved(new Date().toISOString())
       setSitemapSource('generated')
+      setSitemapName(name)
       return newPages
     } finally {
       // Always reset the processing flag
@@ -101,6 +111,7 @@ const useSitemapImport = () => {
     if (stored && stored.sitemap && (stored.sitemap as any).pages) {
       setLastSaved(stored.created)
       setSitemapSource('loaded')
+      setSitemapName(stored.name)
       return mapImportedPages((stored.sitemap as any).pages)
     }
     return null
@@ -109,9 +120,11 @@ const useSitemapImport = () => {
   return {
     lastSaved,
     sitemapSource,
+    sitemapName,
     importPagesFromJson,
     handleGeneratedSitemap,
-    handleSelectStoredSitemap
+    handleSelectStoredSitemap,
+    resetToDefault
   }
 }
 

@@ -1,5 +1,6 @@
 import React, { useEffect, useCallback, useRef } from 'react';
 import { MutationStatus } from '@tanstack/react-query';
+import { Plus } from 'lucide-react';
 import LoadingOverlay from './LoadingOverlay';
 import { QuestionnaireData, GenerateSitemapRequest, GenerateSitemapResponse } from '../types/SitemapTypes';
 import './GenerateSitemapButton.sass';
@@ -19,7 +20,7 @@ export type GenerateSitemapButtonProps = {
   generateSitemap: (params: GenerateSitemapRequest) => void;
   generateSitemapStatus: MutationStatus;
   generateSitemapData?: GenerateSitemapResponse;
-  onSitemapGenerated: (sitemapData: unknown) => void;
+  onSitemapGenerated: (sitemapData: unknown, siteType?: string) => void;
   controls: ControlsProps;
   scrapedContent?: ScrapedContentInfo;
 };
@@ -45,14 +46,14 @@ const GenerateSitemapButton: React.FC<GenerateSitemapButtonProps> = ({
     ) {
       // Mark as processed to prevent duplicate calls
       hasProcessedCurrentSuccessRef.current = true;
-      onSitemapGenerated(generateSitemapData.sitemap_data as unknown);
+      onSitemapGenerated(generateSitemapData.sitemap_data as unknown, backendSiteType);
     }
-    
+
     // Reset the flag when status changes to pending (new generation starting)
     if (generateSitemapStatus === 'pending') {
       hasProcessedCurrentSuccessRef.current = false;
     }
-  }, [generateSitemapStatus, generateSitemapData]); // Removed onSitemapGenerated from dependencies
+  }, [generateSitemapStatus, generateSitemapData, backendSiteType]); // Removed onSitemapGenerated from dependencies
 
   const handleClick = useCallback(() => {
     generateSitemap({
@@ -64,68 +65,22 @@ const GenerateSitemapButton: React.FC<GenerateSitemapButtonProps> = ({
 
   return (
     <div className="generate-sitemap-button">
-      <div className="generate-sitemap-button__header">
-        <h3 className="generate-sitemap-button__title">Generate New Sitemap <span className="generate-sitemap-button__beta-badge">Beta</span></h3>
-      </div>
-
-      {scrapedContent && (
-        <div className="generate-sitemap-button__content-source">
-          <h4 className="generate-sitemap-button__content-source-title">Content Source</h4>
-          <div className="generate-sitemap-button__content-info">
-            <div className="generate-sitemap-button__info-item">
-              <span className="generate-sitemap-button__info-label">Domain:</span>
-              <span className="generate-sitemap-button__info-value">{scrapedContent.domain}</span>
-            </div>
-            <div className="generate-sitemap-button__info-item">
-              <span className="generate-sitemap-button__info-label">Pages:</span>
-              <span className="generate-sitemap-button__info-value">{scrapedContent.pagesCount}</span>
-            </div>
-            {scrapedContent.timestamp && (
-              <div className="generate-sitemap-button__info-item">
-                <span className="generate-sitemap-button__info-label">Scraped:</span>
-                <span className="generate-sitemap-button__info-value">
-                  {new Date(scrapedContent.timestamp).toLocaleDateString()}
-                </span>
-              </div>
-            )}
-          </div>
+      <button
+        className="generate-sitemap-button__button"
+        onClick={handleClick}
+        aria-label="Generate Sitemap"
+        tabIndex={0}
+        disabled={generateSitemapStatus === 'pending'}
+      >
+        <Plus size={16} />
+        Generate Sitemap
+        <span className="generate-sitemap-button__beta-badge">Beta</span>
+      </button>
+      {generateSitemapStatus === 'pending' && (
+        <div className="generate-sitemap-button__loading-overlay">
+          <LoadingOverlay />
         </div>
       )}
-
-      <div className="generate-sitemap-button__info-section">
-        <div
-          className="generate-sitemap-button__site-type-info"
-          aria-label="Current Site Type"
-          tabIndex={0}
-        >
-          <span className="generate-sitemap-button__site-type-label">
-            Current Site Type:
-          </span>
-          <span className="generate-sitemap-button__site-type-value">
-            {backendSiteType}
-          </span>
-        </div>
-        <div className="generate-sitemap-button__page-json-info">
-          Using Page JSON
-        </div>
-      </div>
-
-      <div className="generate-sitemap-button__action-section">
-        <button
-          className="generate-sitemap-button__button"
-          onClick={handleClick}
-          aria-label="Generate Sitemap"
-          tabIndex={0}
-          disabled={generateSitemapStatus === 'pending'}
-        >
-          Generate Sitemap
-        </button>
-        {generateSitemapStatus === 'pending' && (
-          <div className="generate-sitemap-button__loading-overlay">
-            <LoadingOverlay />
-          </div>
-        )}
-      </div>
     </div>
   );
 };

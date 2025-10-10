@@ -49,4 +49,5 @@ export interface StoredSitemap {
   name: string;
   created: string;
   sitemap: unknown;
+  siteType?: string;
 } 

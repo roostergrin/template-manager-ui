@@ -374,15 +374,6 @@ const ScrapedContentViewer: React.FC<ScrapedContentViewerProps> = ({
         </div>
       )}
 
-      {/* Next Steps */}
-      {onNext && (
-        <div className="scraped-content-viewer__actions">
-          <button className="btn btn--primary btn--large" onClick={onNext}>
-            <CheckCircle size={20} />
-            <span>Continue to Mapping</span>
-          </button>
-        </div>
-      )}
     </div>
   );
 };

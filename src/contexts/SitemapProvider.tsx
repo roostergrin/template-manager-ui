@@ -16,6 +16,7 @@ interface SitemapContextState {
   error: string | null
   lastSaved: string | null
   sitemapSource: 'loaded' | 'generated' | null
+  sitemapName: string | null
   // View controls
   showSelect: boolean
   showTextarea: boolean
@@ -64,8 +65,9 @@ interface SitemapContextActions {
   
   // Import/Export operations
   importPagesFromJson: (jsonData: string) => void
-  handleGeneratedSitemap: (sitemapData: unknown) => void
+  handleGeneratedSitemap: (sitemapData: unknown, siteType?: string) => void
   handleSelectStoredSitemap: (stored: StoredSitemap) => void
+  resetToDefaultSitemap: () => void
   
   // Optimistic updates
   optimisticallyAddPage: (tempPage: SitemapSection) => string
@@ -147,7 +149,7 @@ export const SitemapProvider: React.FC<SitemapProviderProps> = ({
   
   const { error, isLoading, setError, clearError, setLoading } = useErrorState(initialState.error || null)
   
-  const { lastSaved, sitemapSource, importPagesFromJson, handleGeneratedSitemap, handleSelectStoredSitemap } = useSitemapImport()
+  const { lastSaved, sitemapSource, sitemapName, importPagesFromJson, handleGeneratedSitemap, handleSelectStoredSitemap, resetToDefault } = useSitemapImport()
 
   // Enhanced functions that coordinate between hooks
   const selectAllPages = () => {
@@ -177,9 +179,9 @@ export const SitemapProvider: React.FC<SitemapProviderProps> = ({
     }
   }
 
-  const handleGeneratedSitemapWrapper = (sitemapData: unknown) => {
+  const handleGeneratedSitemapWrapper = (sitemapData: unknown, siteType?: string) => {
     try {
-      const newPages = handleGeneratedSitemap(sitemapData)
+      const newPages = handleGeneratedSitemap(sitemapData, siteType)
       if (newPages) {
         setPages(newPages)
         clearSelection()
@@ -214,6 +216,7 @@ export const SitemapProvider: React.FC<SitemapProviderProps> = ({
     error,
     lastSaved,
     sitemapSource,
+    sitemapName,
     showSelect,
     showTextarea,
     showDeleteButtons,
@@ -251,6 +254,7 @@ export const SitemapProvider: React.FC<SitemapProviderProps> = ({
     importPagesFromJson: handleImportPagesFromJson,
     handleGeneratedSitemap: handleGeneratedSitemapWrapper,
     handleSelectStoredSitemap: handleSelectStoredSitemapWrapper,
+    resetToDefaultSitemap: resetToDefault,
     optimisticallyAddPage,
     confirmOptimisticPage,
     revertOptimisticPage,
