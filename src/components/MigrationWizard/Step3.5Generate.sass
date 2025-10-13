@@ -1,0 +1,161 @@
+.step-3-5-generate
+  max-width: 900px
+  margin: 0 auto
+  padding: 2rem
+
+  &__empty
+    text-align: center
+    padding: 3rem
+    color: #718096
+
+    p
+      margin-bottom: 1.5rem
+      font-size: 1.125rem
+
+  &__summary
+    margin-bottom: 2rem
+    padding: 1.5rem
+    background: #f7fafc
+    border-radius: 8px
+    border: 1px solid #e2e8f0
+
+    h3
+      margin: 0 0 1rem 0
+      font-size: 1.25rem
+      color: #2d3748
+
+  &__info
+    display: flex
+    gap: 1rem
+    flex-wrap: wrap
+    margin-bottom: 1rem
+
+  &__context-info
+    padding: 0.75rem 1rem
+    background: #ebf8ff
+    border-radius: 6px
+    border: 1px solid #90cdf4
+    margin-top: 0.5rem
+
+    p
+      margin: 0
+      font-size: 0.875rem
+      color: #2c5282
+      line-height: 1.5
+
+      strong
+        color: #1a365d
+        font-weight: 600
+
+  .info-badge
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    padding: 0.5rem 1rem
+    background: white
+    border-radius: 6px
+    border: 1px solid #cbd5e0
+    font-size: 0.875rem
+
+    &__label
+      color: #718096
+      font-weight: 500
+
+    &__value
+      color: #2d3748
+      font-weight: 600
+
+  &__actions
+    display: flex
+    justify-content: center
+    margin-bottom: 2rem
+
+    .btn--large
+      padding: 1rem 2rem
+      font-size: 1.125rem
+      display: flex
+      align-items: center
+      gap: 0.5rem
+
+  &__success
+    display: flex
+    flex-direction: column
+    align-items: center
+    gap: 1.5rem
+
+    .success-message
+      display: flex
+      align-items: center
+      gap: 0.75rem
+      padding: 1rem 1.5rem
+      background: #f0fdf4
+      border: 1px solid #86efac
+      border-radius: 8px
+      color: #15803d
+
+      .success-icon
+        color: #22c55e
+
+      p
+        margin: 0
+        font-size: 1.125rem
+        font-weight: 500
+
+    .action-buttons
+      display: flex
+      gap: 1rem
+      flex-wrap: wrap
+
+  &__progress
+    text-align: center
+    padding: 2rem
+    color: #718096
+
+    .progress-spinner
+      margin: 0 auto 1rem
+      color: #4299e1
+
+    p
+      margin: 0.5rem 0
+      font-size: 1rem
+
+    .progress-note
+      font-size: 0.875rem
+      color: #a0aec0
+
+  &__preview
+    margin-top: 2rem
+    padding: 1.5rem
+    background: #f7fafc
+    border-radius: 8px
+    border: 1px solid #e2e8f0
+
+    h4
+      margin: 0 0 1rem 0
+      font-size: 1rem
+      color: #2d3748
+
+    .content-preview
+      width: 100%
+      padding: 1rem
+      font-family: 'Monaco', 'Courier New', monospace
+      font-size: 0.75rem
+      line-height: 1.5
+      background: white
+      border: 1px solid #cbd5e0
+      border-radius: 6px
+      resize: vertical
+      color: #2d3748
+
+      &:focus
+        outline: none
+        border-color: #4299e1
+
+  .spinning
+    animation: spin 1s linear infinite
+
+@keyframes spin
+  from
+    transform: rotate(0deg)
+  to
+    transform: rotate(360deg)

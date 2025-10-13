@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { ScrapedContent } from '../components/ScrapedContentViewer/ScrapedContentViewer';
 
-type WizardStep = 'capture' | 'audit' | 'structure' | 'customize' | 'launch';
+type WizardStep = 'capture' | 'audit' | 'structure' | 'generate' | 'customize' | 'launch';
 
 interface SitemapPage {
   title: string;
@@ -21,6 +21,7 @@ interface MigrationWizardState {
   scrapedContent: ScrapedContent | null;
   selectedSitemap: { pages: SitemapPage[] } | null;
   pageMappings: PageMapping[];
+  generatedContent: any | null;
   selectedTemplate: string | null;
   themeSettings: {
     colors: { primary: string; secondary: string } | null;
@@ -36,6 +37,7 @@ interface MigrationWizardContextType {
     setScrapedContent: (content: ScrapedContent) => void;
     setSelectedSitemap: (sitemap: { pages: SitemapPage[] }) => void;
     setPageMappings: (mappings: PageMapping[]) => void;
+    setGeneratedContent: (content: any) => void;
     setSelectedTemplate: (template: string) => void;
     setThemeSettings: (settings: Partial<MigrationWizardState['themeSettings']>) => void;
     nextStep: () => void;
@@ -51,6 +53,7 @@ const initialState: MigrationWizardState = {
   scrapedContent: null,
   selectedSitemap: null,
   pageMappings: [],
+  generatedContent: null,
   selectedTemplate: null,
   themeSettings: {
     colors: null,
@@ -59,7 +62,7 @@ const initialState: MigrationWizardState = {
   },
 };
 
-const stepOrder: WizardStep[] = ['capture', 'audit', 'structure', 'customize', 'launch'];
+const stepOrder: WizardStep[] = ['capture', 'audit', 'structure', 'generate', 'customize', 'launch'];
 
 export const MigrationWizardProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [state, setState] = useState<MigrationWizardState>(initialState);
@@ -78,6 +81,10 @@ export const MigrationWizardProvider: React.FC<{ children: ReactNode }> = ({ chi
 
   const setPageMappings = (mappings: PageMapping[]) => {
     setState(prev => ({ ...prev, pageMappings: mappings }));
+  };
+
+  const setGeneratedContent = (content: any) => {
+    setState(prev => ({ ...prev, generatedContent: content }));
   };
 
   const setSelectedTemplate = (template: string) => {
@@ -116,6 +123,7 @@ export const MigrationWizardProvider: React.FC<{ children: ReactNode }> = ({ chi
       setScrapedContent,
       setSelectedSitemap,
       setPageMappings,
+      setGeneratedContent,
       setSelectedTemplate,
       setThemeSettings,
       nextStep,

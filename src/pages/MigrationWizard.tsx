@@ -1,10 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Search, CheckCircle, Map, Palette, Rocket } from 'lucide-react';
+import { Search, CheckCircle, Map, Sparkles, Palette, Rocket } from 'lucide-react';
 import { MigrationWizardProvider, useMigrationWizard } from '../contexts/MigrationWizardProvider';
 import StickyProgressNav from '../components/MigrationWizard/StickyProgressNav';
 import Step1Capture from '../components/MigrationWizard/Step1Capture';
 import Step2Audit from '../components/MigrationWizard/Step2Audit';
 import Step3Structure from '../components/MigrationWizard/Step3Structure';
+import Step3_5Generate from '../components/MigrationWizard/Step3.5Generate';
 import Step4Customize from '../components/MigrationWizard/Step4Customize';
 import Step5Launch from '../components/MigrationWizard/Step5Launch';
 import './MigrationWizard.sass';
@@ -13,6 +14,7 @@ const steps = [
   { id: 'capture', label: 'Capture', icon: 'Search' },
   { id: 'audit', label: 'Audit', icon: 'CheckCircle' },
   { id: 'structure', label: 'Structure', icon: 'Map' },
+  { id: 'generate', label: 'Generate', icon: 'Sparkles' },
   { id: 'customize', label: 'Customize', icon: 'Palette' },
   { id: 'launch', label: 'Launch', icon: 'Rocket' },
 ];
@@ -140,13 +142,26 @@ const MigrationWizardContent: React.FC = () => {
         </section>
 
         <section
+          ref={(el) => (sectionRefs.current['generate'] = el)}
+          data-section-id="generate"
+          className="migration-wizard-page__section"
+          id="section-generate"
+        >
+          <div className="section-header">
+            <h2><Sparkles size={24} style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '0.5rem' }} /> Step 4: Generate</h2>
+            <p>Create content from your scraped data</p>
+          </div>
+          <Step3_5Generate />
+        </section>
+
+        <section
           ref={(el) => (sectionRefs.current['customize'] = el)}
           data-section-id="customize"
           className="migration-wizard-page__section"
           id="section-customize"
         >
           <div className="section-header">
-            <h2><Palette size={24} style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '0.5rem' }} /> Step 4: Customize</h2>
+            <h2><Palette size={24} style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '0.5rem' }} /> Step 5: Customize</h2>
             <p>Make it yours while we build</p>
           </div>
           <Step4Customize />
@@ -159,7 +174,7 @@ const MigrationWizardContent: React.FC = () => {
           id="section-launch"
         >
           <div className="section-header">
-            <h2><Rocket size={24} style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '0.5rem' }} /> Step 5: Launch</h2>
+            <h2><Rocket size={24} style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '0.5rem' }} /> Step 6: Launch</h2>
             <p>Your new site is ready!</p>
           </div>
           <Step5Launch />
