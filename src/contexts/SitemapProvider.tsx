@@ -38,11 +38,12 @@ interface SitemapContextActions {
   // Page CRUD operations
   addPage: () => void
   removePage: (pageId: string) => void
+  duplicatePage: (pageId: string) => void
   updatePageTitle: (pageId: string, newTitle: string) => void
   updatePageWordpressId: (pageId: string, newId: string) => void
   updatePageItems: (pageId: string, newItems: SitemapItem[]) => void
   setPages: (pages: SitemapSection[]) => void
-  
+
   // Page selection
   selectPage: (pageId: string) => void
   deselectPage: (pageId: string) => void
@@ -103,7 +104,7 @@ export const SitemapProvider: React.FC<SitemapProviderProps> = ({
   initialState = {}
 }) => {
   // Initialize all the custom hooks
-  const { pages, addPage, removePage, updatePageTitle, updatePageWordpressId, updatePageItems, setPages } = usePages(initialState.pages || [])
+  const { pages, addPage, removePage, updatePageTitle, updatePageWordpressId, updatePageItems, setPages, duplicatePage } = usePages(initialState.pages || [])
   
   const { 
     selectedPages, 
@@ -239,6 +240,7 @@ export const SitemapProvider: React.FC<SitemapProviderProps> = ({
   const actions: SitemapContextActions = {
     addPage,
     removePage: handleRemovePage,
+    duplicatePage,
     updatePageTitle,
     updatePageWordpressId,
     updatePageItems,

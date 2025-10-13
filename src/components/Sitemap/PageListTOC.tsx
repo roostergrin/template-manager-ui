@@ -15,6 +15,7 @@ interface SectionRowProps {
   currentModels: string[];
   onUpdateItem: (itemId: string, updates: Partial<SitemapItem>) => void;
   onDeleteItem: (itemId: string) => void;
+  onDuplicateItem: (itemId: string) => void;
   expandedSectionId: string | null;
   setExpandedSectionId: (id: string | null) => void;
 }
@@ -27,6 +28,7 @@ const SectionRow: React.FC<SectionRowProps> = ({
   currentModels,
   onUpdateItem,
   onDeleteItem,
+  onDuplicateItem,
   expandedSectionId,
   setExpandedSectionId
 }) => {
@@ -142,6 +144,15 @@ const SectionRow: React.FC<SectionRowProps> = ({
           {item.useDefault ? '●' : '○'}
         </button>
         <button
+          className="page-list-toc__duplicate"
+          onClick={() => onDuplicateItem(item.id)}
+          aria-label="Duplicate section"
+          tabIndex={0}
+          title="Duplicate section"
+        >
+          ⎘
+        </button>
+        <button
           className="page-list-toc__section-delete"
           onClick={() => onDeleteItem(item.id)}
           aria-label="Delete section"
@@ -194,6 +205,35 @@ const PageListTOCItem: React.FC<PageListTOCItemProps> = ({ page, index }) => {
     actions.updatePageItems(page.id, updatedItems);
   };
 
+  const handleAddSection = () => {
+    const newItem: SitemapItem = {
+      id: `item-${Date.now()}-${Math.random()}`,
+      model: currentModels[0] || 'Hero',
+      query: '',
+      useDefault: false
+    };
+    const updatedItems = [...page.items, newItem];
+    actions.updatePageItems(page.id, updatedItems);
+  };
+
+  const handleDuplicateSection = (itemId: string) => {
+    const itemToDuplicate = page.items.find(item => item.id === itemId);
+    if (!itemToDuplicate) return;
+
+    const duplicatedItem: SitemapItem = {
+      ...itemToDuplicate,
+      id: `item-${Date.now()}-${Math.random()}`,
+    };
+
+    const itemIndex = page.items.findIndex(item => item.id === itemId);
+    const updatedItems = [
+      ...page.items.slice(0, itemIndex + 1),
+      duplicatedItem,
+      ...page.items.slice(itemIndex + 1)
+    ];
+    actions.updatePageItems(page.id, updatedItems);
+  };
+
   const itemIds = page.items.map(item => item.id);
 
   return (
@@ -233,6 +273,15 @@ const PageListTOCItem: React.FC<PageListTOCItemProps> = ({ page, index }) => {
         <div className="page-list-toc__col page-list-toc__col--actions">
           <span className="page-list-toc__count">{page.items.length}</span>
           <button
+            className="page-list-toc__duplicate"
+            onClick={() => actions.duplicatePage?.(page.id)}
+            aria-label="Duplicate Page"
+            tabIndex={0}
+            title="Duplicate page"
+          >
+            ⎘
+          </button>
+          <button
             className="page-list-toc__delete"
             onClick={() => actions.removePage(page.id)}
             aria-label="Delete Page"
@@ -256,11 +305,20 @@ const PageListTOCItem: React.FC<PageListTOCItemProps> = ({ page, index }) => {
                 currentModels={currentModels}
                 onUpdateItem={handleUpdateItem}
                 onDeleteItem={handleDeleteItem}
+                onDuplicateItem={handleDuplicateSection}
                 expandedSectionId={expandedSectionId}
                 setExpandedSectionId={setExpandedSectionId}
               />
             ))}
           </SortableContext>
+          <button
+            className="page-list-toc__add-section"
+            onClick={handleAddSection}
+            aria-label="Add section"
+            tabIndex={0}
+          >
+            + Add Section
+          </button>
         </div>
       )}
     </div>

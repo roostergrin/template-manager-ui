@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { DndContext, DragEndEvent, DragOverEvent, DragStartEvent, KeyboardSensor, PointerSensor, UniqueIdentifier, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, arrayMove, verticalListSortingStrategy, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { useSitemap } from '../../contexts/SitemapProvider';
-import PageCard from './PageCard';
 import PageListTOCItem from './PageListTOC';
 import { SitemapItem, SitemapSection, StoredSitemap } from '../../types/SitemapTypes';
 import './PageList.sass';
@@ -39,7 +38,6 @@ const PageList: React.FC<PageListProps> = ({
 }) => {
   const { state, actions } = useSitemap();
   const [activeDragType, setActiveDragType] = useState<ActiveDragType>(null);
-  const [filterText, setFilterText] = useState<string>('');
   const [hasAttemptedAutoLoad, setHasAttemptedAutoLoad] = useState<boolean>(false);
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -62,22 +60,11 @@ const PageList: React.FC<PageListProps> = ({
     }
   }, [state.sitemapSource, hasAttemptedAutoLoad, actions]);
 
-  const { pages, viewMode, showItems, sitemapSource, layoutType } = state;
+  const { pages, sitemapSource } = state;
 
-  const { addPage, toggleLayoutType } = actions;
-  // Determine item density from view mode; layout is always full-width single column
-  const isCompactMode = viewMode === 'list';
-  
-  const filteredPages = useMemo(() => {
-    const needle = filterText.trim().toLowerCase();
-    if (!needle) return pages;
-    return pages.filter(p => {
-      if (p.title.toLowerCase().includes(needle)) return true;
-      return p.items.some(i => i.model.toLowerCase().includes(needle) || i.query.toLowerCase().includes(needle));
-    });
-  }, [filterText, pages]);
+  const { addPage } = actions;
 
-  const pageIds = useMemo(() => filteredPages.map(p => p.id as UniqueIdentifier), [filteredPages]);
+  const pageIds = useMemo(() => pages.map(p => p.id as UniqueIdentifier), [pages]);
 
   const findPageByItemId = useCallback(
     (itemId: UniqueIdentifier): SitemapSection | undefined => pages.find(p => p.items.some(i => i.id === itemId)),
@@ -188,14 +175,6 @@ const PageList: React.FC<PageListProps> = ({
     }
   }, [actions, findPageByItemId, pages]);
 
-  const handleShowAllItems = useCallback(() => {
-    actions.setShowItems(true);
-  }, [actions]);
-
-  const handleHideAllItems = useCallback(() => {
-    actions.setShowItems(false);
-  }, [actions]);
-
   // Show loading state while attempting auto-load
   if (!sitemapSource && !hasAttemptedAutoLoad) {
     return (
@@ -216,126 +195,45 @@ const PageList: React.FC<PageListProps> = ({
 
   return (
     <DndContext sensors={sensors} onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
-      <div
-        className="app__page-container mb-6"
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr',
-          gap: isCompactMode ? '0.5rem' : '1rem',
-        }}
-      >
-        <div className="app__page-filter flex items-center gap-2 mb-2">
-
-          {/* Header Controls Row: Template Selector + Generate + Load */}
-          {headerControls && (
-            <div className="page-list__header-controls">
-              {headerControls}
-            </div>
-          )}
-
-          {/* Additional Actions */}
-          {additionalActions && (
-            <div className="">
-              {additionalActions}
-            </div>
-          )}
-
-          {/* Filter + Show/Hide Controls */}
-          <div className="app__page-filter-controls" role="group" aria-label="Toggle item visibility globally">
-            <input
-              type="text"
-              value={filterText}
-              onChange={(e) => setFilterText(e.target.value)}
-              className="border rounded px-2 py-1 text-sm flex-1"
-              placeholder="Filter by page title, model, or query…"
-              aria-label="Filter sitemap"
-              style={{ minWidth: 200 }}
-            />
-            {filterText && (
-              <button
-                className="border rounded px-2 py-1 text-xs"
-                onClick={() => setFilterText('')}
-                aria-label="Clear filter"
-              >
-                Clear
-              </button>
-            )}
-            <button
-              className={`app__filter-button ${layoutType === 'toc' ? 'app__filter-button--active' : ''}`}
-              onClick={toggleLayoutType}
-              aria-pressed={layoutType === 'toc'}
-              aria-label="Toggle TOC view"
-              tabIndex={0}
-            >
-              {layoutType === 'toc' ? '📋 TOC View' : '📄 Standard View'}
-            </button>
-            {layoutType === 'standard' && (
-              <>
-                <button
-                  className={`app__filter-button ${showItems ? 'app__filter-button--active' : ''}`}
-                  onClick={handleShowAllItems}
-                  aria-pressed={showItems}
-                  aria-label="Show all items (Item Mode)"
-                  tabIndex={0}
-                >
-                  Show All Items
-                </button>
-                <button
-                  className={`app__filter-button ${!showItems ? 'app__filter-button--active' : ''}`}
-                  onClick={handleHideAllItems}
-                  aria-pressed={!showItems}
-                  aria-label="Hide all items (Page Mode)"
-                  tabIndex={0}
-                >
-                  Hide All Items
-                </button>
-              </>
-            )}
+      <div>
+        {/* Header Controls Row: Template Selector + Generate + Load */}
+        {headerControls && (
+          <div className="mb-4">
+            {headerControls}
           </div>
+        )}
 
-          {/* Export/Import Controls */}
-          {exportImportControls && (
-            <div className="page-list__export-import" style={{ paddingTop: 12, borderTop: '1px solid #e2e8f0' }}>
-              {exportImportControls}
-            </div>
-          )}
+        {/* Additional Actions */}
+        {additionalActions && (
+          <div className="mb-4">
+            {additionalActions}
+          </div>
+        )}
 
-          <SortableContext items={pageIds} strategy={verticalListSortingStrategy}>
-            {layoutType === 'toc' ? (
-              // TOC View - compact table of contents style
-              filteredPages.map((page) => (
-                <PageListTOCItem
-                  key={page.id}
-                  page={page}
-                  index={pages.findIndex(p => p.id === page.id)}
-                />
-              ))
-            ) : (
-              // Standard View - original PageCard layout
-              filteredPages.map((page) => (
-                <PageCard
-                  key={page.id}
-                  page={page}
-                  index={pages.findIndex(p => p.id === page.id)}
-                  showItemNumbers={true}
-                  showPageIds={true}
-                  showDeleteButtons={true}
-                  showSelect={true}
-                  showTextarea={true}
-                  isCompactMode={isCompactMode}
-                />
-              ))
-            )}
-          </SortableContext>
-          <button
-            className="primary-button"
-            onClick={addPage}
-            aria-label="Add Page"
-            tabIndex={0}
-          >
-            Add Page
-          </button>
-        </div>
+        {/* Export/Import Controls */}
+        {exportImportControls && (
+          <div className="mb-4" style={{ paddingTop: 12, borderTop: '1px solid #e2e8f0' }}>
+            {exportImportControls}
+          </div>
+        )}
+
+        <SortableContext items={pageIds} strategy={verticalListSortingStrategy}>
+          {pages.map((page) => (
+            <PageListTOCItem
+              key={page.id}
+              page={page}
+              index={pages.findIndex(p => p.id === page.id)}
+            />
+          ))}
+        </SortableContext>
+        <button
+          className="page-list-toc__add-page"
+          onClick={addPage}
+          aria-label="Add Page"
+          tabIndex={0}
+        >
+          + Add Page
+        </button>
       </div>
     </DndContext>
   );
