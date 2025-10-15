@@ -263,16 +263,29 @@ const Step3Structure: React.FC = () => {
       }
     } else if (source === 'scraped') {
       console.log('🌐 Loading scraped pages...');
-      // Extract and use sitemap from scraped content
-      const scrapedSitemap = extractSitemapFromScrapedContent();
-      if (scrapedSitemap) {
-        const jsonString = JSON.stringify(scrapedSitemap);
-        console.log('📤 Importing scraped pages to sitemap:', jsonString.substring(0, 200) + '...');
-        sitemapActions.importPagesFromJson(jsonString);
-        setExtractedSitemap(scrapedSitemap);
-        console.log('✅ Scraped pages imported successfully (with allocated markdown already included)');
+      console.log('🔍 DEBUG: state.generatedScrapedSitemap:', state.generatedScrapedSitemap);
+
+      // Check if a generated sitemap exists for scraped pages
+      if (state.generatedScrapedSitemap && state.generatedScrapedSitemap.length > 0) {
+        console.log('✅ Loading previously generated scraped sitemap:', state.generatedScrapedSitemap.length, 'pages');
+        console.log('🔍 DEBUG: First page from generated sitemap:', state.generatedScrapedSitemap[0]);
+        sitemapActions.setPages(state.generatedScrapedSitemap);
+        console.log('🔍 DEBUG: Called setPages with', state.generatedScrapedSitemap.length, 'pages');
+        console.log('🔍 DEBUG: Current sitemapState.pages after setPages:', sitemapState.pages.length, 'pages');
       } else {
-        console.log('❌ Failed to extract scraped sitemap');
+        console.log('📄 No generated sitemap found, extracting from scraped content...');
+        console.log('🔍 DEBUG: generatedScrapedSitemap is', state.generatedScrapedSitemap === null ? 'null' : state.generatedScrapedSitemap === undefined ? 'undefined' : 'empty array');
+        // Extract and use sitemap from scraped content
+        const scrapedSitemap = extractSitemapFromScrapedContent();
+        if (scrapedSitemap) {
+          const jsonString = JSON.stringify(scrapedSitemap);
+          console.log('📤 Importing scraped pages to sitemap:', jsonString.substring(0, 200) + '...');
+          sitemapActions.importPagesFromJson(jsonString);
+          setExtractedSitemap(scrapedSitemap);
+          console.log('✅ Scraped pages imported successfully (with allocated markdown already included)');
+        } else {
+          console.log('❌ Failed to extract scraped sitemap');
+        }
       }
     }
   };
@@ -284,6 +297,56 @@ const Step3Structure: React.FC = () => {
   const isAllocating = allocateContentStatus === 'pending';
   const hasAllocated = state.allocatedPagesSitemap && state.allocatedPagesSitemap.length > 0;
   const allocatedPagesCount = state.allocatedPagesSitemap?.length || 0;
+
+  // Wrapper for onSitemapGenerated to save to wizard state when on scraped pages
+  const handleSitemapGenerated = (sitemapData: unknown, siteType?: string) => {
+    console.log('🎯 Sitemap generated, current source:', sitemapSource);
+    console.log('🔍 DEBUG: sitemapData received:', sitemapData);
+
+    // Call the original handler from SitemapProvider which updates the sitemap state
+    sitemapActions.handleGeneratedSitemap(sitemapData, siteType);
+
+    // If we're on scraped pages, also save to wizard state for persistence
+    if (sitemapSource === 'scraped') {
+      console.log('💾 Saving generated sitemap to wizard state for scraped pages');
+
+      // The sitemapActions.handleGeneratedSitemap internally calls useSitemapImport's handleGeneratedSitemap
+      // which converts the sitemap data to pages. We need to do the same conversion here.
+      // Extract pages from the sitemap data
+      if (sitemapData && typeof sitemapData === 'object' && (sitemapData as any).pages) {
+        const pagesObj = (sitemapData as any).pages;
+        console.log('🔍 DEBUG: Pages object has', Object.keys(pagesObj).length, 'pages');
+
+        const pagesArray = Object.entries(pagesObj).map(([title, pageData]: [string, any]) => ({
+          id: pageData.internal_id,
+          title,
+          wordpress_id: pageData.page_id || '',
+          items: (pageData.model_query_pairs || []).map((item: any) => ({
+            model: item.model,
+            query: item.query,
+            id: item.internal_id,
+            useDefault: Boolean(item.use_default),
+          })),
+          // Preserve allocation fields if they exist
+          ...(pageData.allocated_markdown && { allocated_markdown: pageData.allocated_markdown }),
+          ...(pageData.allocation_confidence !== undefined && { allocation_confidence: pageData.allocation_confidence }),
+          ...(pageData.source_location && { source_location: pageData.source_location }),
+          ...(pageData.mapped_scraped_page && { mapped_scraped_page: pageData.mapped_scraped_page }),
+        }));
+
+        console.log('🔍 DEBUG: Converted to pages array:', pagesArray.length, 'pages');
+        console.log('🔍 DEBUG: First converted page:', pagesArray[0]);
+
+        actions.setGeneratedScrapedSitemap(pagesArray);
+        console.log('✅ Saved', pagesArray.length, 'generated pages to wizard state');
+        console.log('🔍 DEBUG: Called actions.setGeneratedScrapedSitemap');
+      } else {
+        console.error('❌ sitemapData is missing or invalid:', sitemapData);
+      }
+    } else {
+      console.log('ℹ️ Not on scraped pages (source:', sitemapSource, '), skipping save to wizard state');
+    }
+  };
 
   const headerControls = (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', width: '100%' }}>
@@ -399,7 +462,7 @@ const Step3Structure: React.FC = () => {
             generateSitemap={generateSitemap}
             generateSitemapStatus={generateSitemapStatus}
             generateSitemapData={generateSitemapData}
-            onSitemapGenerated={sitemapActions.handleGeneratedSitemap}
+            onSitemapGenerated={handleSitemapGenerated}
             controls={{ backendSiteType }}
             scrapedContent={{
               domain: state.scrapedContent.domain || 'Unknown',

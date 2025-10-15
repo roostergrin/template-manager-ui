@@ -17,6 +17,7 @@ const Step1Capture: React.FC = () => {
   useEffect(() => {
     const loadLatestScrape = async () => {
       try {
+        console.log('🔄 Auto-loading latest scrape on mount...');
         const response = await api.get<{
           success: boolean;
           metadata?: any;
@@ -26,15 +27,21 @@ const Step1Capture: React.FC = () => {
           };
         }>('/scraped-samples/latest');
 
+        console.log('🔍 Auto-load response:', response);
+
         if (response.success && response.content) {
+          console.log('✅ Latest scrape found, loading into state');
+          console.log('🔍 Scraped content from auto-load:', response.content.scraped_content);
           // Store scraped content in wizard state
           actions.setScrapedContent(response.content.scraped_content);
           // Move to next step to show the content
           actions.nextStep();
+        } else {
+          console.log('⚠️ Response received but no content found');
         }
       } catch (err) {
         // No latest scrape available - stay on capture step
-        console.log('No recent scrape found, starting fresh');
+        console.log('❌ No recent scrape found, starting fresh:', err);
       }
     };
 
@@ -54,16 +61,13 @@ const Step1Capture: React.FC = () => {
         max_pages: data.max_pages,
       };
 
-      const response = await api.post<{
-        metadata: any;
-        scraped_content: ScrapedContent;
-      }>('/scrape-site/', requestData);
+      const response = await api.post<ScrapedContent>('/scrape-site/', requestData);
 
-      // Extract scraped_content from the nested response
-      const scrapedContent = response.scraped_content;
+      // The response IS the scraped content (flat structure)
+      console.log('✅ Scraping complete! Pages scraped:', response.metadata.total_pages);
 
       // Store scraped content in wizard state
-      actions.setScrapedContent(scrapedContent);
+      actions.setScrapedContent(response);
 
       // Move to next step
       actions.nextStep();

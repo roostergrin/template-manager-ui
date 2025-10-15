@@ -47,6 +47,7 @@ interface MigrationWizardState {
   selectedSitemap: { pages: SitemapPage[] } | null;
   allocatedSitemap: AllocatedSitemap | null;
   allocatedPagesSitemap: SitemapSection[] | null;
+  generatedScrapedSitemap: SitemapSection[] | null;
   pageMappings: PageMapping[];
   generatedContent: any | null;
   selectedTemplate: string | null;
@@ -65,6 +66,7 @@ interface MigrationWizardContextType {
     setSelectedSitemap: (sitemap: { pages: SitemapPage[] }) => void;
     setAllocatedSitemap: (sitemap: AllocatedSitemap | null) => void;
     setAllocatedPagesSitemap: (pages: SitemapSection[] | null) => void;
+    setGeneratedScrapedSitemap: (pages: SitemapSection[] | null) => void;
     setPageMappings: (mappings: PageMapping[]) => void;
     setGeneratedContent: (content: any) => void;
     setSelectedTemplate: (template: string) => void;
@@ -83,6 +85,7 @@ const initialState: MigrationWizardState = {
   selectedSitemap: null,
   allocatedSitemap: null,
   allocatedPagesSitemap: null,
+  generatedScrapedSitemap: null,
   pageMappings: [],
   generatedContent: null,
   selectedTemplate: null,
@@ -116,6 +119,10 @@ export const MigrationWizardProvider: React.FC<{ children: ReactNode }> = ({ chi
 
   const setAllocatedPagesSitemap = (pages: SitemapSection[] | null) => {
     setState(prev => ({ ...prev, allocatedPagesSitemap: pages }));
+  };
+
+  const setGeneratedScrapedSitemap = (pages: SitemapSection[] | null) => {
+    setState(prev => ({ ...prev, generatedScrapedSitemap: pages }));
   };
 
   const setPageMappings = (mappings: PageMapping[]) => {
@@ -163,6 +170,7 @@ export const MigrationWizardProvider: React.FC<{ children: ReactNode }> = ({ chi
       setSelectedSitemap,
       setAllocatedSitemap,
       setAllocatedPagesSitemap,
+      setGeneratedScrapedSitemap,
       setPageMappings,
       setGeneratedContent,
       setSelectedTemplate,
