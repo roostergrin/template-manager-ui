@@ -6,7 +6,15 @@ const LOCAL_STORAGE_KEY = 'generatedSitemaps'
 const mapImportedPages = (pagesObj: Record<string, any>): SitemapSection[] => {
   if (!pagesObj || typeof pagesObj !== 'object') return []
   return Object.entries(pagesObj).map(([title, pageData]) => {
-    const { internal_id, page_id, model_query_pairs } = pageData as any
+    const {
+      internal_id,
+      page_id,
+      model_query_pairs,
+      allocated_markdown,
+      allocation_confidence,
+      source_location,
+      mapped_scraped_page
+    } = pageData as any
     return {
       id: internal_id,
       title,
@@ -17,6 +25,11 @@ const mapImportedPages = (pagesObj: Record<string, any>): SitemapSection[] => {
         id: item.internal_id,
         useDefault: Boolean(item.use_default),
       })),
+      // Preserve allocation fields if they exist
+      ...(allocated_markdown && { allocated_markdown }),
+      ...(allocation_confidence !== undefined && { allocation_confidence }),
+      ...(source_location && { source_location }),
+      ...(mapped_scraped_page && { mapped_scraped_page }),
     }
   })
 }
@@ -84,7 +97,7 @@ const useSitemapImport = (siteType?: string) => {
         siteType: siteTypeOverride || siteType,
       }
 
-      // Store in localStorage
+      // Store in localStorage with automatic cleanup
       const prev = localStorage.getItem(LOCAL_STORAGE_KEY)
       let arr: StoredSitemap[] = []
       if (prev) {
@@ -95,6 +108,15 @@ const useSitemapImport = (siteType?: string) => {
         }
       }
       arr.push(stored)
+
+      // Keep only the 20 most recent sitemaps to prevent localStorage from growing too large
+      if (arr.length > 20) {
+        // Sort by creation date (newest first) and keep only the most recent 20
+        arr.sort((a, b) => new Date(b.created).getTime() - new Date(a.created).getTime())
+        arr = arr.slice(0, 20)
+        console.log(`🗑️  Cleaned up old sitemaps, keeping 20 most recent`)
+      }
+
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(arr))
 
       setLastSaved(new Date().toISOString())

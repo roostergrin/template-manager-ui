@@ -5,9 +5,9 @@ import { useSitemap } from '../../contexts/SitemapProvider';
 import { useAppConfig } from '../../contexts/AppConfigProvider';
 import useGenerateContent from '../../hooks/useGenerateContent';
 import { getBackendSiteTypeForModelGroup } from '../../utils/modelGroupKeyToBackendSiteType';
-import './Step3.5Generate.sass';
+import './Step4Generate.sass';
 
-const Step3_5Generate: React.FC = () => {
+const Step4Generate: React.FC = () => {
   const { state, actions } = useMigrationWizard();
   const { state: sitemapState } = useSitemap();
   const { state: appConfigState } = useAppConfig();
@@ -16,10 +16,10 @@ const Step3_5Generate: React.FC = () => {
 
   if (!state.scrapedContent) {
     return (
-      <div className="step-3-5-generate__empty">
-        <p>No scraped content available. Please complete Step 2 first.</p>
-        <button className="btn btn--primary" onClick={() => actions.setCurrentStep('audit')}>
-          Go to Step 2
+      <div className="step-4-generate__empty">
+        <p>No scraped content available. Please complete Step 1 first.</p>
+        <button className="btn btn--primary" onClick={() => actions.setCurrentStep('capture')}>
+          Go to Step 1
         </button>
       </div>
     );
@@ -27,10 +27,10 @@ const Step3_5Generate: React.FC = () => {
 
   if (!sitemapState.pages || sitemapState.pages.length === 0) {
     return (
-      <div className="step-3-5-generate__empty">
-        <p>No sitemap structure available. Please complete Step 3 first.</p>
+      <div className="step-4-generate__empty">
+        <p>No sitemap structure available. Please complete Step 3.5 first.</p>
         <button className="btn btn--primary" onClick={() => actions.setCurrentStep('structure')}>
-          Go to Step 3
+          Go to Step 3.5
         </button>
       </div>
     );
@@ -43,7 +43,28 @@ const Step3_5Generate: React.FC = () => {
 
   const handleGenerate = async () => {
     try {
+      // Check if we have allocated sitemap (with allocated_markdown per page)
+      const useAllocatedSitemap = state.allocatedSitemap && Object.keys(state.allocatedSitemap.pages || {}).length > 0;
+
+      if (useAllocatedSitemap) {
+        console.log('🎯 Using ALLOCATED SITEMAP with per-page markdown content');
+        console.log('📊 Allocated pages:', Object.keys(state.allocatedSitemap.pages).length);
+
+        // Log allocated content details
+        Object.entries(state.allocatedSitemap.pages).forEach(([pageKey, pageData]) => {
+          const markdown = (pageData as any).allocated_markdown;
+          if (markdown) {
+            console.log(`  ✓ ${pageKey}: ${markdown.length} chars allocated`);
+          } else {
+            console.log(`  ✗ ${pageKey}: NO allocated markdown`);
+          }
+        });
+      } else {
+        console.log('📝 Using REGULAR SITEMAP with combined markdown context');
+      }
+
       // Combine global_markdown and all page markdowns into a single context string
+      // (This is only used as fallback if no allocated sitemap)
       const allMarkdown = [
         '# Global Content',
         state.scrapedContent.global_markdown,
@@ -57,7 +78,6 @@ const Step3_5Generate: React.FC = () => {
       console.log('- Global markdown length:', state.scrapedContent.global_markdown.length, 'characters');
       console.log('- Number of pages:', Object.keys(state.scrapedContent.pages).length);
       console.log('- Total combined markdown length:', allMarkdown.length, 'characters');
-      console.log('- First 500 chars of combined markdown:', allMarkdown.substring(0, 500));
 
       // Convert scraped markdown content to questionnaire data format
       // The backend expects questionnaire data, so we put all scraped content in practiceDetails
@@ -84,8 +104,23 @@ const Step3_5Generate: React.FC = () => {
         _scrapedAt: state.scrapedContent.metadata.scraped_at,
       };
 
+      // Use allocated sitemap if available, otherwise regular sitemap
+      const pagesForGeneration = useAllocatedSitemap
+        ? Object.entries(state.allocatedSitemap.pages).map(([pageKey, pageData]) => ({
+            title: pageData.title,
+            path: pageData.page_id || pageKey,
+            items: pageData.model_query_pairs?.map((pair: any) => ({
+              model: pair.model,
+              query: pair.query,
+              id: pair.id || pair.internal_id,
+              useDefault: pair.useDefault || pair.use_default || false
+            })) || []
+          }))
+        : sitemapState.pages;
+
       console.log('📦 Request payload:', {
-        sitemap_pages_count: sitemapState.pages.length,
+        sitemap_pages_count: pagesForGeneration.length,
+        using_allocated_sitemap: useAllocatedSitemap,
         questionnaire_practiceDetails_length: questionnaireDataFromScrape.practiceDetails.length,
         site_type: backendSiteType,
         assign_images: true,
@@ -93,7 +128,7 @@ const Step3_5Generate: React.FC = () => {
 
       const result = await generateContentMutation({
         sitemap_data: {
-          pages: sitemapState.pages,
+          pages: useAllocatedSitemap ? state.allocatedSitemap.pages : sitemapState.pages,
           questionnaireData: questionnaireDataFromScrape as any,
         },
         site_type: backendSiteType,
@@ -131,10 +166,10 @@ const Step3_5Generate: React.FC = () => {
   const totalScrapedChars = globalMarkdownLength + Object.values(state.scrapedContent.pages).reduce((sum, md) => sum + md.length, 0);
 
   return (
-    <div className="step-3-5-generate">
-      <div className="step-3-5-generate__summary">
+    <div className="step-4-generate">
+      <div className="step-4-generate__summary">
         <h3>Ready to Generate Content</h3>
-        <div className="step-3-5-generate__info">
+        <div className="step-4-generate__info">
           <div className="info-badge">
             <span className="info-badge__label">Domain:</span>
             <span className="info-badge__value">{state.scrapedContent.domain}</span>
@@ -152,14 +187,14 @@ const Step3_5Generate: React.FC = () => {
             <span className="info-badge__value">{sitemapState.pages.length}</span>
           </div>
         </div>
-        <div className="step-3-5-generate__context-info">
+        <div className="step-4-generate__context-info">
           <p>
             📝 Using scraped content as context: <strong>{totalScrapedChars.toLocaleString()}</strong> characters from <strong>{pagesCount + 1}</strong> sources (global + {pagesCount} pages)
           </p>
         </div>
       </div>
 
-      <div className="step-3-5-generate__actions">
+      <div className="step-4-generate__actions">
         {!hasGenerated && (
           <button
             className="btn btn--primary btn--large"
@@ -180,7 +215,7 @@ const Step3_5Generate: React.FC = () => {
         )}
 
         {hasGenerated && (
-          <div className="step-3-5-generate__success">
+          <div className="step-4-generate__success">
             <div className="success-message">
               <CheckCircle size={24} className="success-icon" />
               <p>Content generated successfully!</p>
@@ -210,7 +245,7 @@ const Step3_5Generate: React.FC = () => {
       </div>
 
       {isGenerating && (
-        <div className="step-3-5-generate__progress">
+        <div className="step-4-generate__progress">
           <Loader2 className="progress-spinner spinning" size={48} />
           <p>Generating content from your scraped data and sitemap structure...</p>
           <p className="progress-note">This may take a minute or two.</p>
@@ -218,7 +253,7 @@ const Step3_5Generate: React.FC = () => {
       )}
 
       {hasGenerated && generateContentData && (
-        <div className="step-3-5-generate__preview">
+        <div className="step-4-generate__preview">
           <h4>Generated Content Preview</h4>
           <textarea
             className="content-preview"
@@ -232,4 +267,4 @@ const Step3_5Generate: React.FC = () => {
   );
 };
 
-export default Step3_5Generate;
+export default Step4Generate;

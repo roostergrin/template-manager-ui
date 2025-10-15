@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { FileText, Image as ImageIcon } from 'lucide-react';
 import { SitemapSection, SitemapItem } from '../../types/SitemapTypes';
 import { useSitemap } from '../../contexts/SitemapProvider';
 import { useAppConfig } from '../../contexts/AppConfigProvider';
@@ -175,6 +176,7 @@ const PageListTOCItem: React.FC<PageListTOCItemProps> = ({ page, index }) => {
   const { state: appConfigState } = useAppConfig();
   const [expandedSectionId, setExpandedSectionId] = useState<string | null>(null);
   const [isPageExpanded, setIsPageExpanded] = useState<boolean>(true);
+  const [isMarkdownExpanded, setIsMarkdownExpanded] = useState<boolean>(false);
 
   const selectedModelGroupKey = appConfigState.selectedModelGroupKey || Object.keys(appConfigState.modelGroups)[0];
   const currentModels = appConfigState.modelGroups[selectedModelGroupKey]?.models || [];
@@ -191,6 +193,10 @@ const PageListTOCItem: React.FC<PageListTOCItemProps> = ({ page, index }) => {
 
   const togglePageExpanded = () => {
     setIsPageExpanded(!isPageExpanded);
+  };
+
+  const toggleMarkdownExpanded = () => {
+    setIsMarkdownExpanded(!isMarkdownExpanded);
   };
 
   const handleUpdateItem = (itemId: string, updates: Partial<SitemapItem>) => {
@@ -236,6 +242,33 @@ const PageListTOCItem: React.FC<PageListTOCItemProps> = ({ page, index }) => {
 
   const itemIds = page.items.map(item => item.id);
 
+  // Helper functions for markdown stats
+  const countWords = (markdown?: string): number => {
+    if (!markdown) return 0;
+    let text = markdown.replace(/!\[.*?\]\(.*?\)/g, '');
+    text = text.replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1');
+    text = text.replace(/[#*`_~]/g, '');
+    const words = text.split(/\s+/).filter(w => w.length > 0);
+    return words.length;
+  };
+
+  const countImages = (markdown?: string): number => {
+    if (!markdown) return 0;
+    const imagePattern = /!\[.*?\]\(.*?\)/g;
+    return (markdown.match(imagePattern) || []).length;
+  };
+
+  const getConfidenceColor = (confidence?: number): string => {
+    if (!confidence) return 'gray';
+    if (confidence >= 0.8) return 'green';
+    if (confidence >= 0.6) return 'orange';
+    return 'red';
+  };
+
+  const hasAllocatedContent = !!page.allocated_markdown;
+  const wordCount = countWords(page.allocated_markdown);
+  const imageCount = countImages(page.allocated_markdown);
+
   return (
     <div ref={setNodeRef} style={style} className="page-list-toc__item">
       <div className="page-list-toc__row page-list-toc__row--header">
@@ -267,8 +300,31 @@ const PageListTOCItem: React.FC<PageListTOCItemProps> = ({ page, index }) => {
             aria-label="Page Title"
           />
         </div>
-        <div className="page-list-toc__col page-list-toc__col--type">
-          {/* Empty for header alignment */}
+        <div
+          className={`page-list-toc__col page-list-toc__col--allocated-group ${hasAllocatedContent ? 'page-list-toc__col--clickable' : ''}`}
+          onClick={hasAllocatedContent ? toggleMarkdownExpanded : undefined}
+        >
+          {hasAllocatedContent && (
+            <div className="page-list-toc__allocated-group-inner">
+              <button
+                className="page-list-toc__markdown-toggle"
+                aria-label={isMarkdownExpanded ? 'Collapse markdown' : 'Expand markdown'}
+              >
+                {isMarkdownExpanded ? '▼' : '▶'}
+              </button>
+              <span className="page-list-toc__allocated-source">
+                {page.source_location}
+              </span>
+              <span className="page-list-toc__allocated-stat">
+                <FileText size={14} />
+                {wordCount.toLocaleString()}
+              </span>
+              <span className="page-list-toc__allocated-stat">
+                <ImageIcon size={14} />
+                {imageCount}
+              </span>
+            </div>
+          )}
         </div>
         <div className="page-list-toc__col page-list-toc__col--actions">
           <span className="page-list-toc__count">{page.items.length}</span>
@@ -291,6 +347,27 @@ const PageListTOCItem: React.FC<PageListTOCItemProps> = ({ page, index }) => {
           </button>
         </div>
       </div>
+
+      {isMarkdownExpanded && hasAllocatedContent && (
+        <div className="page-list-toc__allocated-content">
+          <div className="page-list-toc__markdown-preview">
+            <pre style={{
+              whiteSpace: 'pre-wrap',
+              wordWrap: 'break-word',
+              fontFamily: 'monospace',
+              fontSize: '0.875rem',
+              margin: 0,
+              padding: '1rem',
+              background: '#f8fafc',
+              borderRadius: '4px',
+              maxHeight: '400px',
+              overflow: 'auto'
+            }}>
+              {page.allocated_markdown}
+            </pre>
+          </div>
+        </div>
+      )}
 
       {isPageExpanded && (
         <div className="page-list-toc__sections">

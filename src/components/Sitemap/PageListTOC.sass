@@ -4,9 +4,36 @@
   margin-bottom: 1px
   border-bottom: 1px solid #f1f5f9
 
+// Allocated content section
+.page-list-toc__allocated-content
+  border-top: 1px solid #e2e8f0
+  background: #fafbfc
+
+.page-list-toc__allocated-header
+  display: flex
+  align-items: center
+  padding: 0.75rem 1rem
+  cursor: pointer
+  transition: background-color 0.15s ease
+
+  &:hover
+    background: #f1f5f9
+
+.page-list-toc__allocated-toggle
+  margin-right: 0.5rem
+  font-size: 0.85rem
+  color: #64748b
+
+.page-list-toc__allocated-label
+  font-weight: 500
+  font-size: 0.95rem
+  color: #334155
+
+.page-list-toc__markdown-preview
+  padding: 0 1rem 1rem 1rem
+
 .page-list-toc__row
   display: grid
-  grid-template-columns: 60px 1fr 140px 80px
   align-items: flex-start
   gap: 8px
   padding: 6px 12px
@@ -16,10 +43,12 @@
     background: #f8fafc
 
   &--header
+    grid-template-columns: 42px 1fr 1fr 80px
     font-weight: 600
     align-items: center
 
   &--section
+    grid-template-columns: 60px 1fr 140px 80px
     padding-left: 36px
 
 // Column definitions
@@ -45,6 +74,38 @@
     gap: 6px
     justify-content: flex-end
 
+  &--source
+    justify-content: flex-start
+
+  &--words
+    justify-content: center
+
+  &--images
+    justify-content: center
+
+  &--confidence
+    justify-content: center
+
+  &--allocated-group
+    justify-content: flex-start
+    min-width: 0
+
+  &--clickable
+    cursor: pointer
+    transition: background-color 0.15s ease
+    border-radius: 4px
+    padding: 4px 6px
+    margin: -4px -6px
+
+    &:hover
+      background: #f1f5f9
+
+.page-list-toc__allocated-group-inner
+  display: flex
+  align-items: center
+  gap: 0.75rem
+  width: 100%
+
 // Controls column elements
 .page-list-toc__chevron
   cursor: pointer
@@ -58,6 +119,23 @@
   text-align: center
   transition: color 0.15s ease
   flex-shrink: 0
+
+  &:hover
+    color: #64748b
+
+.page-list-toc__markdown-toggle
+  cursor: pointer
+  background: transparent
+  border: none
+  font-size: 9px
+  color: #94a3b8
+  padding: 2px
+  line-height: 1
+  width: 16px
+  text-align: center
+  transition: color 0.15s ease
+  flex-shrink: 0
+  margin-right: 4px
 
   &:hover
     color: #64748b
@@ -333,7 +411,7 @@
 .page-list-toc__add-section
   display: block
   padding: 8px 12px
-  padding-left: 92px
+  padding-left: 108px
   margin: 0
   background: transparent
   border: none
@@ -346,10 +424,12 @@
   transition: all 0.15s ease
   width: 100%
   text-align: left
+  opacity: 0.3
 
   &:hover
     background: #f8fafc
     color: #64748b
+    opacity: 1
 
 // Add page button
 .page-list-toc__add-page
@@ -367,10 +447,58 @@
   transition: all 0.15s ease
   width: 100%
   text-align: left
+  opacity: 0.3
 
   &:hover
     background: #f8fafc
     color: #64748b
+    opacity: 1
 
 .page-list-toc__sections
   // No extra padding needed with grid layout
+
+// Allocated stats section
+.page-list-toc__allocated-stats
+  display: flex
+  align-items: center
+  gap: 0.75rem
+  font-size: 0.85rem
+  color: #6b7280
+
+.page-list-toc__allocated-source
+  font-weight: 500
+  color: #374151
+  font-size: 0.85rem
+
+.page-list-toc__allocated-stat
+  display: flex
+  align-items: center
+  gap: 0.25rem
+  color: #6b7280
+  font-size: 0.85rem
+
+.page-list-toc__confidence-badge
+  display: inline-flex
+  align-items: center
+  gap: 0.25rem
+  padding: 0.25rem 0.5rem
+  border-radius: 9999px
+  font-size: 0.7rem
+  font-weight: 600
+  border-width: 1px
+  border-style: solid
+
+  &--green
+    background-color: #d1fae5
+    color: #065f46
+    border-color: #a7f3d0
+
+  &--orange
+    background-color: #fed7aa
+    color: #92400e
+    border-color: #fcd34d
+
+  &--red
+    background-color: #fee2e2
+    color: #991b1b
+    border-color: #fecaca

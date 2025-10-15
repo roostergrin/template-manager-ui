@@ -1,0 +1,348 @@
+.content-allocation-viewer
+  // No padding here - parent step handles spacing
+  background: transparent
+
+  .allocation-info-banner
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)
+    padding: 1.5rem
+    border-radius: 8px
+    margin-bottom: 1.5rem
+    display: flex
+    gap: 1rem
+    align-items: flex-start
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1)
+
+    .info-icon
+      font-size: 2rem
+      flex-shrink: 0
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))
+
+    .info-content
+      color: white
+
+      strong
+        display: block
+        font-size: 1.125rem
+        margin-bottom: 0.5rem
+        font-weight: 600
+
+      p
+        margin: 0
+        font-size: 0.938rem
+        line-height: 1.6
+        opacity: 0.95
+
+        strong
+          display: inline
+          font-weight: 700
+          background: rgba(255, 255, 255, 0.2)
+          padding: 0.125rem 0.375rem
+          border-radius: 3px
+
+  .allocation-summary
+    background: white
+    padding: 1.5rem
+    border-radius: 8px
+    margin-bottom: 1.5rem
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1)
+
+    h3
+      margin: 0 0 1rem 0
+      font-size: 1.25rem
+      color: #1f2937
+
+    .summary-stats
+      display: grid
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr))
+      gap: 1rem
+
+      .stat
+        display: flex
+        flex-direction: column
+        gap: 0.25rem
+
+        .stat-label
+          font-size: 0.875rem
+          color: #6b7280
+          font-weight: 500
+
+        .stat-value
+          font-size: 1.125rem
+          font-weight: 600
+          color: #111827
+
+          &.success
+            color: #10b981
+
+          &.error
+            color: #ef4444
+
+          &.confidence-green
+            color: #10b981
+
+          &.confidence-yellow
+            color: #f59e0b
+
+          &.confidence-red
+            color: #ef4444
+
+          &.confidence-gray
+            color: #6b7280
+
+  .pages-list
+    h3
+      margin: 0 0 1rem 0
+      font-size: 1.125rem
+      color: #1f2937
+
+    .empty-state
+      background: white
+      padding: 3rem
+      border-radius: 8px
+      text-align: center
+      color: #6b7280
+
+      svg
+        color: #9ca3af
+        margin-bottom: 1rem
+
+      p
+        margin: 0
+        font-size: 1rem
+
+  .page-item
+    background: white
+    border-radius: 8px
+    margin-bottom: 0.75rem
+    overflow: hidden
+    transition: all 0.2s ease
+    border: 1px solid #e5e7eb
+
+    &:hover
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08)
+
+    &.expanded
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1)
+
+    .page-header
+      padding: 1rem 1.5rem
+      cursor: pointer
+      display: flex
+      justify-content: space-between
+      align-items: center
+      user-select: none
+
+      &:hover
+        background: #f9fafb
+
+      .page-info
+        display: flex
+        align-items: center
+        gap: 0.75rem
+
+        .expand-icon
+          display: flex
+          align-items: center
+          color: #6b7280
+
+        .page-title
+          font-weight: 600
+          color: #111827
+          font-size: 1rem
+
+        .confidence-badge
+          padding: 0.25rem 0.75rem
+          border-radius: 9999px
+          font-size: 0.75rem
+          font-weight: 600
+
+          &.confidence-green
+            background: #d1fae5
+            color: #065f46
+
+          &.confidence-yellow
+            background: #fef3c7
+            color: #92400e
+
+          &.confidence-red
+            background: #fee2e2
+            color: #991b1b
+
+          &.confidence-gray
+            background: #f3f4f6
+            color: #4b5563
+
+          &.no-content
+            background: #f3f4f6
+            color: #6b7280
+
+      .page-stats
+        display: flex
+        gap: 1rem
+        flex-wrap: wrap
+
+        .stat-badge
+          display: flex
+          align-items: center
+          gap: 0.375rem
+          font-size: 0.875rem
+          color: #6b7280
+          padding: 0.375rem 0.75rem
+          background: #f3f4f6
+          border-radius: 6px
+
+          svg
+            flex-shrink: 0
+
+          &.mapped-from
+            background: #eff6ff
+            color: #1e40af
+            font-weight: 500
+
+    .page-content
+      padding: 1.5rem
+      border-top: 1px solid #e5e7eb
+      background: #f9fafb
+
+      .content-source
+        margin-bottom: 1rem
+        padding: 0.75rem
+        background: #eff6ff
+        border-left: 3px solid #3b82f6
+        border-radius: 4px
+        font-size: 0.875rem
+        color: #1e40af
+
+        strong
+          font-weight: 600
+
+      .allocated-content
+        margin-bottom: 1.5rem
+
+        h4
+          margin: 0 0 0.75rem 0
+          font-size: 1rem
+          color: #111827
+
+        .markdown-preview
+          background: white
+          border: 1px solid #e5e7eb
+          border-radius: 6px
+          padding: 1rem
+          max-height: 400px
+          overflow-y: auto
+
+          pre
+            margin: 0
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace
+            font-size: 0.813rem
+            line-height: 1.6
+            color: #374151
+            white-space: pre-wrap
+            word-wrap: break-word
+
+      .no-content-message
+        display: flex
+        flex-direction: column
+        align-items: center
+        gap: 0.75rem
+        padding: 2rem
+        background: white
+        border-radius: 6px
+        color: #6b7280
+
+        svg
+          color: #9ca3af
+
+        p
+          margin: 0
+          font-size: 0.938rem
+
+      .sections-list
+        h4
+          margin: 0 0 0.75rem 0
+          font-size: 1rem
+          color: #111827
+
+        ul
+          margin: 0
+          padding-left: 1.5rem
+          list-style-type: none
+
+          li
+            padding: 0.5rem 0
+            border-bottom: 1px solid #e5e7eb
+            font-size: 0.875rem
+            color: #374151
+
+            &:last-child
+              border-bottom: none
+
+            strong
+              color: #1f2937
+              font-weight: 600
+
+  .unmapped-section
+    background: white
+    padding: 1.5rem
+    border-radius: 8px
+    margin-top: 1.5rem
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1)
+
+    h3
+      margin: 0 0 0.5rem 0
+      font-size: 1.125rem
+      color: #1f2937
+
+    .unmapped-description
+      margin: 0 0 1rem 0
+      font-size: 0.875rem
+      color: #6b7280
+      line-height: 1.5
+
+    .unmapped-list
+      display: flex
+      flex-direction: column
+      gap: 0.5rem
+
+      .unmapped-item
+        display: flex
+        align-items: center
+        gap: 0.75rem
+        padding: 0.75rem 1rem
+        border-radius: 6px
+        font-size: 0.875rem
+
+        &.warning
+          background: #fef3c7
+          border: 1px solid #fbbf24
+
+          svg
+            color: #92400e
+            flex-shrink: 0
+
+          span:first-of-type
+            font-weight: 600
+            color: #78350f
+
+          .unmapped-note
+            margin-left: auto
+            color: #92400e
+            font-size: 0.813rem
+
+        &.info
+          background: #eff6ff
+          border: 1px solid #93c5fd
+
+          svg
+            color: #1e40af
+            flex-shrink: 0
+
+          span:first-of-type
+            font-weight: 600
+            color: #1e3a8a
+
+          .unmapped-note
+            margin-left: auto
+            color: #1e40af
+            font-size: 0.813rem

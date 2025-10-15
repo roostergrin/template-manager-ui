@@ -1,25 +1,52 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { ScrapedContent } from '../components/ScrapedContentViewer/ScrapedContentViewer';
+import { SitemapSection } from '../types/SitemapTypes';
 
-type WizardStep = 'capture' | 'audit' | 'structure' | 'generate' | 'customize' | 'launch';
+type WizardStep = 'capture' | 'audit' | 'template' | 'structure' | 'allocate' | 'generate' | 'customize' | 'launch';
 
-interface SitemapPage {
+export interface SitemapPage {
   title: string;
   path: string;
   component: string;
   items?: string[];
 }
 
-interface PageMapping {
+export interface PageMapping {
   sitemapPagePath: string;
   scrapedPageKey: string | null;
   confidence?: number;
+}
+
+export interface AllocatedSitemap {
+  pages: Record<string, {
+    page_id: string;
+    title: string;
+    allocated_markdown?: string;
+    source_location?: string;
+    allocation_confidence?: number;
+    mapped_scraped_page?: string;
+    model_query_pairs: any[];
+  }>;
+  allocation_summary?: {
+    total_pages: number;
+    allocated_pages: number;
+    failed_pages: number;
+    allocation_rate: number;
+    average_confidence: number;
+    total_content_length: number;
+    total_images: number;
+    unmapped_sitemap_pages?: string[];
+    unmapped_scraped_pages?: string[];
+    mapping_strategy?: string;
+  };
 }
 
 interface MigrationWizardState {
   currentStep: WizardStep;
   scrapedContent: ScrapedContent | null;
   selectedSitemap: { pages: SitemapPage[] } | null;
+  allocatedSitemap: AllocatedSitemap | null;
+  allocatedPagesSitemap: SitemapSection[] | null;
   pageMappings: PageMapping[];
   generatedContent: any | null;
   selectedTemplate: string | null;
@@ -36,6 +63,8 @@ interface MigrationWizardContextType {
     setCurrentStep: (step: WizardStep) => void;
     setScrapedContent: (content: ScrapedContent) => void;
     setSelectedSitemap: (sitemap: { pages: SitemapPage[] }) => void;
+    setAllocatedSitemap: (sitemap: AllocatedSitemap | null) => void;
+    setAllocatedPagesSitemap: (pages: SitemapSection[] | null) => void;
     setPageMappings: (mappings: PageMapping[]) => void;
     setGeneratedContent: (content: any) => void;
     setSelectedTemplate: (template: string) => void;
@@ -52,6 +81,8 @@ const initialState: MigrationWizardState = {
   currentStep: 'capture',
   scrapedContent: null,
   selectedSitemap: null,
+  allocatedSitemap: null,
+  allocatedPagesSitemap: null,
   pageMappings: [],
   generatedContent: null,
   selectedTemplate: null,
@@ -62,7 +93,7 @@ const initialState: MigrationWizardState = {
   },
 };
 
-const stepOrder: WizardStep[] = ['capture', 'audit', 'structure', 'generate', 'customize', 'launch'];
+const stepOrder: WizardStep[] = ['capture', 'audit', 'template', 'structure', 'generate', 'customize', 'launch'];
 
 export const MigrationWizardProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [state, setState] = useState<MigrationWizardState>(initialState);
@@ -77,6 +108,14 @@ export const MigrationWizardProvider: React.FC<{ children: ReactNode }> = ({ chi
 
   const setSelectedSitemap = (sitemap: { pages: SitemapPage[] }) => {
     setState(prev => ({ ...prev, selectedSitemap: sitemap }));
+  };
+
+  const setAllocatedSitemap = (sitemap: AllocatedSitemap | null) => {
+    setState(prev => ({ ...prev, allocatedSitemap: sitemap }));
+  };
+
+  const setAllocatedPagesSitemap = (pages: SitemapSection[] | null) => {
+    setState(prev => ({ ...prev, allocatedPagesSitemap: pages }));
   };
 
   const setPageMappings = (mappings: PageMapping[]) => {
@@ -122,6 +161,8 @@ export const MigrationWizardProvider: React.FC<{ children: ReactNode }> = ({ chi
       setCurrentStep,
       setScrapedContent,
       setSelectedSitemap,
+      setAllocatedSitemap,
+      setAllocatedPagesSitemap,
       setPageMappings,
       setGeneratedContent,
       setSelectedTemplate,

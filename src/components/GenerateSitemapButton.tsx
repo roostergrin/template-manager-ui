@@ -23,6 +23,9 @@ export type GenerateSitemapButtonProps = {
   onSitemapGenerated: (sitemapData: unknown, siteType?: string) => void;
   controls: ControlsProps;
   scrapedContent?: ScrapedContentInfo;
+  fullScrapedContent?: any; // Full scraped content object for the new endpoint
+  allocatedSitemap?: any; // Existing sitemap with allocated markdown
+  currentSitemapPages?: any[]; // Current sitemap pages (may have allocated markdown from import)
 };
 
 const GenerateSitemapButton: React.FC<GenerateSitemapButtonProps> = ({
@@ -33,6 +36,9 @@ const GenerateSitemapButton: React.FC<GenerateSitemapButtonProps> = ({
   onSitemapGenerated,
   controls,
   scrapedContent,
+  fullScrapedContent,
+  allocatedSitemap,
+  currentSitemapPages,
 }) => {
   const { backendSiteType } = controls;
   const hasProcessedCurrentSuccessRef = useRef<boolean>(false);
@@ -48,6 +54,10 @@ const GenerateSitemapButton: React.FC<GenerateSitemapButtonProps> = ({
     ) {
       // Mark as processed to prevent duplicate calls
       hasProcessedCurrentSuccessRef.current = true;
+
+      console.log('✅ Sitemap generated successfully, calling onSitemapGenerated');
+      console.log('📋 Generated sitemap has', Object.keys((generateSitemapData.sitemap_data as any).pages).length, 'pages');
+
       onSitemapGenerated(generateSitemapData.sitemap_data as unknown, backendSiteType);
 
       // Show success dialog
@@ -65,12 +75,50 @@ const GenerateSitemapButton: React.FC<GenerateSitemapButtonProps> = ({
   }, [generateSitemapStatus, generateSitemapData, backendSiteType]); // Removed onSitemapGenerated from dependencies
 
   const handleClick = useCallback(() => {
+    console.log('🔍 DEBUG: allocatedSitemap:', allocatedSitemap);
+    console.log('🔍 DEBUG: currentSitemapPages:', currentSitemapPages);
+
+    // Build sitemap to send to backend
+    let sitemapToSend = allocatedSitemap;
+
+    // If no allocatedSitemap, build one from currentSitemapPages
+    if (!sitemapToSend && currentSitemapPages && currentSitemapPages.length > 0) {
+      console.log('📋 Building sitemap from current pages');
+
+      // Convert pages array to pages object keyed by title
+      const pagesObject: Record<string, any> = {};
+      currentSitemapPages.forEach((page) => {
+        const pageTitle = page.title || 'Untitled';
+        pagesObject[pageTitle] = {
+          internal_id: page.id || `page-${pageTitle.toLowerCase().replace(/\s+/g, '-')}`,
+          page_id: page.id || pageTitle,
+          model_query_pairs: page.sections || [],
+          // Include allocated markdown if it exists
+          ...(page.allocated_markdown && { allocated_markdown: page.allocated_markdown }),
+          ...(page.allocation_confidence && { allocation_confidence: page.allocation_confidence }),
+          ...(page.source_location && { source_location: page.source_location }),
+          ...(page.mapped_scraped_page && { mapped_scraped_page: page.mapped_scraped_page }),
+        };
+      });
+
+      sitemapToSend = {
+        pages: pagesObject,
+        modelGroups: [],
+        siteType: backendSiteType,
+        questionnaireData: questionnaireData || {},
+      };
+
+      console.log('✅ Built sitemap with', Object.keys(pagesObject).length, 'pages');
+    }
+
+    console.log('🚀 Sending sitemap to backend:', sitemapToSend);
+
     generateSitemap({
-      questionnaire: questionnaireData,
+      scraped_content: fullScrapedContent,
       site_type: backendSiteType,
-      use_page_json: true,
-    });
-  }, [questionnaireData, backendSiteType, generateSitemap]);
+      sitemap: sitemapToSend, // Use allocated sitemap or build from current pages
+    } as any);
+  }, [fullScrapedContent, backendSiteType, allocatedSitemap, currentSitemapPages, questionnaireData, generateSitemap]);
 
   const pagesCount = generateSitemapData?.sitemap_data
     ? Object.keys((generateSitemapData.sitemap_data as any).pages || {}).length
