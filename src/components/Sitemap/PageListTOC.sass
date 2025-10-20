@@ -43,7 +43,7 @@
     background: #f8fafc
 
   &--header
-    grid-template-columns: 42px 1fr 1fr 80px
+    grid-template-columns: 42px 1fr 1fr 130px
     font-weight: 600
     align-items: center
 
@@ -502,3 +502,87 @@
     background-color: #fee2e2
     color: #991b1b
     border-color: #fecaca
+
+// Use Template button
+.page-list-toc__use-template
+  background: transparent
+  border: none
+  color: #cbd5e1
+  cursor: pointer
+  padding: 4px
+  line-height: 1
+  border-radius: 3px
+  transition: all 0.15s ease
+  opacity: 0
+  display: flex
+  align-items: center
+  justify-content: center
+
+  .page-list-toc__row:hover &
+    opacity: 1
+
+  &:hover
+    color: #8b5cf6
+    background: #f5f3ff
+
+// Generate Page button
+.page-list-toc__generate-page
+  background: transparent
+  border: none
+  color: #cbd5e1
+  cursor: pointer
+  padding: 4px
+  line-height: 1
+  border-radius: 3px
+  transition: all 0.15s ease
+  opacity: 0
+  display: flex
+  align-items: center
+  justify-content: center
+
+  .page-list-toc__row:hover &
+    opacity: 1
+
+  &:hover:not(:disabled)
+    color: #f59e0b
+    background: #fffbeb
+
+  &:disabled
+    cursor: not-allowed
+    opacity: 0.5
+
+// Error message
+.page-list-toc__error-message
+  display: flex
+  align-items: center
+  gap: 0.5rem
+  padding: 0.75rem 1rem
+  background: #fee2e2
+  border: 1px solid #fecaca
+  border-radius: 4px
+  color: #991b1b
+  font-size: 0.875rem
+  margin: 0.5rem 0
+
+.page-list-toc__error-icon
+  flex-shrink: 0
+  font-size: 1rem
+
+.page-list-toc__error-close
+  margin-left: auto
+  background: transparent
+  border: none
+  color: #991b1b
+  font-size: 1.25rem
+  cursor: pointer
+  padding: 0
+  width: 1.5rem
+  height: 1.5rem
+  display: flex
+  align-items: center
+  justify-content: center
+  border-radius: 3px
+  transition: background-color 0.15s ease
+
+  &:hover
+    background: #fecaca

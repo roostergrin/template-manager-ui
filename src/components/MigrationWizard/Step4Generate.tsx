@@ -44,15 +44,28 @@ const Step4Generate: React.FC = () => {
   const handleGenerate = async () => {
     try {
       // Check if we have allocated sitemap (with allocated_markdown per page)
-      const useAllocatedSitemap = state.allocatedSitemap && Object.keys(state.allocatedSitemap.pages || {}).length > 0;
+      // Priority: Use sitemap state (current) if it has allocated data, otherwise fall back to cached allocated sitemap
+      const hasAllocatedDataInSitemap = Array.isArray(sitemapState.pages)
+        ? sitemapState.pages.some((page: any) => page.allocated_markdown)
+        : Object.values(sitemapState.pages).some((page: any) => page.allocated_markdown);
+
+      const useAllocatedSitemap = hasAllocatedDataInSitemap ||
+        (state.allocatedSitemap && Object.keys(state.allocatedSitemap.pages || {}).length > 0);
 
       if (useAllocatedSitemap) {
         console.log('🎯 Using ALLOCATED SITEMAP with per-page markdown content');
-        console.log('📊 Allocated pages:', Object.keys(state.allocatedSitemap.pages).length);
+        console.log(`📊 Source: ${hasAllocatedDataInSitemap ? 'sitemapState (current)' : 'state.allocatedSitemap (cached)'}`);
+
+        // Log from whichever source we're using
+        const sourcePages = hasAllocatedDataInSitemap ? sitemapState.pages : state.allocatedSitemap.pages;
+        const pagesArray = Array.isArray(sourcePages) ? sourcePages : Object.entries(sourcePages).map(([key, page]) => page);
+
+        console.log('📊 Total pages:', pagesArray.length);
 
         // Log allocated content details
-        Object.entries(state.allocatedSitemap.pages).forEach(([pageKey, pageData]) => {
-          const markdown = (pageData as any).allocated_markdown;
+        pagesArray.forEach((pageData: any) => {
+          const markdown = pageData.allocated_markdown;
+          const pageKey = pageData.title || pageData.id || 'unknown';
           if (markdown) {
             console.log(`  ✓ ${pageKey}: ${markdown.length} chars allocated`);
           } else {
@@ -104,31 +117,63 @@ const Step4Generate: React.FC = () => {
         _scrapedAt: state.scrapedContent.metadata.scraped_at,
       };
 
-      // Use allocated sitemap if available, otherwise regular sitemap
-      const pagesForGeneration = useAllocatedSitemap
-        ? Object.entries(state.allocatedSitemap.pages).map(([pageKey, pageData]) => ({
-            title: pageData.title,
-            path: pageData.page_id || pageKey,
-            items: pageData.model_query_pairs?.map((pair: any) => ({
-              model: pair.model,
-              query: pair.query,
-              id: pair.id || pair.internal_id,
-              useDefault: pair.useDefault || pair.use_default || false
-            })) || []
-          }))
-        : sitemapState.pages;
+      // Prepare pages data to send to backend
+      // Use sitemapState as primary source (it's the current state), fall back to cached allocated sitemap
+      const pagesToSend = hasAllocatedDataInSitemap
+        ? sitemapState.pages
+        : (state.allocatedSitemap?.pages || sitemapState.pages);
 
+      // Log detailed information about what we're sending
+      const pagesCount = Array.isArray(pagesToSend) ? pagesToSend.length : Object.keys(pagesToSend).length;
       console.log('📦 Request payload:', {
-        sitemap_pages_count: pagesForGeneration.length,
+        sitemap_pages_count: pagesCount,
         using_allocated_sitemap: useAllocatedSitemap,
+        data_source: hasAllocatedDataInSitemap ? 'sitemapState' : 'allocatedSitemap',
         questionnaire_practiceDetails_length: questionnaireDataFromScrape.practiceDetails.length,
         site_type: backendSiteType,
         assign_images: true,
       });
 
+      // Validation: Ensure we're sending what we expect
+      if (useAllocatedSitemap) {
+        const pagesArray = Array.isArray(pagesToSend) ? pagesToSend : Object.values(pagesToSend);
+        const pagesWithAllocated = pagesArray.filter((p: any) => p.allocated_markdown);
+
+        if (pagesWithAllocated.length === 0) {
+          console.error('⚠️ WARNING: Expected allocated sitemap but no pages have allocated_markdown!');
+          console.error('This suggests a state management issue. Check if Step 3.5 properly saved allocated data.');
+          console.error('Current sitemap state:', sitemapState.pages);
+          console.error('Migration wizard allocated sitemap:', state.allocatedSitemap);
+        } else {
+          console.log(`✅ Validation passed: ${pagesWithAllocated.length}/${pagesArray.length} pages have allocated_markdown`);
+        }
+
+        // Log sample page data to verify allocated_markdown is present
+        const samplePage = pagesArray[0];
+        if (samplePage) {
+          console.log('📋 Sample page data being sent:', {
+            title: samplePage.title,
+            hasAllocatedMarkdown: !!samplePage.allocated_markdown,
+            allocatedMarkdownLength: samplePage.allocated_markdown?.length || 0,
+            hasSourceLocation: !!samplePage.source_location,
+            hasAllocationConfidence: !!samplePage.allocation_confidence,
+            modelQueryPairsCount: samplePage.model_query_pairs?.length || 0,
+          });
+
+          // Log the actual queries being sent
+          if (samplePage.model_query_pairs) {
+            console.log('📋 First 3 model_query_pairs being sent:');
+            samplePage.model_query_pairs.slice(0, 3).forEach((pair: any, idx: number) => {
+              console.log(`  ${idx + 1}. ${pair.model}: "${pair.query}"`);
+            });
+          }
+        }
+
+      }
+
       const result = await generateContentMutation({
         sitemap_data: {
-          pages: useAllocatedSitemap ? state.allocatedSitemap.pages : sitemapState.pages,
+          pages: pagesToSend,
           questionnaireData: questionnaireDataFromScrape as any,
         },
         site_type: backendSiteType,

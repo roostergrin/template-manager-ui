@@ -28,6 +28,7 @@ const Step3Structure: React.FC = () => {
   const [sitemapSource, setSitemapSource] = useState<SitemapSource>('default');
   const [extractedSitemap, setExtractedSitemap] = useState<any>(null);
   const hasSavedAllocationRef = useRef(false);
+  const hasRestoredSourceRef = useRef(false);
 
   const selectedModelGroupKey = appConfigState.selectedModelGroupKey || Object.keys(appConfigState.modelGroups)[0];
   const backendSiteType = getBackendSiteTypeForModelGroup(selectedModelGroupKey) || '';
@@ -73,6 +74,22 @@ const Step3Structure: React.FC = () => {
     });
   };
 
+  // Restore last selected source on mount
+  useEffect(() => {
+    if (state.scrapedContent && !hasRestoredSourceRef.current) {
+      const lastSource = actions.getPersistedLastSource();
+      console.log('🔍 Restoring last selected source:', lastSource);
+
+      if (lastSource) {
+        // Don't call handleSitemapSourceChange here to avoid loading logic
+        // Just set the state and let the next useEffect handle the restoration
+        setSitemapSource(lastSource);
+      }
+
+      hasRestoredSourceRef.current = true;
+    }
+  }, [state.scrapedContent]);
+
   // Save allocated sitemap to wizard state when allocation succeeds (only once)
   useEffect(() => {
     if (allocateContentStatus === 'success' && allocateContentData?.enhanced_sitemap && !hasSavedAllocationRef.current) {
@@ -96,7 +113,9 @@ const Step3Structure: React.FC = () => {
       sitemapActions.setPages(updatedPages);
 
       // Auto-switch to 'allocated' mode
+      console.log('🔄 Auto-switching to allocated view after successful allocation');
       setSitemapSource('allocated');
+      actions.saveLastSelectedSource('allocated');
     }
   }, [allocateContentStatus, allocateContentData]);
 
@@ -149,18 +168,40 @@ const Step3Structure: React.FC = () => {
     return result;
   };
 
-  // On initial mount, if there's scraped content and default pages source is selected,
-  // load the default sitemap. This ensures pages are visible immediately.
+  // On initial mount, restore the appropriate sitemap based on the selected source
   useEffect(() => {
-    if (state.scrapedContent && sitemapSource === 'default') {
-      const selectedGroup = modelGroups[selectedModelGroupKey];
-      if (selectedGroup && selectedGroup.templates.length > 0) {
-        const firstTemplate = selectedGroup.templates[0];
-        const jsonString = JSON.stringify(firstTemplate.data);
-        sitemapActions.importPagesFromJson(jsonString);
+    if (state.scrapedContent && hasRestoredSourceRef.current && sitemapState.pages.length === 0) {
+      console.log('📋 Initial load - restoring pages for source:', sitemapSource);
+
+      if (sitemapSource === 'default') {
+        // Load default template
+        const selectedGroup = modelGroups[selectedModelGroupKey];
+        if (selectedGroup && selectedGroup.templates.length > 0) {
+          const firstTemplate = selectedGroup.templates[0];
+          const jsonString = JSON.stringify(firstTemplate.data);
+          sitemapActions.importPagesFromJson(jsonString);
+          console.log('✅ Loaded default template pages');
+        }
+      } else if (sitemapSource === 'allocated' && state.allocatedPagesSitemap && state.allocatedPagesSitemap.length > 0) {
+        // Restore allocated pages
+        console.log('✅ Restoring allocated pages:', state.allocatedPagesSitemap.length, 'pages');
+        sitemapActions.setPages(state.allocatedPagesSitemap);
+      } else if (sitemapSource === 'scraped' && state.generatedScrapedSitemap && state.generatedScrapedSitemap.length > 0) {
+        // Restore generated scraped pages
+        console.log('✅ Restoring generated scraped sitemap:', state.generatedScrapedSitemap.length, 'pages');
+        sitemapActions.setPages(state.generatedScrapedSitemap);
+      } else if (sitemapSource === 'scraped') {
+        // Extract from scraped content
+        const scrapedSitemap = extractSitemapFromScrapedContent();
+        if (scrapedSitemap) {
+          const jsonString = JSON.stringify(scrapedSitemap);
+          sitemapActions.importPagesFromJson(jsonString);
+          setExtractedSitemap(scrapedSitemap);
+          console.log('✅ Extracted and loaded scraped pages');
+        }
       }
     }
-  }, []); // Run only on mount
+  }, [hasRestoredSourceRef.current, sitemapSource]); // Run when source is restored
 
   if (!state.scrapedContent) {
     return (
@@ -234,6 +275,9 @@ const Step3Structure: React.FC = () => {
   const handleSitemapSourceChange = (source: SitemapSource) => {
     console.log('🔄 Sitemap source changed to:', source);
     setSitemapSource(source);
+
+    // Save the selected source to localStorage
+    actions.saveLastSelectedSource(source);
 
     if (source === 'default') {
       console.log('📋 Loading default sitemap from template (clean, no allocation)...');
@@ -340,6 +384,9 @@ const Step3Structure: React.FC = () => {
         actions.setGeneratedScrapedSitemap(pagesArray);
         console.log('✅ Saved', pagesArray.length, 'generated pages to wizard state');
         console.log('🔍 DEBUG: Called actions.setGeneratedScrapedSitemap');
+
+        // Keep the view on scraped pages after generation
+        actions.saveLastSelectedSource('scraped');
       } else {
         console.error('❌ sitemapData is missing or invalid:', sitemapData);
       }

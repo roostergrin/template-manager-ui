@@ -2,10 +2,15 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { FileText, Image as ImageIcon } from 'lucide-react';
+import { FileText, Image as ImageIcon, Zap, FileInput } from 'lucide-react';
 import { SitemapSection, SitemapItem } from '../../types/SitemapTypes';
 import { useSitemap } from '../../contexts/SitemapProvider';
 import { useAppConfig } from '../../contexts/AppConfigProvider';
+import { useQuestionnaire } from '../../contexts/QuestionnaireProvider';
+import useGenerateSitemap from '../../hooks/useGenerateSitemap';
+import { getEffectiveQuestionnaireData } from '../../utils/questionnaireDataUtils';
+import { getBackendSiteTypeForModelGroup } from '../../utils/modelGroupKeyToBackendSiteType';
+import DefaultPageTemplateSelector, { PageTemplate } from '../DefaultPageTemplateSelector/DefaultPageTemplateSelector';
 import './PageListTOC.sass';
 
 interface SectionRowProps {
@@ -169,17 +174,31 @@ const SectionRow: React.FC<SectionRowProps> = ({
 interface PageListTOCItemProps {
   page: SitemapSection;
   index: number;
+  isExpanded: boolean;
+  onToggleExpanded: (pageId: string) => void;
 }
 
-const PageListTOCItem: React.FC<PageListTOCItemProps> = ({ page, index }) => {
+const PageListTOCItem: React.FC<PageListTOCItemProps> = ({ page, index, isExpanded, onToggleExpanded }) => {
   const { actions } = useSitemap();
   const { state: appConfigState } = useAppConfig();
+  const { state: questionnaireState } = useQuestionnaire();
   const [expandedSectionId, setExpandedSectionId] = useState<string | null>(null);
-  const [isPageExpanded, setIsPageExpanded] = useState<boolean>(true);
   const [isMarkdownExpanded, setIsMarkdownExpanded] = useState<boolean>(false);
+  const [showTemplateSelector, setShowTemplateSelector] = useState<boolean>(false);
+  const [isGenerating, setIsGenerating] = useState<boolean>(false);
+  const [generateError, setGenerateError] = useState<string | null>(null);
 
   const selectedModelGroupKey = appConfigState.selectedModelGroupKey || Object.keys(appConfigState.modelGroups)[0];
   const currentModels = appConfigState.modelGroups[selectedModelGroupKey]?.models || [];
+
+  // Get backend site type for API call
+  const backendSiteType = getBackendSiteTypeForModelGroup(selectedModelGroupKey) || '';
+
+  // Get effective questionnaire data
+  const effectiveQuestionnaireData = getEffectiveQuestionnaireData(questionnaireState.data);
+
+  // Use generate sitemap hook for single-page generation
+  const [generateSitemapData, generateSitemapStatus, generateSitemap] = useGenerateSitemap();
 
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
     id: page.id,
@@ -191,8 +210,8 @@ const PageListTOCItem: React.FC<PageListTOCItemProps> = ({ page, index }) => {
     transition,
   } as React.CSSProperties;
 
-  const togglePageExpanded = () => {
-    setIsPageExpanded(!isPageExpanded);
+  const handleTogglePageExpanded = () => {
+    onToggleExpanded(page.id);
   };
 
   const toggleMarkdownExpanded = () => {
@@ -240,6 +259,99 @@ const PageListTOCItem: React.FC<PageListTOCItemProps> = ({ page, index }) => {
     actions.updatePageItems(page.id, updatedItems);
   };
 
+  const handleUseTemplate = () => {
+    setShowTemplateSelector(true);
+  };
+
+  const handlePageTemplateSelect = (pageTemplate: PageTemplate) => {
+    actions.applyPageTemplate(page.id, pageTemplate.sections);
+  };
+
+  const handleGeneratePageSections = () => {
+    setIsGenerating(true);
+    setGenerateError(null);
+
+    console.log('🚀 Generating sections for single page:', page.title);
+
+    // Build a sitemap with ONLY this page
+    const singlePageSitemap = {
+      pages: {
+        [page.title]: {
+          internal_id: page.id,
+          page_id: page.wordpress_id || page.id,
+          model_query_pairs: page.items.map(item => ({
+            model: item.model,
+            query: item.query,
+            internal_id: item.id,
+            use_default: item.useDefault
+          })),
+          // Include allocated markdown if exists
+          ...(page.allocated_markdown && { allocated_markdown: page.allocated_markdown }),
+          ...(page.allocation_confidence && { allocation_confidence: page.allocation_confidence }),
+          ...(page.source_location && { source_location: page.source_location }),
+          ...(page.mapped_scraped_page && { mapped_scraped_page: page.mapped_scraped_page })
+        }
+      },
+      modelGroups: [],
+      siteType: backendSiteType,
+      questionnaireData: effectiveQuestionnaireData || {}
+    };
+
+    console.log('📋 Single page sitemap:', singlePageSitemap);
+
+    // Call the same endpoint that Generate Sitemap button uses
+    // Note: scraped_content is REQUIRED by backend (not optional)
+    // Pass empty object if no scraped content is available
+    generateSitemap({
+      scraped_content: {},
+      site_type: backendSiteType,
+      sitemap: singlePageSitemap
+    } as any);
+  };
+
+  // Handle response from sitemap generation
+  useEffect(() => {
+    if (generateSitemapStatus === 'success' && generateSitemapData?.sitemap_data && isGenerating) {
+      console.log('✅ Page generation successful:', generateSitemapData);
+
+      try {
+        const generatedPages = (generateSitemapData.sitemap_data as any).pages;
+
+        // Extract the generated page data (should only be one page)
+        const generatedPage = generatedPages[page.title];
+
+        if (generatedPage && generatedPage.model_query_pairs) {
+          console.log('📝 Updating page sections with generated data');
+
+          // Convert generated sections back to SitemapItem format
+          const updatedItems: SitemapItem[] = generatedPage.model_query_pairs.map((item: any) => ({
+            model: item.model,
+            query: item.query,
+            id: item.internal_id || `item-${Date.now()}-${Math.random()}`,
+            useDefault: item.use_default
+          }));
+
+          // Update the page with generated sections
+          actions.updatePageItems(page.id, updatedItems);
+
+          console.log('✅ Page sections updated successfully');
+        }
+
+        setIsGenerating(false);
+      } catch (err) {
+        console.error('❌ Error processing generated page:', err);
+        setGenerateError(err instanceof Error ? err.message : 'Failed to process generated page');
+        setIsGenerating(false);
+      }
+    }
+
+    if (generateSitemapStatus === 'error' && isGenerating) {
+      console.error('❌ Page generation failed');
+      setGenerateError('Failed to generate page sections');
+      setIsGenerating(false);
+    }
+  }, [generateSitemapStatus, generateSitemapData, isGenerating, page.title, page.id, actions]);
+
   const itemIds = page.items.map(item => item.id);
 
   // Helper functions for markdown stats
@@ -275,10 +387,10 @@ const PageListTOCItem: React.FC<PageListTOCItemProps> = ({ page, index }) => {
         <div className="page-list-toc__col page-list-toc__col--controls">
           <button
             className="page-list-toc__chevron"
-            onClick={togglePageExpanded}
-            aria-label={isPageExpanded ? 'Collapse page' : 'Expand page'}
+            onClick={handleTogglePageExpanded}
+            aria-label={isExpanded ? 'Collapse page' : 'Expand page'}
           >
-            {isPageExpanded ? '▼' : '▶'}
+            {isExpanded ? '▼' : '▶'}
           </button>
           <button
             className="page-list-toc__drag-handle"
@@ -329,6 +441,25 @@ const PageListTOCItem: React.FC<PageListTOCItemProps> = ({ page, index }) => {
         <div className="page-list-toc__col page-list-toc__col--actions">
           <span className="page-list-toc__count">{page.items.length}</span>
           <button
+            className="page-list-toc__use-template"
+            onClick={handleUseTemplate}
+            aria-label="Use Template"
+            tabIndex={0}
+            title="Use template for this page"
+          >
+            <FileInput size={16} />
+          </button>
+          <button
+            className="page-list-toc__generate-page"
+            onClick={handleGeneratePageSections}
+            aria-label="Generate Page Sections"
+            tabIndex={0}
+            title="Generate page sections"
+            disabled={isGenerating}
+          >
+            {isGenerating ? '...' : <Zap size={16} />}
+          </button>
+          <button
             className="page-list-toc__duplicate"
             onClick={() => actions.duplicatePage?.(page.id)}
             aria-label="Duplicate Page"
@@ -347,6 +478,20 @@ const PageListTOCItem: React.FC<PageListTOCItemProps> = ({ page, index }) => {
           </button>
         </div>
       </div>
+
+      {generateError && (
+        <div className="page-list-toc__error-message">
+          <span className="page-list-toc__error-icon">⚠️</span>
+          {generateError}
+          <button
+            className="page-list-toc__error-close"
+            onClick={() => setGenerateError(null)}
+            aria-label="Close error"
+          >
+            ×
+          </button>
+        </div>
+      )}
 
       {isMarkdownExpanded && hasAllocatedContent && (
         <div className="page-list-toc__allocated-content">
@@ -369,7 +514,7 @@ const PageListTOCItem: React.FC<PageListTOCItemProps> = ({ page, index }) => {
         </div>
       )}
 
-      {isPageExpanded && (
+      {isExpanded && (
         <div className="page-list-toc__sections">
           <SortableContext items={itemIds} strategy={verticalListSortingStrategy}>
             {page.items.map((item, itemIndex) => (
@@ -397,6 +542,14 @@ const PageListTOCItem: React.FC<PageListTOCItemProps> = ({ page, index }) => {
             + Add Section
           </button>
         </div>
+      )}
+
+      {showTemplateSelector && (
+        <DefaultPageTemplateSelector
+          selectedModelGroupKey={selectedModelGroupKey}
+          onPageTemplateSelect={handlePageTemplateSelect}
+          onClose={() => setShowTemplateSelector(false)}
+        />
       )}
     </div>
   );

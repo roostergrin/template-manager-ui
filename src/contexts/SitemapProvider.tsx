@@ -43,6 +43,12 @@ interface SitemapContextActions {
   updatePageWordpressId: (pageId: string, newId: string) => void
   updatePageItems: (pageId: string, newItems: SitemapItem[]) => void
   setPages: (pages: SitemapSection[]) => void
+  applyPageTemplate: (pageId: string, templateSections: Array<{
+    model: string;
+    query: string;
+    internal_id: string;
+    use_default?: boolean;
+  }>) => void
 
   // Page selection
   selectPage: (pageId: string) => void
@@ -104,7 +110,7 @@ export const SitemapProvider: React.FC<SitemapProviderProps> = ({
   initialState = {}
 }) => {
   // Initialize all the custom hooks
-  const { pages, addPage, removePage, updatePageTitle, updatePageWordpressId, updatePageItems, setPages, duplicatePage } = usePages(initialState.pages || [])
+  const { pages, addPage, removePage, updatePageTitle, updatePageWordpressId, updatePageItems, setPages, duplicatePage, applyPageTemplate } = usePages(initialState.pages || [])
   
   const { 
     selectedPages, 
@@ -245,6 +251,7 @@ export const SitemapProvider: React.FC<SitemapProviderProps> = ({
     updatePageWordpressId,
     updatePageItems,
     setPages: handleSetPages,
+    applyPageTemplate,
     selectPage,
     deselectPage,
     togglePageSelection,

@@ -39,10 +39,14 @@ const PageList: React.FC<PageListProps> = ({
   const { state, actions } = useSitemap();
   const [activeDragType, setActiveDragType] = useState<ActiveDragType>(null);
   const [hasAttemptedAutoLoad, setHasAttemptedAutoLoad] = useState<boolean>(false);
+  const [expandedPageIds, setExpandedPageIds] = useState<Set<string>>(new Set());
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
+
+  const { pages, sitemapSource } = state;
+  const { addPage } = actions;
 
   // Auto-load the most recent sitemap if none is loaded
   useEffect(() => {
@@ -60,11 +64,32 @@ const PageList: React.FC<PageListProps> = ({
     }
   }, [state.sitemapSource, hasAttemptedAutoLoad, actions]);
 
-  const { pages, sitemapSource } = state;
-
-  const { addPage } = actions;
+  // Initialize expanded state for new pages (all pages start expanded)
+  useEffect(() => {
+    setExpandedPageIds(prev => {
+      const newSet = new Set(prev);
+      pages.forEach(page => {
+        if (!newSet.has(page.id)) {
+          newSet.add(page.id);
+        }
+      });
+      return newSet;
+    });
+  }, [pages]);
 
   const pageIds = useMemo(() => pages.map(p => p.id as UniqueIdentifier), [pages]);
+
+  const togglePageExpanded = useCallback((pageId: string) => {
+    setExpandedPageIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(pageId)) {
+        newSet.delete(pageId);
+      } else {
+        newSet.add(pageId);
+      }
+      return newSet;
+    });
+  }, []);
 
   const findPageByItemId = useCallback(
     (itemId: UniqueIdentifier): SitemapSection | undefined => pages.find(p => p.items.some(i => i.id === itemId)),
@@ -223,6 +248,8 @@ const PageList: React.FC<PageListProps> = ({
               key={page.id}
               page={page}
               index={pages.findIndex(p => p.id === page.id)}
+              isExpanded={expandedPageIds.has(page.id)}
+              onToggleExpanded={togglePageExpanded}
             />
           ))}
         </SortableContext>

@@ -6,6 +6,25 @@ const LOCAL_STORAGE_KEY = 'generatedSitemaps'
 const mapImportedPages = (pagesObj: Record<string, any>): SitemapSection[] => {
   if (!pagesObj || typeof pagesObj !== 'object') return []
   return Object.entries(pagesObj).map(([title, pageData]) => {
+    // Handle array-based page data (generated content format)
+    if (Array.isArray(pageData)) {
+      console.log(`📄 Converting generated content array for page: ${title}`)
+      return {
+        id: `page-${title.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}`,
+        title,
+        wordpress_id: '',
+        items: pageData
+          .filter((component: any) => component && component.acf_fc_layout)
+          .map((component: any, index: number) => ({
+            model: component.acf_fc_layout || 'content',
+            query: component.title || `${component.acf_fc_layout} section`,
+            id: `${title.toLowerCase().replace(/\s+/g, '-')}-${component.acf_fc_layout}-${index}-${Date.now()}`,
+            useDefault: false,
+          }))
+      }
+    }
+
+    // Handle object-based page data (traditional sitemap format)
     const {
       internal_id,
       page_id,

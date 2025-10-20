@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import ScrapeSiteForm, { ScrapeSiteFormData } from '../ScrapeSiteForm/ScrapeSiteForm';
-import ScrapeHistory from '../ScrapeHistory';
 import { useMigrationWizard } from '../../contexts/MigrationWizardProvider';
 import api from '../../services/apiService';
 import { ScrapedContent } from '../ScrapedContentViewer/ScrapedContentViewer';
@@ -11,7 +10,6 @@ const Step1Capture: React.FC = () => {
   const { actions } = useMigrationWizard();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showHistory, setShowHistory] = useState(false);
 
   // Auto-load most recent scrape on mount
   useEffect(() => {
@@ -79,30 +77,13 @@ const Step1Capture: React.FC = () => {
     }
   };
 
-  const handleLoadFromHistory = (content: ScrapedContent) => {
-    // Store scraped content in wizard state
-    actions.setScrapedContent(content);
-    // Move to next step
-    actions.nextStep();
-  };
-
   return (
     <div className="step-1-capture">
       <ScrapeSiteForm
         onSubmit={handleScrapeSubmit}
         loading={loading}
         error={error}
-        onToggleHistory={() => setShowHistory(!showHistory)}
-        showHistory={showHistory}
       />
-
-      {showHistory && (
-        <div className="step-1-capture__history-section">
-          <div className="step-1-capture__history">
-            <ScrapeHistory onLoadScrape={handleLoadFromHistory} />
-          </div>
-        </div>
-      )}
 
       {loading && (
         <div className="step-1-capture__progress">

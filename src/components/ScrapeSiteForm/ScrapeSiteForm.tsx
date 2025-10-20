@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Info, Loader2, History } from 'lucide-react';
+import { Info, Loader2 } from 'lucide-react';
 import './ScrapeSiteForm.sass';
 
 export interface ScrapeSiteFormData {
@@ -13,11 +13,9 @@ interface ScrapeSiteFormProps {
   onSubmit: (data: ScrapeSiteFormData) => void;
   loading?: boolean;
   error?: string | null;
-  onToggleHistory?: () => void;
-  showHistory?: boolean;
 }
 
-const ScrapeSiteForm: React.FC<ScrapeSiteFormProps> = ({ onSubmit, loading = false, error, onToggleHistory, showHistory = false }) => {
+const ScrapeSiteForm: React.FC<ScrapeSiteFormProps> = ({ onSubmit, loading = false, error }) => {
   const [domain, setDomain] = useState('');
   const [maxPages, setMaxPages] = useState<number | undefined>(undefined);
   const [domainError, setDomainError] = useState('');
@@ -124,18 +122,6 @@ const ScrapeSiteForm: React.FC<ScrapeSiteFormProps> = ({ onSubmit, loading = fal
               />
             </div>
           </div>
-          
-          {onToggleHistory && (
-            <button
-              type="button"
-              className="btn-history"
-              onClick={onToggleHistory}
-              disabled={loading}
-            >
-              <History size={16} />
-              {showHistory ? 'Hide' : 'Show'} History
-            </button>
-          )}
 
           <button type="submit" className="btn-scrape" disabled={loading}>
             {loading ? (
@@ -147,8 +133,6 @@ const ScrapeSiteForm: React.FC<ScrapeSiteFormProps> = ({ onSubmit, loading = fal
               <span>Start scraping</span>
             )}
           </button>
-
-
         </div>
 
         {error && (

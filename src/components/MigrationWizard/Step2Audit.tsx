@@ -1,5 +1,6 @@
 import React from 'react';
-import ScrapedContentViewer from '../ScrapedContentViewer/ScrapedContentViewer';
+import ScrapedContentViewer, { ScrapedContent } from '../ScrapedContentViewer/ScrapedContentViewer';
+import ScrapeHistoryDropdown from '../ScrapeHistoryDropdown/ScrapeHistoryDropdown';
 import { useMigrationWizard } from '../../contexts/MigrationWizardProvider';
 import './Step2Audit.sass';
 
@@ -23,8 +24,19 @@ const Step2Audit: React.FC = () => {
     actions.nextStep();
   };
 
+  const handleLoadScrape = (content: ScrapedContent) => {
+    actions.setScrapedContent(content);
+  };
+
   return (
     <div className="step-2-audit">
+      <div className="step-2-audit__header">
+        <ScrapeHistoryDropdown
+          currentScrapeDomain={state.scrapedContent.domain}
+          currentScrapeDate={state.scrapedContent.metadata.scraped_at}
+          onLoadScrape={handleLoadScrape}
+        />
+      </div>
       <div className="step-2-audit__content">
         <ScrapedContentViewer
           scrapedContent={state.scrapedContent}

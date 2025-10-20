@@ -64,6 +64,30 @@ const usePages = (initialPages: SitemapSection[] = []) => {
     })
   }
 
+  const applyPageTemplate = (pageId: string, templateSections: Array<{
+    model: string;
+    query: string;
+    internal_id: string;
+    use_default?: boolean;
+  }>) => {
+    setPages(prev => prev.map(page => {
+      if (page.id !== pageId) return page
+
+      // Convert template sections to SitemapItem format
+      const newItems: SitemapItem[] = templateSections.map(section => ({
+        model: section.model,
+        query: section.query,
+        id: section.internal_id || `item-${Date.now()}-${Math.random()}`,
+        useDefault: section.use_default
+      }))
+
+      return {
+        ...page,
+        items: newItems
+      }
+    }))
+  }
+
   return {
     pages,
     addPage,
@@ -72,7 +96,8 @@ const usePages = (initialPages: SitemapSection[] = []) => {
     updatePageWordpressId,
     updatePageItems,
     setPages: setAllPages,
-    duplicatePage
+    duplicatePage,
+    applyPageTemplate
   }
 }
 

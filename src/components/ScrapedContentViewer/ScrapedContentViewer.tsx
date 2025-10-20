@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { Globe, ChevronDown, ChevronRight, CheckCircle, AlertCircle, Copy, Check, ChevronsDown, ChevronsUp, Clock, ExternalLink, Image } from 'lucide-react';
+import { Globe, ChevronDown, ChevronRight, CheckCircle, AlertCircle, Copy, Check, ChevronsDown, ChevronsUp, Clock, ExternalLink, Image, Palette } from 'lucide-react';
+import StyleOverview from '../StyleOverview/StyleOverview';
 import './ScrapedContentViewer.sass';
 
 export interface ScrapedContent {
@@ -15,6 +16,7 @@ export interface ScrapedContent {
     use_selenium: boolean;
     scroll: boolean;
   };
+  style_overview?: string;
 }
 
 interface ScrapedContentViewerProps {
@@ -37,6 +39,7 @@ const ScrapedContentViewer: React.FC<ScrapedContentViewerProps> = ({
   const [expandedMarkdownPages, setExpandedMarkdownPages] = useState<Set<string>>(new Set());
   const [expandedParentPages, setExpandedParentPages] = useState<Set<string>>(new Set());
   const [showGlobalMarkdown, setShowGlobalMarkdown] = useState(false);
+  const [showStyleOverview, setShowStyleOverview] = useState(false);
   const [showPagesSection, setShowPagesSection] = useState(false);
   const [copiedPage, setCopiedPage] = useState<string | null>(null);
 
@@ -142,6 +145,7 @@ const ScrapedContentViewer: React.FC<ScrapedContentViewerProps> = ({
 
   const handleExpandAll = () => {
     setShowGlobalMarkdown(true);
+    setShowStyleOverview(true);
     setShowPagesSection(true);
     const allUrls = getAllPageUrls(buildPageTree);
     setExpandedMarkdownPages(new Set(allUrls));
@@ -150,6 +154,7 @@ const ScrapedContentViewer: React.FC<ScrapedContentViewerProps> = ({
 
   const handleCollapseAll = () => {
     setShowGlobalMarkdown(false);
+    setShowStyleOverview(false);
     setShowPagesSection(false);
     setExpandedMarkdownPages(new Set());
     setExpandedParentPages(new Set());
@@ -264,9 +269,9 @@ const ScrapedContentViewer: React.FC<ScrapedContentViewerProps> = ({
               <h3 className="tree-section__title">{scrapedContent.domain}</h3>
               <button
                 className="btn btn--expand-toggle"
-                onClick={expandedMarkdownPages.size === 0 && !showGlobalMarkdown && !showPagesSection ? handleExpandAll : handleCollapseAll}
+                onClick={expandedMarkdownPages.size === 0 && !showGlobalMarkdown && !showStyleOverview && !showPagesSection ? handleExpandAll : handleCollapseAll}
               >
-                {expandedMarkdownPages.size === 0 && !showGlobalMarkdown && !showPagesSection ? (
+                {expandedMarkdownPages.size === 0 && !showGlobalMarkdown && !showStyleOverview && !showPagesSection ? (
                   <>
                     <ChevronsDown size={16} />
                     <span>Expand All</span>
@@ -340,6 +345,29 @@ const ScrapedContentViewer: React.FC<ScrapedContentViewerProps> = ({
                 </div>
               )}
             </div>
+
+            {/* Style Overview Section */}
+            {scrapedContent.style_overview && (
+              <div className="tree-item tree-item--style-overview">
+                <div
+                  className="tree-item__header"
+                  onClick={() => setShowStyleOverview(!showStyleOverview)}
+                >
+                  {showStyleOverview ? (
+                    <ChevronDown size={16} className="tree-item__chevron" />
+                  ) : (
+                    <ChevronRight size={16} className="tree-item__chevron" />
+                  )}
+                  <Palette size={16} className="tree-item__icon" />
+                  <span className="tree-item__title">Style & Color Scheme</span>
+                </div>
+                {showStyleOverview && (
+                  <div className="tree-item__content">
+                    <StyleOverview styleOverview={scrapedContent.style_overview} />
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Pages Section */}
             <div className="tree-item tree-item--pages">
