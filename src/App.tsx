@@ -71,6 +71,11 @@ const TokenGate: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <div className="token-gate">
       <div className="token-gate__card" role="form" aria-label="Internal access form">
+        <img
+          src="/onyx--750w.jpg"
+          alt="Onyx the dog"
+          className="token-gate__image"
+        />
         <h2 className="token-gate__title">Internal Access</h2>
         <p className="token-gate__description">Paste your internal access token to continue.</p>
         <input
