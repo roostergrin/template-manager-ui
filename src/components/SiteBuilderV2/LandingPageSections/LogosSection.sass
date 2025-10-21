@@ -1,0 +1,32 @@
+@import '../../../styles/variables'
+@import '../../../styles/mixins'
+
+.logos-section
+  position: relative
+  background: var(--color-primary, #c9a065)
+  padding: 57px 0
+  
+  &__content
+    max-width: 1440px
+    margin: 0 auto
+    display: flex
+    align-items: center
+    justify-content: center
+    gap: 80px
+
+  &__item
+    display: flex
+    align-items: center
+    justify-content: center
+    transition: transform 0.3s ease
+    min-height: 71px
+    width: auto
+
+  &__image
+    max-width: 100%
+    max-height: 71px
+    width: 100%
+    height: auto
+    object-fit: contain
+    filter: brightness(0) invert(1)
+
