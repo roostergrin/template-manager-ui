@@ -33,8 +33,8 @@ const defaultData: LandingPageData = {
       sections: [
         {
           image: {
-            webp: 'https://d2sy0v7xyp1zo0.cloudfront.net/landing-image-placeholder.webp',
             jpg: 'https://d2sy0v7xyp1zo0.cloudfront.net/landing-image-placeholder.jpg',
+            webp: 'https://d2sy0v7xyp1zo0.cloudfront.net/landing-image-placeholder.webp',
             alt: 'Advanced dental technology equipment',
           },
           title: 'Meet The Doctor',

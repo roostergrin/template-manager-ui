@@ -6,6 +6,7 @@ const GlobalSettingsForm: React.FC = () => {
   const { data, updateData } = useLandingPage();
   const [activeStep, setActiveStep] = useState(1);
   const [faviconFile, setFaviconFile] = useState<string>('');
+  const [domain, setDomain] = useState<string>('example-ortho');
 
   const handleFaviconUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -51,6 +52,17 @@ const GlobalSettingsForm: React.FC = () => {
         <>
           <div className="side-panel-form__section">
             <h2 className="side-panel-form__title">Site Information</h2>
+
+            <div className="side-panel-form__field">
+              <label className="side-panel-form__label">Domain</label>
+              <span className="side-panel-form__hint">Enter your domain name without the www. or .com</span>
+              <input
+                type="text"
+                className="side-panel-form__input"
+                value={domain}
+                onChange={(e) => setDomain(e.target.value)}
+              />
+            </div>
             
             <div className="side-panel-form__field">
               <label className="side-panel-form__label">Company Name</label>
@@ -270,7 +282,7 @@ const GlobalSettingsForm: React.FC = () => {
           </div>
           
           <div className="side-panel-form__field">
-            <label className="side-panel-form__label">Hover Color</label>
+            <label className="side-panel-form__label">Button Hover Color</label>
             <div className="side-panel-form__color-input">
               <input
                 type="color"
