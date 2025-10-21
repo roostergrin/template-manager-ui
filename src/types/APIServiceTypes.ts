@@ -224,3 +224,14 @@ export interface CopySubscriptionResponse {
   message?: string;
   [key: string]: unknown;
 }
+
+// Check GitHub Repo Exists Types
+export interface CheckGithubRepoRequest {
+  owner: string;
+  repo: string;
+}
+
+export interface CheckGithubRepoResponse {
+  exists: boolean;
+  message?: string;
+}

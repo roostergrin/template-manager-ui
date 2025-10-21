@@ -1,0 +1,184 @@
+@import '../../styles/variables'
+@import '../../styles/mixins'
+
+.build-progress-modal
+  position: fixed
+  top: 0
+  left: 0
+  right: 0
+  bottom: 0
+  z-index: 1000
+  display: flex
+  align-items: center
+  justify-content: center
+
+  &__overlay
+    position: absolute
+    top: 0
+    left: 0
+    right: 0
+    bottom: 0
+    background: rgba(0, 0, 0, 0.5)
+    backdrop-filter: blur(4px)
+
+  &__content
+    position: relative
+    background: white
+    border-radius: 12px
+    padding: 32px
+    max-width: 500px
+    width: 90%
+    max-height: 80vh
+    overflow-y: auto
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)
+    animation: slideIn 0.3s ease-out
+
+  &__header
+    display: flex
+    align-items: center
+    justify-content: space-between
+    margin-bottom: 24px
+
+  &__title
+    font-size: 24px
+    font-weight: 700
+    color: #111827
+    margin: 0
+
+  &__close
+    padding: 8px
+    background: transparent
+    border: none
+    border-radius: 6px
+    font-size: 20px
+    color: #6b7280
+    cursor: pointer
+    transition: all 0.2s ease
+    line-height: 1
+
+    &:hover
+      background: #f3f4f6
+      color: #111827
+
+  &__steps
+    display: flex
+    flex-direction: column
+    gap: 16px
+    margin-bottom: 24px
+
+  &__step
+    display: flex
+    align-items: flex-start
+    gap: 12px
+    padding: 16px
+    border-radius: 8px
+    background: #f9fafb
+    border: 2px solid transparent
+    transition: all 0.3s ease
+
+    &--pending
+      opacity: 0.5
+
+    &--in-progress
+      border-color: #4f46e5
+      background: #f8f9ff
+
+      .build-progress-modal__step-icon
+        background: #4f46e5
+        color: white
+        animation: spin 1s linear infinite
+
+    &--completed
+      border-color: #10b981
+      background: #f0fdf4
+
+      .build-progress-modal__step-icon
+        background: #10b981
+        color: white
+
+    &--error
+      border-color: #ef4444
+      background: #fef2f2
+
+      .build-progress-modal__step-icon
+        background: #ef4444
+        color: white
+
+  &__step-icon
+    width: 32px
+    height: 32px
+    display: flex
+    align-items: center
+    justify-content: center
+    background: #e5e7eb
+    color: #6b7280
+    border-radius: 50%
+    font-size: 16px
+    font-weight: 700
+    flex-shrink: 0
+    transition: all 0.3s ease
+
+  &__step-content
+    flex: 1
+    display: flex
+    flex-direction: column
+    gap: 4px
+
+  &__step-label
+    font-size: 14px
+    font-weight: 600
+    color: #374151
+    line-height: 1.5
+
+  &__step-error
+    font-size: 13px
+    color: #ef4444
+    font-weight: 500
+
+  &__actions
+    display: flex
+    gap: 12px
+    padding-top: 8px
+
+  &__button
+    flex: 1
+    padding: 12px 24px
+    border-radius: 8px
+    font-size: 14px
+    font-weight: 600
+    cursor: pointer
+    transition: all 0.2s ease
+    text-align: center
+    text-decoration: none
+    border: none
+
+    &--primary
+      background: #4f46e5
+      color: white
+
+      &:hover
+        background: #4338ca
+        transform: translateY(-1px)
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3)
+
+    &--secondary
+      background: #f3f4f6
+      color: #374151
+
+      &:hover
+        background: #e5e7eb
+
+@keyframes slideIn
+  from
+    opacity: 0
+    transform: translateY(-20px)
+  to
+    opacity: 1
+    transform: translateY(0)
+
+@keyframes spin
+  from
+    transform: rotate(0deg)
+  to
+    transform: rotate(360deg)
+

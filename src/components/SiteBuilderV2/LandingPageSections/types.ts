@@ -45,6 +45,7 @@ export interface ContactInfo {
 }
 
 export interface GlobalData {
+  domain?: string;
   logo: string;
   title: string;
   email: ContactInfo;
