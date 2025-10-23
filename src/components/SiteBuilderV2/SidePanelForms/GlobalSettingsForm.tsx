@@ -4,6 +4,10 @@ import useCheckGithubRepo from '../../../hooks/useCheckGithubRepo';
 import useCreateGithubRepoFromTemplate from '../../../hooks/useCreateGithubRepoFromTemplate';
 import useUpdateGithubRepoFile from '../../../hooks/useUpdateGithubRepoFile';
 import useUpdateGithubRepoFileUpload from '../../../hooks/useUpdateGithubRepoFileUpload';
+import useCreateS3Bucket from '../../../hooks/useCreateS3Bucket';
+import useCreateCodePipeline from '../../../hooks/useCreateCodePipeline';
+import useCreateDistribution from '../../../hooks/useCreateDistribution';
+import useCreatePleskSubscription from '../../../hooks/useCreatePleskSubscription';
 import BuildProgressModal from '../BuildProgressModal';
 import './SidePanelForms.sass';
 
@@ -18,20 +22,23 @@ const GlobalSettingsForm: React.FC = () => {
   const { data, updateData } = useLandingPage();
   const [activeStep, setActiveStep] = useState(1);
   const [faviconFile, setFaviconFile] = useState<string>('');
-  const [domain, setDomain] = useState<string>(data['global-data']?.domain || 'example-ortho');
+  const [domain, setDomain] = useState<string>(data['global-data']?.domain || 'example-ortho.com');
   const [domainError, setDomainError] = useState<string>('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
   const [repoUrl, setRepoUrl] = useState<string>('');
   const [buildSteps, setBuildSteps] = useState<BuildStep[]>([
-    { id: 'check', label: 'Checking if repository exists', status: 'pending' },
     { id: 'create', label: 'Creating GitHub repository', status: 'pending' },
-    { id: 'content', label: 'Uploading content data', status: 'pending' },
-    { id: 'favicon', label: 'Uploading favicon', status: 'pending' },
-    { id: 'logo', label: 'Uploading logo', status: 'pending' },
+    { id: 'upload', label: 'Uploading content', status: 'pending' },
+    { id: 'provision', label: 'Provisioning AWS infrastructure', status: 'pending' },
+    { id: 'plesk', label: 'Creating Plesk subscription', status: 'pending' },
   ]);
   
   const { mutateAsync: checkGithubRepo } = useCheckGithubRepo();
+  const { mutateAsync: createS3Bucket } = useCreateS3Bucket();
+  const { mutateAsync: createCodePipeline } = useCreateCodePipeline();
+  const { mutateAsync: createDistribution } = useCreateDistribution();
+  const { mutateAsync: createPleskSubscription } = useCreatePleskSubscription();
   const [, , createRepo] = useCreateGithubRepoFromTemplate();
   const [, , updateTextFile] = useUpdateGithubRepoFile();
   const [, , uploadBinaryFile] = useUpdateGithubRepoFileUpload();
@@ -42,6 +49,26 @@ const GlobalSettingsForm: React.FC = () => {
         step.id === stepId ? { ...step, status, errorMessage } : step
       )
     );
+  };
+
+  // Helper function to strip TLD from domain for repo/bucket naming
+  const stripDomainTLD = (domainName: string): string => {
+    // Remove common TLDs
+    return domainName.replace(/\.(com|net|org|ca|co\.uk|io|dev|app|info|biz|us|uk|au)$/i, '');
+  };
+
+  // Helper to extract error message from various error types
+  const extractErrorMessage = (error: unknown): string => {
+    if (error instanceof Error) {
+      return error.message;
+    }
+    if (typeof error === 'string') {
+      return error;
+    }
+    if (error && typeof error === 'object' && 'message' in error) {
+      return String(error.message);
+    }
+    return 'An unknown error occurred';
   };
 
   const handleFaviconUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -80,30 +107,24 @@ const GlobalSettingsForm: React.FC = () => {
     setIsComplete(false);
     setRepoUrl('');
 
-    // Reset all steps to pending
-    setBuildSteps([
-      { id: 'check', label: 'Checking if repository exists', status: 'pending' },
-      { id: 'create', label: 'Creating GitHub repository', status: 'pending' },
-      { id: 'content', label: 'Uploading content data', status: 'pending' },
-      { id: 'favicon', label: 'Uploading favicon', status: 'pending' },
-      { id: 'logo', label: 'Uploading logo', status: 'pending' },
-    ]);
-
     // Validate domain is not empty
     if (!domain || domain.trim() === '') {
       setDomainError('Domain is required');
       return;
     }
 
-    // Open modal
-    setIsModalOpen(true);
+      // Strip TLD from domain for repo/bucket naming
+      const domainWithoutTLD = stripDomainTLD(domain.trim());
+      const repoName = `${domainWithoutTLD}-landing`;
 
-    try {
-      const repoName = `${domain}-landing`;
-      
-      // Step 1: Check if repo exists
-      console.log('🔍 Step 1: Checking for GitHub repo:', { owner: 'roostergrin', repo: repoName });
-      updateStepStatus('check', 'in-progress');
+      try {
+        // Pre-check: Check if repo exists BEFORE opening modal
+        console.log('🔍 Pre-check: Checking for GitHub repo:', { 
+          owner: 'roostergrin', 
+          repo: repoName,
+          originalDomain: domain,
+          strippedDomain: domainWithoutTLD
+        });
       
       const checkResult = await checkGithubRepo({
         owner: 'roostergrin',
@@ -119,122 +140,220 @@ const GlobalSettingsForm: React.FC = () => {
         checkResult.message.includes('error')
       )) {
         console.log('❌ GitHub API error:', checkResult.message);
-        updateStepStatus('check', 'error', checkResult.message);
         setDomainError(checkResult.message);
         return;
       }
 
       if (checkResult.exists) {
         console.log('❌ Repository already exists');
-        const errorMsg = `Repository ${repoName} already exists`;
-        updateStepStatus('check', 'error', errorMsg);
         setDomainError(`A GitHub repository already exists for this domain: ${repoName}`);
         return;
       }
 
-      updateStepStatus('check', 'completed');
+      // Repo doesn't exist, proceed with build
+      console.log('✅ Repository check passed, starting build...');
 
-      // Step 2: Create GitHub repo
-      console.log('🏗️ Step 2: Creating GitHub repository...');
+      // Reset all steps to pending
+      setBuildSteps([
+        { id: 'create', label: 'Creating GitHub repository', status: 'pending' },
+        { id: 'upload', label: 'Uploading content', status: 'pending' },
+        { id: 'provision', label: 'Provisioning AWS infrastructure', status: 'pending' },
+        { id: 'plesk', label: 'Creating Plesk subscription', status: 'pending' },
+      ]);
+
+      // Now open modal
+      setIsModalOpen(true);
+
+      // Variable to store distribution result for use in final success message
+      let distributionResult: any;
+
+      // Step 1: Create GitHub repo
+      console.log('🏗️ Step 1: Creating GitHub repository...');
       updateStepStatus('create', 'in-progress');
       
-      const repoResult = await createRepo({
-        new_name: repoName,
-        template_repo: 'nuxt3-landing-automation',
-      });
-      
-      console.log('✅ Repository created:', repoResult);
-      updateStepStatus('create', 'completed');
-
-      // Wait a moment for GitHub to fully initialize the repo from template
-      console.log('⏳ Waiting for repository initialization...');
-      await new Promise(resolve => setTimeout(resolve, 3000));
-
-      // Step 3: Upload content-data.json
-      console.log('📄 Step 3: Uploading content-data.json...');
-      updateStepStatus('content', 'in-progress');
-      
-      const jsonContent = JSON.stringify(data, null, 2);
-      
-      await updateTextFile({
-        owner: 'roostergrin',
-        repo: repoName,
-        path: 'content-data.json',
-        content: jsonContent,
-        message: 'Update content-data.json',
-        branch: 'master',
-      });
-      
-      console.log('✅ content-data.json uploaded');
-      updateStepStatus('content', 'completed');
-
-      // Step 4: Upload favicon if exists
-      updateStepStatus('favicon', 'in-progress');
-      if (data.seo.favicon) {
-        console.log('🎨 Step 4: Uploading favicon...');
-        
-        const faviconFile = base64ToFile(data.seo.favicon, 'favicon.ico');
-        await uploadBinaryFile({
-          owner: 'roostergrin',
-          repo: repoName,
-          path: 'public/favicon.ico',
-          upload_file: faviconFile,
-          message: 'Update favicon',
-          branch: 'master',
+      try {
+        const repoResult = await createRepo({
+          new_name: repoName,
+          template_repo: 'nuxt3-landing-automation',
         });
         
-        console.log('✅ Favicon uploaded');
-        updateStepStatus('favicon', 'completed');
-      } else {
-        console.log('⏭️ No favicon to upload, skipping');
-        updateStepStatus('favicon', 'completed');
+        console.log('✅ Repository created:', repoResult);
+        updateStepStatus('create', 'completed');
+
+        // Wait a moment for GitHub to fully initialize the repo from template
+        console.log('⏳ Waiting for repository initialization...');
+        await new Promise(resolve => setTimeout(resolve, 3000));
+      } catch (error) {
+        const errorMsg = extractErrorMessage(error);
+        console.error('❌ Failed to create repository:', errorMsg);
+        updateStepStatus('create', 'error', errorMsg);
+        throw error;
       }
 
-      // Step 5: Upload logo if exists
-      updateStepStatus('logo', 'in-progress');
-      if (data['global-data'].logo) {
-        console.log('🖼️ Step 5: Uploading logo...');
+      // Step 2: Upload all content
+      console.log('📄 Step 2: Uploading content...');
+      updateStepStatus('upload', 'in-progress');
+      
+      try {
+        // Create a copy of data and update logo to just "logo" instead of base64
+        const dataForJson = {
+          ...data,
+          'global-data': {
+            ...data['global-data'],
+            logo: data['global-data'].logo ? 'logo' : ''
+          }
+        };
         
-        // Determine file extension from base64 data
-        const logoBase64 = data['global-data'].logo;
-        let logoExtension = 'png';
-        if (logoBase64.includes('image/svg')) logoExtension = 'svg';
-        else if (logoBase64.includes('image/jpeg') || logoBase64.includes('image/jpg')) logoExtension = 'jpg';
+        const jsonContent = JSON.stringify(dataForJson, null, 2);
         
-        const logoPath = `public/logo.${logoExtension}`;
-        const logoFile = base64ToFile(logoBase64, `logo.${logoExtension}`);
-        
-        await uploadBinaryFile({
+        await updateTextFile({
           owner: 'roostergrin',
           repo: repoName,
-          path: logoPath,
-          upload_file: logoFile,
-          message: 'Update logo',
-          branch: 'master',
+          path: 'content-data.json',
+          content: jsonContent,
+          message: 'Update content-data.json',
+          branch: 'main',
         });
         
-        console.log('✅ Logo uploaded');
-        updateStepStatus('logo', 'completed');
-      } else {
-        console.log('⏭️ No logo to upload, skipping');
-        updateStepStatus('logo', 'completed');
+        console.log('✅ content-data.json uploaded');
+
+        // Upload favicon if exists
+        if (data.seo.favicon) {
+          console.log('🎨 Uploading favicon...');
+          
+          const faviconFile = base64ToFile(data.seo.favicon, 'favicon.ico');
+          await uploadBinaryFile({
+            owner: 'roostergrin',
+            repo: repoName,
+            path: 'public/favicon.ico',
+            upload_file: faviconFile,
+            message: 'Update favicon',
+            branch: 'main',
+          });
+          
+          console.log('✅ Favicon uploaded');
+        } else {
+          console.log('⏭️ No favicon to upload, skipping');
+        }
+
+        // Upload logo if exists
+        if (data['global-data'].logo) {
+          console.log('🖼️ Uploading logo...');
+          
+          // Determine file extension from base64 data
+          const logoBase64 = data['global-data'].logo;
+          
+          const logoPath = 'assets/icons/logo.svg';
+          const logoFile = base64ToFile(logoBase64, 'logo.svg');
+          
+          await uploadBinaryFile({
+            owner: 'roostergrin',
+            repo: repoName,
+            path: logoPath,
+            upload_file: logoFile,
+            message: 'Update logo',
+            branch: 'main',
+          });
+          
+          console.log('✅ Logo uploaded');
+        } else {
+          console.log('⏭️ No logo to upload, skipping');
+        }
+
+        // Mark upload step as completed
+        updateStepStatus('upload', 'completed');
+      } catch (error) {
+        const errorMsg = extractErrorMessage(error);
+        console.error('❌ Failed to upload content:', errorMsg);
+        updateStepStatus('upload', 'error', errorMsg);
+        throw error;
+      }
+
+      // Step 3: Provision AWS Infrastructure
+      console.log('☁️ Step 3: Provisioning AWS infrastructure...');
+      updateStepStatus('provision', 'in-progress');
+      
+      try {
+        // 3a: Create S3 Bucket
+        console.log('🪣 Creating S3 bucket...');
+        const bucketResult = await createS3Bucket({
+          bucket_name: repoName,
+        });
+        console.log('✅ S3 bucket created:', bucketResult);
+        
+        // 3b: Create CloudFront Distribution (needs to be created before CodePipeline)
+        console.log('🌐 Creating CloudFront distribution...');
+        distributionResult = await createDistribution({
+          s3_bucket_name: repoName,
+          distribution_type: '/landing',
+        });
+        console.log('✅ CloudFront distribution created:', distributionResult);
+        
+        // 3c: Create CodePipeline (needs distribution_id from step 3b)
+        console.log('🔄 Creating CodePipeline...');
+        const pipelineResult = await createCodePipeline({
+          pipeline_name: repoName,
+          bucket_name: repoName,
+          github_owner: 'roostergrin',
+          github_repo: repoName,
+          distribution_id: distributionResult.distribution_id || '',
+          distribution_type: '/landing',
+        });
+        console.log('✅ CodePipeline created:', pipelineResult);
+        
+        updateStepStatus('provision', 'completed');
+      } catch (error) {
+        const errorMsg = extractErrorMessage(error);
+        console.error('❌ Failed to provision AWS infrastructure:', errorMsg);
+        updateStepStatus('provision', 'error', errorMsg);
+        throw error;
+      }
+
+      // Step 4: Create Plesk Subscription
+      console.log('🌐 Step 4: Creating Plesk subscription...');
+      updateStepStatus('plesk', 'in-progress');
+      
+      try {
+        const pleskResult = await createPleskSubscription({
+          plesk_ip: 'uluwatu',
+          domain: domain.trim(), // Use full domain with TLD for Plesk
+        });
+        
+        console.log('✅ Plesk subscription created:', pleskResult);
+        console.log('✅ Plesk result success field:', pleskResult.success);
+        console.log('✅ Plesk result message:', pleskResult.message);
+        
+        // Check if the subscription was actually successful
+        if (pleskResult.success !== false) {
+          updateStepStatus('plesk', 'completed');
+        } else {
+          throw new Error(pleskResult.message || 'Failed to create Plesk subscription');
+        }
+      } catch (error) {
+        const errorMsg = extractErrorMessage(error);
+        console.error('❌ Failed to create Plesk subscription:', errorMsg);
+        console.error('❌ Full error object:', error);
+        updateStepStatus('plesk', 'error', errorMsg);
+        throw error;
       }
 
       // Success!
       console.log('🎉 Landing page built successfully!');
-      setRepoUrl(`https://github.com/roostergrin/${repoName}`);
+      
+      // Set the CloudFront URL as the primary link
+      const siteUrl = distributionResult.distribution_url || `https://github.com/roostergrin/${repoName}`;
+      setRepoUrl(siteUrl);
       setIsComplete(true);
       
     } catch (error) {
       console.error('❌ Error building landing page:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Error building landing page';
-      setDomainError(errorMessage);
+      const errorMessage = extractErrorMessage(error);
       
-      // Mark current in-progress step as error
-      const inProgressStep = buildSteps.find(step => step.status === 'in-progress');
-      if (inProgressStep) {
-        updateStepStatus(inProgressStep.id, 'error', errorMessage);
+      // Only set domain error if it's not a success message from Plesk
+      if (!errorMessage.toLowerCase().includes('subscription created')) {
+        setDomainError(errorMessage);
       }
+      // Note: Individual step errors are already handled in their respective try-catch blocks
     }
   };
 
@@ -283,7 +402,7 @@ const GlobalSettingsForm: React.FC = () => {
 
             <div className="side-panel-form__field">
               <label className="side-panel-form__label">Domain</label>
-              <span className="side-panel-form__hint">Enter your domain name without the www. or .com</span>
+              <span className="side-panel-form__hint">Enter your domain name without the www</span>
               <input
                 type="text"
                 className={`side-panel-form__input ${domainError ? 'side-panel-form__input--error' : ''}`}
@@ -387,7 +506,7 @@ const GlobalSettingsForm: React.FC = () => {
               type="file"
               id="favicon-upload"
               className="side-panel-form__file-input"
-              accept="image/x-icon,image/png,image/svg+xml"
+              accept="image/x-icon"
               onChange={handleFaviconUpload}
             />
             <label htmlFor="favicon-upload" className="side-panel-form__file-label">
@@ -570,7 +689,15 @@ const GlobalSettingsForm: React.FC = () => {
         steps={buildSteps}
         isComplete={isComplete}
         repoUrl={repoUrl}
-        onClose={() => setIsModalOpen(false)}
+        domain={domain}
+        distributionUrl={repoUrl?.replace('https://', '')}
+        onClose={() => {
+          setIsModalOpen(false);
+          // Clear domain error if build was successful
+          if (isComplete) {
+            setDomainError('');
+          }
+        }}
       />
     </div>
   );

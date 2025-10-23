@@ -51,7 +51,7 @@ const HeroForm: React.FC = () => {
               type="file"
               id="logo-upload-hero"
               className="side-panel-form__file-input"
-              accept="image/*"
+              accept="image/svg+xml"
               onChange={handleLogoUpload}
             />
             <label htmlFor="logo-upload-hero" className="side-panel-form__file-label">
@@ -72,7 +72,7 @@ const HeroForm: React.FC = () => {
               </button>
             )}
           </div>
-          <span className="side-panel-form__hint">Upload PNG, SVG, or JPG (recommended: SVG)</span>
+          <span className="side-panel-form__hint">Upload SVG</span>
         </div>
         
         <div className="side-panel-form__field">

@@ -121,9 +121,9 @@ const LandingPageWireframe: React.FC = () => {
     switch (type) {
       case 'hero': return 'Hero Section';
       case 'logos': return 'Organization Logos';
+      case 'image-text': return 'Image & Text';
       case 'contact': return 'Form';
       case 'footer': return 'Footer';
-      case 'image-text': return 'Image & Text';
     }
   };
 
@@ -198,14 +198,16 @@ const LandingPageWireframe: React.FC = () => {
             </svg>
           </button>
           
+          {section.type !== 'footer' && (
           <button 
-            className="landing-page-wireframe__control-btn landing-page-wireframe__control-btn--delete"
-            onClick={() => handleRemoveSection(section.id)}
-            aria-label="Remove section"
-            title="Remove section"
-          >
-            ✕
-          </button>
+              className="landing-page-wireframe__control-btn landing-page-wireframe__control-btn--delete"
+              onClick={() => handleRemoveSection(section.id)}
+              aria-label="Remove section"
+              title="Remove section"
+            >
+              ✕
+            </button>
+          )}
         </div>
         
         {showAddMenu === section.id && (
@@ -214,7 +216,6 @@ const LandingPageWireframe: React.FC = () => {
             <button onClick={() => handleAddSection('logos', section.id)}>+ Logos</button>
             <button onClick={() => handleAddSection('image-text', section.id)}>+ Image Text</button>
             <button onClick={() => handleAddSection('contact', section.id)}>+ Contact</button>
-            <button onClick={() => handleAddSection('footer', section.id)}>+ Footer</button>
           </div>
         )}
         

@@ -14,6 +14,8 @@ interface BuildProgressModalProps {
   onClose?: () => void;
   isComplete?: boolean;
   repoUrl?: string;
+  domain?: string;
+  distributionUrl?: string;
 }
 
 const BuildProgressModal: React.FC<BuildProgressModalProps> = ({
@@ -22,6 +24,8 @@ const BuildProgressModal: React.FC<BuildProgressModalProps> = ({
   onClose,
   isComplete = false,
   repoUrl,
+  domain,
+  distributionUrl,
 }) => {
   if (!isOpen) return null;
 
@@ -55,17 +59,9 @@ const BuildProgressModal: React.FC<BuildProgressModalProps> = ({
           <h2 className="build-progress-modal__title">
             {getTitle()}
           </h2>
-          {canClose && onClose && (
-            <button
-              className="build-progress-modal__close"
-              onClick={onClose}
-              aria-label="Close"
-            >
-              ✕
-            </button>
-          )}
         </div>
 
+        {!isComplete && (
         <div className="build-progress-modal__steps">
           {steps.map((step) => (
             <div
@@ -84,25 +80,59 @@ const BuildProgressModal: React.FC<BuildProgressModalProps> = ({
             </div>
           ))}
         </div>
+        )}
+
+        {isComplete && (
+          <div className="build-progress-modal__dns-section">
+            <h3 className="build-progress-modal__dns-title">📋 DNS Configuration Required</h3>
+            <p className="build-progress-modal__dns-description">
+              Add these DNS records to your domain registrar to point your domain to your new landing page:
+            </p>
+            
+            <div className="build-progress-modal__dns-records">
+              <div className="build-progress-modal__dns-record">
+                <div className="build-progress-modal__dns-record-header">
+                  <span className="build-progress-modal__dns-record-type">CNAME</span>
+                  <span className="build-progress-modal__dns-record-name">www</span>
+                </div>
+                <div className="build-progress-modal__dns-record-value">
+                  {distributionUrl || 'your-cloudfront-distribution.cloudfront.net'}
+                </div>
+              </div>
+              
+              <div className="build-progress-modal__dns-record">
+                <div className="build-progress-modal__dns-record-header">
+                  <span className="build-progress-modal__dns-record-type">A</span>
+                  <span className="build-progress-modal__dns-record-name">@</span>
+                  <span className="build-progress-modal__dns-record-label">(root)</span>
+                </div>
+                <div className="build-progress-modal__dns-record-value">44.236.196.209</div>
+              </div>
+            </div>
+            
+            <div className="build-progress-modal__certificate-note">
+              <strong>⚠️ Important:</strong> You need to issue an SSL certificate in{' '}
+              <a 
+                href="https://console.aws.amazon.com/acm/home" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="build-progress-modal__link"
+              >
+                AWS Certificate Manager
+              </a>
+              {' '}for <strong>{domain}</strong> to enable HTTPS.
+            </div>
+          </div>
+        )}
 
         {(isComplete || hasError) && (
           <div className="build-progress-modal__actions">
-            {isComplete && repoUrl && (
-              <a
-                href={repoUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="build-progress-modal__button build-progress-modal__button--primary"
-              >
-                View Repository
-              </a>
-            )}
             {onClose && (
               <button
-                className="build-progress-modal__button build-progress-modal__button--secondary"
+                className="build-progress-modal__button build-progress-modal__button--primary"
                 onClick={onClose}
               >
-                Close
+                Done
               </button>
             )}
           </div>

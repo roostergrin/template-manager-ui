@@ -1,7 +1,6 @@
 import React from 'react';
 import './HeroSection.sass';
 import { useLandingPage } from '../LandingPageContext';
-import invisalignLogo from '../../../assets/icons/invisalign.svg';
 
 interface HeroSectionProps {
   id: string;
@@ -12,7 +11,6 @@ const HeroSection: React.FC<HeroSectionProps> = () => {
   const { data } = useLandingPage();
   
   const backgroundImage = data.home.hero?.image?.webp || data.home.hero?.image?.jpg || 'https://d2sy0v7zyp1zo0.cloudfront.net/landing-bg-3.webp';
-  const logoSrc = data['global-data'].logo || invisalignLogo;
   
   return (
     <section 
@@ -34,14 +32,15 @@ const HeroSection: React.FC<HeroSectionProps> = () => {
             dangerouslySetInnerHTML={{ __html: data.home.hero?.tagline || 'New site coming soon!' }}
           />
           
-          <div className="hero-section__logo">
-            <img
-              src={logoSrc} 
-              alt={`${data['global-data'].title} logo`}
-              className="hero-section__logo-image"
-            />
-          </div>
-          
+          {data['global-data'].logo !== '' && (
+            <div className="hero-section__logo">
+              <img
+                src={data['global-data'].logo} 
+                alt={`${data['global-data'].title} logo`}
+                className="hero-section__logo-image"
+              />
+            </div>
+          )}
           
             <p className="hero-section__doctor">{data.home.hero.secondary_tagline || 'Dr. Somebody Somebody'}</p>
           
