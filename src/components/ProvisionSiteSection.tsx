@@ -8,7 +8,7 @@ const ProvisionSiteSection: React.FC = () => {
   const { githubOwner, githubRepo } = state;
   const { setGithubOwner, setGithubRepo } = actions;
   const [bucketName, setBucketName] = useState("");
-  const [githubBranch, setGithubBranch] = useState("master");
+  const [githubBranch, setGithubBranch] = useState("main");
   const [pageType, setPageType] = useState<"template" | "landing">("template");
   const [response, status, provisionSite] = useProvisionSite();
   const [error, setError] = useState<string | null>(null);

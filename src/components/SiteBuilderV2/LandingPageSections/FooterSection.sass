@@ -1,0 +1,40 @@
+@import '../../../styles/variables'
+@import '../../../styles/mixins'
+
+.footer-section
+  position: relative
+  background: var(--color-footer, #2d8180)
+  padding: 1rem 0
+  
+  &__content
+    max-width: 1440px
+    margin: 0 auto
+    display: flex
+    justify-content: space-between
+    gap: 8px
+    align-items: center
+    text-align: center
+
+  &__text
+    font-size: 18px
+    color: rgba(255, 255, 255, 0.95)
+    margin: 0
+    font-weight: 400
+    letter-spacing: 0
+
+  &__credit
+    font-size: 18px
+    color: rgba(255, 255, 255, 0.8)
+    margin: 0
+    font-weight: 400
+    display: flex
+    align-items: center
+    gap: 6px
+    letter-spacing: 0
+
+  &__logo
+    height: 24px
+    width: auto
+    filter: brightness(0) invert(1)
+    opacity: 0.9
+

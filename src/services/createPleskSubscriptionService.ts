@@ -1,15 +1,8 @@
 import apiClient from "./apiService";
-import { CreateSubscriptionRequest, CreateSubscriptionResponse } from "../types/APIServiceTypes";
+import { CreatePleskSubscriptionRequest, CreatePleskSubscriptionResponse } from "../types/APIServiceTypes";
 
-const createPleskSubscription = async (
-  request: CreateSubscriptionRequest
-): Promise<CreateSubscriptionResponse> => {
-  return await apiClient.post<CreateSubscriptionResponse>(
-    "/create-subscription",
-    request
-  );
+const createPleskSubscriptionService = async (request: CreatePleskSubscriptionRequest): Promise<CreatePleskSubscriptionResponse> => {
+  return await apiClient.post<CreatePleskSubscriptionResponse>("/create-subscription-with-htaccess/", request);
 };
 
-export default createPleskSubscription;
-
-
+export default createPleskSubscriptionService;

@@ -1,0 +1,42 @@
+@import '../../styles/variables'
+@import '../../styles/mixins'
+
+.builder-canvas
+  flex: 1
+  overflow: hidden
+  position: relative
+  display: flex
+  flex-direction: column
+  background: #f5f5f5
+
+  @media (max-width: 768px)
+    display: none
+
+  &__content
+    flex: 1
+    display: flex
+    flex-direction: column
+    align-items: center
+    justify-content: flex-start
+    overflow-y: auto
+    overflow-x: hidden
+    
+    // Container for maintaining aspect ratio
+    .landing-page-wireframe
+      // Will scale to fit available width while maintaining 1920px base
+      width: 100%
+
+  &__placeholder
+    text-align: center
+    padding: 4rem 2rem
+
+  &__placeholder-icon
+    font-size: 5rem
+    margin-bottom: 1.5rem
+    opacity: 0.3
+
+  &__placeholder-text
+    font-size: 1rem
+    color: #64748b
+    margin: 0
+

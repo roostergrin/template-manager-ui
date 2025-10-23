@@ -1,0 +1,474 @@
+@import '../../../styles/variables'
+@import '../../../styles/mixins'
+
+.side-panel-form
+  padding: 24px
+  height: 100%
+  overflow-y: auto
+
+  &__back-btn
+    display: flex
+    align-items: center
+    gap: 8px
+    padding: 8px 12px
+    background: transparent
+    border: 1px solid #e5e7eb
+    border-radius: 6px
+    font-size: 14px
+    font-weight: 600
+    color: #374151
+    cursor: pointer
+    margin-bottom: 20px
+    transition: all 0.2s ease
+
+    &:hover
+      background: #f3f4f6
+      border-color: #d1d5db
+
+  &__hint
+
+    display: block
+    font-size: 12px
+    color: #9ca3af
+    margin: 4px 0
+    font-weight: 400
+
+  &__steps
+    display: flex
+    gap: 12px
+    margin-bottom: 32px
+
+  &__step
+    flex: 1
+    display: flex
+    align-items: center
+    justify-content: center
+    gap: 8px
+    padding: 12px 8px
+    background: transparent
+    border: 2px solid #e5e7eb
+    border-radius: 8px
+    cursor: pointer
+    transition: all 0.2s ease
+
+    &:hover
+      border-color: #4f46e5
+      background: #f8f9ff
+
+    &--active
+      background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%)
+      border-color: #4f46e5
+      pointer-events: none
+
+      .side-panel-form__step-number
+        background: white
+        color: #4f46e5
+
+      .side-panel-form__step-label
+        color: white
+
+  &__step-number
+    width: 24px
+    height: 24px
+    display: flex
+    align-items: center
+    justify-content: center
+    background: #e5e7eb
+    color: #6b7280
+    border-radius: 50%
+    font-size: 14px
+    font-weight: 700
+    transition: all 0.2s ease
+
+  &__step-label
+    font-size: 12px
+    font-weight: 600
+    color: #6b7280
+    text-align: center
+    transition: all 0.2s ease
+
+  &__file-upload
+    display: flex
+    gap: 8px
+    align-items: center
+
+  &__file-input
+    display: none
+
+  &__file-label
+    flex: 1
+    display: flex
+    align-items: center
+    gap: 12px
+    padding: 12px 16px
+    border: 2px dashed #d1d5db
+    border-radius: 8px
+    cursor: pointer
+    transition: all 0.2s ease
+    background: #f9fafb
+
+    &:hover
+      border-color: #4f46e5
+      background: #f8f9ff
+
+  &__file-icon
+    font-size: 24px
+
+  &__file-text
+    font-size: 14px
+    color: #6b7280
+    font-weight: 500
+
+  &__file-clear
+    padding: 8px 12px
+    background: #ef4444
+    color: white
+    border: none
+    border-radius: 6px
+    font-size: 14px
+    font-weight: 600
+    cursor: pointer
+    transition: all 0.2s ease
+
+    &:hover
+      background: #dc2626
+
+  &__title
+    font-size: 32px
+    font-weight: 700
+    color: #111827
+    margin: 0 0 24px
+    padding-bottom: 16px
+    border-bottom: 2px solid #e5e7eb
+
+  &__subtitle
+    font-size: 16px
+    font-weight: 600
+    color: #374151
+    margin: 0 0 16px
+
+  &__section
+    margin-bottom: 32px
+
+  &__field
+    margin-bottom: 20px
+
+  &__label
+    display: block
+    font-size: 13px
+    font-weight: 600
+    color: #6b7280
+    margin-bottom: 6px
+    text-transform: uppercase
+    letter-spacing: 0.5px
+
+  &__input
+    width: 100%
+    padding: 10px 12px
+    border: 1px solid #d1d5db
+    border-radius: 6px
+    font-size: 14px
+    color: #111827
+    transition: all 0.2s ease
+
+    &:focus
+      outline: none
+      border-color: #4f46e5
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1)
+
+    &--small
+      width: 100px
+      flex-shrink: 0
+
+    &--error
+      border-color: #ef4444
+      
+      &:focus
+        border-color: #ef4444
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1)
+
+  &__textarea
+    width: 100%
+    padding: 10px 12px
+    border: 1px solid #d1d5db
+    border-radius: 6px
+    font-size: 14px
+    color: #111827
+    resize: vertical
+    font-family: inherit
+    transition: all 0.2s ease
+
+    &:focus
+      outline: none
+      border-color: #4f46e5
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1)
+
+  &__color-grid
+    display: grid
+    grid-template-columns: 1fr 1fr
+    gap: 16px
+
+  &__color-input
+    display: flex
+    gap: 8px
+    align-items: center
+
+    input[type="color"]
+      width: 48px
+      height: 38px
+      border: 1px solid #d1d5db
+      border-radius: 6px
+      cursor: pointer
+      padding: 2px
+
+      &::-webkit-color-swatch-wrapper
+        padding: 2px
+
+      &::-webkit-color-swatch
+        border: none
+        border-radius: 4px
+
+  &__export-btn
+    width: 100%
+    padding: 12px 24px
+    background: #10b981
+    color: white
+    border: none
+    border-radius: 6px
+    font-size: 14px
+    font-weight: 700
+    cursor: pointer
+    transition: all 0.2s ease
+
+    &:hover
+      background: #059669
+      transform: translateY(-1px)
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3)
+
+  &__add-item-btn
+    padding: 8px 16px
+    background: #4f46e5
+    color: white
+    border: none
+    border-radius: 6px
+    font-size: 13px
+    font-weight: 600
+    cursor: pointer
+    transition: all 0.2s ease
+    margin-top: 8px
+
+    &:hover
+      background: #4338ca
+
+  &__item-list
+    display: flex
+    flex-direction: column
+    gap: 12px
+    margin-top: 12px
+
+  &__item
+    padding: 12px
+    background: #f9fafb
+    border: 1px solid #e5e7eb
+    border-radius: 6px
+    display: flex
+    justify-content: space-between
+    align-items: center
+
+  &__item-remove
+    padding: 4px 8px
+    background: #ef4444
+    color: white
+    border: none
+    border-radius: 4px
+    font-size: 12px
+    cursor: pointer
+    transition: all 0.2s ease
+
+    &:hover
+      background: #dc2626
+
+  &__repeater-list
+    display: flex
+    flex-direction: column
+    gap: 8px
+    margin-bottom: 8px
+
+  &__repeater-item
+    display: flex
+    gap: 8px
+    align-items: center
+
+  &__repeater-remove
+    padding: 8px 12px
+    background: #ef4444
+    color: white
+    border: none
+    border-radius: 6px
+    font-size: 14px
+    font-weight: 600
+    cursor: pointer
+    transition: all 0.2s ease
+    flex-shrink: 0
+
+    &:hover
+      background: #dc2626
+
+  &__logos-list
+    display: flex
+    flex-direction: column
+    gap: 12px
+    margin-bottom: 16px
+
+  &__logo-item
+    border: 1px solid #e5e7eb
+    border-radius: 8px
+    overflow: hidden
+    background: white
+
+  &__logo-header
+    display: flex
+    align-items: center
+    gap: 8px
+    padding: 12px
+
+  &__logo-expand
+    flex: 1
+    display: flex
+    align-items: center
+    gap: 12px
+    background: transparent
+    border: none
+    cursor: pointer
+    text-align: left
+    padding: 0
+    transition: all 0.2s ease
+
+    &:hover
+      color: #4f46e5
+
+  &__logo-number
+    width: 24px
+    height: 24px
+    display: flex
+    align-items: center
+    justify-content: center
+    background: #f3f4f6
+    color: #6b7280
+    border-radius: 50%
+    font-size: 12px
+    font-weight: 700
+    flex-shrink: 0
+
+  &__logo-title
+    flex: 1
+    font-size: 14px
+    font-weight: 600
+    color: #374151
+
+  &__logo-arrow
+    font-size: 10px
+    color: #9ca3af
+    transition: transform 0.2s ease
+
+  &__logo-remove
+    padding: 6px 10px
+    background: #ef4444
+    color: white
+    border: none
+    border-radius: 6px
+    font-size: 14px
+    font-weight: 600
+    cursor: pointer
+    transition: all 0.2s ease
+    flex-shrink: 0
+
+    &:hover
+      background: #dc2626
+
+  &__logo-content
+    padding: 16px
+    border-top: 1px solid #e5e7eb
+    background: #f9fafb
+
+  &__radio-group
+    display: flex
+    gap: 16px
+
+  &__radio
+    display: flex
+    align-items: center
+    gap: 8px
+    cursor: pointer
+    font-size: 14px
+    color: #374151
+
+    input[type="radio"]
+      cursor: pointer
+
+    span
+      font-weight: 500
+
+  &__divider
+    display: flex
+    align-items: center
+    gap: 16px
+    margin: 20px 0
+    color: #9ca3af
+    font-size: 12px
+    font-weight: 600
+    text-transform: uppercase
+
+    &::before,
+    &::after
+      content: ''
+      flex: 1
+      height: 1px
+      background: #e5e7eb
+
+  &__select
+    width: 100%
+    padding: 10px 12px
+    border: 1px solid #d1d5db
+    border-radius: 6px
+    font-size: 14px
+    color: #111827
+    background: white
+    cursor: pointer
+    transition: all 0.2s ease
+
+    &:focus
+      outline: none
+      border-color: #4f46e5
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1)
+
+  &__readonly
+    width: 100%
+    padding: 10px 12px
+    border: 1px solid #e5e7eb
+    border-radius: 6px
+    font-size: 14px
+    color: #6b7280
+    background: #f9fafb
+    font-family: 'Courier New', monospace
+    letter-spacing: 0.5px
+
+  &__error-message
+    display: block
+    font-size: 13px
+    color: #ef4444
+    margin-top: 6px
+    font-weight: 500
+
+  &__status-message
+    display: block
+    font-size: 14px
+    color: #4f46e5
+    margin-bottom: 16px
+    padding: 12px 16px
+    background: #f8f9ff
+    border: 1px solid #e0e7ff
+    border-radius: 6px
+    font-weight: 500
+    text-align: center
+

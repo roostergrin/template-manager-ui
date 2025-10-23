@@ -1,0 +1,51 @@
+@import '../../styles/variables'
+@import '../../styles/mixins'
+
+.builder-header
+  display: flex
+  align-items: center
+  justify-content: center
+  padding: 1rem
+  position: relative
+  z-index: 50
+
+  &__tabs
+    display: flex
+    gap: 0.25rem
+    background: #f5f5f5
+    padding: 0.25rem
+    border-radius: 10px
+
+  &__tab
+    background: transparent
+    border: none
+    padding: 0.5rem 1rem
+    border-radius: 8px
+    font-size: 0.875rem
+    font-weight: 500
+    color: #666
+    cursor: pointer
+    transition: all 0.2s ease
+    white-space: nowrap
+    display: flex
+    align-items: center
+    gap: 0.5rem
+
+    &:hover
+      color: #333
+      background: rgba(0, 0, 0, 0.05)
+
+    &:focus
+      outline: 2px solid #6366f1
+      outline-offset: 2px
+
+    &--active
+      background: white
+      color: #333
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1)
+      pointer-events: none
+
+  // Responsive
+  @media (max-width: 768px)
+    display: none
+

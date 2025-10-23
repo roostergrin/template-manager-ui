@@ -1,0 +1,196 @@
+@import '../../styles/variables'
+@import '../../styles/mixins'
+
+.builder-side-panel
+  width: 600px
+  min-width: 600px
+  background: white
+  border-right: 1px solid #e5e5e5
+  overflow-y: auto
+  flex-shrink: 0
+  position: relative
+  z-index: 100
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.5s cubic-bezier(0.4, 0, 0.2, 1)
+
+  @media (max-width: 768px)
+    width: 100%
+    min-width: 100%
+    border-right: none
+    border-bottom: 1px solid #e5e5e5
+
+  &--collapsed
+    width: 0
+    min-width: 0
+    border-right: none
+    overflow: hidden
+
+    .builder-side-panel__content
+      opacity: 0
+      pointer-events: none
+
+  &__toggle
+    position: fixed
+    top: 50%
+    left: 600px
+    transform: translate(-50%, -50%)
+    width: 40px
+    height: 40px
+    background: white
+    border: 1px solid #e5e5e5
+    border-radius: 50%
+    display: flex
+    align-items: center
+    justify-content: center
+    cursor: pointer
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1)
+    font-size: 1rem
+    color: #64748b
+    z-index: 101
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1)
+
+    .builder-side-panel--collapsed &
+      left: 0
+      transform: translate(50%, -50%)
+
+    &:hover
+      background: #fafafa
+      border-color: #6366f1
+      color: #6366f1
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2)
+
+    &:focus
+      outline: 2px solid #6366f1
+      outline-offset: 2px
+
+    @media (max-width: 768px)
+      display: none
+
+  &__content
+    padding: 0
+    opacity: 1
+    transition: opacity 0.3s ease
+    height: 100%
+    overflow: hidden
+    
+    .builder-side-panel--collapsed &
+      transition: opacity 0.2s ease
+
+  &__back-btn
+    margin: 20px 24px 0
+    padding: 8px 16px
+    background: transparent
+    border: 1px solid #e5e7eb
+    border-radius: 6px
+    font-size: 14px
+    font-weight: 600
+    color: #374151
+    cursor: pointer
+    transition: all 0.2s ease
+    display: inline-flex
+    align-items: center
+    gap: 8px
+
+    &:hover
+      background: #f3f4f6
+      border-color: #d1d5db
+
+  &__edit-mode
+    padding: 24px
+
+  &__title
+    font-size: 1.5rem
+    font-weight: 700
+    color: #0f172a
+    margin: 0 0 1rem
+    letter-spacing: -0.02em
+    transition: opacity 0.3s ease
+
+  &__description
+    font-size: 0.9375rem
+    color: #64748b
+    margin: 0 0 2rem
+    line-height: 1.5
+    transition: opacity 0.3s ease
+
+  &__section
+    margin-bottom: 2rem
+    transition: opacity 0.3s ease
+
+    &:last-child
+      margin-bottom: 0
+
+  &__section-title
+    font-size: 0.875rem
+    font-weight: 600
+    color: #0f172a
+    text-transform: uppercase
+    letter-spacing: 0.05em
+    margin: 0 0 1rem
+    transition: opacity 0.3s ease
+
+  &__list
+    display: flex
+    flex-direction: column
+    gap: 0.5rem
+    transition: opacity 0.3s ease
+
+  &__item
+    display: flex
+    align-items: center
+    gap: 0.75rem
+    padding: 0.875rem 1rem
+    background: white
+    border: 1px solid #e5e5e5
+    border-radius: 10px
+    cursor: pointer
+    transition: all 0.2s ease, opacity 0.3s ease
+    text-align: left
+    width: 100%
+
+    &:hover
+      background: #fafafa
+      border-color: #d4d4d4
+
+    &:focus
+      outline: 2px solid #6366f1
+      outline-offset: 2px
+
+    &--active
+      background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%)
+      border-color: #6366f1
+
+  &__item-icon
+    font-size: 1.25rem
+    flex-shrink: 0
+
+  &__item-text
+    font-size: 0.9375rem
+    font-weight: 500
+    color: #0f172a
+
+  &__add-btn
+    width: 100%
+    padding: 0.875rem 1rem
+    background: white
+    border: 2px dashed #d4d4d4
+    border-radius: 10px
+    cursor: pointer
+    transition: all 0.2s ease
+    font-size: 0.9375rem
+    font-weight: 500
+    color: #64748b
+    margin-top: 0.5rem
+    display: flex
+    align-items: center
+    justify-content: center
+    gap: 0.5rem
+
+    &:hover
+      border-color: #6366f1
+      color: #6366f1
+      background: #f8f9ff
+
+    &:focus
+      outline: 2px solid #6366f1
+      outline-offset: 2px
+
