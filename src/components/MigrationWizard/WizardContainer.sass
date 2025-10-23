@@ -1,0 +1,171 @@
+.wizard-container
+  max-width: 1400px
+  margin: 0 auto
+  padding: 2rem
+
+  &__header
+    text-align: center
+    margin-bottom: 3rem
+
+  &__title
+    font-size: 2.5rem
+    font-weight: 700
+    margin-bottom: 0.5rem
+    color: #1a202c
+
+  &__subtitle
+    font-size: 1.125rem
+    color: #718096
+
+  &__progress
+    margin-bottom: 3rem
+
+  &__content
+    background: white
+    border-radius: 12px
+    padding: 2rem
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1)
+    min-height: 500px
+    margin-bottom: 2rem
+
+  &__step-header
+    margin-bottom: 2rem
+    border-bottom: 1px solid #e2e8f0
+    padding-bottom: 1rem
+
+  &__step-title
+    font-size: 1.75rem
+    font-weight: 600
+    margin-bottom: 0.5rem
+    color: #2d3748
+
+  &__step-description
+    font-size: 1rem
+    color: #718096
+
+  &__step-content
+    // Content area for each step
+
+  &__navigation
+    display: flex
+    justify-content: space-between
+    align-items: center
+    padding: 1rem 0
+
+  &__nav-btn
+    padding: 0.75rem 1.5rem
+    border-radius: 8px
+    font-weight: 600
+    font-size: 1rem
+    cursor: pointer
+    transition: all 0.2s
+    border: none
+
+    &--prev
+      background: #e2e8f0
+      color: #2d3748
+
+      &:hover:not(:disabled)
+        background: #cbd5e0
+
+    &--next
+      background: #4299e1
+      color: white
+
+      &:hover:not(:disabled)
+        background: #3182ce
+
+    &:disabled
+      opacity: 0.5
+      cursor: not-allowed
+
+  &__nav-info
+    color: #718096
+    font-weight: 500
+
+.step-indicator
+  display: flex
+  justify-content: space-between
+  align-items: center
+  position: relative
+
+  &__step
+    display: flex
+    flex-direction: column
+    align-items: center
+    position: relative
+    flex: 1
+
+    &--clickable
+      cursor: pointer
+
+      &:hover .step-indicator__icon
+        transform: scale(1.1)
+
+    &--active .step-indicator__icon
+      background: #4299e1
+      color: white
+      border-color: #4299e1
+
+    &--completed .step-indicator__icon
+      background: #48bb78
+      color: white
+      border-color: #48bb78
+
+  &__icon
+    width: 60px
+    height: 60px
+    border-radius: 50%
+    background: white
+    border: 3px solid #e2e8f0
+    display: flex
+    align-items: center
+    justify-content: center
+    font-size: 1.5rem
+    margin-bottom: 0.75rem
+    transition: all 0.2s
+    position: relative
+    z-index: 2
+
+  &__label
+    font-size: 0.875rem
+    font-weight: 600
+    color: #4a5568
+    text-align: center
+
+  &__connector
+    position: absolute
+    top: 30px
+    left: 50%
+    width: 100%
+    height: 3px
+    background: #e2e8f0
+    z-index: 1
+
+  &__step--completed ~ &__step .step-indicator__connector
+    background: #48bb78
+
+  &__step--active .step-indicator__connector
+    background: linear-gradient(to right, #48bb78 0%, #e2e8f0 100%)
+
+@media (max-width: 768px)
+  .wizard-container
+    padding: 1rem
+
+    &__title
+      font-size: 1.75rem
+
+    &__content
+      padding: 1.5rem
+
+  .step-indicator
+    &__icon
+      width: 48px
+      height: 48px
+      font-size: 1.25rem
+
+    &__label
+      font-size: 0.75rem
+
+    &__connector
+      top: 24px

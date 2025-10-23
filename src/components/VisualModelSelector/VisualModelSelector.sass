@@ -1,0 +1,223 @@
+.visual-model-selector
+  padding: 1rem
+
+.custom-site-repeater
+  &__container
+    display: grid
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr))
+    gap: 2rem
+    padding: 1rem
+
+  &__site
+    background: white
+    border: 2px solid #e2e8f0
+    border-radius: 12px
+    overflow: hidden
+    cursor: pointer
+    transition: all 0.3s ease
+    position: relative
+
+    &:hover
+      border-color: #4299e1
+      transform: translateY(-4px)
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1)
+
+      .custom-site-repeater__site-video
+        display: block
+
+      .custom-site-repeater__site-image
+        display: none
+
+  &__site-media
+    position: relative
+    aspect-ratio: 16 / 10
+    overflow: hidden
+    background: #f7fafc
+
+  &__site-video
+    width: 100%
+    height: 100%
+    object-fit: cover
+    display: none
+
+  &__site-image
+    width: 100%
+    height: 100%
+
+    img
+      width: 100%
+      height: 100%
+      object-fit: cover
+
+  &__site-title
+    font-size: 1.25rem
+    font-weight: 600
+    color: #2d3748
+    padding: 1rem 1.5rem 0.5rem
+    margin: 0
+
+  &__site-adjectives
+    display: flex
+    gap: 0.5rem
+    padding: 0 1.5rem 1rem
+    flex-wrap: wrap
+
+  &__site-adjective
+    background: #edf2f7
+    color: #4a5568
+    padding: 0.25rem 0.75rem
+    border-radius: 12px
+    font-size: 0.75rem
+    font-weight: 500
+
+  &__button
+    margin: 0 1.5rem 1.5rem
+
+.block-button
+  display: inline-block
+  position: relative
+
+  &__wrapper
+    position: relative
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    padding: 0.75rem 1.5rem
+    background: #4299e1
+    color: white
+    border-radius: 8px
+    font-weight: 600
+    transition: all 0.2s
+
+    &:hover
+      background: #3182ce
+
+  &__background
+    position: absolute
+    inset: 0
+    background: currentColor
+    opacity: 0
+    transition: opacity 0.2s
+
+  &__arrow
+    width: 20px
+    height: 20px
+    transition: transform 0.2s
+
+    &--hover
+      position: absolute
+      right: 1rem
+      opacity: 0
+
+  &__label
+    flex: 1
+
+  &:hover .block-button__arrow
+    transform: translateX(4px)
+
+  &:hover .block-button__arrow--hover
+    opacity: 1
+
+.base-icon
+  display: inline-flex
+  align-items: center
+  justify-content: center
+
+  svg
+    width: 100%
+    height: 100%
+
+.base-image
+  &__image
+    width: 100%
+    height: 100%
+    object-fit: cover
+
+.sitemap-section
+  padding: 2rem
+
+  &__header
+    display: flex
+    justify-content: space-between
+    align-items: center
+    margin-bottom: 2rem
+
+  &__model-title
+    font-size: 1.5rem
+    font-weight: 600
+    color: #2d3748
+
+  &__back-button
+    padding: 0.5rem 1rem
+    background: #e2e8f0
+    border: none
+    border-radius: 6px
+    font-weight: 500
+    cursor: pointer
+    transition: background 0.2s
+
+    &:hover
+      background: #cbd5e0
+
+  &__list
+    list-style: none
+    padding: 0
+    margin: 0
+
+  &__item
+    display: flex
+    align-items: flex-start
+    gap: 1rem
+    margin-bottom: 1rem
+    padding: 1rem
+    background: white
+    border: 1px solid #e2e8f0
+    border-radius: 8px
+
+  &__input
+    flex: 1
+    padding: 0.5rem
+    border: 1px solid #e2e8f0
+    border-radius: 6px
+    font-family: inherit
+    font-size: 1rem
+    resize: vertical
+
+    &:focus
+      outline: none
+      border-color: #4299e1
+
+  &__button
+    padding: 0.5rem 1rem
+    background: #f56565
+    color: white
+    border: none
+    border-radius: 6px
+    font-weight: 600
+    cursor: pointer
+    transition: background 0.2s
+
+    &:hover
+      background: #e53e3e
+
+  &__controls
+    margin-top: 2rem
+    display: flex
+    justify-content: center
+
+  &__add-button
+    padding: 0.75rem 1.5rem
+    background: #4299e1
+    color: white
+    border: none
+    border-radius: 8px
+    font-weight: 600
+    cursor: pointer
+    transition: background 0.2s
+
+    &:hover
+      background: #3182ce
+
+@media (max-width: 768px)
+  .custom-site-repeater__container
+    grid-template-columns: 1fr

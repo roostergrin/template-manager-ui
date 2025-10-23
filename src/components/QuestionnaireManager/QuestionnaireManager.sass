@@ -47,5 +47,252 @@
     text-align: center
     font-weight: 600
 
+  &__scrape-mode-toggle
+    background: #f8f9fa
+    border: 2px solid #e0e0e0
+    border-radius: 8px
+    padding: 1.5rem
+    margin-bottom: 2rem
+
+    .toggle-buttons
+      display: flex
+      gap: 1rem
+      margin-bottom: 1rem
+
+      .toggle-btn
+        flex: 1
+        padding: 1rem
+        border: 2px solid #e0e0e0
+        border-radius: 6px
+        background: white
+        font-size: 1rem
+        font-weight: 600
+        cursor: pointer
+        transition: all 0.2s
+        display: flex
+        align-items: center
+        justify-content: center
+        gap: 0.5rem
+
+        &:hover
+          border-color: #667eea
+          background: #f0f4ff
+
+        &.active
+          border-color: #667eea
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)
+          color: white
+          box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3)
+
+    .toggle-description
+      margin: 0
+      color: #666
+      font-size: 0.9rem
+      line-height: 1.5
+      text-align: center
+
+    .sample-data-section
+      margin-top: 1.5rem
+      padding-top: 1.5rem
+      border-top: 1px solid #e0e0e0
+      display: flex
+      flex-direction: column
+      align-items: center
+      gap: 0.75rem
+
+      .btn-load-sample
+        background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%)
+        color: white
+        border: none
+        padding: 0.75rem 2rem
+        border-radius: 6px
+        font-size: 1rem
+        font-weight: 600
+        cursor: pointer
+        transition: all 0.2s
+        box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3)
+
+        &:hover
+          transform: translateY(-2px)
+          box-shadow: 0 4px 12px rgba(255, 152, 0, 0.4)
+
+        &:active
+          transform: translateY(0)
+
+      .sample-data-hint
+        margin: 0
+        color: #666
+        font-size: 0.85rem
+        text-align: center
+        font-style: italic
+
+  &__full-workflow
+    margin-top: 1rem
+
+    .workflow-complete-summary
+      margin-top: 2rem
+      padding: 2rem
+      background: white
+      border-radius: 8px
+      border: 2px solid #28a745
+
+      .summary-card
+        h3
+          margin: 0 0 1.5rem 0
+          color: #28a745
+          font-size: 1.5rem
+          text-align: center
+
+        .summary-stats
+          display: grid
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr))
+          gap: 1rem
+          margin-bottom: 1.5rem
+
+          .stat
+            background: #f8f9fa
+            padding: 1rem
+            border-radius: 6px
+            display: flex
+            flex-direction: column
+            gap: 0.5rem
+
+            .stat-label
+              font-size: 0.85rem
+              color: #666
+              font-weight: 500
+
+            .stat-value
+              font-size: 1.5rem
+              font-weight: bold
+              color: #667eea
+
+        .mapping-details
+          margin-top: 2rem
+          padding-top: 2rem
+          border-top: 2px solid #e0e0e0
+
+          h4
+            margin: 0 0 1.5rem 0
+            color: #333
+            font-size: 1.1rem
+
+          .page-mapping
+            background: #f8f9fa
+            border: 1px solid #e0e0e0
+            border-radius: 6px
+            padding: 1rem
+            margin-bottom: 1rem
+
+            &:last-child
+              margin-bottom: 0
+
+            .page-mapping-header
+              display: flex
+              align-items: center
+              gap: 0.75rem
+              margin-bottom: 0.75rem
+              padding-bottom: 0.75rem
+              border-bottom: 1px solid #e0e0e0
+
+              .page-path
+                background: #667eea
+                color: white
+                padding: 0.25rem 0.75rem
+                border-radius: 4px
+                font-family: monospace
+                font-size: 0.9rem
+                font-weight: 600
+
+              .mapping-arrow
+                color: #999
+                font-size: 1.2rem
+
+              .page-title
+                flex: 1
+                color: #333
+                font-weight: 600
+                font-size: 0.95rem
+
+              .confidence-badge
+                background: #28a745
+                color: white
+                padding: 0.2rem 0.6rem
+                border-radius: 12px
+                font-size: 0.75rem
+                font-weight: 500
+
+            .sections-list
+              display: flex
+              flex-direction: column
+              gap: 0.5rem
+
+              .section-item
+                background: white
+                border: 1px solid #e0e0e0
+                border-radius: 4px
+                padding: 0.5rem 0.75rem
+                display: flex
+                align-items: center
+                gap: 0.75rem
+                font-size: 0.85rem
+
+                .section-type
+                  background: #ff9800
+                  color: white
+                  padding: 0.2rem 0.5rem
+                  border-radius: 4px
+                  font-size: 0.75rem
+                  font-weight: 600
+                  text-transform: uppercase
+                  white-space: nowrap
+
+                .section-preview
+                  flex: 1
+                  color: #666
+                  white-space: nowrap
+                  overflow: hidden
+                  text-overflow: ellipsis
+
+                .section-images
+                  background: #e9ecef
+                  color: #495057
+                  padding: 0.2rem 0.5rem
+                  border-radius: 4px
+                  font-size: 0.75rem
+                  white-space: nowrap
+
+        .summary-note
+          margin: 0
+          margin-top: 2rem
+          padding: 1rem
+          background: #e7f3ff
+          border-left: 4px solid #667eea
+          border-radius: 4px
+          color: #0c5460
+          font-size: 0.95rem
+          line-height: 1.5
+
+  &__scraped-data
+    margin-top: 2rem
+    background: #f8f9fa
+    border: 1px solid #e0e0e0
+    border-radius: 8px
+    padding: 1.5rem
+
+    h3
+      margin: 0 0 1rem 0
+      color: #333
+
+    pre
+      background: white
+      border: 1px solid #e0e0e0
+      border-radius: 4px
+      padding: 1rem
+      overflow-x: auto
+      max-height: 400px
+      font-size: 0.85rem
+      line-height: 1.4
+
 // Include responsive form styles
 @include forms.form-responsive

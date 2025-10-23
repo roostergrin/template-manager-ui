@@ -1,38 +1,95 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { DndContext, DragEndEvent, DragOverEvent, DragStartEvent, KeyboardSensor, PointerSensor, UniqueIdentifier, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, arrayMove, verticalListSortingStrategy, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { useSitemap } from '../../contexts/SitemapProvider';
-import PageCard from './PageCard';
-import { SitemapItem, SitemapSection } from '../../types/SitemapTypes';
+import PageListTOCItem from './PageListTOC';
+import { SitemapItem, SitemapSection, StoredSitemap } from '../../types/SitemapTypes';
 import './PageList.sass';
 
 type ActiveDragType = 'page' | 'item' | null;
 
-const PageList: React.FC = () => {
+interface PageListProps {
+  headerControls?: React.ReactNode;
+  contentSourceInfo?: {
+    domain: string;
+    pagesCount: number;
+  };
+  additionalActions?: React.ReactNode;
+  exportImportControls?: React.ReactNode;
+}
+
+const LOCAL_STORAGE_KEY = 'generatedSitemaps';
+
+const getStoredSitemaps = (): StoredSitemap[] => {
+  const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
+  if (!raw) return [];
+  try {
+    return JSON.parse(raw) as StoredSitemap[];
+  } catch {
+    return [];
+  }
+};
+
+const PageList: React.FC<PageListProps> = ({
+  headerControls,
+  contentSourceInfo,
+  additionalActions,
+  exportImportControls
+}) => {
   const { state, actions } = useSitemap();
   const [activeDragType, setActiveDragType] = useState<ActiveDragType>(null);
-  const [filterText, setFilterText] = useState<string>('');
+  const [hasAttemptedAutoLoad, setHasAttemptedAutoLoad] = useState<boolean>(false);
+  const [expandedPageIds, setExpandedPageIds] = useState<Set<string>>(new Set());
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
-  
-  const { pages, viewMode, showItems, sitemapSource } = state;
-  
-  const { addPage } = actions;
-  // Determine item density from view mode; layout is always full-width single column
-  const isCompactMode = viewMode === 'list';
-  
-  const filteredPages = useMemo(() => {
-    const needle = filterText.trim().toLowerCase();
-    if (!needle) return pages;
-    return pages.filter(p => {
-      if (p.title.toLowerCase().includes(needle)) return true;
-      return p.items.some(i => i.model.toLowerCase().includes(needle) || i.query.toLowerCase().includes(needle));
-    });
-  }, [filterText, pages]);
 
-  const pageIds = useMemo(() => filteredPages.map(p => p.id as UniqueIdentifier), [filteredPages]);
+  const { pages, sitemapSource } = state;
+  const { addPage } = actions;
+
+  // Auto-load the most recent sitemap if none is loaded
+  useEffect(() => {
+    if (!state.sitemapSource && !hasAttemptedAutoLoad) {
+      const storedSitemaps = getStoredSitemaps();
+      if (storedSitemaps.length > 0) {
+        // Sort by creation date (most recent first) and load the first one
+        const mostRecent = storedSitemaps.sort((a, b) =>
+          new Date(b.created).getTime() - new Date(a.created).getTime()
+        )[0];
+
+        actions.handleSelectStoredSitemap(mostRecent);
+      }
+      setHasAttemptedAutoLoad(true);
+    }
+  }, [state.sitemapSource, hasAttemptedAutoLoad, actions]);
+
+  // Initialize expanded state for new pages (all pages start expanded)
+  useEffect(() => {
+    setExpandedPageIds(prev => {
+      const newSet = new Set(prev);
+      pages.forEach(page => {
+        if (!newSet.has(page.id)) {
+          newSet.add(page.id);
+        }
+      });
+      return newSet;
+    });
+  }, [pages]);
+
+  const pageIds = useMemo(() => pages.map(p => p.id as UniqueIdentifier), [pages]);
+
+  const togglePageExpanded = useCallback((pageId: string) => {
+    setExpandedPageIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(pageId)) {
+        newSet.delete(pageId);
+      } else {
+        newSet.add(pageId);
+      }
+      return newSet;
+    });
+  }, []);
 
   const findPageByItemId = useCallback(
     (itemId: UniqueIdentifier): SitemapSection | undefined => pages.find(p => p.items.some(i => i.id === itemId)),
@@ -143,110 +200,67 @@ const PageList: React.FC = () => {
     }
   }, [actions, findPageByItemId, pages]);
 
-  const handleShowAllItems = useCallback(() => {
-    actions.setShowItems(true);
-  }, [actions]);
+  // Show loading state while attempting auto-load
+  if (!sitemapSource && !hasAttemptedAutoLoad) {
+    return (
+      <div className="text-center py-8 text-gray-500">
+        <p>Loading sitemap...</p>
+      </div>
+    );
+  }
 
-  const handleHideAllItems = useCallback(() => {
-    actions.setShowItems(false);
-  }, [actions]);
-
-  // Don't show the sitemap container until a sitemap has been loaded or generated
+  // Show empty state only if no sitemap exists at all after auto-load attempt
   if (!sitemapSource || pages.length === 0) {
     return (
       <div className="text-center py-8 text-gray-500">
-        <p>No sitemap loaded. Please generate a new sitemap or load an existing one.</p>
+        <p>No sitemaps available. Generate your first sitemap to get started.</p>
       </div>
     );
   }
 
   return (
     <DndContext sensors={sensors} onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
-      <div
-        className="app__page-container mb-6"
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr',
-          gap: isCompactMode ? '0.5rem' : '1rem',
-        }}
-      >
-        <div className="app__page-filter flex items-center gap-2 mb-2" style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 16,
-          background: 'var(--filter-bg, #f8fafc)',
-          border: '1px solid var(--filter-border, #e2e8f0)',
-          borderRadius: 8,
-          padding: '1rem'
-        }}>
-          <h3>
-            {sitemapSource === 'generated' && 'Generated '}
-            {sitemapSource === 'loaded' && 'Loaded '}
-            Sitemap
-          </h3>
-          
-          <div className="app__page-filter-controls" role="group" aria-label="Toggle item visibility globally" style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%'}}>
-            <input
-              type="text"
-              value={filterText}
-              onChange={(e) => setFilterText(e.target.value)}
-              className="border rounded px-2 py-1 text-sm flex-1"
-              placeholder="Filter by page title, model, or query…"
-              aria-label="Filter sitemap"
-            />
-            {filterText && (
-              <button
-                className="border rounded px-2 py-1 text-xs"
-                onClick={() => setFilterText('')}
-                aria-label="Clear filter"
-              >
-                Clear
-              </button>
-            )}
-            <button
-              className={`app__filter-button ${showItems ? 'app__filter-button--active' : ''}`}
-              onClick={handleShowAllItems}
-              aria-pressed={showItems}
-              aria-label="Show all items (Item Mode)"
-              tabIndex={0}
-            >
-              Show All Items
-            </button>
-            <button
-              className={`app__filter-button ${!showItems ? 'app__filter-button--active' : ''}`}
-              onClick={handleHideAllItems}
-              aria-pressed={!showItems}
-              aria-label="Hide all items (Page Mode)"
-              tabIndex={0}
-            >
-              Hide All Items
-            </button>
+      <div>
+        {/* Header Controls Row: Template Selector + Generate + Load */}
+        {headerControls && (
+          <div className="mb-4">
+            {headerControls}
           </div>
-       
-          <SortableContext items={pageIds} strategy={verticalListSortingStrategy}>
-            {filteredPages.map((page) => (
-              <PageCard
-                key={page.id}
-                page={page}
-                index={pages.findIndex(p => p.id === page.id)}
-                showItemNumbers={true}
-                showPageIds={true}
-                showDeleteButtons={true}
-                showSelect={true}
-                showTextarea={true}
-                isCompactMode={isCompactMode}
-              />
-            ))}
-          </SortableContext>
-          <button
-            className="primary-button"
-            onClick={addPage}
-            aria-label="Add Page"
-            tabIndex={0}
-          >
-            Add Page
-          </button>
-        </div>
+        )}
+
+        {/* Additional Actions */}
+        {additionalActions && (
+          <div className="mb-4">
+            {additionalActions}
+          </div>
+        )}
+
+        {/* Export/Import Controls */}
+        {exportImportControls && (
+          <div className="mb-4" style={{ paddingTop: 12, borderTop: '1px solid #e2e8f0' }}>
+            {exportImportControls}
+          </div>
+        )}
+
+        <SortableContext items={pageIds} strategy={verticalListSortingStrategy}>
+          {pages.map((page) => (
+            <PageListTOCItem
+              key={page.id}
+              page={page}
+              index={pages.findIndex(p => p.id === page.id)}
+              isExpanded={expandedPageIds.has(page.id)}
+              onToggleExpanded={togglePageExpanded}
+            />
+          ))}
+        </SortableContext>
+        <button
+          className="page-list-toc__add-page"
+          onClick={addPage}
+          aria-label="Add Page"
+          tabIndex={0}
+        >
+          + Add Page
+        </button>
       </div>
     </DndContext>
   );

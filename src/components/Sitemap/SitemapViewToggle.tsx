@@ -1,10 +1,20 @@
 import React from 'react';
 import PageList from './PageList';
 
-const SitemapViewToggle: React.FC = () => {
+interface SitemapViewToggleProps {
+  headerControls?: React.ReactNode;
+  contentSourceInfo?: {
+    domain: string;
+    pagesCount: number;
+  };
+  additionalActions?: React.ReactNode;
+  exportImportControls?: React.ReactNode;
+}
+
+const SitemapViewToggle: React.FC<SitemapViewToggleProps> = (props) => {
   return (
     <div className="sitemap-view-container">
-      <PageList />
+      <PageList {...props} />
     </div>
   );
 };

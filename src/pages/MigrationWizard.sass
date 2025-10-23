@@ -1,0 +1,70 @@
+.migration-wizard-page
+  min-height: 100vh
+  background: #f7fafc
+
+  &__header
+    max-width: 1400px
+    margin: 0 auto
+    padding: 3rem 2rem 2rem
+    text-align: center
+
+    h1
+      font-size: 2.5rem
+      font-weight: 700
+      color: #1a202c
+      margin-bottom: 0.75rem
+
+    p
+      font-size: 1.125rem
+      color: #718096
+
+  &__sections
+    max-width: 800px
+    margin: 0 auto
+    padding: 0 2rem 4rem
+
+  &__section
+    margin-bottom: 3rem
+    scroll-margin-top: 100px
+
+    &:last-child
+      margin-bottom: 0
+
+.section-header
+  text-align: center
+
+  h2
+    font-size: 1.75rem
+    font-weight: 600
+    color: #2d3748
+    margin-bottom: 0.5rem
+
+  p
+    font-size: 1rem
+    color: #718096
+
+@media (max-width: 768px)
+  .migration-wizard-page
+    &__header
+      padding: 2rem 1rem 1rem
+
+      h1
+        font-size: 1.75rem
+
+      p
+        font-size: 1rem
+
+    &__sections
+      padding: 0 1rem 2rem
+
+    &__section
+      padding: 1.5rem
+      margin-bottom: 2rem
+      scroll-margin-top: 80px
+
+  .section-header
+    margin-bottom: 1.5rem
+    padding-bottom: 1rem
+
+    h2
+      font-size: 1.5rem

@@ -1,0 +1,358 @@
+.context-preview
+  background: white
+  border-radius: 8px
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1)
+  overflow: hidden
+
+  &__header
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)
+    color: white
+    padding: 1.5rem
+    display: flex
+    justify-content: space-between
+    align-items: center
+
+    h3
+      margin: 0
+      font-size: 1.3rem
+
+    .btn--close
+      background: rgba(255, 255, 255, 0.2)
+      color: white
+      border: none
+      border-radius: 50%
+      width: 32px
+      height: 32px
+      display: flex
+      align-items: center
+      justify-content: center
+      cursor: pointer
+      font-size: 1.2rem
+      transition: background 0.2s
+
+      &:hover
+        background: rgba(255, 255, 255, 0.3)
+
+  &__content
+    display: grid
+    grid-template-columns: 1fr 1fr
+    gap: 2rem
+    padding: 2rem
+
+    h4
+      margin: 0 0 1rem 0
+      color: #333
+      font-size: 1.1rem
+      display: flex
+      align-items: center
+      gap: 0.5rem
+
+    .sitemap-info-column,
+    .scraped-context-column
+      display: flex
+      flex-direction: column
+      gap: 1.5rem
+
+    .info-card
+      background: #f8f9fa
+      border: 1px solid #e0e0e0
+      border-radius: 6px
+      padding: 1.25rem
+
+      .info-row
+        display: flex
+        gap: 0.75rem
+        margin-bottom: 0.75rem
+
+        &:last-of-type
+          margin-bottom: 1rem
+
+        .label
+          color: #666
+          font-weight: 500
+          min-width: 100px
+
+        .value
+          color: #333
+          flex: 1
+
+        .component-badge
+          background: #667eea
+          color: white
+          padding: 0.25rem 0.75rem
+          border-radius: 4px
+          font-size: 0.9rem
+          font-weight: 500
+
+      .info-description
+        padding-top: 0.75rem
+        border-top: 1px solid #e0e0e0
+
+        p
+          margin: 0
+          color: #666
+          font-size: 0.9rem
+          line-height: 1.5
+
+    .expected-items
+      background: #f0f4ff
+      border: 1px solid #667eea
+      border-radius: 6px
+      padding: 1rem
+
+      h5
+        margin: 0 0 0.75rem 0
+        color: #333
+        font-size: 0.95rem
+
+      ul
+        margin: 0
+        padding-left: 1.5rem
+        list-style: none
+
+        li
+          margin-bottom: 0.5rem
+          position: relative
+
+          &:before
+            content: "→"
+            position: absolute
+            left: -1.5rem
+            color: #667eea
+
+          code
+            background: white
+            padding: 0.2rem 0.5rem
+            border-radius: 3px
+            font-size: 0.85rem
+            color: #667eea
+            font-family: monospace
+
+    .sitemap-items
+      .items-list
+        display: flex
+        flex-wrap: wrap
+        gap: 0.5rem
+
+        .item-badge
+          background: #e9ecef
+          color: #495057
+          padding: 0.4rem 0.8rem
+          border-radius: 4px
+          font-size: 0.85rem
+
+    .scraped-page-info
+      .page-header-info
+        background: #f8f9fa
+        border: 1px solid #e0e0e0
+        border-radius: 6px
+        padding: 1rem
+        margin-bottom: 1.5rem
+
+        h5
+          margin: 0 0 0.5rem 0
+          color: #333
+          font-size: 1.1rem
+
+        .page-url
+          margin: 0 0 0.75rem 0
+          color: #666
+          font-size: 0.85rem
+          font-family: monospace
+
+        .page-stats
+          display: flex
+          gap: 1rem
+          padding-top: 0.75rem
+          border-top: 1px solid #e0e0e0
+
+          span
+            font-size: 0.85rem
+            color: #666
+
+      .sections-container
+        h5
+          margin: 0 0 0.75rem 0
+          color: #333
+          font-size: 0.95rem
+
+        .no-sections
+          color: #999
+          font-style: italic
+          text-align: center
+          padding: 1rem
+
+        .section-mapping
+          background: #f8f9fa
+          border: 1px solid #e0e0e0
+          border-radius: 4px
+          margin-bottom: 0.5rem
+          cursor: pointer
+          transition: all 0.2s
+
+          &:hover
+            border-color: #667eea
+            box-shadow: 0 2px 4px rgba(102, 126, 234, 0.1)
+
+          &.selected
+            border-color: #667eea
+            background: #f0f4ff
+
+          .section-header
+            padding: 0.75rem
+            display: flex
+            gap: 0.75rem
+            align-items: center
+
+            .section-type
+              background: #667eea
+              color: white
+              padding: 0.2rem 0.6rem
+              border-radius: 4px
+              font-size: 0.75rem
+              font-weight: 500
+              text-transform: uppercase
+
+            .section-preview
+              color: #666
+              font-size: 0.85rem
+              flex: 1
+              white-space: nowrap
+              overflow: hidden
+              text-overflow: ellipsis
+
+          .section-detail
+            padding: 0 0.75rem 0.75rem 0.75rem
+            border-top: 1px solid #e0e0e0
+
+            .section-content
+              margin-bottom: 1rem
+
+              h5
+                margin: 0.75rem 0 0.5rem 0
+                color: #495057
+                font-size: 0.9rem
+
+              p
+                margin: 0
+                color: #666
+                font-size: 0.85rem
+                line-height: 1.5
+                white-space: pre-wrap
+
+            .section-images
+              h5
+                margin: 0 0 0.5rem 0
+                color: #495057
+                font-size: 0.9rem
+
+              .image-list
+                display: grid
+                grid-template-columns: repeat(auto-fill, minmax(80px, 1fr))
+                gap: 0.5rem
+
+                .image-preview
+                  img
+                    width: 100%
+                    height: 60px
+                    object-fit: cover
+                    border-radius: 4px
+                    border: 1px solid #e0e0e0
+
+      .usage-info
+        .info-banner
+          background: #d1ecf1
+          border: 1px solid #bee5eb
+          border-radius: 6px
+          padding: 1rem
+          display: flex
+          gap: 0.75rem
+
+          .info-icon
+            font-size: 1.2rem
+
+          p
+            margin: 0
+            color: #0c5460
+            font-size: 0.9rem
+            line-height: 1.5
+
+            strong
+              font-weight: 600
+
+    .no-mapping
+      display: flex
+      align-items: center
+      justify-content: center
+      min-height: 300px
+
+      .no-mapping-message
+        text-align: center
+        padding: 2rem
+
+        .icon
+          font-size: 3rem
+          display: block
+          margin-bottom: 1rem
+
+        h5
+          margin: 0 0 0.5rem 0
+          color: #333
+          font-size: 1.1rem
+
+        p
+          margin: 0
+          color: #666
+          font-size: 0.9rem
+          line-height: 1.5
+
+  &__howto
+    background: #f8f9fa
+    border-top: 2px solid #e0e0e0
+    padding: 2rem
+
+    h4
+      margin: 0 0 1.5rem 0
+      color: #333
+      font-size: 1.1rem
+      text-align: center
+
+    .steps
+      display: grid
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr))
+      gap: 1.5rem
+
+      .step
+        background: white
+        border: 1px solid #e0e0e0
+        border-radius: 6px
+        padding: 1.5rem
+        display: flex
+        gap: 1rem
+
+        .step-number
+          background: #667eea
+          color: white
+          width: 36px
+          height: 36px
+          border-radius: 50%
+          display: flex
+          align-items: center
+          justify-content: center
+          font-weight: bold
+          font-size: 1.1rem
+          flex-shrink: 0
+
+        .step-content
+          flex: 1
+
+          h5
+            margin: 0 0 0.5rem 0
+            color: #333
+            font-size: 1rem
+
+          p
+            margin: 0
+            color: #666
+            font-size: 0.85rem
+            line-height: 1.5

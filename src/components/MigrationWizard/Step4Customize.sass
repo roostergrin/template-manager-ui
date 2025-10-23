@@ -1,0 +1,194 @@
+.step-4-customize
+  .customize-layout
+    display: grid
+    grid-template-columns: 1fr 1fr
+    gap: 2rem
+    margin-bottom: 2rem
+
+    &__preview
+      background: #f7fafc
+      border-radius: 12px
+      padding: 1.5rem
+      position: sticky
+      top: 2rem
+      height: fit-content
+
+    &__controls
+      display: flex
+      flex-direction: column
+      gap: 1.5rem
+
+  .preview-frame
+    background: white
+    border-radius: 8px
+    overflow: hidden
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1)
+
+  .preview-header
+    background: #e2e8f0
+    padding: 0.75rem
+    display: flex
+    align-items: center
+    gap: 0.5rem
+
+  .preview-controls
+    display: flex
+    gap: 0.375rem
+
+  .preview-dot
+    width: 12px
+    height: 12px
+    border-radius: 50%
+    background: #cbd5e0
+
+  .preview-url
+    flex: 1
+    text-align: center
+    font-size: 0.875rem
+    color: #718096
+
+  .preview-content
+    padding: 2rem
+    min-height: 400px
+
+  .preview-placeholder
+    text-align: center
+    color: #718096
+
+    p
+      margin-bottom: 1rem
+
+      &.preview-note
+        font-size: 0.875rem
+        font-style: italic
+
+  .preview-color-demo
+    margin: 1rem auto
+    padding: 1.5rem
+    border-radius: 8px
+    color: white
+    font-weight: 600
+    max-width: 200px
+
+  .customize-section
+    background: white
+    border: 1px solid #e2e8f0
+    border-radius: 8px
+    padding: 1.5rem
+
+    &__title
+      font-size: 1.125rem
+      font-weight: 600
+      margin-bottom: 1rem
+      color: #2d3748
+
+  .theme-presets
+    display: grid
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr))
+    gap: 1rem
+
+  .theme-preset
+    display: flex
+    flex-direction: column
+    align-items: center
+    padding: 1rem
+    border: 2px solid #e2e8f0
+    border-radius: 8px
+    cursor: pointer
+    transition: all 0.2s
+
+    &:hover
+      border-color: #cbd5e0
+
+    &--active
+      border-color: #4299e1
+      background: #ebf8ff
+
+    &__colors
+      display: flex
+      gap: 0.5rem
+      margin-bottom: 0.5rem
+
+    &__name
+      font-size: 0.875rem
+      font-weight: 500
+      color: #2d3748
+      text-align: center
+
+  .color-dot
+    width: 32px
+    height: 32px
+    border-radius: 50%
+    border: 2px solid white
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1)
+
+  .color-pickers
+    display: flex
+    flex-direction: column
+    gap: 1rem
+
+  .color-picker
+    label
+      display: block
+      font-weight: 500
+      color: #2d3748
+      margin-bottom: 0.5rem
+
+    &__input
+      display: flex
+      gap: 0.75rem
+      align-items: center
+
+      input[type="color"]
+        width: 60px
+        height: 40px
+        border: 2px solid #e2e8f0
+        border-radius: 6px
+        cursor: pointer
+
+      input[type="text"]
+        flex: 1
+        padding: 0.5rem
+        border: 2px solid #e2e8f0
+        border-radius: 6px
+        font-family: monospace
+        font-size: 0.875rem
+
+        &:focus
+          outline: none
+          border-color: #4299e1
+
+  .placeholder-text
+    color: #718096
+    font-style: italic
+    font-size: 0.875rem
+
+  .customize-actions
+    display: flex
+    justify-content: space-between
+    margin-top: 1rem
+
+  .auto-detected-info
+    background: #ebf8ff
+    border: 1px solid #bee3f8
+    border-radius: 8px
+    padding: 1.5rem
+    margin-top: 2rem
+
+    h4
+      font-size: 1rem
+      font-weight: 600
+      color: #2c5282
+      margin-bottom: 0.5rem
+
+    p
+      color: #2c5282
+      font-size: 0.875rem
+
+@media (max-width: 1024px)
+  .step-4-customize .customize-layout
+    grid-template-columns: 1fr
+
+    &__preview
+      position: relative
+      top: 0

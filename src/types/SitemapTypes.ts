@@ -11,6 +11,11 @@ export interface SitemapSection {
   title: string;
   items: SitemapItem[];
   wordpress_id?: string;
+  // Allocation fields
+  allocated_markdown?: string;
+  allocation_confidence?: number;
+  source_location?: string;
+  mapped_scraped_page?: string;
 }
 
 export interface QuestionnaireData {
@@ -49,4 +54,5 @@ export interface StoredSitemap {
   name: string;
   created: string;
   sitemap: unknown;
+  siteType?: string;
 } 

@@ -1,0 +1,40 @@
+.step-1-capture
+  &__history-section
+    max-width: 1400px
+    margin: 0 auto
+    margin-top: 1.5rem
+
+  &__history
+    margin-bottom: 1.5rem
+    animation: slideDown 0.3s ease-out
+
+  &__progress
+    max-width: 1400px
+    margin: 2rem auto 0
+    padding: 2rem
+    text-align: center
+    background: #f7fafc
+    border-radius: 8px
+
+    .progress-spinner
+      font-size: 3rem
+      animation: spin 2s linear infinite
+      margin-bottom: 1rem
+
+    p
+      color: #4a5568
+      font-weight: 500
+
+@keyframes slideDown
+  from
+    opacity: 0
+    transform: translateY(-10px)
+  to
+    opacity: 1
+    transform: translateY(0)
+
+@keyframes spin
+  from
+    transform: rotate(0deg)
+  to
+    transform: rotate(360deg)

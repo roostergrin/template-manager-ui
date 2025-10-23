@@ -12,10 +12,12 @@ interface SitemapContextState {
   pages: SitemapSection[]
   selectedPages: string[]
   viewMode: 'grid' | 'list'
+  layoutType: 'standard' | 'toc'
   isLoading: boolean
   error: string | null
   lastSaved: string | null
   sitemapSource: 'loaded' | 'generated' | null
+  sitemapName: string | null
   // View controls
   showSelect: boolean
   showTextarea: boolean
@@ -36,11 +38,18 @@ interface SitemapContextActions {
   // Page CRUD operations
   addPage: () => void
   removePage: (pageId: string) => void
+  duplicatePage: (pageId: string) => void
   updatePageTitle: (pageId: string, newTitle: string) => void
   updatePageWordpressId: (pageId: string, newId: string) => void
   updatePageItems: (pageId: string, newItems: SitemapItem[]) => void
   setPages: (pages: SitemapSection[]) => void
-  
+  applyPageTemplate: (pageId: string, templateSections: Array<{
+    model: string;
+    query: string;
+    internal_id: string;
+    use_default?: boolean;
+  }>) => void
+
   // Page selection
   selectPage: (pageId: string) => void
   deselectPage: (pageId: string) => void
@@ -50,6 +59,8 @@ interface SitemapContextActions {
   
   // View controls
   setViewMode: (mode: 'grid' | 'list') => void
+  setLayoutType: (type: 'standard' | 'toc') => void
+  toggleLayoutType: () => void
   toggleShowSelect: () => void
   toggleShowTextarea: () => void
   toggleShowDeleteButtons: () => void
@@ -57,15 +68,16 @@ interface SitemapContextActions {
   toggleShowPageIds: () => void
   setShowItems: (show: boolean) => void
   toggleUsePageJson: () => void
-  
+
   // Layout controls
   toggleUseGridLayout: () => void
   setGridColumnWidth: (width: number) => void
   
   // Import/Export operations
   importPagesFromJson: (jsonData: string) => void
-  handleGeneratedSitemap: (sitemapData: unknown) => void
+  handleGeneratedSitemap: (sitemapData: unknown, siteType?: string) => void
   handleSelectStoredSitemap: (stored: StoredSitemap) => void
+  resetToDefaultSitemap: () => void
   
   // Optimistic updates
   optimisticallyAddPage: (tempPage: SitemapSection) => string
@@ -98,7 +110,7 @@ export const SitemapProvider: React.FC<SitemapProviderProps> = ({
   initialState = {}
 }) => {
   // Initialize all the custom hooks
-  const { pages, addPage, removePage, updatePageTitle, updatePageWordpressId, updatePageItems, setPages } = usePages(initialState.pages || [])
+  const { pages, addPage, removePage, updatePageTitle, updatePageWordpressId, updatePageItems, setPages, duplicatePage, applyPageTemplate } = usePages(initialState.pages || [])
   
   const { 
     selectedPages, 
@@ -112,6 +124,7 @@ export const SitemapProvider: React.FC<SitemapProviderProps> = ({
   
   const {
     viewMode,
+    layoutType,
     showSelect,
     showTextarea,
     showDeleteButtons,
@@ -122,6 +135,8 @@ export const SitemapProvider: React.FC<SitemapProviderProps> = ({
     useGridLayout,
     gridColumnWidth,
     setViewMode,
+    setLayoutType,
+    toggleLayoutType,
     toggleShowSelect,
     toggleShowTextarea,
     toggleShowDeleteButtons,
@@ -147,7 +162,7 @@ export const SitemapProvider: React.FC<SitemapProviderProps> = ({
   
   const { error, isLoading, setError, clearError, setLoading } = useErrorState(initialState.error || null)
   
-  const { lastSaved, sitemapSource, importPagesFromJson, handleGeneratedSitemap, handleSelectStoredSitemap } = useSitemapImport()
+  const { lastSaved, sitemapSource, sitemapName, importPagesFromJson, handleGeneratedSitemap, handleSelectStoredSitemap, resetToDefault } = useSitemapImport()
 
   // Enhanced functions that coordinate between hooks
   const selectAllPages = () => {
@@ -177,9 +192,9 @@ export const SitemapProvider: React.FC<SitemapProviderProps> = ({
     }
   }
 
-  const handleGeneratedSitemapWrapper = (sitemapData: unknown) => {
+  const handleGeneratedSitemapWrapper = (sitemapData: unknown, siteType?: string) => {
     try {
-      const newPages = handleGeneratedSitemap(sitemapData)
+      const newPages = handleGeneratedSitemap(sitemapData, siteType)
       if (newPages) {
         setPages(newPages)
         clearSelection()
@@ -210,10 +225,12 @@ export const SitemapProvider: React.FC<SitemapProviderProps> = ({
     pages: allPages,
     selectedPages,
     viewMode,
+    layoutType,
     isLoading,
     error,
     lastSaved,
     sitemapSource,
+    sitemapName,
     showSelect,
     showTextarea,
     showDeleteButtons,
@@ -229,16 +246,20 @@ export const SitemapProvider: React.FC<SitemapProviderProps> = ({
   const actions: SitemapContextActions = {
     addPage,
     removePage: handleRemovePage,
+    duplicatePage,
     updatePageTitle,
     updatePageWordpressId,
     updatePageItems,
     setPages: handleSetPages,
+    applyPageTemplate,
     selectPage,
     deselectPage,
     togglePageSelection,
     selectAllPages,
     deselectAllPages,
     setViewMode,
+    setLayoutType,
+    toggleLayoutType,
     toggleShowSelect,
     toggleShowTextarea,
     toggleShowDeleteButtons,
@@ -251,6 +272,7 @@ export const SitemapProvider: React.FC<SitemapProviderProps> = ({
     importPagesFromJson: handleImportPagesFromJson,
     handleGeneratedSitemap: handleGeneratedSitemapWrapper,
     handleSelectStoredSitemap: handleSelectStoredSitemapWrapper,
+    resetToDefaultSitemap: resetToDefault,
     optimisticallyAddPage,
     confirmOptimisticPage,
     revertOptimisticPage,

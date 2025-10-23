@@ -1,7 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import QuestionnaireModeSelector from '../QuestionnaireModeSelector/QuestionnaireModeSelector';
 import MarkdownTextArea from '../MarkdownTextArea/MarkdownTextArea';
 import DomainScrapeOptions from '../QuestionnaireForm/DomainScrapeOptions';
+import ScrapingWorkflow from '../ScrapingWorkflow';
+import ScrapedContentViewer, { ScrapedContent } from '../ScrapedContentViewer/ScrapedContentViewer';
 import { useQuestionnaire } from '../../contexts/QuestionnaireProvider';
 import { useWorkflow } from '../../contexts/WorkflowProvider';
 import useFillForm from '../../hooks/useFillForm';
@@ -13,7 +15,10 @@ const QuestionnaireManager: React.FC = () => {
   const { state: questionnaireState, actions: questionnaireActions } = useQuestionnaire();
   const { state: workflowState, actions: workflowActions } = useWorkflow();
   const [fillFormData, fillFormStatus, fillForm] = useFillForm();
-  
+  const [useFullWorkflow, setUseFullWorkflow] = useState(false);
+  const [scrapedContent, setScrapedContent] = useState<ScrapedContent | null>(null);
+  const [pageMappings, setPageMappings] = useState<any[]>([]);
+
   const formData = questionnaireState.data;
 
   // Function to check if questionnaire is completed
@@ -86,23 +91,141 @@ const QuestionnaireManager: React.FC = () => {
     questionnaireActions.updateQuestionnaireData(markdownData);
   };
 
+  const handleScrapingWorkflowComplete = (data: {
+    scrapedContent: ScrapedContent;
+    sitemap: { pages: any[] };
+    mappings: any[];
+  }) => {
+    setScrapedContent(data.scrapedContent);
+    setPageMappings(data.mappings);
+
+    // Store scraped content in questionnaire context
+    questionnaireActions.updateScrapeData(data.scrapedContent.domain, {
+      scrapedContent: data.scrapedContent,
+      mappings: data.mappings,
+      sitemap: data.sitemap,
+    });
+
+    // Mark questionnaire as completed
+    workflowActions.updateTaskStatus('planning', 'questionnaire', 'completed');
+  };
+
+  const handleLoadSampleData = async () => {
+    try {
+      // Load the roostergrin.com sample data from backend
+      const response = await fetch('http://localhost:8000/scraped-samples/domain/roostergrin.com', {
+        headers: {
+          'X-Internal-API-Key': window.__INTERNAL_API_TOKEN__ || '',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to load sample data');
+      }
+
+      const data = await response.json();
+      const scrapedContentData = data.scraped_content;
+
+      // Create sample mappings (all pages fully mapped)
+      const sampleMappings = scrapedContentData.pages.map((page: any) => ({
+        sitemapPagePath: page.slug === 'home' || page.slug === '' ? '/' : `/${page.slug}`,
+        scrapedPageKey: page.slug || 'home',
+        confidence: 1.0,
+      }));
+
+      // Create sitemap from scraped pages
+      const generatedSitemap = {
+        pages: scrapedContentData.pages.map((page: any) => ({
+          title: page.title,
+          path: page.slug === 'home' || page.slug === '' ? '/' : `/${page.slug}`,
+          component: page.sections[0]?.type || 'Content',
+          items: page.sections.map((section: any) => section.type),
+        })),
+      };
+
+      // Set the scraped content and mappings (simulates completing the workflow)
+      setScrapedContent(scrapedContentData);
+      setPageMappings(sampleMappings);
+
+      // Store in questionnaire context
+      questionnaireActions.updateScrapeData(scrapedContentData.domain, {
+        scrapedContent: scrapedContentData,
+        mappings: sampleMappings,
+        sitemap: generatedSitemap,
+      });
+
+      // Mark as completed
+      workflowActions.updateTaskStatus('planning', 'questionnaire', 'completed');
+
+      alert('✅ Sample data loaded successfully! You can now proceed to the next step.');
+    } catch (error) {
+      console.error('Failed to load sample data:', error);
+      alert('❌ Failed to load sample data. Make sure the backend is running.');
+    }
+  };
+
   const renderContent = () => {
     switch (questionnaireState.activeMode) {
       case 'scrape':
         return (
           <div className="questionnaire-manager__content">
-            <DomainScrapeOptions
-              domain={questionnaireState.data.scrape?.domain || ''}
-              setDomain={(domain) => questionnaireActions.updateScrapeData(domain)}
-              handleFillForm={handleFillForm}
-              fillFormStatus={fillFormStatus}
-              fillFormData={fillFormData}
-              mockScrapeDomain={handleMockScrape}
-            />
-            {fillFormData && (
-              <div className="questionnaire-manager__scraped-data">
-                <h3>Scraped Data Preview</h3>
-                <pre>{JSON.stringify(fillFormData, null, 2)}</pre>
+            <div className="questionnaire-manager__scrape-mode-toggle">
+              <div className="toggle-buttons">
+                <button
+                  className={`toggle-btn ${!useFullWorkflow ? 'active' : ''}`}
+                  onClick={() => setUseFullWorkflow(false)}
+                >
+                  🚀 Quick Scrape
+                </button>
+                <button
+                  className={`toggle-btn ${useFullWorkflow ? 'active' : ''}`}
+                  onClick={() => setUseFullWorkflow(true)}
+                >
+                  🗺️ Full Workflow (Scrape + Map)
+                </button>
+              </div>
+              <p className="toggle-description">
+                {!useFullWorkflow
+                  ? 'Quick scrape fills the questionnaire form with data from an existing site'
+                  : 'Full workflow lets you scrape, review, and map content to your sitemap structure'}
+              </p>
+              <div className="sample-data-section">
+                <button
+                  className="btn-load-sample"
+                  onClick={handleLoadSampleData}
+                  title="Load roostergrin.com sample data for testing"
+                >
+                  🎯 Load Sample Data (roostergrin.com)
+                </button>
+                <p className="sample-data-hint">
+                  Skip scraping and load pre-saved roostergrin.com data to test the workflow quickly
+                </p>
+              </div>
+            </div>
+
+            {!useFullWorkflow ? (
+              <>
+                <DomainScrapeOptions
+                  domain={questionnaireState.data.scrape?.domain || ''}
+                  setDomain={(domain) => questionnaireActions.updateScrapeData(domain)}
+                  handleFillForm={handleFillForm}
+                  fillFormStatus={fillFormStatus}
+                  fillFormData={fillFormData}
+                  mockScrapeDomain={handleMockScrape}
+                />
+                {fillFormData && (
+                  <div className="questionnaire-manager__scraped-data">
+                    <h3>Scraped Data Preview</h3>
+                    <pre>{JSON.stringify(fillFormData, null, 2)}</pre>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="questionnaire-manager__full-workflow">
+                <ScrapingWorkflow onComplete={handleScrapingWorkflowComplete} />
+                {scrapedContent && (
+                  <ScrapedContentViewer scrapedContent={scrapedContent} />
+                )}
               </div>
             )}
           </div>
