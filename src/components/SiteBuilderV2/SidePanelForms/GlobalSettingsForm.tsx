@@ -38,7 +38,7 @@ const GlobalSettingsForm: React.FC = () => {
   const { mutateAsync: createS3Bucket } = useCreateS3Bucket();
   const { mutateAsync: createCodePipeline } = useCreateCodePipeline();
   const { mutateAsync: createDistribution } = useCreateDistribution();
-  const { mutateAsync: createPleskSubscription } = useCreatePleskSubscription();
+  const [, , , , , , createPleskSubscription] = useCreatePleskSubscription();
   const [, , createRepo] = useCreateGithubRepoFromTemplate();
   const [, , updateTextFile] = useUpdateGithubRepoFile();
   const [, , uploadBinaryFile] = useUpdateGithubRepoFileUpload();
