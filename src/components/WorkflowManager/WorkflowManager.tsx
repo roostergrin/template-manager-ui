@@ -11,6 +11,7 @@ import ContentGenerator from './ContentGenerator';
 import RepositoryUpdater from './RepositoryUpdater';
 import WordPressUpdater from './WordPressUpdater';
 import GithubFileUpdater from '../GithubFileUpdater';
+import InfrastructureSetup from '../InfrastructureSetup';
 import SidebarNavigation from '../Sidebar/SidebarNavigation';
 import { useQuestionnaire } from '../../contexts/QuestionnaireProvider';
 // import { useSitemap } from '../../contexts/SitemapProvider';
@@ -69,6 +70,11 @@ const WorkflowManager: React.FC = () => {
       <div className="workflow-sections">
         <div id="section-infrastructure" className="workflow-section">
           <div className="tab-content">
+            {/* New Unified Infrastructure Setup */}
+            <InfrastructureSetup />
+
+            {/* Old Infrastructure Sections - Kept for reference, uncomment if needed */}
+            {/*
             <div className="tab-content__header">
               <div className="tab-content__header-title">
                 <Server size={24} strokeWidth={2} />
@@ -76,7 +82,7 @@ const WorkflowManager: React.FC = () => {
               </div>
               <p>Create your GitHub repository and provision AWS infrastructure for hosting and assets.</p>
             </div>
-            
+
             <div className="infrastructure-sections">
               <div id="task-infrastructure-repoCreation" className="section">
                 <div className="section__header">
@@ -86,14 +92,14 @@ const WorkflowManager: React.FC = () => {
                 <p>Create a new GitHub repository from template to host your site code.</p>
                 <GitHubRepoCreator onRepoCreated={handleRepoCreated} />
               </div>
-              
+
               <div id="task-infrastructure-awsProvisioning" className="section">
                 <div className="section__header">
                   <Cloud size={20} strokeWidth={2} />
                   <h3>Provision AWS Resources</h3>
                 </div>
                 <p>Create S3 bucket, CloudFront distribution, and CodePipeline for your site.</p>
-                <EnhancedProvisionSection 
+                <EnhancedProvisionSection
                   onProvisioningComplete={handleProvisioningComplete}
                 />
               </div>
@@ -114,6 +120,7 @@ const WorkflowManager: React.FC = () => {
                 <ProvisionWordPressSection />
               </div>
             </div>
+            */}
           </div>
         </div>
 

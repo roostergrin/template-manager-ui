@@ -1,0 +1,357 @@
+// Infrastructure Setup Component Styles
+// Condensed, progressive disclosure design
+
+.infrastructure-setup
+  max-width: 800px
+  margin: 0 auto
+  padding: 24px
+
+  // Header
+  &__header
+    margin-bottom: 32px
+
+  &__title
+    font-size: 28px
+    font-weight: 600
+    color: #1a1a1a
+    margin: 0 0 8px 0
+
+  &__subtitle
+    font-size: 15px
+    color: #666
+    margin: 0
+
+  // Configuration Section
+  &__configuration
+    background: #fff
+    border: 1px solid #e0e0e0
+    border-radius: 8px
+    padding: 24px
+    margin-bottom: 24px
+
+  .configuration__title
+    font-size: 18px
+    font-weight: 600
+    color: #1a1a1a
+    margin: 0 0 20px 0
+
+  .configuration__field
+    margin-bottom: 20px
+
+    &:last-child
+      margin-bottom: 0
+
+  .configuration__label
+    display: block
+    font-size: 14px
+    font-weight: 600
+    color: #1a1a1a
+    margin-bottom: 8px
+
+  .configuration__input,
+  .configuration__select
+    width: 100%
+    padding: 10px 12px
+    font-size: 15px
+    border: 1px solid #d0d0d0
+    border-radius: 6px
+    transition: border-color 0.2s, box-shadow 0.2s
+    font-family: inherit
+
+    &:focus
+      outline: none
+      border-color: #0066cc
+      box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1)
+
+  .configuration__help-text
+    font-size: 13px
+    color: #666
+    margin: 6px 0 0 0
+
+  // Page Type Cards
+  .configuration__page-types
+    display: grid
+    grid-template-columns: repeat(3, 1fr)
+    gap: 12px
+
+  .page-type-card
+    background: #fff
+    border: 2px solid #e0e0e0
+    border-radius: 8px
+    padding: 16px
+    cursor: pointer
+    transition: all 0.2s
+    text-align: left
+
+    &:hover
+      border-color: #0066cc
+
+    &--selected
+      border-color: #0066cc
+      background: #f0f7ff
+
+    &__title
+      font-size: 15px
+      font-weight: 600
+      color: #1a1a1a
+      margin-bottom: 4px
+
+    &__description
+      font-size: 13px
+      color: #666
+
+  // Provisioning Steps
+  &__provisioning
+    margin-bottom: 24px
+
+  .provisioning__title
+    font-size: 11px
+    font-weight: 700
+    letter-spacing: 1px
+    color: #9ca3af
+    margin: 0 0 20px 0
+    text-transform: uppercase
+
+  // Individual Step
+  .provisioning-step
+    background: #fff
+    border: 1px solid #e5e7eb
+    border-radius: 8px
+    margin-bottom: 16px
+    transition: all 0.2s ease
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05)
+
+    &:hover:not(&--disabled)
+      border-color: #0066cc
+      box-shadow: 0 2px 6px rgba(0, 102, 204, 0.1)
+
+    &--disabled
+      opacity: 0.5
+      background: #f9fafb
+
+      .provisioning-step__number
+        background: #d1d5db
+        color: #fff
+
+      .provisioning-step__title
+        color: #9ca3af
+
+      .provisioning-step__preview
+        color: #9ca3af
+
+    &__header
+      display: flex
+      align-items: flex-start
+      justify-content: space-between
+      padding: 16px 20px
+      cursor: pointer
+
+    &__header-left
+      display: flex
+      align-items: flex-start
+      gap: 10px
+      flex: 1
+      padding-top: 0
+
+    &__checkbox
+      max-width: 22px
+      max-height: 22px
+      min-width: 22px
+      min-height: 22px
+      cursor: pointer
+      margin-top: 4px
+      flex-shrink: 0
+      accent-color: #0066cc
+      border: 2px solid #d1d5db
+      border-radius: 5px
+      transition: all 0.2s ease
+      appearance: none
+      background: #fff
+      position: relative
+
+      &:checked
+        background: #0066cc
+        border-color: #0066cc
+
+        &::after
+          content: '✓'
+          position: absolute
+          top: 50%
+          left: 50%
+          transform: translate(-50%, -50%)
+          color: #fff
+          font-size: 14px
+          font-weight: bold
+
+      &:hover
+        transform: scale(1.08)
+        box-shadow: 0 0 0 4px rgba(0, 102, 204, 0.12)
+        border-color: #0066cc
+
+      &:focus
+        outline: none
+        box-shadow: 0 0 0 4px rgba(0, 102, 204, 0.2)
+        border-color: #0066cc
+
+    &__title-group
+      flex: 1
+      min-width: 0
+
+    &__title
+      font-size: 15px
+      font-weight: 600
+      color: #111827
+      margin: 0 0 6px 0
+      line-height: 1.4
+
+    &__preview
+      font-size: 13px
+      color: #6b7280
+      line-height: 1.5
+      display: flex
+      flex-wrap: wrap
+      gap: 6px
+      align-items: center
+
+    &__preview-value
+      font-family: 'Monaco', 'Menlo', 'Courier New', monospace
+      color: #0066cc
+      font-weight: 500
+      font-size: 12px
+      background: #eff6ff
+      padding: 2px 8px
+      border-radius: 4px
+      white-space: nowrap
+
+    &__expand-btn
+      background: none
+      border: none
+      padding: 8px
+      cursor: pointer
+      color: #9ca3af
+      display: flex
+      align-items: center
+      transition: all 0.2s
+      border-radius: 6px
+      flex-shrink: 0
+
+      &:hover:not(:disabled)
+        color: #0066cc
+        background: #f3f4f6
+
+      &:disabled
+        cursor: not-allowed
+        opacity: 0.4
+
+    // Content Section (Component Container)
+    &__content
+      border-top: 1px solid #e5e7eb
+      padding: 24px
+      background: #f9fafb
+
+  // Action Bar
+  &__action-bar
+    background: #fff
+    border: 1px solid #e5e7eb
+    border-radius: 8px
+    padding: 20px 24px
+    display: flex
+    align-items: center
+    justify-content: space-between
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05)
+    margin-top: 8px
+
+  .action-bar__info
+    display: flex
+    gap: 24px
+    font-size: 14px
+    color: #6b7280
+
+    &-item
+      display: flex
+      align-items: center
+      gap: 4px
+
+      strong
+        font-weight: 600
+        color: #111827
+
+  .action-bar__buttons
+    display: flex
+    gap: 12px
+
+  .action-bar__button
+    padding: 12px 24px
+    font-size: 15px
+    font-weight: 600
+    border-radius: 8px
+    cursor: pointer
+    transition: all 0.2s ease
+    border: none
+    font-family: inherit
+    white-space: nowrap
+
+    &--secondary
+      background: #fff
+      color: #374151
+      border: 1px solid #d1d5db
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05)
+
+      &:hover
+        background: #f9fafb
+        border-color: #9ca3af
+
+    &--primary
+      background: #0066cc
+      color: #fff
+      box-shadow: 0 2px 4px rgba(0, 102, 204, 0.2)
+
+      &:hover:not(:disabled)
+        background: #0052a3
+        box-shadow: 0 3px 6px rgba(0, 102, 204, 0.3)
+        transform: translateY(-1px)
+
+      &:disabled
+        background: #d1d5db
+        cursor: not-allowed
+        opacity: 0.6
+        box-shadow: none
+
+// Responsive Design
+@media (max-width: 768px)
+  .infrastructure-setup
+    padding: 16px
+
+  .configuration__page-types
+    grid-template-columns: 1fr
+
+  .infrastructure-setup__action-bar
+    flex-direction: column
+    gap: 20px
+    align-items: stretch
+    padding: 20px
+
+  .action-bar__info
+    flex-direction: column
+    gap: 12px
+
+    &-item
+      justify-content: space-between
+
+  .action-bar__buttons
+    flex-direction: column
+    gap: 12px
+
+    button
+      width: 100%
+      padding: 14px
+
+  .provisioning-step
+    &__header
+      padding: 16px 18px
+      min-height: auto
+
+    &__preview
+      flex-direction: column
+      align-items: flex-start
+      gap: 6px

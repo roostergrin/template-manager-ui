@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { CheckCircle2 } from 'lucide-react';
 import { useGithubRepo } from '../../context/GithubRepoContext';
 import useCreateGithubRepoFromTemplate from '../../hooks/useCreateGithubRepoFromTemplate';
@@ -7,17 +7,25 @@ import './GitHubRepoCreator.sass';
 
 interface GitHubRepoCreatorProps {
   onRepoCreated?: (repoData: any) => void;
+  initialTemplateRepo?: string;
 }
 
-const GitHubRepoCreator: React.FC<GitHubRepoCreatorProps> = ({ onRepoCreated }) => {
+const GitHubRepoCreator: React.FC<GitHubRepoCreatorProps> = ({ onRepoCreated, initialTemplateRepo }) => {
   const { state, actions } = useGithubRepo();
   const { githubRepo } = state;
   const { setGithubOwner, setGithubRepo } = actions;
-  const [templateRepoName, setTemplateRepoName] = useState('ai-template-stinson');
+  const [templateRepoName, setTemplateRepoName] = useState(initialTemplateRepo || 'ai-template-stinson');
   const [createRepoData, createRepoStatus, createRepo] = useCreateGithubRepoFromTemplate();
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const { updateTaskStatus } = useProgressTracking();
+
+  // Update template repo name when prop changes
+  useEffect(() => {
+    if (initialTemplateRepo) {
+      setTemplateRepoName(initialTemplateRepo);
+    }
+  }, [initialTemplateRepo]);
 
   const handleCreateRepo = useCallback(async () => {
     setError(null);
