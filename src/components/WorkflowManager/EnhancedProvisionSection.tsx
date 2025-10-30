@@ -27,7 +27,7 @@ const EnhancedProvisionSection: React.FC<EnhancedProvisionSectionProps> = ({
   }, [githubRepo]);
   const [response, status, provisionSite] = useProvisionSite();
   const [error, setError] = useState<string | null>(null);
-  const { progressState, updateTaskStatus } = useProgressTracking();
+  const { updateTaskStatus } = useProgressTracking();
 
   // Notify parent when provisioning is complete
   useEffect(() => {

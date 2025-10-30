@@ -34,7 +34,7 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
   const { state: questionnaireState } = useQuestionnaire();
   const { state: sitemapState } = useSitemap();
   const { state: appConfigState } = useAppConfig();
-  const { progressState, updateTaskStatus } = useProgressTracking();
+  const { updateTaskStatus } = useProgressTracking();
 
   // Extract data from contexts
   const questionnaireData = questionnaireState.data;

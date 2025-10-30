@@ -9,7 +9,7 @@ interface CopyToTemplatesSectionProps {
 }
 
 const CopyToTemplatesSection: React.FC<CopyToTemplatesSectionProps> = () => {
-  const { progressState, updateTaskStatus } = useProgressTracking();
+  const { updateTaskStatus } = useProgressTracking();
   
   const servers = useMemo(
     () => [

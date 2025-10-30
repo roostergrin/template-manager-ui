@@ -33,8 +33,6 @@ const defaultProps: GenerateSitemapButtonProps = {
   generateSitemapStatus: 'idle',
   onSitemapGenerated: vi.fn(),
   controls: {
-    usePageJson: false,
-    toggleUsePageJson: vi.fn(),
     backendSiteType: 'medical'
   }
 }
@@ -42,53 +40,18 @@ const defaultProps: GenerateSitemapButtonProps = {
 describe('GenerateSitemapButton', () => {
   it('should render all UI elements correctly', () => {
     render(<GenerateSitemapButton {...defaultProps} />)
-    
+
     // Check site type display
     expect(screen.getByText('Current Site Type:')).toBeInTheDocument()
     expect(screen.getByText('medical')).toBeInTheDocument()
-    
-    // Check checkbox
-    const checkbox = screen.getByRole('checkbox', { name: 'Use Page JSON' })
-    expect(checkbox).toBeInTheDocument()
-    expect(checkbox).not.toBeChecked()
-    
+
+    // Check "Using Page JSON" text
+    expect(screen.getByText('Using Page JSON')).toBeInTheDocument()
+
     // Check button
     const button = screen.getByRole('button', { name: 'Generate Sitemap' })
     expect(button).toBeInTheDocument()
     expect(button).not.toBeDisabled()
-  })
-
-  it('should call toggleUsePageJson when checkbox is clicked', () => {
-    const mockToggle = vi.fn()
-    const props = {
-      ...defaultProps,
-      controls: {
-        ...defaultProps.controls,
-        toggleUsePageJson: mockToggle
-      }
-    }
-    
-    render(<GenerateSitemapButton {...props} />)
-    
-    const checkbox = screen.getByRole('checkbox', { name: 'Use Page JSON' })
-    fireEvent.click(checkbox)
-    
-    expect(mockToggle).toHaveBeenCalledTimes(1)
-  })
-
-  it('should reflect usePageJson state in checkbox', () => {
-    const props = {
-      ...defaultProps,
-      controls: {
-        ...defaultProps.controls,
-        usePageJson: true
-      }
-    }
-    
-    render(<GenerateSitemapButton {...props} />)
-    
-    const checkbox = screen.getByRole('checkbox', { name: 'Use Page JSON' })
-    expect(checkbox).toBeChecked()
   })
 
   it('should call generateSitemap with correct parameters when button is clicked', () => {
@@ -97,17 +60,15 @@ describe('GenerateSitemapButton', () => {
       ...defaultProps,
       generateSitemap: mockGenerate,
       controls: {
-        ...defaultProps.controls,
-        usePageJson: true,
         backendSiteType: 'restaurant'
       }
     }
-    
+
     render(<GenerateSitemapButton {...props} />)
-    
+
     const button = screen.getByRole('button', { name: 'Generate Sitemap' })
     fireEvent.click(button)
-    
+
     expect(mockGenerate).toHaveBeenCalledTimes(1)
     expect(mockGenerate).toHaveBeenCalledWith({
       questionnaire: mockQuestionnaireData,
@@ -191,16 +152,11 @@ describe('GenerateSitemapButton', () => {
 
   it('should have proper accessibility attributes', () => {
     render(<GenerateSitemapButton {...defaultProps} />)
-    
+
     // Check site type span accessibility
     const siteTypeElement = screen.getByLabelText('Current Site Type')
     expect(siteTypeElement).toHaveAttribute('tabIndex', '0')
-    
-    // Check checkbox accessibility
-    const checkbox = screen.getByRole('checkbox', { name: 'Use Page JSON' })
-    expect(checkbox).toHaveAttribute('tabIndex', '0')
-    expect(checkbox).toHaveAttribute('aria-label', 'Use Page JSON')
-    
+
     // Check button accessibility
     const button = screen.getByRole('button', { name: 'Generate Sitemap' })
     expect(button).toHaveAttribute('tabIndex', '0')

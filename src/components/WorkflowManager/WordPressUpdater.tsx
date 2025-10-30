@@ -36,7 +36,7 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
   const { state: appConfigState } = useAppConfig();
   const { state: githubState } = useGithubRepo();
   const { githubRepo, pageType } = githubState;
-  const { progressState, updateTaskStatus } = useProgressTracking();
+  const { updateTaskStatus } = useProgressTracking();
 
   // Extract data from contexts
   const latestContent = workflowState.generatedContent.find(content => content.type === 'page-content');

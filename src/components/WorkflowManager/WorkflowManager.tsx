@@ -40,7 +40,7 @@ const WorkflowManager: React.FC = () => {
   // const currentModels = modelGroups[selectedModelGroupKey]?.models || [];
   // const siteType = getBackendSiteTypeForModelGroup(selectedModelGroupKey) || 'stinson';
 
-  const handleRepoCreated = useCallback((_data: any) => {
+  const handleRepoCreated = useCallback(() => {
     // setRepoData(data);
     workflowActions.updateTaskStatus('infrastructure', 'repoCreation', 'completed');
   }, [workflowActions]);

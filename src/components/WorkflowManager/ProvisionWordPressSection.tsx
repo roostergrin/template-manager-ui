@@ -13,7 +13,7 @@ interface ProvisionWordPressSectionProps {
 const ProvisionWordPressSection: React.FC<ProvisionWordPressSectionProps> = () => {
   const { state } = useGithubRepo();
   const { githubRepo } = state;
-  const { progressState, updateTaskStatus } = useProgressTracking();
+  const { updateTaskStatus } = useProgressTracking();
   
   const servers = useMemo(
     () => [

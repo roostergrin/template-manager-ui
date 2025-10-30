@@ -61,10 +61,10 @@ const useSitemapImport = () => {
       let name: string;
       try {
         const userInput = prompt('Enter a name for this sitemap:', `Sitemap ${new Date().toLocaleString()}`);
-        name = userInput !== null && userInput.trim() !== '' 
-          ? userInput.trim() 
+        name = userInput !== null && userInput.trim() !== ''
+          ? userInput.trim()
           : `Sitemap ${new Date().toLocaleString()}`;
-      } catch (error) {
+      } catch {
         // Fallback in case prompt fails
         name = `Sitemap ${new Date().toLocaleString()}`;
       }

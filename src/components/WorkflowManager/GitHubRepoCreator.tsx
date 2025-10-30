@@ -17,7 +17,7 @@ const GitHubRepoCreator: React.FC<GitHubRepoCreatorProps> = ({ onRepoCreated }) 
   const [createRepoData, createRepoStatus, createRepo] = useCreateGithubRepoFromTemplate();
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
-  const { progressState, updateTaskStatus } = useProgressTracking();
+  const { updateTaskStatus } = useProgressTracking();
 
   const handleCreateRepo = useCallback(async () => {
     setError(null);
