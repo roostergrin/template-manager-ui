@@ -1,8 +1,8 @@
 import React, { useState, useCallback } from 'react';
+import { CheckCircle2 } from 'lucide-react';
 import { useGithubRepo } from '../../context/GithubRepoContext';
 import useCreateGithubRepoFromTemplate from '../../hooks/useCreateGithubRepoFromTemplate';
 import useProgressTracking from '../../hooks/useProgressTracking';
-import ProgressIndicator from '../Common/ProgressIndicator';
 import './GitHubRepoCreator.sass';
 
 interface GitHubRepoCreatorProps {
@@ -52,14 +52,6 @@ const GitHubRepoCreator: React.FC<GitHubRepoCreatorProps> = ({ onRepoCreated }) 
 
   return (
     <div className="github-repo-creator">
-      <div className="github-repo-creator__header">
-        <h4 className="github-repo-creator__title">GitHub Repository Creation</h4>
-        <ProgressIndicator 
-          status={progressState.infrastructure.repoCreation} 
-          size="small"
-          showLabel={true}
-        />
-      </div>
       
       <div className="form-group">
         <label htmlFor="new-repo-name">New Repository Name</label>
@@ -102,7 +94,8 @@ const GitHubRepoCreator: React.FC<GitHubRepoCreatorProps> = ({ onRepoCreated }) 
       {createRepoStatus === 'success' && createRepoData && (
         <div className="success-section">
           <div className="success-header">
-            <h4>🎉 Repository Created Successfully!</h4>
+            <CheckCircle2 size={20} strokeWidth={2} />
+            <h4>Repository Created Successfully!</h4>
           </div>
           
           <div className="repo-details">

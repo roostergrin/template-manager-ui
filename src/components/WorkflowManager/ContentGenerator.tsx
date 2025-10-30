@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
+import { CheckCircle2 } from 'lucide-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { generateContentQueryFunction } from '../../services/generateContentService';
 import { generateGlobalQueryFunction } from '../../services/generateGlobalService';
@@ -9,7 +10,6 @@ import { useQuestionnaire } from '../../contexts/QuestionnaireProvider';
 import { useSitemap } from '../../contexts/SitemapProvider';
 import { useAppConfig } from '../../contexts/AppConfigProvider';
 import useProgressTracking from '../../hooks/useProgressTracking';
-import ProgressIndicator from '../Common/ProgressIndicator';
 import './ContentGenerator.sass';
 
 interface ContentGeneratorProps {
@@ -300,20 +300,11 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
 
   return (
     <div className="content-generator">
-      <div className="content-generator__header">
-        <h4 className="content-generator__title">Content Generation</h4>
-        <ProgressIndicator 
-          status={progressState.planning.contentGeneration} 
-          size="small"
-          showLabel={true}
-        />
-      </div>
-
       {/* Data Source Indicator */}
       {isMarkdownData(questionnaireData) && (
         <div className="markdown-info">
           <p>
-            <strong>📝 Using Markdown Data Source:</strong> Content generation will use the markdown content as questionnaire data.
+            <strong>Using Markdown Data Source:</strong> Content generation will use the markdown content as questionnaire data.
           </p>
         </div>
       )}
@@ -407,7 +398,7 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
               <div className="upload-controls">
                 <div className="upload-group">
                   <label htmlFor="pages-upload" className="upload-label">
-                    📄 Pages Content (JSON)
+                    Pages Content (JSON)
                   </label>
                   <input
                     type="file"
@@ -418,14 +409,14 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
                   />
                   {pagesContent && (
                     <span className="upload-status upload-status--success">
-                      ✅ Pages content loaded
+                      Pages content loaded
                     </span>
                   )}
                 </div>
 
                 <div className="upload-group">
                   <label htmlFor="global-upload" className="upload-label">
-                    🌐 Global Content (JSON)
+                    Global Content (JSON)
                   </label>
                   <input
                     type="file"
@@ -436,7 +427,7 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
                   />
                   {globalContent && (
                     <span className="upload-status upload-status--success">
-                      ✅ Global content loaded
+                      Global content loaded
                     </span>
                   )}
                 </div>
@@ -533,7 +524,10 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
       {/* Success Display */}
       {(isComplete || (pagesContent && globalContent)) && (
         <div className="success-section">
-          <h4>✅ Content {uploadMode === 'upload' ? 'Uploaded' : 'Generated'} Successfully!</h4>
+          <div className="success-header">
+            <CheckCircle2 size={20} strokeWidth={2} />
+            <h4>Content {uploadMode === 'upload' ? 'Uploaded' : 'Generated'} Successfully!</h4>
+          </div>
           
           {/* Content Previews */}
           <div className="content-previews">

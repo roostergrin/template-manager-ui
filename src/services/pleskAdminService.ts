@@ -13,6 +13,12 @@ export const listSubscriptions = async (plesk_ip: string) => {
   });
 };
 
+export const listSubdomains = async (domain: string, plesk_ip: string) => {
+  return await apiClient.get<any>(`/list-subdomains`, {
+    params: { domain, plesk_ip },
+  });
+};
+
 export const getSubscriptionDetails = async (domain: string, plesk_ip: string) => {
   return await apiClient.get<any>(`/subscription-details/${encodeURIComponent(domain)}`, {
     params: { plesk_ip },
@@ -52,6 +58,26 @@ export const copySubscription = async (
 
   return await apiClient.post<CopySubscriptionResponse>(
     `/copy-subscription?${params}`
+  );
+};
+
+export const copySubdomainWithinSubscription = async (
+  source_subdomain: string,
+  target_subdomain: string,
+  parent_domain: string,
+  server: string
+) => {
+  const params = new URLSearchParams({
+    source_subdomain,
+    target_subdomain,
+    parent_domain,
+    server,
+    copy_files: "true",
+    copy_databases: "true",
+  }).toString();
+
+  return await apiClient.post<any>(
+    `/copy-subdomain-within-subscription?${params}`
   );
 };
 

@@ -45,24 +45,30 @@ html
 
 .tab-content
   &__header
-    margin-bottom: 30px
-    padding: 30px
-    background: linear-gradient(135deg, #f6f7fb 0%, #eef2ff 100%)
-    border-radius: variables.$radius-lg
-    border-left: 4px solid variables.$color-primary
+    margin-bottom: 24px
+    padding: 20px 24px
+    background: variables.$bg-surface
+    border-radius: variables.$radius-md
+    border: 1px solid variables.$border-color
     box-shadow: variables.$shadow-sm
     
-    h2
-      margin: 0 0 10px 0
-      color: variables.$text-primary
-      font-size: 2rem
-      font-weight: 700
+  &__header-title
+    display: flex
+    align-items: center
+    gap: 12px
+    margin-bottom: 8px
     
-    p
+    h2
       margin: 0
-      color: variables.$text-secondary
-      font-size: 1.1rem
-      line-height: 1.6
+      color: variables.$text-primary
+      font-size: 1.5rem
+      font-weight: 600
+    
+  &__header p
+    margin: 0
+    color: variables.$text-secondary
+    font-size: 0.95rem
+    line-height: 1.5
 
 .infrastructure-sections,
 .setup-sections,
@@ -71,28 +77,32 @@ html
 .deployment-sections
   display: flex
   flex-direction: column
-  gap: 40px
+  gap: 24px
 
   .section
-    padding: 25px
+    padding: 20px
     border: 1px solid variables.$border-color
     border-radius: variables.$radius-md
     background-color: variables.$bg-surface
     box-shadow: variables.$shadow-sm
     scroll-margin-top: 100px
     
-    h3
-      margin: 0 0 10px 0
-      color: variables.$text-primary
-      font-size: 1.4rem
+    &__header
       display: flex
       align-items: center
       gap: 10px
+      margin-bottom: 8px
+      
+      h3
+        margin: 0
+        color: variables.$text-primary
+        font-size: 1.1rem
+        font-weight: 600
     
     p
-      margin: 0 0 20px 0
+      margin: 0 0 16px 0
       color: variables.$text-secondary
-      font-size: 1rem
+      font-size: 0.9rem
       line-height: 1.5
 
 .placeholder-section
