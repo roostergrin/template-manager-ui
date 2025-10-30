@@ -51,7 +51,7 @@ export const useModelGroups = (initialModelGroups: Record<string, ModelGroup> = 
 
   const getEnabledModelGroups = useCallback((): Record<string, ModelGroup> => {
     return Object.fromEntries(
-      Object.entries(modelGroups).filter(([_, group]) => group.enabled !== false)
+      Object.entries(modelGroups).filter(([, group]) => group.enabled !== false)
     )
   }, [modelGroups])
 

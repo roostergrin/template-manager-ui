@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import useQuestionnaireState from '../useQuestionnaireState'
-import { QuestionnaireMode, QuestionnaireDataSource } from '../../types/QuestionnaireStateTypes'
+import { QuestionnaireMode } from '../../types/QuestionnaireStateTypes'
 
 describe('useQuestionnaireState', () => {
   it('should initialize with default state', () => {
@@ -264,9 +264,9 @@ describe('useQuestionnaireState', () => {
         actions.updateTemplateMarkdown('# Test')
         actions.updateContentDocument('Test content')
       })
-      
+
       // Verify state is modified
-      let [state] = result.current
+      const [state] = result.current
       expect(state.activeMode).toBe('questionnaire')
       expect(state.dataSource).toBe('markdown')
       expect(Object.keys(state.data)).toHaveLength(4)

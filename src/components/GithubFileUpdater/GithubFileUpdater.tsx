@@ -47,7 +47,7 @@ const GithubFileUpdater: React.FC<GithubFileUpdaterProps> = ({
   const [faviconResponse, faviconStatus, updateFaviconFile] = useUpdateGithubRepoFileUpload();
   const [routerResponse, routerStatus, generateRouter] = useGenerateRouter();
   const [routerFileResponse, routerFileStatus, updateRouterFile] = useUpdateGithubRepoFile();
-  const [apiFileResponse, apiFileStatus, updateApiFile] = useUpdateGithubRepoFile();
+  const [, apiFileStatus, updateApiFile] = useUpdateGithubRepoFile();
   const [error, setError] = useState<string | null>(null);
 
   // Router generation state
@@ -132,132 +132,135 @@ const GithubFileUpdater: React.FC<GithubFileUpdaterProps> = ({
     }));
   }, []);
 
-  const handleLogoUpload = useCallback(async () => {
-    if (!logoData.file || !logoData.filePath || !repoConfig.owner || !repoConfig.repo) {
-      setError('Please provide all required fields for logo upload.');
-      return;
-    }
+  // Individual handler - kept for potential future use
+  // const handleLogoUpload = useCallback(async () => {
+  //   if (!logoData.file || !logoData.filePath || !repoConfig.owner || !repoConfig.repo) {
+  //     setError('Please provide all required fields for logo upload.');
+  //     return;
+  //   }
 
-    setError(null);
-    updateTaskStatus('deployment', 'frontendUpdate', 'in-progress');
+  //   setError(null);
+  //   updateTaskStatus('deployment', 'frontendUpdate', 'in-progress');
 
-    try {
-      const request: UpdateGithubRepoFileUploadRequest = {
-        owner: repoConfig.owner,
-        repo: repoConfig.repo,
-        path: logoData.filePath,
-        upload_file: logoData.file,
-        message: 'update logo',
-        branch: repoConfig.branch
-      };
+  //   try {
+  //     const request: UpdateGithubRepoFileUploadRequest = {
+  //       owner: repoConfig.owner,
+  //       repo: repoConfig.repo,
+  //       path: logoData.filePath,
+  //       upload_file: logoData.file,
+  //       message: 'update logo',
+  //       branch: repoConfig.branch
+  //     };
 
-      const result = await updateLogoFile(request);
-      updateTaskStatus('deployment', 'frontendUpdate', 'completed');
-      
-      if (onUpdateComplete) {
-        onUpdateComplete(result);
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred while uploading logo');
-      updateTaskStatus('deployment', 'frontendUpdate', 'error');
-    }
-  }, [logoData, repoConfig, updateLogoFile, onUpdateComplete, updateTaskStatus]);
+  //     const result = await updateLogoFile(request);
+  //     updateTaskStatus('deployment', 'frontendUpdate', 'completed');
 
-  const handleFaviconUpload = useCallback(async () => {
-    if (!faviconData.file || !faviconData.filePath || !repoConfig.owner || !repoConfig.repo) {
-      setError('Please provide all required fields for favicon upload.');
-      return;
-    }
+  //     if (onUpdateComplete) {
+  //       onUpdateComplete(result);
+  //     }
+  //   } catch (err) {
+  //     setError(err instanceof Error ? err.message : 'An error occurred while uploading logo');
+  //     updateTaskStatus('deployment', 'frontendUpdate', 'error');
+  //   }
+  // }, [logoData, repoConfig, updateLogoFile, onUpdateComplete, updateTaskStatus]);
 
-    setError(null);
-    updateTaskStatus('deployment', 'frontendUpdate', 'in-progress');
+  // Individual handler - kept for potential future use
+  // const handleFaviconUpload = useCallback(async () => {
+  //   if (!faviconData.file || !faviconData.filePath || !repoConfig.owner || !repoConfig.repo) {
+  //     setError('Please provide all required fields for favicon upload.');
+  //     return;
+  //   }
 
-    try {
-      const request: UpdateGithubRepoFileUploadRequest = {
-        owner: repoConfig.owner,
-        repo: repoConfig.repo,
-        path: faviconData.filePath,
-        upload_file: faviconData.file,
-        message: 'update favicon',
-        branch: repoConfig.branch
-      };
+  //   setError(null);
+  //   updateTaskStatus('deployment', 'frontendUpdate', 'in-progress');
 
-      const result = await updateFaviconFile(request);
-      updateTaskStatus('deployment', 'frontendUpdate', 'completed');
-      
-      if (onUpdateComplete) {
-        onUpdateComplete(result);
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred while uploading favicon');
-      updateTaskStatus('deployment', 'frontendUpdate', 'error');
-    }
-  }, [faviconData, repoConfig, updateFaviconFile, onUpdateComplete, updateTaskStatus]);
+  //   try {
+  //     const request: UpdateGithubRepoFileUploadRequest = {
+  //       owner: repoConfig.owner,
+  //       repo: repoConfig.repo,
+  //       path: faviconData.filePath,
+  //       upload_file: faviconData.file,
+  //       message: 'update favicon',
+  //       branch: repoConfig.branch
+  //     };
 
-  const handleGenerateRouter = useCallback(async () => {
-    if (!routerData.wordpress_api_url) {
-      setError('Please provide WordPress API URL for router generation.');
-      return;
-    }
+  //     const result = await updateFaviconFile(request);
+  //     updateTaskStatus('deployment', 'frontendUpdate', 'completed');
 
-    if (!repoConfig.owner || !repoConfig.repo) {
-      setError('Please provide GitHub owner and repository name for router file update.');
-      return;
-    }
+  //     if (onUpdateComplete) {
+  //       onUpdateComplete(result);
+  //     }
+  //   } catch (err) {
+  //     setError(err instanceof Error ? err.message : 'An error occurred while uploading favicon');
+  //     updateTaskStatus('deployment', 'frontendUpdate', 'error');
+  //   }
+  // }, [faviconData, repoConfig, updateFaviconFile, onUpdateComplete, updateTaskStatus]);
 
-    setError(null);
-    updateTaskStatus('deployment', 'frontendUpdate', 'in-progress');
+  // Individual handler - kept for potential future use
+  // const handleGenerateRouter = useCallback(async () => {
+  //   if (!routerData.wordpress_api_url) {
+  //     setError('Please provide WordPress API URL for router generation.');
+  //     return;
+  //   }
 
-    console.log('🚀 Starting router generation with data:', routerData);
+  //   if (!repoConfig.owner || !repoConfig.repo) {
+  //     setError('Please provide GitHub owner and repository name for router file update.');
+  //     return;
+  //   }
 
-    try {
-      // Step 1: Generate router
-      const result = await generateRouter(routerData);
-      console.log('✅ Router generation successful:', result);
-      
-      // Step 2: Automatically update router file if router_string is available
-      if (result.router_string) {
-        console.log('📁 Updating router file with generated content...');
-        
-        const routerFileRequest: UpdateGithubRepoFileRequest = {
-          owner: repoConfig.owner,
-          repo: repoConfig.repo,
-          path: 'router/index.js',
-          content: result.router_string,
-          message: 'Updating router file',
-          branch: repoConfig.branch
-        };
+  //   setError(null);
+  //   updateTaskStatus('deployment', 'frontendUpdate', 'in-progress');
 
-        await updateRouterFile(routerFileRequest);
-        console.log('✅ Router file updated successfully');
-      }
-      
-      updateTaskStatus('deployment', 'frontendUpdate', 'completed');
-      
-      if (onUpdateComplete) {
-        onUpdateComplete(result);
-      }
-    } catch (err) {
-      console.error('❌ Router generation or file update failed:', err);
-      
-      // Enhanced error message with debugging info
-      let errorMessage = 'An error occurred while generating router or updating file';
-      if (err instanceof Error) {
-        errorMessage = err.message;
-      }
-      
-      // Add debugging information to the error
-      const debugInfo = `
-        Request data: ${JSON.stringify(routerData, null, 2)}
-        Repo config: ${JSON.stringify(repoConfig, null, 2)}
-        Error details: ${err instanceof Error ? err.stack : String(err)}
-      `;
-      
-      console.error('🔍 Debug information:', debugInfo);
-      setError(`${errorMessage}\n\nDebug info (check browser console for more details):\nWordPress API URL: ${routerData.wordpress_api_url}\nSite Type: ${routerData.site_type}\nRepo: ${repoConfig.owner}/${repoConfig.repo}`);
-      updateTaskStatus('deployment', 'frontendUpdate', 'error');
-    }
-  }, [routerData, repoConfig, generateRouter, updateRouterFile, onUpdateComplete, updateTaskStatus]);
+  //   console.log('🚀 Starting router generation with data:', routerData);
+
+  //   try {
+  //     // Step 1: Generate router
+  //     const result = await generateRouter(routerData);
+  //     console.log('✅ Router generation successful:', result);
+
+  //     // Step 2: Automatically update router file if router_string is available
+  //     if (result.router_string) {
+  //       console.log('📁 Updating router file with generated content...');
+
+  //       const routerFileRequest: UpdateGithubRepoFileRequest = {
+  //         owner: repoConfig.owner,
+  //         repo: repoConfig.repo,
+  //         path: 'router/index.js',
+  //         content: result.router_string,
+  //         message: 'Updating router file',
+  //         branch: repoConfig.branch
+  //       };
+
+  //       await updateRouterFile(routerFileRequest);
+  //       console.log('✅ Router file updated successfully');
+  //     }
+
+  //     updateTaskStatus('deployment', 'frontendUpdate', 'completed');
+
+  //     if (onUpdateComplete) {
+  //       onUpdateComplete(result);
+  //     }
+  //   } catch (err) {
+  //     console.error('❌ Router generation or file update failed:', err);
+
+  //     // Enhanced error message with debugging info
+  //     let errorMessage = 'An error occurred while generating router or updating file';
+  //     if (err instanceof Error) {
+  //       errorMessage = err.message;
+  //     }
+
+  //     // Add debugging information to the error
+  //     const debugInfo = `
+  //       Request data: ${JSON.stringify(routerData, null, 2)}
+  //       Repo config: ${JSON.stringify(repoConfig, null, 2)}
+  //       Error details: ${err instanceof Error ? err.stack : String(err)}
+  //     `;
+
+  //     console.error('🔍 Debug information:', debugInfo);
+  //     setError(`${errorMessage}\n\nDebug info (check browser console for more details):\nWordPress API URL: ${routerData.wordpress_api_url}\nSite Type: ${routerData.site_type}\nRepo: ${repoConfig.owner}/${repoConfig.repo}`);
+  //     updateTaskStatus('deployment', 'frontendUpdate', 'error');
+  //   }
+  // }, [routerData, repoConfig, generateRouter, updateRouterFile, onUpdateComplete, updateTaskStatus]);
 
   // Unified frontend update handler
   const handleUpdateFrontend = useCallback(async () => {
@@ -494,8 +497,6 @@ export const url = "${apiConfig.url}"
   const isFaviconDisabled = faviconStatus === 'pending';
   const isRouterDisabled = routerStatus === 'pending' || routerFileStatus === 'pending';
   const isRouterFileDisabled = routerFileStatus === 'pending';
-  const isLogoSuccess = logoStatus === 'success';
-  const isFaviconSuccess = faviconStatus === 'success';
   const isRouterSuccess = routerStatus === 'success';
   
   // Unified frontend update state

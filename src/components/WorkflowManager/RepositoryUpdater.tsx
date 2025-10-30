@@ -1,8 +1,8 @@
 import React, { useState, useCallback } from 'react';
+import { CheckCircle2, XCircle } from 'lucide-react';
 import { useGithubRepo } from '../../context/GithubRepoContext';
 import useUpdateGithubRepoDataFiles from '../../hooks/useUpdateGithubRepoDataFiles';
 import { useWorkflow } from '../../contexts/WorkflowProvider';
-import ProgressIndicator from '../Common/ProgressIndicator';
 import './RepositoryUpdater.sass';
 
 interface RepositoryUpdaterProps {
@@ -63,27 +63,26 @@ const RepositoryUpdater: React.FC<RepositoryUpdaterProps> = ({
 
   return (
     <div className="repository-updater">
-      <div className="repository-updater__header">
-        <h4 className="repository-updater__title">Repository Update Status</h4>
-          <ProgressIndicator 
-          status={workflowState.progressState.deployment.repositoryUpdate} 
-          size="small"
-          showLabel={true}
-        />
-      </div>
-      
       {/* Content Status */}
       <div className="content-status">
         <div className="status-item">
           <span className="status-label">Pages Content:</span>
           <span className={`status-indicator ${pagesContent ? 'ready' : 'missing'}`}>
-            {pagesContent ? '✅ Ready' : '❌ Missing'}
+            {pagesContent ? (
+              <><CheckCircle2 size={16} strokeWidth={2} /> Ready</>
+            ) : (
+              <><XCircle size={16} strokeWidth={2} /> Missing</>
+            )}
           </span>
         </div>
         <div className="status-item">
           <span className="status-label">Global Content:</span>
           <span className={`status-indicator ${globalContent ? 'ready' : 'missing'}`}>
-            {globalContent ? '✅ Ready' : '❌ Missing'}
+            {globalContent ? (
+              <><CheckCircle2 size={16} strokeWidth={2} /> Ready</>
+            ) : (
+              <><XCircle size={16} strokeWidth={2} /> Missing</>
+            )}
           </span>
         </div>
       </div>
@@ -144,7 +143,10 @@ const RepositoryUpdater: React.FC<RepositoryUpdaterProps> = ({
       {/* Success Display */}
       {githubStatus === 'success' && (
         <div className="success-section">
-          <h4>🎉 Repository Updated Successfully!</h4>
+          <div className="success-header">
+            <CheckCircle2 size={20} strokeWidth={2} />
+            <h4>Repository Updated Successfully!</h4>
+          </div>
           <p>Your generated content has been pushed to the GitHub repository.</p>
           
           {githubOwner && githubRepo && (
@@ -155,7 +157,7 @@ const RepositoryUpdater: React.FC<RepositoryUpdaterProps> = ({
                 rel="noopener noreferrer"
                 className="repo-link"
               >
-                🔗 View Repository on GitHub
+                View Repository on GitHub
               </a>
               <a
                 href={`https://github.com/${githubOwner}/${githubRepo}/commits`}

@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
+import { CheckCircle2 } from 'lucide-react';
 import useUpdateWordPress from '../../hooks/useUpdateWordPress';
 import EnhancedPreviewSection from './EnhancedPreviewSection';
 import { getBackendSiteTypeForModelGroup } from '../../utils/modelGroupKeyToBackendSiteType';
@@ -7,7 +8,6 @@ import { useSitemap } from '../../contexts/SitemapProvider';
 import { useAppConfig } from '../../contexts/AppConfigProvider';
 import { useGithubRepo } from '../../context/GithubRepoContext';
 import useProgressTracking from '../../hooks/useProgressTracking';
-import ProgressIndicator from '../Common/ProgressIndicator';
 import './WordPressUpdater.sass';
 
 
@@ -36,7 +36,7 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
   const { state: appConfigState } = useAppConfig();
   const { state: githubState } = useGithubRepo();
   const { githubRepo, pageType } = githubState;
-  const { progressState, updateTaskStatus } = useProgressTracking();
+  const { updateTaskStatus } = useProgressTracking();
 
   // Extract data from contexts
   const latestContent = workflowState.generatedContent.find(content => content.type === 'page-content');
@@ -465,27 +465,18 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
 
   return (
     <div className="wordpress-updater">
-      <div className="wordpress-updater__header">
-        <h4 className="wordpress-updater__title">WordPress Content Update</h4>
-        <ProgressIndicator 
-          status={progressState.deployment.wordpressUpdate} 
-          size="small"
-          showLabel={true}
-        />
-      </div>
-
       {/* Content Status */}
       <div className="content-status">
         <div className="status-item">
           <span className="status-label">Pages Content:</span>
           <span className={`status-indicator ${pagesContent ? 'ready' : 'missing'}`}>
-            {pagesContent ? '✅ Ready' : '❌ Missing'}
+            {pagesContent ? 'Ready' : 'Missing'}
           </span>
         </div>
         <div className="status-item">
           <span className="status-label">Global Content:</span>
           <span className={`status-indicator ${globalContent ? 'ready' : 'missing'}`}>
-            {globalContent ? '✅ Ready' : '❌ Missing'}
+            {globalContent ? 'Ready' : 'Missing'}
           </span>
         </div>
       </div>
@@ -551,8 +542,8 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
               Use New Format (Recommended)
               <small className="format-details">
                 {useNewFormat 
-                  ? "✅ Uses existing page IDs, wraps content in sections, updates existing pages"
-                  : "⚠️ Uses page names, direct arrays, may create new pages"
+                  ? "Uses existing page IDs, wraps content in sections, updates existing pages"
+                  : "Uses page names, direct arrays, may create new pages"
                 }
               </small>
             </span>
@@ -754,7 +745,10 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
       {/* Success Display */}
       {status === 'success' && response && (
         <div className="success-section">
-          <h4>🎉 WordPress Updated Successfully!</h4>
+          <div className="success-header">
+            <CheckCircle2 size={20} strokeWidth={2} />
+            <h4>WordPress Updated Successfully!</h4>
+          </div>
           <p>Your generated content has been pushed to your WordPress site.</p>
           
           <div className="update-summary">
@@ -792,7 +786,7 @@ const WordPressUpdater: React.FC<WordPressUpdaterProps> = ({
                     )}
                   </div>
                   <div className={`status-badge ${result.success ? 'success' : 'error'}`}>
-                    {result.success ? '✅ Success' : '❌ Failed'}
+                    {result.success ? 'Success' : 'Failed'}
                   </div>
                 </div>
               ))}

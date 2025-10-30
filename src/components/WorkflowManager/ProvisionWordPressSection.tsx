@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { CheckCircle2 } from 'lucide-react';
 import useCreatePleskSubscription from "../../hooks/useCreatePleskSubscription";
 import { useGithubRepo } from "../../context/GithubRepoContext";
 import useProgressTracking from "../../hooks/useProgressTracking";
-import ProgressIndicator from "../Common/ProgressIndicator";
 import "./ProvisionWordPressSection.sass";
 import { listSubscriptions, testSSHConnection } from "../../services/pleskAdminService";
 
@@ -13,7 +13,7 @@ interface ProvisionWordPressSectionProps {
 const ProvisionWordPressSection: React.FC<ProvisionWordPressSectionProps> = () => {
   const { state } = useGithubRepo();
   const { githubRepo } = state;
-  const { progressState, updateTaskStatus } = useProgressTracking();
+  const { updateTaskStatus } = useProgressTracking();
   
   const servers = useMemo(
     () => [
@@ -21,6 +21,7 @@ const ProvisionWordPressSection: React.FC<ProvisionWordPressSectionProps> = () =
       { id: "kewalos", label: "Kewalos (Custom) 44.237.149.155" },
       { id: "uluwatu", label: "Uluwatu (Landing pages) 44.236.196.209" },
       { id: "ssp-ortho", label: "SSP Ortho 3.17.97.149" },
+      { id: "crazy-visvesvaraya", label: "Topanga 52.24.217.50" },
     ],
     []
   );
@@ -92,20 +93,11 @@ const ProvisionWordPressSection: React.FC<ProvisionWordPressSectionProps> = () =
   useEffect(() => {
     // Load subscriptions when server changes
     loadSubscriptions();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [pleskIp]);
 
   return (
     <div className="provision-wordpress-section" role="region" aria-label="Copy WordPress Subscription">
-      <div className="provision-wordpress-section__header">
-        <h4 className="provision-wordpress-section__title">Plesk / WordPress Provisioning</h4>
-        <ProgressIndicator
-          status={progressState.infrastructure.pleskProvisioning} 
-          size="small"
-          showLabel={true}
-        />
-      </div>
-
       <div className="form-group">
         <label htmlFor="plesk-ip">
           Server
@@ -181,7 +173,8 @@ const ProvisionWordPressSection: React.FC<ProvisionWordPressSectionProps> = () =
       {copyStatus === "success" && copyResponse && (
         <div className="success-section" role="status">
           <div className="success-header">
-            <h4>🎉 WordPress Subscription Copied Successfully!</h4>
+            <CheckCircle2 size={20} strokeWidth={2} />
+            <h4>WordPress Subscription Copied Successfully!</h4>
           </div>
           
           <div className="success-details">

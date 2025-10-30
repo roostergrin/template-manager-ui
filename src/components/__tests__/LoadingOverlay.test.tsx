@@ -4,7 +4,7 @@ import LoadingOverlay from '../LoadingOverlay'
 
 describe('LoadingOverlay', () => {
   it('should render loading spinner and text', () => {
-    const { getByRole, getByText } = render(<LoadingOverlay />)
+    const { getByRole } = render(<LoadingOverlay />)
     
     // Check for status role and aria attributes
     const statusElement = getByRole('status')

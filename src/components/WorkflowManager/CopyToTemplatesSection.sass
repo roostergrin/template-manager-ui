@@ -1,0 +1,61 @@
+@use '../../styles/forms'
+
+.copy-to-templates-section
+  &__header
+    @extend %component-header
+
+  &__title
+    @extend %component-title
+
+  .form-group
+    @extend %form-group
+
+  .form-section
+    @extend %form-section
+
+  .form-row
+    @extend %form-row
+
+  .primary-button
+    @extend %primary-button
+
+  .secondary-button
+    @extend %secondary-button
+
+  .error-message
+    @extend %error-message
+
+  .success-section
+    @extend %success-section
+
+  .info-banner
+    @extend %info-banner
+
+  .radio-group
+    @extend %radio-group
+
+  // Component-specific styling
+  .computed-subdomain
+    margin-top: 8px
+    padding: 8px 12px
+    background-color: #f3f4f6
+    border-left: 3px solid #3b82f6
+    border-radius: 4px
+    font-size: 14px
+    color: #374151
+    
+    strong
+      color: #1f2937
+      font-weight: 600
+
+  .server-selection
+    margin-bottom: 20px
+    
+  .domain-inputs
+    display: flex
+    flex-direction: column
+    gap: 1rem
+
+// Include responsive form styles
+@include forms.form-responsive
+
