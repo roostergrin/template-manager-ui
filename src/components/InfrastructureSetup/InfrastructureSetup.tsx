@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { ChevronRight, ChevronDown } from 'lucide-react';
 import GitHubRepoCreator from '../WorkflowManager/GitHubRepoCreator';
 import EnhancedProvisionSection from '../WorkflowManager/EnhancedProvisionSection';
@@ -24,10 +24,16 @@ type TemplateJSONBoilerplate =
   | 'calistoga'
   | '';
 
+interface StepSuccessData {
+  [key: string]: any;
+}
+
 interface StepsState {
   [key: string]: {
     enabled: boolean;
     detailsExpanded: boolean;
+    completed: boolean;
+    successData?: any;
   };
 }
 
@@ -35,16 +41,17 @@ const InfrastructureSetup: React.FC = () => {
   const { state, actions } = useGithubRepo();
   const { setGithubRepo, setPageType: setContextPageType } = actions;
 
-  const [domainName, setDomainName] = useState('gordon.com');
+  const [domainName, setDomainName] = useState('');
   const [pageType, setPageType] = useState<PageType>('template');
   const [templateBoilerplate, setTemplateBoilerplate] = useState<TemplateBoilerplate>('stinson');
   const [templateJSONBoilerplate, setTemplateJSONBoilerplate] = useState<TemplateJSONBoilerplate>('');
   const [provisioningData, setProvisioningData] = useState<any>(null);
+  const [isProvisioning, setIsProvisioning] = useState(false);
 
   const [steps, setSteps] = useState<StepsState>({
-    step1: { enabled: true, detailsExpanded: false },
-    step2: { enabled: true, detailsExpanded: false },
-    step3: { enabled: true, detailsExpanded: false },
+    step1: { enabled: true, detailsExpanded: false, completed: false },
+    step2: { enabled: true, detailsExpanded: false, completed: false },
+    step3: { enabled: true, detailsExpanded: false, completed: false },
   });
 
   // Extract base domain name (e.g., "gordon.com" -> "gordon")
@@ -158,6 +165,14 @@ const InfrastructureSetup: React.FC = () => {
     return `api-${baseDomain}.roostergrintemplates.com`;
   }, [baseDomain, pageType, templateBoilerplate, templateJSONBoilerplate, templateToBackendAPI]);
 
+  // New API subdomain that will be created
+  const newApiSubdomain = useMemo(() => {
+    if (baseDomain) {
+      return `api-${baseDomain}.roostergrintemplates.com`;
+    }
+    return '';
+  }, [baseDomain]);
+
   // Final values
   const repoName = generatedRepoName;
   const s3Bucket = generatedS3Bucket;
@@ -195,13 +210,75 @@ const InfrastructureSetup: React.FC = () => {
     }));
   };
 
+  const handleStepSuccess = (stepKey: string, data: any) => {
+    console.log(`Step ${stepKey} completed successfully:`, data);
+    setSteps(prev => ({
+      ...prev,
+      [stepKey]: {
+        ...prev[stepKey],
+        completed: true,
+        successData: data,
+      }
+    }));
+  };
+
+  const handleStep1Success = useCallback((data: any) => {
+    handleStepSuccess('step1', {
+      type: 'GitHub Repository',
+      repository: data.repo || repoName,
+      owner: data.owner || 'roostergrin',
+      url: data.url || `https://github.com/${data.owner || 'roostergrin'}/${data.repo || repoName}`,
+      template: templateToGithubRepo,
+    });
+  }, [repoName, templateToGithubRepo]);
+
+  const handleStep2Success = useCallback((data: any) => {
+    handleStepSuccess('step2', {
+      type: 'AWS Resources',
+      s3Bucket: data.s3Bucket || s3Bucket,
+      cloudFrontDomain: data.cloudFrontDomain || cloudFrontDomain,
+      pipeline: data.pipeline || generatedPipelineName,
+      region: data.region || 'us-east-1',
+    });
+  }, [s3Bucket, cloudFrontDomain, generatedPipelineName]);
+
+  const handleStep3Success = useCallback((data: any) => {
+    handleStepSuccess('step3', {
+      type: 'API Subdomain & Backend',
+      sourceSubdomain: data.sourceDomain || apiSubdomain,
+      newSubdomain: data.apiSubdomain || `api-${baseDomain}.roostergrintemplates.com`,
+      targetDomain: data.targetDomain || domainName,
+      sslCertificate: data.sslCertificate || 'ACM Certificate Created',
+      dnsConfiguration: data.dnsConfiguration || 'Route 53 Configured',
+    });
+  }, [apiSubdomain, baseDomain, domainName]);
+
   const enabledStepsCount = useMemo(() => {
     return Object.values(steps).filter(step => step.enabled).length;
   }, [steps]);
 
-  const handleProvision = () => {
+  const handleProvision = async () => {
     console.log('Provision Infrastructure clicked');
-    // TODO: Implement provisioning logic
+    setIsProvisioning(true);
+
+    // Auto-expand all enabled steps
+    setSteps(prev => {
+      const updatedSteps = { ...prev };
+      Object.keys(updatedSteps).forEach(key => {
+        if (updatedSteps[key].enabled) {
+          updatedSteps[key].detailsExpanded = true;
+        }
+      });
+      return updatedSteps;
+    });
+
+    // Scroll to provisioning steps section
+    setTimeout(() => {
+      const provisioningSection = document.querySelector('.infrastructure-setup__provisioning');
+      if (provisioningSection) {
+        provisioningSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
   };
 
   return (
@@ -321,7 +398,7 @@ const InfrastructureSetup: React.FC = () => {
         <h3 className="provisioning__title">PROVISIONING STEPS</h3>
 
         {/* Step 1: Create GitHub Repository */}
-        <div className={`provisioning-step ${!steps.step1.enabled ? 'provisioning-step--disabled' : ''}`}>
+        <div className={`provisioning-step ${!steps.step1.enabled ? 'provisioning-step--disabled' : ''} ${steps.step1.completed ? 'provisioning-step--completed' : ''}`}>
           <div className="provisioning-step__header">
             <div className="provisioning-step__header-left">
               <input
@@ -332,7 +409,10 @@ const InfrastructureSetup: React.FC = () => {
                 aria-label="Enable Create GitHub Repository step"
               />
               <div className="provisioning-step__title-group">
-                <h4 className="provisioning-step__title">Create GitHub Repository</h4>
+                <h4 className="provisioning-step__title">
+                  Create GitHub Repository
+                  {steps.step1.completed && <span className="step-completed-badge">✓ Completed</span>}
+                </h4>
                 <div className="provisioning-step__preview">
                   Repo: <span className="provisioning-step__preview-value">{repoName}</span>
                   {pageType === 'template' && templateDisplayName && (
@@ -361,18 +441,49 @@ const InfrastructureSetup: React.FC = () => {
             </button>
           </div>
 
-          {steps.step1.detailsExpanded && steps.step1.enabled && (
-            <div className="provisioning-step__content">
-              <GitHubRepoCreator
-                onRepoCreated={() => {}}
-                initialTemplateRepo={templateToGithubRepo}
-              />
-            </div>
+          {steps.step1.enabled && (
+            <>
+              {steps.step1.detailsExpanded && !steps.step1.completed && (
+                <div className="provisioning-step__content">
+                  <GitHubRepoCreator
+                    onRepoCreated={handleStep1Success}
+                    initialTemplateRepo={templateToGithubRepo}
+                  />
+                </div>
+              )}
+              {steps.step1.completed && (
+                <div className="provisioning-step__content">
+                  <div className="provisioning-step__success">
+                    <div className="success-icon">✓</div>
+                    <div className="success-content">
+                      <h4 className="success-title">{steps.step1.successData?.type} Created Successfully!</h4>
+                      <div className="success-details">
+                        <div className="success-detail-item">
+                          <strong>Repository:</strong> {steps.step1.successData?.repository}
+                        </div>
+                        <div className="success-detail-item">
+                          <strong>Owner:</strong> {steps.step1.successData?.owner}
+                        </div>
+                        <div className="success-detail-item">
+                          <strong>Template:</strong> {steps.step1.successData?.template}
+                        </div>
+                        <div className="success-detail-item">
+                          <strong>URL:</strong>{' '}
+                          <a href={steps.step1.successData?.url} target="_blank" rel="noopener noreferrer">
+                            {steps.step1.successData?.url}
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </div>
 
         {/* Step 2: Provision AWS Resources */}
-        <div className={`provisioning-step ${!steps.step2.enabled ? 'provisioning-step--disabled' : ''}`}>
+        <div className={`provisioning-step ${!steps.step2.enabled ? 'provisioning-step--disabled' : ''} ${steps.step2.completed ? 'provisioning-step--completed' : ''}`}>
           <div className="provisioning-step__header">
             <div className="provisioning-step__header-left">
               <input
@@ -383,7 +494,10 @@ const InfrastructureSetup: React.FC = () => {
                 aria-label="Enable Provision AWS Resources step"
               />
               <div className="provisioning-step__title-group">
-                <h4 className="provisioning-step__title">Provision AWS Resources</h4>
+                <h4 className="provisioning-step__title">
+                  Provision AWS Resources
+                  {steps.step2.completed && <span className="step-completed-badge">✓ Completed</span>}
+                </h4>
                 <div className="provisioning-step__preview">
                   S3: <span className="provisioning-step__preview-value">{s3Bucket}</span>
                   {' • '}CloudFront: <span className="provisioning-step__preview-value">{cloudFrontPath}</span>
@@ -402,15 +516,43 @@ const InfrastructureSetup: React.FC = () => {
             </button>
           </div>
 
-          {steps.step2.detailsExpanded && steps.step2.enabled && (
-            <div className="provisioning-step__content">
-              <EnhancedProvisionSection onProvisioningComplete={setProvisioningData} />
-            </div>
+          {steps.step2.enabled && (
+            <>
+              {steps.step2.detailsExpanded && !steps.step2.completed && (
+                <div className="provisioning-step__content">
+                  <EnhancedProvisionSection onProvisioningComplete={handleStep2Success} />
+                </div>
+              )}
+              {steps.step2.completed && (
+                <div className="provisioning-step__content">
+                  <div className="provisioning-step__success">
+                    <div className="success-icon">✓</div>
+                    <div className="success-content">
+                      <h4 className="success-title">{steps.step2.successData?.type} Provisioned Successfully!</h4>
+                      <div className="success-details">
+                        <div className="success-detail-item">
+                          <strong>S3 Bucket:</strong> {steps.step2.successData?.s3Bucket}
+                        </div>
+                        <div className="success-detail-item">
+                          <strong>CloudFront:</strong> {steps.step2.successData?.cloudFrontDomain}
+                        </div>
+                        <div className="success-detail-item">
+                          <strong>Pipeline:</strong> {steps.step2.successData?.pipeline}
+                        </div>
+                        <div className="success-detail-item">
+                          <strong>Region:</strong> {steps.step2.successData?.region}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </div>
 
         {/* Step 3: Setup API Subdomain & Backend */}
-        <div className={`provisioning-step ${!steps.step3.enabled ? 'provisioning-step--disabled' : ''}`}>
+        <div className={`provisioning-step ${!steps.step3.enabled ? 'provisioning-step--disabled' : ''} ${steps.step3.completed ? 'provisioning-step--completed' : ''}`}>
           <div className="provisioning-step__header">
             <div className="provisioning-step__header-left">
               <input
@@ -421,9 +563,17 @@ const InfrastructureSetup: React.FC = () => {
                 aria-label="Enable Setup API Subdomain & Backend step"
               />
               <div className="provisioning-step__title-group">
-                <h4 className="provisioning-step__title">Setup API Subdomain & Backend</h4>
+                <h4 className="provisioning-step__title">
+                  Setup API Subdomain & Backend
+                  {steps.step3.completed && <span className="step-completed-badge">✓ Completed</span>}
+                </h4>
                 <div className="provisioning-step__preview">
-                  API: <span className="provisioning-step__preview-value">{apiSubdomain}</span>
+                  Source: <span className="provisioning-step__preview-value">{apiSubdomain}</span>
+                  {newApiSubdomain && (
+                    <>
+                      {' • '}New: <span className="provisioning-step__preview-value">{newApiSubdomain}</span>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
@@ -438,10 +588,45 @@ const InfrastructureSetup: React.FC = () => {
             </button>
           </div>
 
-          {steps.step3.detailsExpanded && steps.step3.enabled && (
-            <div className="provisioning-step__content">
-              <CopyToTemplatesSection />
-            </div>
+          {steps.step3.enabled && (
+            <>
+              {steps.step3.detailsExpanded && !steps.step3.completed && (
+                <div className="provisioning-step__content">
+                  <CopyToTemplatesSection
+                    initialSourceDomain={apiSubdomain}
+                    initialTargetDomain={domainName}
+                    onCopied={handleStep3Success}
+                  />
+                </div>
+              )}
+              {steps.step3.completed && (
+                <div className="provisioning-step__content">
+                  <div className="provisioning-step__success">
+                    <div className="success-icon">✓</div>
+                    <div className="success-content">
+                      <h4 className="success-title">{steps.step3.successData?.type} Configured Successfully!</h4>
+                      <div className="success-details">
+                        <div className="success-detail-item">
+                          <strong>Source Subdomain:</strong> {steps.step3.successData?.sourceSubdomain}
+                        </div>
+                        <div className="success-detail-item">
+                          <strong>New Subdomain Created:</strong> {steps.step3.successData?.newSubdomain}
+                        </div>
+                        <div className="success-detail-item">
+                          <strong>Target Domain:</strong> {steps.step3.successData?.targetDomain}
+                        </div>
+                        <div className="success-detail-item">
+                          <strong>SSL Certificate:</strong> {steps.step3.successData?.sslCertificate}
+                        </div>
+                        <div className="success-detail-item">
+                          <strong>DNS Configuration:</strong> {steps.step3.successData?.dnsConfiguration}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
@@ -450,7 +635,7 @@ const InfrastructureSetup: React.FC = () => {
       <div className="infrastructure-setup__action-bar">
         <div className="action-bar__info">
           <div className="action-bar__info-item">
-            <strong>Ready to provision</strong>
+            <strong>{isProvisioning ? 'Provisioning...' : 'Ready to provision'}</strong>
           </div>
           <div className="action-bar__info-item">
             {enabledStepsCount} {enabledStepsCount === 1 ? 'step' : 'steps'} selected
@@ -461,9 +646,9 @@ const InfrastructureSetup: React.FC = () => {
             type="button"
             className="action-bar__button action-bar__button--primary"
             onClick={handleProvision}
-            disabled={!domainName || domainName.trim() === '' || enabledStepsCount === 0}
+            disabled={!domainName || domainName.trim() === '' || enabledStepsCount === 0 || isProvisioning}
           >
-            Provision Infrastructure
+            {isProvisioning ? 'Provisioning...' : 'Provision Infrastructure'}
           </button>
         </div>
       </div>

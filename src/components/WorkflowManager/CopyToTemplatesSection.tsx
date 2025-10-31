@@ -6,21 +6,27 @@ import { listSubdomains, copySubdomainWithinSubscription } from "../../services/
 
 interface CopyToTemplatesSectionProps {
   onCopied?: (data: any) => void;
+  initialSourceDomain?: string;
+  initialTargetDomain?: string;
 }
 
-const CopyToTemplatesSection: React.FC<CopyToTemplatesSectionProps> = () => {
+const CopyToTemplatesSection: React.FC<CopyToTemplatesSectionProps> = ({
+  onCopied,
+  initialSourceDomain = '',
+  initialTargetDomain = ''
+}) => {
   const { updateTaskStatus } = useProgressTracking();
-  
+
   const servers = useMemo(
     () => [
       { id: "crazy-visvesvaraya", label: "Topanga 52.24.217.50" },
     ],
     []
   );
-  
+
   const [pleskIp, setPleskIp] = useState<string>("crazy-visvesvaraya");
-  const [sourceDomain, setSourceDomain] = useState<string>("");
-  const [targetDomain, setTargetDomain] = useState<string>("");
+  const [sourceDomain, setSourceDomain] = useState<string>(initialSourceDomain);
+  const [targetDomain, setTargetDomain] = useState<string>(initialTargetDomain);
   const [availableSubscriptions, setAvailableSubscriptions] = useState<string[]>([]);
   const [subsError, setSubsError] = useState<string | null>(null);
   const [copyErrorMessage, setCopyErrorMessage] = useState<string | null>(null);
@@ -89,6 +95,19 @@ const CopyToTemplatesSection: React.FC<CopyToTemplatesSectionProps> = () => {
     loadSubscriptions();
   }, [loadSubscriptions]);
 
+  // Update source and target domains when props change
+  useEffect(() => {
+    if (initialSourceDomain) {
+      setSourceDomain(initialSourceDomain);
+    }
+  }, [initialSourceDomain]);
+
+  useEffect(() => {
+    if (initialTargetDomain) {
+      setTargetDomain(initialTargetDomain);
+    }
+  }, [initialTargetDomain]);
+
   const handleCopy = async () => {
     setCopyErrorMessage(null);
     setCopyStatus("pending");
@@ -116,6 +135,16 @@ const CopyToTemplatesSection: React.FC<CopyToTemplatesSectionProps> = () => {
       setCopyResponse(result);
       setCopyStatus("success");
       updateTaskStatus('infrastructure', 'pleskProvisioning', 'completed');
+
+      // Call onCopied callback if provided
+      if (onCopied) {
+        onCopied({
+          apiSubdomain: targetSubdomain,
+          sourceDomain,
+          targetDomain,
+          ...result
+        });
+      }
     } catch (e) {
       console.error("Copy error:", e);
       setCopyErrorMessage(e instanceof Error ? e.message : "Failed to copy subdomain");
