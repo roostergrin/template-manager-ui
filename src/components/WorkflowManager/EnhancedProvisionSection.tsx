@@ -16,7 +16,7 @@ const EnhancedProvisionSection: React.FC<EnhancedProvisionSectionProps> = ({
   const { githubOwner, githubRepo, pageType } = state;
   const { setGithubOwner, setGithubRepo, setPageType } = actions;
   const [bucketName, setBucketName] = useState("");
-  const [githubBranch, setGithubBranch] = useState("master");
+  const [githubBranch, setGithubBranch] = useState("main");
   const completionCalledRef = useRef(false);
 
   // Auto-populate bucket name based on GitHub repo name

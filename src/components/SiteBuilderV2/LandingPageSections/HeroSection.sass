@@ -1,0 +1,123 @@
+@import '../../../styles/variables'
+@import '../../../styles/mixins'
+
+.hero-section
+  position: relative
+  background-image: var(--hero-bg-image, none)
+  background-size: cover
+  background-position: center
+  background-repeat: no-repeat
+  height: 896px
+  padding: 0
+  
+  
+  &__container
+    position: relative
+    z-index: 1
+    max-width: 1440px
+    margin: 0 auto
+    display: grid
+    grid-template-columns: repeat(12, 1fr)
+    gap: 32px
+    width: 100%
+    height: 100%
+    min-height: 700px
+    align-items: center
+
+  &__content
+    grid-column: 1 / 13
+    display: grid
+    gap: 32px
+    padding: 0 144px
+
+  &__left
+    display: flex
+    flex-direction: column
+    align-items: center
+    justify-content: center
+    width: fit-content
+
+  &__title
+    font-size: 54px
+    font-weight: 300
+    color: var(--color-hero-text, black)
+    margin: 0
+    line-height: 1.2
+    letter-spacing: -0.5px
+
+  &__logo
+    display: flex
+    flex-direction: column
+    margin: 40px 0 21px
+    max-width: 300px
+    font-size: 0
+    width: 100%
+
+  &__logo-image
+    width: clamp(20rem, 960px, 30rem)
+    height: auto
+    object-fit: contain
+
+  &__logo-text
+    font-size: 100px
+    font-weight: 300
+    color: var(--color-hero-text, black)
+    letter-spacing: 18px
+    text-transform: lowercase
+    font-family: 'Brush Script MT', 'Apple Chancery', cursive
+    line-height: 1
+    margin-bottom: 8px
+
+  &__logo-subtitle
+    display: flex
+    gap: 8px
+    align-items: baseline
+    font-size: 12px
+    letter-spacing: 6px
+    color: var(--color-hero-text, black)
+    font-weight: 500
+    text-transform: uppercase
+
+  &__logo-smile
+    color: var(--color-secondary)
+    text-transform: lowercase
+    font-style: italic
+    font-family: 'Brush Script MT', cursive
+    font-size: 18px
+    letter-spacing: 3px
+    font-weight: 400
+
+  &__doctor
+    font-size: 24px
+    font-weight: 300
+    color: var(--color-hero-text, white)
+    margin: 0
+    letter-spacing: 0.5px
+
+  &__cta
+    font-family: 'Roboto', sans-serif
+    margin-top: 2rem
+    padding: .5rem 1rem
+    background: var(--color-button)
+    color: white
+    border: none
+    border-radius: 2rem
+    font-size: 20px
+    font-weight: 700
+    cursor: pointer
+    transition: all 0.3s ease
+    line-height: 1.667
+    text-transform: uppercase
+
+    &:hover
+      background: var(--color-hover)
+      transform: translateY(-2px)
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2)
+
+  &__right
+    grid-column: 7 / 13
+    display: flex
+    align-items: center
+    justify-content: center
+    height: 100%
+

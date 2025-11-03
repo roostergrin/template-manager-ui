@@ -1,52 +1,33 @@
 import { useMutation, MutationStatus } from "@tanstack/react-query";
-import createPleskSubscription from "../services/createPleskSubscriptionService";
-import {
-  CreateSubscriptionRequest,
-  CreateSubscriptionResponse,
-  CopySubscriptionRequest,
-  CopySubscriptionResponse,
-} from "../types/APIServiceTypes";
-import { copySubscription } from "../services/pleskAdminService";
+import createPleskSubscriptionService from "../services/createPleskSubscriptionService";
+import { CreatePleskSubscriptionRequest, CreatePleskSubscriptionResponse } from "../types/APIServiceTypes";
 
 const useCreatePleskSubscription = () => {
-  const mutation = useMutation<
-    CreateSubscriptionResponse,
-    Error,
-    CreateSubscriptionRequest
-  >({
-    mutationFn: createPleskSubscription,
+  const mutation = useMutation<CreatePleskSubscriptionResponse, Error, CreatePleskSubscriptionRequest>({
+    mutationFn: createPleskSubscriptionService,
   });
-
-  const copyMutation = useMutation<
-    CopySubscriptionResponse,
-    Error,
-    CopySubscriptionRequest
-  >({
-    mutationFn: copySubscription,
-  });
-
+  
+  // Return array format to match existing usage in ProvisionWordPressSection
+  // [createResponse, createStatus, createSubscription, createError, copyResponse, copyStatus, copySubscription, copyError]
   return [
-    mutation.data,
-    mutation.status,
-    mutation.mutateAsync,
-    mutation.error,
-    // copy subscription controls
-    copyMutation.data,
-    copyMutation.status,
-    copyMutation.mutateAsync,
-    copyMutation.error,
+    undefined, // createResponse (unused)
+    undefined, // createStatus (unused)
+    undefined, // createSubscription (unused)
+    undefined, // createError (unused)
+    mutation.data, // copyResponse
+    mutation.status, // copyStatus
+    mutation.mutateAsync, // copySubscription
+    mutation.error, // copyError
   ] as [
-    CreateSubscriptionResponse | undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    CreatePleskSubscriptionResponse | undefined,
     MutationStatus,
-    (req: CreateSubscriptionRequest) => Promise<CreateSubscriptionResponse>,
-    Error | null,
-    CopySubscriptionResponse | undefined,
-    MutationStatus,
-    (req: CopySubscriptionRequest) => Promise<CopySubscriptionResponse>,
+    (req: CreatePleskSubscriptionRequest) => Promise<CreatePleskSubscriptionResponse>,
     Error | null
   ];
 };
 
 export default useCreatePleskSubscription;
-
-

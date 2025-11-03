@@ -82,7 +82,9 @@ export const handleAPIResponse = <T>(response: AxiosResponse<T>): T => {
       );
     }
     
-    return wrappedData.data as T || response.data;
+    // Return data if present, otherwise return the full response
+    // This ensures we get the message field for successful responses
+    return (wrappedData.data !== undefined ? wrappedData.data : response.data) as T;
   }
 
   return response.data;

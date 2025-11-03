@@ -224,3 +224,69 @@ export interface CopySubscriptionResponse {
   message?: string;
   [key: string]: unknown;
 }
+
+// Check GitHub Repo Exists Types
+export interface CheckGithubRepoRequest {
+  owner: string;
+  repo: string;
+}
+
+export interface CheckGithubRepoResponse {
+  exists: boolean;
+  message?: string;
+}
+
+// Create S3 Bucket Types
+export interface CreateS3BucketRequest {
+  bucket_name: string;
+}
+
+export interface CreateS3BucketResponse {
+  success: boolean;
+  bucket_name?: string;
+  bucket_url?: string;
+  message?: string;
+}
+
+// Create CodePipeline Types
+export interface CreateCodePipelineRequest {
+  pipeline_name: string;
+  bucket_name: string;
+  github_owner: string;
+  github_repo: string;
+  distribution_id: string;
+  distribution_type: string;
+}
+
+export interface CreateCodePipelineResponse {
+  success: boolean;
+  pipeline_name?: string;
+  pipeline_arn?: string;
+  message?: string;
+}
+
+// Create CloudFront Distribution Types
+export interface CreateDistributionRequest {
+  s3_bucket_name: string;
+  distribution_type: string;
+}
+
+export interface CreateDistributionResponse {
+  success: boolean;
+  distribution_url?: string;
+  distribution_id?: string;
+  message?: string;
+}
+
+// Create Plesk Subscription with htaccess Types
+export interface CreatePleskSubscriptionRequest {
+  plesk_ip: string;
+  domain: string;
+}
+
+export interface CreatePleskSubscriptionResponse {
+  success: boolean;
+  subscription_id?: string;
+  domain?: string;
+  message?: string;
+}

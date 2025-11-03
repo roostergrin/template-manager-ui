@@ -28,7 +28,7 @@ const GithubFileUpdater: React.FC<GithubFileUpdaterProps> = ({
   const [repoConfig, setRepoConfig] = useState({
     owner: githubOwner || 'roostergrin',
     repo: githubRepo || '',
-    branch: 'master'
+    branch: 'main'
   });
 
   // Logo file upload state
@@ -556,7 +556,7 @@ export const url = "${apiConfig.url}"
               type="text"
               value={repoConfig.branch}
               onChange={(e) => handleRepoConfigChange('branch', e.target.value)}
-              placeholder="master"
+              placeholder="main"
               disabled={isLogoDisabled || isFaviconDisabled || isRouterDisabled || isRouterFileDisabled}
               aria-label="Git branch name"
               tabIndex={0}
