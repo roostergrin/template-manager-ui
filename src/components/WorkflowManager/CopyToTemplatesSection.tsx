@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState, forwardRef, useImperativeHandle } from "react";
 import { CheckCircle2 } from 'lucide-react';
 import useProgressTracking from "../../hooks/useProgressTracking";
 import "./CopyToTemplatesSection.sass";
@@ -6,21 +6,31 @@ import { listSubdomains, copySubdomainWithinSubscription } from "../../services/
 
 interface CopyToTemplatesSectionProps {
   onCopied?: (data: any) => void;
+  initialSourceDomain?: string;
+  initialTargetDomain?: string;
 }
 
-const CopyToTemplatesSection: React.FC<CopyToTemplatesSectionProps> = () => {
+export interface CopyToTemplatesSectionRef {
+  triggerCopy: () => Promise<void>;
+}
+
+const CopyToTemplatesSection = forwardRef<CopyToTemplatesSectionRef, CopyToTemplatesSectionProps>(({
+  onCopied,
+  initialSourceDomain = '',
+  initialTargetDomain = ''
+}, ref) => {
   const { updateTaskStatus } = useProgressTracking();
-  
+
   const servers = useMemo(
     () => [
       { id: "crazy-visvesvaraya", label: "Topanga 52.24.217.50" },
     ],
     []
   );
-  
+
   const [pleskIp, setPleskIp] = useState<string>("crazy-visvesvaraya");
-  const [sourceDomain, setSourceDomain] = useState<string>("");
-  const [targetDomain, setTargetDomain] = useState<string>("");
+  const [sourceDomain, setSourceDomain] = useState<string>(initialSourceDomain);
+  const [targetDomain, setTargetDomain] = useState<string>(initialTargetDomain);
   const [availableSubscriptions, setAvailableSubscriptions] = useState<string[]>([]);
   const [subsError, setSubsError] = useState<string | null>(null);
   const [copyErrorMessage, setCopyErrorMessage] = useState<string | null>(null);
@@ -89,6 +99,19 @@ const CopyToTemplatesSection: React.FC<CopyToTemplatesSectionProps> = () => {
     loadSubscriptions();
   }, [loadSubscriptions]);
 
+  // Update source and target domains when props change
+  useEffect(() => {
+    if (initialSourceDomain) {
+      setSourceDomain(initialSourceDomain);
+    }
+  }, [initialSourceDomain]);
+
+  useEffect(() => {
+    if (initialTargetDomain) {
+      setTargetDomain(initialTargetDomain);
+    }
+  }, [initialTargetDomain]);
+
   const handleCopy = async () => {
     setCopyErrorMessage(null);
     setCopyStatus("pending");
@@ -116,6 +139,16 @@ const CopyToTemplatesSection: React.FC<CopyToTemplatesSectionProps> = () => {
       setCopyResponse(result);
       setCopyStatus("success");
       updateTaskStatus('infrastructure', 'pleskProvisioning', 'completed');
+
+      // Call onCopied callback if provided
+      if (onCopied) {
+        onCopied({
+          apiSubdomain: targetSubdomain,
+          sourceDomain,
+          targetDomain,
+          ...result
+        });
+      }
     } catch (e) {
       console.error("Copy error:", e);
       setCopyErrorMessage(e instanceof Error ? e.message : "Failed to copy subdomain");
@@ -123,6 +156,11 @@ const CopyToTemplatesSection: React.FC<CopyToTemplatesSectionProps> = () => {
       updateTaskStatus('infrastructure', 'pleskProvisioning', 'error');
     }
   };
+
+  // Expose the handleCopy method to parent via ref
+  useImperativeHandle(ref, () => ({
+    triggerCopy: handleCopy
+  }), [handleCopy]);
 
   return (
     <div className="copy-to-templates-section" role="region" aria-label="Copy to Templates">
@@ -256,7 +294,9 @@ const CopyToTemplatesSection: React.FC<CopyToTemplatesSectionProps> = () => {
       )}
     </div>
   );
-};
+});
+
+CopyToTemplatesSection.displayName = 'CopyToTemplatesSection';
 
 export default CopyToTemplatesSection;
 

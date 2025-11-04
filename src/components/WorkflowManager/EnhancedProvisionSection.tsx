@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, forwardRef, useImperativeHandle, useCallback } from "react";
 import { CheckCircle2 } from 'lucide-react';
 import useProvisionSite from "../../hooks/useProvisionSite";
 import { useGithubRepo } from "../../context/GithubRepoContext";
@@ -9,9 +9,13 @@ interface EnhancedProvisionSectionProps {
   onProvisioningComplete?: (data: any) => void;
 }
 
-const EnhancedProvisionSection: React.FC<EnhancedProvisionSectionProps> = ({
+export interface EnhancedProvisionSectionRef {
+  triggerProvision: () => Promise<void>;
+}
+
+const EnhancedProvisionSection = forwardRef<EnhancedProvisionSectionRef, EnhancedProvisionSectionProps>(({
   onProvisioningComplete
-}) => {
+}, ref) => {
   const { state, actions } = useGithubRepo();
   const { githubOwner, githubRepo, pageType } = state;
   const { setGithubOwner, setGithubRepo, setPageType } = actions;
@@ -45,11 +49,11 @@ const EnhancedProvisionSection: React.FC<EnhancedProvisionSectionProps> = ({
     }
   }, [status, response, onProvisioningComplete, bucketName, githubOwner, githubRepo, githubBranch, updateTaskStatus]);
 
-  const handleProvision = async () => {
+  const handleProvision = useCallback(async () => {
     setError(null);
     completionCalledRef.current = false; // Reset completion flag
     updateTaskStatus('infrastructure', 'awsProvisioning', 'in-progress');
-    
+
     try {
       await provisionSite({
         bucket_name: bucketName,
@@ -62,7 +66,12 @@ const EnhancedProvisionSection: React.FC<EnhancedProvisionSectionProps> = ({
       setError(err instanceof Error ? err.message : "An error occurred");
       updateTaskStatus('infrastructure', 'awsProvisioning', 'error');
     }
-  };
+  }, [bucketName, githubOwner, githubRepo, githubBranch, pageType, provisionSite, updateTaskStatus]);
+
+  // Expose the handleProvision method to parent via ref
+  useImperativeHandle(ref, () => ({
+    triggerProvision: handleProvision
+  }), [handleProvision]);
 
   return (
     <div className="enhanced-provision-section" role="region" aria-label="Provision Site">
@@ -218,6 +227,8 @@ const EnhancedProvisionSection: React.FC<EnhancedProvisionSectionProps> = ({
       )}
     </div>
   );
-};
+});
+
+EnhancedProvisionSection.displayName = 'EnhancedProvisionSection';
 
 export default EnhancedProvisionSection; 
