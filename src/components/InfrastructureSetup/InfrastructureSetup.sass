@@ -241,6 +241,24 @@
       border-radius: 4px
       white-space: nowrap
 
+    &__header-right
+      display: flex
+      align-items: center
+      gap: 8px
+
+    &__status-icon
+      flex-shrink: 0
+
+      &--pending
+        color: #0066cc
+        animation: spin 1s linear infinite
+
+      &--success
+        color: #22c55e
+
+      &--error
+        color: #ef4444
+
     &__expand-btn
       background: none
       border: none
@@ -390,6 +408,13 @@
 
       &:disabled:not(:hover)
         transform: none
+
+// Animations
+@keyframes spin
+  from
+    transform: rotate(0deg)
+  to
+    transform: rotate(360deg)
 
 // Responsive Design
 @media (max-width: 768px)

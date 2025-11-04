@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
-import { ChevronRight, ChevronDown } from 'lucide-react';
+import { ChevronRight, ChevronDown, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import GitHubRepoCreator, { GitHubRepoCreatorRef } from '../WorkflowManager/GitHubRepoCreator';
 import EnhancedProvisionSection, { EnhancedProvisionSectionRef } from '../WorkflowManager/EnhancedProvisionSection';
 import CopyToTemplatesSection, { CopyToTemplatesSectionRef } from '../WorkflowManager/CopyToTemplatesSection';
@@ -33,6 +33,7 @@ interface StepsState {
     enabled: boolean;
     detailsExpanded: boolean;
     completed: boolean;
+    status: 'idle' | 'pending' | 'success' | 'error';
     successData?: any;
   };
 }
@@ -49,9 +50,9 @@ const InfrastructureSetup: React.FC = () => {
   const [isProvisioning, setIsProvisioning] = useState(false);
 
   const [steps, setSteps] = useState<StepsState>({
-    step1: { enabled: true, detailsExpanded: false, completed: false },
-    step2: { enabled: true, detailsExpanded: false, completed: false },
-    step3: { enabled: true, detailsExpanded: false, completed: false },
+    step1: { enabled: true, detailsExpanded: false, completed: false, status: 'idle' },
+    step2: { enabled: true, detailsExpanded: false, completed: false, status: 'idle' },
+    step3: { enabled: true, detailsExpanded: false, completed: false, status: 'idle' },
   });
 
   // Create refs for child components
@@ -207,6 +208,16 @@ const InfrastructureSetup: React.FC = () => {
     }));
   };
 
+  const handleStepStatus = (stepKey: string, status: 'idle' | 'pending' | 'success' | 'error') => {
+    setSteps(prev => ({
+      ...prev,
+      [stepKey]: {
+        ...prev[stepKey],
+        status,
+      }
+    }));
+  };
+
   const handleStepSuccess = (stepKey: string, data: any) => {
     console.log(`Step ${stepKey} completed successfully:`, data);
     setSteps(prev => ({
@@ -214,6 +225,7 @@ const InfrastructureSetup: React.FC = () => {
       [stepKey]: {
         ...prev[stepKey],
         completed: true,
+        status: 'success',
         successData: data,
       }
     }));
@@ -263,17 +275,6 @@ const InfrastructureSetup: React.FC = () => {
     console.log('Provision Infrastructure clicked');
     setIsProvisioning(true);
 
-    // Auto-expand all enabled steps
-    setSteps(prev => {
-      const updatedSteps = { ...prev };
-      Object.keys(updatedSteps).forEach(key => {
-        if (updatedSteps[key].enabled) {
-          updatedSteps[key].detailsExpanded = true;
-        }
-      });
-      return updatedSteps;
-    });
-
     // Scroll to provisioning steps section
     setTimeout(() => {
       const provisioningSection = document.querySelector('.infrastructure-setup__provisioning');
@@ -288,12 +289,26 @@ const InfrastructureSetup: React.FC = () => {
 
       if (steps.step1.enabled && step1Ref.current) {
         console.log('Triggering Step 1: Create GitHub Repository');
-        parallelTasks.push(step1Ref.current.triggerCreateRepo());
+        handleStepStatus('step1', 'pending');
+        parallelTasks.push(
+          step1Ref.current.triggerCreateRepo().catch((error) => {
+            console.error('Step 1 failed:', error);
+            handleStepStatus('step1', 'error');
+            throw error;
+          })
+        );
       }
 
       if (steps.step3.enabled && step3Ref.current) {
         console.log('Triggering Step 3: Copy Subscription (in parallel with Step 1)');
-        parallelTasks.push(step3Ref.current.triggerCopy());
+        handleStepStatus('step3', 'pending');
+        parallelTasks.push(
+          step3Ref.current.triggerCopy().catch((error) => {
+            console.error('Step 3 failed:', error);
+            handleStepStatus('step3', 'error');
+            throw error;
+          })
+        );
       }
 
       // Wait for BOTH Step 1 and Step 3 to complete
@@ -305,7 +320,14 @@ const InfrastructureSetup: React.FC = () => {
       // Execute Step 2 (AWS Resources) AFTER both Step 1 and Step 3 complete
       if (steps.step2.enabled && step2Ref.current) {
         console.log('Triggering Step 2: Provision AWS Resources');
-        await step2Ref.current.triggerProvision();
+        handleStepStatus('step2', 'pending');
+        try {
+          await step2Ref.current.triggerProvision();
+        } catch (error) {
+          console.error('Step 2 failed:', error);
+          handleStepStatus('step2', 'error');
+          throw error;
+        }
       }
 
       console.log('All enabled provisioning steps completed successfully');
@@ -457,21 +479,32 @@ const InfrastructureSetup: React.FC = () => {
                 </div>
               </div>
             </div>
-            <button
-              type="button"
-              className="provisioning-step__expand-btn"
-              onClick={() => handleDetailsToggle('step1')}
-              aria-label={steps.step1.detailsExpanded ? 'Collapse details' : 'Expand details'}
-              disabled={!steps.step1.enabled}
-            >
-              {steps.step1.detailsExpanded ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
-            </button>
+            <div className="provisioning-step__header-right">
+              {steps.step1.status === 'pending' && (
+                <Loader2 className="provisioning-step__status-icon provisioning-step__status-icon--pending" size={20} />
+              )}
+              {steps.step1.status === 'success' && (
+                <CheckCircle2 className="provisioning-step__status-icon provisioning-step__status-icon--success" size={20} />
+              )}
+              {steps.step1.status === 'error' && (
+                <AlertCircle className="provisioning-step__status-icon provisioning-step__status-icon--error" size={20} />
+              )}
+              <button
+                type="button"
+                className="provisioning-step__expand-btn"
+                onClick={() => handleDetailsToggle('step1')}
+                aria-label={steps.step1.detailsExpanded ? 'Collapse details' : 'Expand details'}
+                disabled={!steps.step1.enabled}
+              >
+                {steps.step1.detailsExpanded ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
+              </button>
+            </div>
           </div>
 
           {steps.step1.enabled && (
             <>
-              {steps.step1.detailsExpanded && !steps.step1.completed && (
-                <div className="provisioning-step__content">
+              {!steps.step1.completed && (
+                <div className="provisioning-step__content" style={{ display: steps.step1.detailsExpanded ? 'block' : 'none' }}>
                   <GitHubRepoCreator
                     ref={step1Ref}
                     onRepoCreated={handleStep1Success}
@@ -548,21 +581,32 @@ const InfrastructureSetup: React.FC = () => {
                 </div>
               </div>
             </div>
-            <button
-              type="button"
-              className="provisioning-step__expand-btn"
-              onClick={() => handleDetailsToggle('step2')}
-              aria-label={steps.step2.detailsExpanded ? 'Collapse details' : 'Expand details'}
-              disabled={!steps.step2.enabled}
-            >
-              {steps.step2.detailsExpanded ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
-            </button>
+            <div className="provisioning-step__header-right">
+              {steps.step2.status === 'pending' && (
+                <Loader2 className="provisioning-step__status-icon provisioning-step__status-icon--pending" size={20} />
+              )}
+              {steps.step2.status === 'success' && (
+                <CheckCircle2 className="provisioning-step__status-icon provisioning-step__status-icon--success" size={20} />
+              )}
+              {steps.step2.status === 'error' && (
+                <AlertCircle className="provisioning-step__status-icon provisioning-step__status-icon--error" size={20} />
+              )}
+              <button
+                type="button"
+                className="provisioning-step__expand-btn"
+                onClick={() => handleDetailsToggle('step2')}
+                aria-label={steps.step2.detailsExpanded ? 'Collapse details' : 'Expand details'}
+                disabled={!steps.step2.enabled}
+              >
+                {steps.step2.detailsExpanded ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
+              </button>
+            </div>
           </div>
 
           {steps.step2.enabled && (
             <>
-              {steps.step2.detailsExpanded && !steps.step2.completed && (
-                <div className="provisioning-step__content">
+              {!steps.step2.completed && (
+                <div className="provisioning-step__content" style={{ display: steps.step2.detailsExpanded ? 'block' : 'none' }}>
                   <EnhancedProvisionSection ref={step2Ref} onProvisioningComplete={handleStep2Success} />
                 </div>
               )}
@@ -641,21 +685,32 @@ const InfrastructureSetup: React.FC = () => {
                 </div>
               </div>
             </div>
-            <button
-              type="button"
-              className="provisioning-step__expand-btn"
-              onClick={() => handleDetailsToggle('step3')}
-              aria-label={steps.step3.detailsExpanded ? 'Collapse details' : 'Expand details'}
-              disabled={!steps.step3.enabled}
-            >
-              {steps.step3.detailsExpanded ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
-            </button>
+            <div className="provisioning-step__header-right">
+              {steps.step3.status === 'pending' && (
+                <Loader2 className="provisioning-step__status-icon provisioning-step__status-icon--pending" size={20} />
+              )}
+              {steps.step3.status === 'success' && (
+                <CheckCircle2 className="provisioning-step__status-icon provisioning-step__status-icon--success" size={20} />
+              )}
+              {steps.step3.status === 'error' && (
+                <AlertCircle className="provisioning-step__status-icon provisioning-step__status-icon--error" size={20} />
+              )}
+              <button
+                type="button"
+                className="provisioning-step__expand-btn"
+                onClick={() => handleDetailsToggle('step3')}
+                aria-label={steps.step3.detailsExpanded ? 'Collapse details' : 'Expand details'}
+                disabled={!steps.step3.enabled}
+              >
+                {steps.step3.detailsExpanded ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
+              </button>
+            </div>
           </div>
 
           {steps.step3.enabled && (
             <>
-              {steps.step3.detailsExpanded && !steps.step3.completed && (
-                <div className="provisioning-step__content">
+              {!steps.step3.completed && (
+                <div className="provisioning-step__content" style={{ display: steps.step3.detailsExpanded ? 'block' : 'none' }}>
                   <CopyToTemplatesSection
                     ref={step3Ref}
                     initialSourceDomain={apiSubdomain}
