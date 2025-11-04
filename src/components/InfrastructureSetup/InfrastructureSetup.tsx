@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
-import { ChevronRight, ChevronDown, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { ChevronRight, ChevronDown, Loader2, CheckCircle2, AlertCircle, Clock } from 'lucide-react';
 import GitHubRepoCreator, { GitHubRepoCreatorRef } from '../WorkflowManager/GitHubRepoCreator';
 import EnhancedProvisionSection, { EnhancedProvisionSectionRef } from '../WorkflowManager/EnhancedProvisionSection';
 import CopyToTemplatesSection, { CopyToTemplatesSectionRef } from '../WorkflowManager/CopyToTemplatesSection';
@@ -33,7 +33,7 @@ interface StepsState {
     enabled: boolean;
     detailsExpanded: boolean;
     completed: boolean;
-    status: 'idle' | 'pending' | 'success' | 'error';
+    status: 'idle' | 'queued' | 'pending' | 'success' | 'error';
     successData?: any;
   };
 }
@@ -208,7 +208,7 @@ const InfrastructureSetup: React.FC = () => {
     }));
   };
 
-  const handleStepStatus = (stepKey: string, status: 'idle' | 'pending' | 'success' | 'error') => {
+  const handleStepStatus = (stepKey: string, status: 'idle' | 'queued' | 'pending' | 'success' | 'error') => {
     setSteps(prev => ({
       ...prev,
       [stepKey]: {
@@ -286,6 +286,11 @@ const InfrastructureSetup: React.FC = () => {
     try {
       // Start Step 1 (GitHub) and Step 3 (API Subdomain) in parallel
       const parallelTasks: Promise<void>[] = [];
+
+      // Set step 2 to queued if it's enabled (it will run after steps 1 and 3)
+      if (steps.step2.enabled) {
+        handleStepStatus('step2', 'queued');
+      }
 
       if (steps.step1.enabled && step1Ref.current) {
         console.log('Triggering Step 1: Create GitHub Repository');
@@ -582,6 +587,9 @@ const InfrastructureSetup: React.FC = () => {
               </div>
             </div>
             <div className="provisioning-step__header-right">
+              {steps.step2.status === 'queued' && (
+                <Clock className="provisioning-step__status-icon provisioning-step__status-icon--queued" size={20} />
+              )}
               {steps.step2.status === 'pending' && (
                 <Loader2 className="provisioning-step__status-icon provisioning-step__status-icon--pending" size={20} />
               )}
