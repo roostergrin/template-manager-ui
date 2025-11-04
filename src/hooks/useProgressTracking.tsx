@@ -56,7 +56,7 @@ const progressSections: ProgressSection[] = [
   {
     id: 'infrastructure',
     title: 'Infrastructure Setup',
-    icon: '🏗️',
+    icon: 'server',
     tasks: [
       {
         id: 'repoCreation',
@@ -78,7 +78,7 @@ const progressSections: ProgressSection[] = [
   {
     id: 'planning',
     title: 'Planning & Content Generation',
-    icon: '📋',
+    icon: 'file-text',
     tasks: [
       {
         id: 'questionnaire',
@@ -105,7 +105,7 @@ const progressSections: ProgressSection[] = [
   {
     id: 'deployment',
     title: 'Deployment & Updates',
-    icon: '🚀',
+    icon: 'rocket',
     tasks: [
       {
         id: 'repositoryUpdate',

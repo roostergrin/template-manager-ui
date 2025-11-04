@@ -106,13 +106,13 @@ const TestGenerateContent: React.FC = () => {
     let questionnaireData: unknown;
     try {
       pages = JSON.parse(pagesText);
-    } catch (e) {
+    } catch {
       setError('Invalid JSON in Pages');
       return;
     }
     try {
       questionnaireData = JSON.parse(questionnaireText);
-    } catch (e) {
+    } catch {
       setError('Invalid JSON in Questionnaire Data');
       return;
     }

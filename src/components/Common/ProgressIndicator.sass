@@ -19,6 +19,9 @@
     font-size: 0.875rem
     white-space: nowrap
 
+  &__spinner
+    animation: spin 1s linear infinite
+
   // Size variants
   &--small
     font-size: 0.75rem
@@ -90,3 +93,9 @@
     transform: translateX(-2px)
   20%, 40%, 60%, 80%
     transform: translateX(2px)
+
+@keyframes spin
+  from
+    transform: rotate(0deg)
+  to
+    transform: rotate(360deg)

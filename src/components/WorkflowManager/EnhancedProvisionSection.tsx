@@ -1,17 +1,21 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, forwardRef, useImperativeHandle, useCallback } from "react";
+import { CheckCircle2 } from 'lucide-react';
 import useProvisionSite from "../../hooks/useProvisionSite";
 import { useGithubRepo } from "../../context/GithubRepoContext";
 import useProgressTracking from "../../hooks/useProgressTracking";
-import ProgressIndicator from "../Common/ProgressIndicator";
 import "./EnhancedProvisionSection.sass";
 
 interface EnhancedProvisionSectionProps {
   onProvisioningComplete?: (data: any) => void;
 }
 
-const EnhancedProvisionSection: React.FC<EnhancedProvisionSectionProps> = ({
+export interface EnhancedProvisionSectionRef {
+  triggerProvision: () => Promise<void>;
+}
+
+const EnhancedProvisionSection = forwardRef<EnhancedProvisionSectionRef, EnhancedProvisionSectionProps>(({
   onProvisioningComplete
-}) => {
+}, ref) => {
   const { state, actions } = useGithubRepo();
   const { githubOwner, githubRepo, pageType } = state;
   const { setGithubOwner, setGithubRepo, setPageType } = actions;
@@ -27,7 +31,7 @@ const EnhancedProvisionSection: React.FC<EnhancedProvisionSectionProps> = ({
   }, [githubRepo]);
   const [response, status, provisionSite] = useProvisionSite();
   const [error, setError] = useState<string | null>(null);
-  const { progressState, updateTaskStatus } = useProgressTracking();
+  const { updateTaskStatus } = useProgressTracking();
 
   // Notify parent when provisioning is complete
   useEffect(() => {
@@ -45,11 +49,11 @@ const EnhancedProvisionSection: React.FC<EnhancedProvisionSectionProps> = ({
     }
   }, [status, response, onProvisioningComplete, bucketName, githubOwner, githubRepo, githubBranch, updateTaskStatus]);
 
-  const handleProvision = async () => {
+  const handleProvision = useCallback(async () => {
     setError(null);
     completionCalledRef.current = false; // Reset completion flag
     updateTaskStatus('infrastructure', 'awsProvisioning', 'in-progress');
-    
+
     try {
       await provisionSite({
         bucket_name: bucketName,
@@ -62,19 +66,15 @@ const EnhancedProvisionSection: React.FC<EnhancedProvisionSectionProps> = ({
       setError(err instanceof Error ? err.message : "An error occurred");
       updateTaskStatus('infrastructure', 'awsProvisioning', 'error');
     }
-  };
+  }, [bucketName, githubOwner, githubRepo, githubBranch, pageType, provisionSite, updateTaskStatus]);
+
+  // Expose the handleProvision method to parent via ref
+  useImperativeHandle(ref, () => ({
+    triggerProvision: handleProvision
+  }), [handleProvision]);
 
   return (
     <div className="enhanced-provision-section" role="region" aria-label="Provision Site">
-      <div className="enhanced-provision-section__header">
-        <h4 className="enhanced-provision-section__title">AWS Infrastructure Provisioning</h4>
-        <ProgressIndicator 
-          status={progressState.infrastructure.awsProvisioning} 
-          size="small"
-          showLabel={true}
-        />
-      </div>
-      
       <div className="form-group">
         <label htmlFor="github-owner">GitHub Owner</label>
         <input
@@ -166,7 +166,8 @@ const EnhancedProvisionSection: React.FC<EnhancedProvisionSectionProps> = ({
       {status === "success" && response && (
         <div className="success-section" role="status">
           <div className="success-header">
-            <h4>🎉 Provisioning Successful!</h4>
+            <CheckCircle2 size={20} strokeWidth={2} />
+            <h4>Provisioning Successful!</h4>
           </div>
           
           <div className="success-details">
@@ -226,6 +227,8 @@ const EnhancedProvisionSection: React.FC<EnhancedProvisionSectionProps> = ({
       )}
     </div>
   );
-};
+});
+
+EnhancedProvisionSection.displayName = 'EnhancedProvisionSection';
 
 export default EnhancedProvisionSection; 

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Circle, Loader2, CheckCircle2, XCircle } from 'lucide-react';
 import { ProgressStatus } from '../../hooks/useProgressTracking';
 
 interface ProgressIndicatorProps {
@@ -14,18 +15,20 @@ const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
   showLabel = false,
   className = '',
 }) => {
-  const getStatusIcon = (status: ProgressStatus): string => {
+  const getStatusIcon = (status: ProgressStatus) => {
+    const iconSize = size === 'small' ? 14 : size === 'large' ? 24 : 18;
+    
     switch (status) {
       case 'pending':
-        return '⏳';
+        return <Circle size={iconSize} />;
       case 'in-progress':
-        return '🔄';
+        return <Loader2 size={iconSize} className="progress-indicator__spinner" />;
       case 'completed':
-        return '✅';
+        return <CheckCircle2 size={iconSize} />;
       case 'error':
-        return '❌';
+        return <XCircle size={iconSize} />;
       default:
-        return '⏳';
+        return <Circle size={iconSize} />;
     }
   };
 

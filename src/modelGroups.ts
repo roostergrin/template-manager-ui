@@ -158,7 +158,7 @@ const allModelGroups: Record<string, ModelGroup> = {
 
 export const modelGroups: Record<string, ModelGroup> = Object.fromEntries(
   Object.entries(allModelGroups)
-    .filter(([_, grp]) => grp.enabled !== false)
+    .filter(([, grp]) => grp.enabled !== false)
 ) as Record<string, ModelGroup>
 
 // For backward compatibility

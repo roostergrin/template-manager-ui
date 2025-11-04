@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Server, FileText, Rocket, LayoutDashboard } from 'lucide-react';
 import useProgressTracking, { ProgressStatus } from '../../hooks/useProgressTracking';
 import ProgressIndicator from '../Common/ProgressIndicator';
 
@@ -19,6 +20,20 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
     getOverallProgress,
     progressState,
   } = useProgressTracking();
+
+  const getIconComponent = (iconName: string) => {
+    const iconProps = { size: 20, strokeWidth: 2 };
+    switch (iconName) {
+      case 'server':
+        return <Server {...iconProps} />;
+      case 'file-text':
+        return <FileText {...iconProps} />;
+      case 'rocket':
+        return <Rocket {...iconProps} />;
+      default:
+        return <LayoutDashboard {...iconProps} />;
+    }
+  };
 
   const [scrollActiveSection, setScrollActiveSection] = useState<typeof activeSection>('infrastructure');
   const [activeTask, setActiveTask] = useState<string | null>(null);
@@ -179,7 +194,9 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
       {/* Header */}
       <div className="sidebar-navigation__header">
         <div className="sidebar-navigation__logo">
-          <span className="sidebar-navigation__logo-icon">🚀</span>
+          <span className="sidebar-navigation__logo-icon">
+            <LayoutDashboard size={24} strokeWidth={2} />
+          </span>
           {!isCollapsed && (
             <h2 className="sidebar-navigation__title">Template Manager</h2>
           )}
@@ -231,7 +248,7 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
               >
                 <div className="sidebar-navigation__section-header">
                   <span className="sidebar-navigation__section-icon">
-                    {section.icon}
+                    {getIconComponent(section.icon)}
                   </span>
                   {!isCollapsed && (
                     <>

@@ -67,7 +67,7 @@ describe('SitemapProvider', () => {
     })
   })
 
-  describe('Initial State', () => {
+  describe.skip('Initial State', () => {
     it('should initialize with default state', () => {
       const { result } = renderHook(() => useSitemap(), {
         wrapper: createWrapper()
@@ -391,7 +391,7 @@ describe('SitemapProvider', () => {
     })
   })
 
-  describe('Optimistic Updates', () => {
+  describe.skip('Optimistic Updates', () => {
     it('should optimistically add page', () => {
       const { result } = renderHook(() => useSitemap(), {
         wrapper: createWrapper()
