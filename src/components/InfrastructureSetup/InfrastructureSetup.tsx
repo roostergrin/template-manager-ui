@@ -1,12 +1,12 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { ChevronRight, ChevronDown } from 'lucide-react';
-import GitHubRepoCreator from '../WorkflowManager/GitHubRepoCreator';
-import EnhancedProvisionSection from '../WorkflowManager/EnhancedProvisionSection';
-import CopyToTemplatesSection from '../WorkflowManager/CopyToTemplatesSection';
+import GitHubRepoCreator, { GitHubRepoCreatorRef } from '../WorkflowManager/GitHubRepoCreator';
+import EnhancedProvisionSection, { EnhancedProvisionSectionRef } from '../WorkflowManager/EnhancedProvisionSection';
+import CopyToTemplatesSection, { CopyToTemplatesSectionRef } from '../WorkflowManager/CopyToTemplatesSection';
 import { useGithubRepo } from '../../context/GithubRepoContext';
 import './InfrastructureSetup.sass';
 
-type PageType = 'template' | 'landing' | 'template-json';
+type PageType = 'template' | 'template-json';
 type TemplateBoilerplate =
   | 'stinson'
   | 'haightashbury'
@@ -53,6 +53,11 @@ const InfrastructureSetup: React.FC = () => {
     step2: { enabled: true, detailsExpanded: false, completed: false },
     step3: { enabled: true, detailsExpanded: false, completed: false },
   });
+
+  // Create refs for child components
+  const step1Ref = useRef<GitHubRepoCreatorRef>(null);
+  const step2Ref = useRef<EnhancedProvisionSectionRef>(null);
+  const step3Ref = useRef<CopyToTemplatesSectionRef>(null);
 
   // Extract base domain name (e.g., "gordon.com" -> "gordon")
   const baseDomain = useMemo(() => {
@@ -128,21 +133,13 @@ const InfrastructureSetup: React.FC = () => {
 
   // Auto-generate CloudFront domain
   const generatedCloudFrontDomain = useMemo(() => {
-    if (pageType === 'template' || pageType === 'template-json') {
-      return `dist.${domainName}`;
-    } else if (pageType === 'landing') {
-      return `landing.${domainName}`;
-    }
     return `dist.${domainName}`;
-  }, [domainName, pageType]);
+  }, [domainName]);
 
   // CloudFront path for display
   const cloudFrontPath = useMemo(() => {
-    if (pageType === 'landing') {
-      return '/landing';
-    }
     return '/dist';
-  }, [pageType]);
+  }, []);
 
   // Auto-generate S3 bucket name
   const generatedS3Bucket = useMemo(() => {
@@ -229,14 +226,19 @@ const InfrastructureSetup: React.FC = () => {
       owner: data.owner || 'roostergrin',
       url: data.url || `https://github.com/${data.owner || 'roostergrin'}/${data.repo || repoName}`,
       template: templateToGithubRepo,
+      apiJsUpdated: data.apiJsUpdated || false,
+      apiUrl: data.apiUrl,
+      siteUrl: data.siteUrl,
     });
   }, [repoName, templateToGithubRepo]);
 
   const handleStep2Success = useCallback((data: any) => {
     handleStepSuccess('step2', {
       type: 'AWS Resources',
-      s3Bucket: data.s3Bucket || s3Bucket,
+      s3Bucket: data.s3Bucket || data.bucketName || s3Bucket,
       cloudFrontDomain: data.cloudFrontDomain || cloudFrontDomain,
+      cloudFrontUrl: data.cloudfront_distribution_url,
+      assetsUrl: data.assets_distribution_url,
       pipeline: data.pipeline || generatedPipelineName,
       region: data.region || 'us-east-1',
     });
@@ -249,7 +251,7 @@ const InfrastructureSetup: React.FC = () => {
       newSubdomain: data.apiSubdomain || `api-${baseDomain}.roostergrintemplates.com`,
       targetDomain: data.targetDomain || domainName,
       sslCertificate: data.sslCertificate || 'ACM Certificate Created',
-      dnsConfiguration: data.dnsConfiguration || 'Route 53 Configured',
+      dnsConfiguration: data.dnsConfiguration || '*.roostergrintemplates.com wildcard already set!',
     });
   }, [apiSubdomain, baseDomain, domainName]);
 
@@ -279,6 +281,39 @@ const InfrastructureSetup: React.FC = () => {
         provisioningSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     }, 100);
+
+    try {
+      // Start Step 1 (GitHub) and Step 3 (API Subdomain) in parallel
+      const parallelTasks: Promise<void>[] = [];
+
+      if (steps.step1.enabled && step1Ref.current) {
+        console.log('Triggering Step 1: Create GitHub Repository');
+        parallelTasks.push(step1Ref.current.triggerCreateRepo());
+      }
+
+      if (steps.step3.enabled && step3Ref.current) {
+        console.log('Triggering Step 3: Copy Subscription (in parallel with Step 1)');
+        parallelTasks.push(step3Ref.current.triggerCopy());
+      }
+
+      // Wait for BOTH Step 1 and Step 3 to complete
+      if (parallelTasks.length > 0) {
+        await Promise.all(parallelTasks);
+        console.log('Steps 1 and 3 completed, now starting Step 2');
+      }
+
+      // Execute Step 2 (AWS Resources) AFTER both Step 1 and Step 3 complete
+      if (steps.step2.enabled && step2Ref.current) {
+        console.log('Triggering Step 2: Provision AWS Resources');
+        await step2Ref.current.triggerProvision();
+      }
+
+      console.log('All enabled provisioning steps completed successfully');
+    } catch (error) {
+      console.error('Error during provisioning:', error);
+    } finally {
+      setIsProvisioning(false);
+    }
   };
 
   return (
@@ -323,14 +358,6 @@ const InfrastructureSetup: React.FC = () => {
             >
               <div className="page-type-card__title">Template</div>
               <div className="page-type-card__description">Pre-built template with sections</div>
-            </button>
-            <button
-              type="button"
-              className={`page-type-card ${pageType === 'landing' ? 'page-type-card--selected' : ''}`}
-              onClick={() => setPageType('landing')}
-            >
-              <div className="page-type-card__title">Landing Page</div>
-              <div className="page-type-card__description">Single page for campaigns</div>
             </button>
             <button
               type="button"
@@ -446,8 +473,11 @@ const InfrastructureSetup: React.FC = () => {
               {steps.step1.detailsExpanded && !steps.step1.completed && (
                 <div className="provisioning-step__content">
                   <GitHubRepoCreator
+                    ref={step1Ref}
                     onRepoCreated={handleStep1Success}
                     initialTemplateRepo={templateToGithubRepo}
+                    apiUrl={newApiSubdomain}
+                    siteUrl={domainName}
                   />
                 </div>
               )}
@@ -473,6 +503,19 @@ const InfrastructureSetup: React.FC = () => {
                             {steps.step1.successData?.url}
                           </a>
                         </div>
+                        {steps.step1.successData?.apiJsUpdated && (
+                          <>
+                            <div className="success-detail-item">
+                              <strong>✓ API Configuration Updated (resources/api.js)</strong>
+                            </div>
+                            <div className="success-detail-item" style={{ marginLeft: '20px' }}>
+                              api: https://{steps.step1.successData?.apiUrl}/wp-json
+                            </div>
+                            <div className="success-detail-item" style={{ marginLeft: '20px' }}>
+                              url: https://www.{steps.step1.successData?.siteUrl}/
+                            </div>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -520,7 +563,7 @@ const InfrastructureSetup: React.FC = () => {
             <>
               {steps.step2.detailsExpanded && !steps.step2.completed && (
                 <div className="provisioning-step__content">
-                  <EnhancedProvisionSection onProvisioningComplete={handleStep2Success} />
+                  <EnhancedProvisionSection ref={step2Ref} onProvisioningComplete={handleStep2Success} />
                 </div>
               )}
               {steps.step2.completed && (
@@ -533,9 +576,30 @@ const InfrastructureSetup: React.FC = () => {
                         <div className="success-detail-item">
                           <strong>S3 Bucket:</strong> {steps.step2.successData?.s3Bucket}
                         </div>
-                        <div className="success-detail-item">
-                          <strong>CloudFront:</strong> {steps.step2.successData?.cloudFrontDomain}
-                        </div>
+                        {steps.step2.successData?.cloudFrontUrl && (
+                          <div className="success-detail-item">
+                            <strong>CloudFront Distribution:</strong>{' '}
+                            <a
+                              href={steps.step2.successData.cloudFrontUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              {steps.step2.successData.cloudFrontUrl}
+                            </a>
+                          </div>
+                        )}
+                        {steps.step2.successData?.assetsUrl && (
+                          <div className="success-detail-item">
+                            <strong>Assets URL:</strong>{' '}
+                            <a
+                              href={steps.step2.successData.assetsUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              {steps.step2.successData.assetsUrl}
+                            </a>
+                          </div>
+                        )}
                         <div className="success-detail-item">
                           <strong>Pipeline:</strong> {steps.step2.successData?.pipeline}
                         </div>
@@ -593,6 +657,7 @@ const InfrastructureSetup: React.FC = () => {
               {steps.step3.detailsExpanded && !steps.step3.completed && (
                 <div className="provisioning-step__content">
                   <CopyToTemplatesSection
+                    ref={step3Ref}
                     initialSourceDomain={apiSubdomain}
                     initialTargetDomain={domainName}
                     onCopied={handleStep3Success}

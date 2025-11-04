@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState, forwardRef, useImperativeHandle } from "react";
 import { CheckCircle2 } from 'lucide-react';
 import useProgressTracking from "../../hooks/useProgressTracking";
 import "./CopyToTemplatesSection.sass";
@@ -10,11 +10,15 @@ interface CopyToTemplatesSectionProps {
   initialTargetDomain?: string;
 }
 
-const CopyToTemplatesSection: React.FC<CopyToTemplatesSectionProps> = ({
+export interface CopyToTemplatesSectionRef {
+  triggerCopy: () => Promise<void>;
+}
+
+const CopyToTemplatesSection = forwardRef<CopyToTemplatesSectionRef, CopyToTemplatesSectionProps>(({
   onCopied,
   initialSourceDomain = '',
   initialTargetDomain = ''
-}) => {
+}, ref) => {
   const { updateTaskStatus } = useProgressTracking();
 
   const servers = useMemo(
@@ -153,6 +157,11 @@ const CopyToTemplatesSection: React.FC<CopyToTemplatesSectionProps> = ({
     }
   };
 
+  // Expose the handleCopy method to parent via ref
+  useImperativeHandle(ref, () => ({
+    triggerCopy: handleCopy
+  }), [handleCopy]);
+
   return (
     <div className="copy-to-templates-section" role="region" aria-label="Copy to Templates">
       <div className="form-group">
@@ -285,7 +294,9 @@ const CopyToTemplatesSection: React.FC<CopyToTemplatesSectionProps> = ({
       )}
     </div>
   );
-};
+});
+
+CopyToTemplatesSection.displayName = 'CopyToTemplatesSection';
 
 export default CopyToTemplatesSection;
 
