@@ -9,7 +9,7 @@ import {
   PersistedSitemapData,
 } from '../utils/sitemapPersistence';
 
-type WizardStep = 'capture' | 'audit' | 'template' | 'structure' | 'allocate' | 'generate' | 'customize' | 'launch';
+type WizardStep = 'capture' | 'audit' | 'template' | 'structure' | 'allocate' | 'generate';
 
 export interface SitemapPage {
   title: string;
@@ -105,7 +105,7 @@ const initialState: MigrationWizardState = {
   },
 };
 
-const stepOrder: WizardStep[] = ['capture', 'audit', 'template', 'structure', 'generate', 'customize', 'launch'];
+const stepOrder: WizardStep[] = ['capture', 'audit', 'template', 'structure', 'generate'];
 
 export const MigrationWizardProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [state, setState] = useState<MigrationWizardState>(initialState);
