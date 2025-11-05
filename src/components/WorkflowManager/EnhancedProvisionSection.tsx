@@ -21,6 +21,9 @@ const EnhancedProvisionSection = forwardRef<EnhancedProvisionSectionRef, Enhance
   const { setGithubOwner, setGithubRepo, setPageType } = actions;
   const [bucketName, setBucketName] = useState("");
   const [githubBranch, setGithubBranch] = useState("master");
+  const [enableRedirect, setEnableRedirect] = useState(true);
+  const [redirectSource, setRedirectSource] = useState("");
+  const [redirectTarget, setRedirectTarget] = useState("");
   const completionCalledRef = useRef(false);
 
   // Auto-populate bucket name based on GitHub repo name
@@ -29,6 +32,23 @@ const EnhancedProvisionSection = forwardRef<EnhancedProvisionSectionRef, Enhance
       setBucketName(githubRepo);
     }
   }, [githubRepo]);
+
+  // Auto-populate redirect domains based on bucket name
+  useEffect(() => {
+    if (bucketName) {
+      // Smart detection: redirect non-www -> www
+      // If domain starts with www., redirect non-www -> www
+      // Otherwise, redirect non-www -> www (add www to target)
+      if (bucketName.startsWith('www.')) {
+        setRedirectSource(bucketName.substring(4)); // Remove www. for source
+        setRedirectTarget(bucketName); // Keep www. for target
+      } else {
+        setRedirectSource(bucketName); // Non-www source
+        setRedirectTarget(`www.${bucketName}`); // Add www. to target
+      }
+    }
+  }, [bucketName]);
+
   const [response, status, provisionSite] = useProvisionSite();
   const [error, setError] = useState<string | null>(null);
   const { updateTaskStatus } = useProgressTracking();
@@ -61,12 +81,15 @@ const EnhancedProvisionSection = forwardRef<EnhancedProvisionSectionRef, Enhance
         github_repo: githubRepo,
         github_branch: githubBranch,
         page_type: pageType,
+        enable_redirect: enableRedirect,
+        redirect_source_domain: enableRedirect ? redirectSource : undefined,
+        redirect_target_domain: enableRedirect ? redirectTarget : undefined,
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
       updateTaskStatus('infrastructure', 'awsProvisioning', 'error');
     }
-  }, [bucketName, githubOwner, githubRepo, githubBranch, pageType, provisionSite, updateTaskStatus]);
+  }, [bucketName, githubOwner, githubRepo, githubBranch, pageType, enableRedirect, redirectSource, redirectTarget, provisionSite, updateTaskStatus]);
 
   // Expose the handleProvision method to parent via ref
   useImperativeHandle(ref, () => ({
@@ -150,6 +173,25 @@ const EnhancedProvisionSection = forwardRef<EnhancedProvisionSectionRef, Enhance
           </div>
         </div>
       </div>
+
+      {/* WWW Redirect Toggle */}
+      <div className="form-group redirect-group">
+        <label className="checkbox-container">
+          <input
+            type="checkbox"
+            checked={enableRedirect}
+            onChange={(e) => setEnableRedirect(e.target.checked)}
+            aria-label="Enable www redirect"
+          />
+          <span className="checkbox-label">Enable non-WWW → WWW Redirect (301)</span>
+        </label>
+        {enableRedirect && redirectSource && redirectTarget && (
+          <p className="redirect-preview">
+            <span className="redirect-arrow">→</span> Redirects <strong>{redirectSource}</strong> to <strong>{redirectTarget}</strong>
+          </p>
+        )}
+      </div>
+
       <button
         className="primary-button"
         onClick={handleProvision}
