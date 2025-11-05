@@ -156,6 +156,9 @@ export interface SiteProvision {
   github_repo: string;
   github_branch: string;
   page_type: "template" | "landing";
+  enable_redirect?: boolean;
+  redirect_source_domain?: string;
+  redirect_target_domain?: string;
 }
 
 // Base API Response Types
