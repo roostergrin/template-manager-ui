@@ -248,9 +248,15 @@ const useProgressTracking = () => {
   // Filter sections based on template selection
   const filteredProgressSections = useCallback(() => {
     const isExpressTemplate = questionnaireState.activeMode === 'template-markdown';
-    
+
     return progressSections.map(section => {
-      if (section.id === 'planning') {
+      if (section.id === 'infrastructure') {
+        // Keep infrastructure section but remove all its sub-tasks from sidebar
+        return {
+          ...section,
+          tasks: []
+        };
+      } else if (section.id === 'planning') {
         // Hide asset synchronization from table of contents always
         return {
           ...section,
