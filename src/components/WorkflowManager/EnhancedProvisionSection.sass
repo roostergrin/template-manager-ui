@@ -84,10 +84,33 @@
       text-decoration: none
       font-weight: 500
       transition: color 0.3s ease
-      
+
       &:hover
         color: #003d82
         text-decoration: underline
+
+  // Button grid for individual resource buttons
+  .button-grid
+    display: grid
+    grid-template-columns: repeat(2, 1fr)
+    gap: 1rem
+    margin-top: 1rem
+
+    @media (max-width: 768px)
+      grid-template-columns: 1fr
+
+    button
+      padding: 0.75rem 1rem
+      font-size: 0.95rem
+      text-align: center
+
+  // Form section headers
+  .form-section
+    h4
+      margin: 1.5rem 0 0.5rem 0
+      font-size: 1.1rem
+      color: #333
+      font-weight: 600
 
 // Include responsive form styles
 @include forms.form-responsive
