@@ -2,6 +2,7 @@ import { useState } from 'react'
 
 interface ViewControlsState {
   viewMode: 'grid' | 'list'
+  layoutType: 'standard' | 'toc'
   showSelect: boolean
   showTextarea: boolean
   showDeleteButtons: boolean
@@ -15,6 +16,7 @@ interface ViewControlsState {
 
 const defaultViewControls: ViewControlsState = {
   viewMode: 'grid',
+  layoutType: 'toc',
   showSelect: true,
   showTextarea: true,
   showDeleteButtons: true,
@@ -72,6 +74,14 @@ const useViewControls = (initialState: Partial<ViewControlsState> = {}) => {
     setViewControls(prev => ({ ...prev, showItems: show }))
   }
 
+  const setLayoutType = (type: 'standard' | 'toc') => {
+    setViewControls(prev => ({ ...prev, layoutType: type }))
+  }
+
+  const toggleLayoutType = () => {
+    setViewControls(prev => ({ ...prev, layoutType: prev.layoutType === 'standard' ? 'toc' : 'standard' }))
+  }
+
   return {
     ...viewControls,
     setViewMode,
@@ -83,7 +93,9 @@ const useViewControls = (initialState: Partial<ViewControlsState> = {}) => {
     toggleUsePageJson,
     toggleUseGridLayout,
     setGridColumnWidth,
-    setShowItems
+    setShowItems,
+    setLayoutType,
+    toggleLayoutType
   }
 }
 

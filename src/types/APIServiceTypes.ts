@@ -156,6 +156,9 @@ export interface SiteProvision {
   github_repo: string;
   github_branch: string;
   page_type: "template" | "landing";
+  enable_redirect?: boolean;
+  redirect_source_domain?: string;
+  redirect_target_domain?: string;
 }
 
 // Base API Response Types
@@ -183,7 +186,57 @@ export interface SiteProvisionResponse {
   // Optional CloudFront URLs returned by backend
   cloudfront_distribution_url?: string;
   assets_distribution_url?: string;
-} 
+}
+
+// Individual AWS Resource Creation Types
+export interface CreateS3BucketRequest {
+  bucket_name: string;
+  site_id?: string;
+}
+
+export interface CreateS3BucketResponse {
+  success: boolean;
+  bucket_name: string;
+  already_existed: boolean;
+  region: string;
+  website_endpoint: string;
+  message: string;
+}
+
+export interface CreateDistributionRequest {
+  s3_bucket_name: string;
+  distribution_type: "/dist" | "/landing" | "/assets";
+  comment?: string;
+}
+
+export interface CreateDistributionResponse {
+  success: boolean;
+  distribution_id: string;
+  domain_name: string;
+  distribution_url: string;
+  distribution_type: string;
+  message: string;
+}
+
+export interface CreateCodePipelineRequest {
+  pipeline_name: string;
+  bucket_name: string;
+  github_owner: string;
+  github_repo: string;
+  github_branch: string;
+  distribution_type: "/dist" | "/landing";
+}
+
+export interface CreateCodePipelineResponse {
+  success: boolean;
+  pipeline_name: string;
+  already_existed: boolean;
+  pipeline_arn: string;
+  artifacts_bucket: string;
+  codepipeline_role_arn: string;
+  codebuild_role_arn: string;
+  message: string;
+}
 
 // Plesk / WordPress Provisioning Types
 export interface CreateSubscriptionRequest {

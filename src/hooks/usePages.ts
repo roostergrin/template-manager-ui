@@ -40,6 +40,54 @@ const usePages = (initialPages: SitemapSection[] = []) => {
     setPages(newPages)
   }
 
+  const duplicatePage = (pageId: string) => {
+    setPages(prev => {
+      const pageToDuplicate = prev.find(page => page.id === pageId)
+      if (!pageToDuplicate) return prev
+
+      const duplicatedPage: SitemapSection = {
+        ...pageToDuplicate,
+        id: `${Date.now()}-${Math.random()}`,
+        title: `${pageToDuplicate.title} (Copy)`,
+        items: pageToDuplicate.items.map(item => ({
+          ...item,
+          id: `item-${Date.now()}-${Math.random()}`
+        }))
+      }
+
+      const pageIndex = prev.findIndex(page => page.id === pageId)
+      return [
+        ...prev.slice(0, pageIndex + 1),
+        duplicatedPage,
+        ...prev.slice(pageIndex + 1)
+      ]
+    })
+  }
+
+  const applyPageTemplate = (pageId: string, templateSections: Array<{
+    model: string;
+    query: string;
+    internal_id: string;
+    use_default?: boolean;
+  }>) => {
+    setPages(prev => prev.map(page => {
+      if (page.id !== pageId) return page
+
+      // Convert template sections to SitemapItem format
+      const newItems: SitemapItem[] = templateSections.map(section => ({
+        model: section.model,
+        query: section.query,
+        id: section.internal_id || `item-${Date.now()}-${Math.random()}`,
+        useDefault: section.use_default
+      }))
+
+      return {
+        ...page,
+        items: newItems
+      }
+    }))
+  }
+
   return {
     pages,
     addPage,
@@ -47,7 +95,9 @@ const usePages = (initialPages: SitemapSection[] = []) => {
     updatePageTitle,
     updatePageWordpressId,
     updatePageItems,
-    setPages: setAllPages
+    setPages: setAllPages,
+    duplicatePage,
+    applyPageTemplate
   }
 }
 

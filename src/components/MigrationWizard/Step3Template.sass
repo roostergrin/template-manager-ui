@@ -1,0 +1,169 @@
+.step-3-template
+  padding: 2rem
+  max-width: 1200px
+  margin: 0 auto
+
+  &__empty
+    display: flex
+    flex-direction: column
+    align-items: center
+    justify-content: center
+    padding: 4rem 2rem
+    text-align: center
+    gap: 1.5rem
+
+    svg
+      color: var(--warning-color, #f59e0b)
+
+    p
+      font-size: 1.125rem
+      color: var(--text-secondary, #666)
+
+  &__header
+    margin-bottom: 2rem
+    text-align: center
+
+    h2
+      font-size: 2rem
+      font-weight: 700
+      margin-bottom: 0.75rem
+      color: var(--text-primary, #1a1a1a)
+
+    p
+      font-size: 1rem
+      color: var(--text-secondary, #666)
+      line-height: 1.6
+      max-width: 700px
+      margin: 0 auto
+
+      strong
+        color: var(--primary-color, #0066cc)
+        font-weight: 600
+
+  &__content
+    display: flex
+    flex-direction: column
+    gap: 2rem
+
+  &__info-cards
+    display: grid
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr))
+    gap: 1rem
+
+    .info-card
+      display: flex
+      flex-direction: column
+      padding: 1.25rem
+      background: white
+      border: 1px solid var(--border-color, #e0e0e0)
+      border-radius: 8px
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05)
+
+      &__label
+        font-size: 0.875rem
+        color: var(--text-secondary, #666)
+        margin-bottom: 0.5rem
+        font-weight: 500
+
+      &__value
+        font-size: 1.25rem
+        font-weight: 700
+        color: var(--text-primary, #1a1a1a)
+
+  &__selector-wrapper
+    padding: 2rem
+    background: var(--bg-secondary, #f8f9fa)
+    border-radius: 12px
+    border: 1px solid var(--border-color, #e0e0e0)
+
+    h3
+      font-size: 1.25rem
+      font-weight: 600
+      margin-bottom: 1.5rem
+      color: var(--text-primary, #1a1a1a)
+
+  &__description
+    padding: 1.5rem
+    background: var(--info-light, #eff6ff)
+    border-left: 4px solid var(--primary-color, #0066cc)
+    border-radius: 4px
+
+    h4
+      font-size: 1rem
+      font-weight: 600
+      margin-bottom: 1rem
+      color: var(--text-primary, #1a1a1a)
+
+    ul
+      list-style: none
+      padding: 0
+      margin: 0
+
+      li
+        padding: 0.5rem 0
+        padding-left: 1.5rem
+        position: relative
+        color: var(--text-secondary, #666)
+        line-height: 1.5
+
+        &:before
+          content: "✓"
+          position: absolute
+          left: 0
+          color: var(--primary-color, #0066cc)
+          font-weight: 700
+
+  &__actions
+    display: flex
+    justify-content: center
+    padding-top: 2rem
+    border-top: 1px solid var(--border-color, #e0e0e0)
+
+.btn
+  display: inline-flex
+  align-items: center
+  gap: 0.5rem
+  padding: 0.75rem 1.5rem
+  font-size: 1rem
+  font-weight: 500
+  border: none
+  border-radius: 6px
+  cursor: pointer
+  transition: all 0.2s ease
+
+  &--primary
+    background: var(--primary-color, #0066cc)
+    color: white
+
+    &:hover:not(:disabled)
+      background: var(--primary-dark, #0052a3)
+
+    &:disabled
+      opacity: 0.6
+      cursor: not-allowed
+
+  &--large
+    padding: 1rem 2rem
+    font-size: 1.125rem
+
+@media (max-width: 768px)
+  .step-3-template
+    padding: 1rem
+
+    &__header
+      margin-bottom: 1.5rem
+
+      h2
+        font-size: 1.5rem
+
+    &__info-cards
+      grid-template-columns: 1fr
+
+    &__selector-wrapper
+      padding: 1.5rem
+
+    &__description
+      padding: 1rem
+
+      h4
+        font-size: 0.9375rem

@@ -1,0 +1,363 @@
+.scraping-workflow
+  min-height: 100vh
+  background: #f5f7fa
+
+  &__progress
+    background: white
+    border-bottom: 2px solid #e0e0e0
+    padding: 2rem
+    position: sticky
+    top: 0
+    z-index: 100
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05)
+
+    .progress-steps
+      max-width: 1200px
+      margin: 0 auto
+      display: flex
+      align-items: center
+      justify-content: center
+
+      .progress-step
+        display: flex
+        flex-direction: column
+        align-items: center
+        gap: 0.5rem
+        position: relative
+
+        .step-circle
+          width: 48px
+          height: 48px
+          border-radius: 50%
+          background: #e9ecef
+          color: #6c757d
+          display: flex
+          align-items: center
+          justify-content: center
+          font-weight: bold
+          font-size: 1.1rem
+          transition: all 0.3s
+
+        .step-label
+          font-size: 0.9rem
+          color: #6c757d
+          font-weight: 500
+          white-space: nowrap
+
+        &.active
+          .step-circle
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)
+            color: white
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4)
+            transform: scale(1.1)
+
+          .step-label
+            color: #667eea
+            font-weight: 600
+
+        &.complete
+          .step-circle
+            background: #28a745
+            color: white
+
+          .step-label
+            color: #28a745
+
+      .progress-line
+        width: 120px
+        height: 3px
+        background: #e9ecef
+        margin: 0 1rem
+
+  &__content
+    padding: 2rem
+    max-width: 1600px
+    margin: 0 auto
+
+  .preview-step
+    .preview-header
+      text-align: center
+      margin-bottom: 2rem
+
+      h2
+        margin: 0 0 0.5rem 0
+        color: #333
+        font-size: 1.8rem
+
+      p
+        margin: 0
+        color: #666
+        font-size: 1rem
+
+    .preview-mappings
+      display: grid
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr))
+      gap: 1.5rem
+      margin-bottom: 2rem
+
+      .preview-mapping-card
+        background: white
+        border: 2px solid #e0e0e0
+        border-radius: 8px
+        padding: 1.5rem
+        display: flex
+        flex-direction: column
+        gap: 1rem
+        transition: all 0.2s
+
+        &:hover
+          border-color: #667eea
+          box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15)
+
+        .card-header
+          display: flex
+          justify-content: space-between
+          align-items: flex-start
+          gap: 1rem
+
+          h3
+            margin: 0
+            color: #333
+            font-size: 1.1rem
+            flex: 1
+
+          .path-badge
+            background: #f1f3f5
+            color: #495057
+            padding: 0.25rem 0.75rem
+            border-radius: 4px
+            font-size: 0.85rem
+            font-family: monospace
+
+        .card-content
+          .mapped-info,
+          .unmapped-info
+            display: flex
+            flex-direction: column
+            gap: 0.25rem
+            padding: 0.75rem
+            border-radius: 6px
+
+          .mapped-info
+            background: #d4edda
+            border: 1px solid #c3e6cb
+
+            .mapped-label
+              color: #155724
+              font-size: 0.85rem
+              font-weight: 500
+
+            .mapped-value
+              color: #155724
+              font-size: 0.95rem
+
+          .unmapped-info
+            background: #fff3cd
+            border: 1px solid #ffeaa7
+
+            .unmapped-label
+              color: #856404
+              font-size: 0.85rem
+              font-weight: 500
+
+            .unmapped-value
+              color: #856404
+              font-size: 0.85rem
+
+        .btn--small
+          padding: 0.5rem 1rem
+          font-size: 0.9rem
+
+    .preview-actions
+      display: flex
+      justify-content: center
+      gap: 1rem
+      padding-top: 2rem
+      border-top: 2px solid #e0e0e0
+
+      .btn--large
+        padding: 1rem 3rem
+        font-size: 1.1rem
+
+  .complete-step
+    max-width: 600px
+    margin: 0 auto
+    text-align: center
+    padding: 3rem 2rem
+
+    .complete-icon
+      font-size: 5rem
+      margin-bottom: 1.5rem
+      animation: bounce 1s ease-in-out
+
+    h2
+      margin: 0 0 1rem 0
+      color: #333
+      font-size: 2rem
+
+    p
+      margin: 0 0 2rem 0
+      color: #666
+      font-size: 1rem
+      line-height: 1.6
+
+    .complete-stats
+      display: flex
+      justify-content: center
+      gap: 2rem
+      margin-bottom: 2rem
+
+      .stat
+        display: flex
+        flex-direction: column
+        gap: 0.5rem
+
+        .stat-value
+          font-size: 2.5rem
+          font-weight: bold
+          color: #667eea
+
+        .stat-label
+          font-size: 0.9rem
+          color: #666
+
+  .preview-modal-overlay
+    position: fixed
+    top: 0
+    left: 0
+    right: 0
+    bottom: 0
+    background: rgba(0, 0, 0, 0.6)
+    display: flex
+    align-items: center
+    justify-content: center
+    z-index: 1000
+    padding: 2rem
+
+    .preview-modal
+      max-width: 1200px
+      width: 100%
+      max-height: 90vh
+      overflow-y: auto
+      border-radius: 8px
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3)
+
+  .loading-overlay
+    position: fixed
+    top: 0
+    left: 0
+    right: 0
+    bottom: 0
+    background: rgba(255, 255, 255, 0.95)
+    display: flex
+    flex-direction: column
+    align-items: center
+    justify-content: center
+    z-index: 2000
+
+    .loading-spinner
+      font-size: 4rem
+      animation: spin 1.5s linear infinite
+
+    p
+      margin-top: 1rem
+      font-size: 1.2rem
+      color: #666
+
+// Button styles
+.btn
+  border: none
+  border-radius: 6px
+  cursor: pointer
+  font-weight: 500
+  transition: all 0.2s
+  padding: 0.75rem 1.5rem
+  font-size: 1rem
+
+  &--primary
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)
+    color: white
+
+    &:hover
+      transform: translateY(-2px)
+      box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4)
+
+  &--secondary
+    background: #6c757d
+    color: white
+
+    &:hover
+      background: #5a6268
+
+  &--small
+    padding: 0.5rem 1rem
+    font-size: 0.9rem
+
+  &--large
+    padding: 1rem 2rem
+    font-size: 1.1rem
+
+  &--history
+    display: inline-flex
+    align-items: center
+    gap: 0.5rem
+    margin-bottom: 1.5rem
+
+.scrape-step-header
+  display: flex
+  justify-content: flex-end
+  margin-bottom: 1rem
+
+.scrape-history-section
+  margin-bottom: 2rem
+  animation: slideDown 0.3s ease-out
+
+@keyframes slideDown
+  from
+    opacity: 0
+    transform: translateY(-10px)
+  to
+    opacity: 1
+    transform: translateY(0)
+
+@media (max-width: 768px)
+  .scraping-workflow
+    &__progress
+      padding: 1rem
+
+      .progress-steps
+        flex-direction: column
+        gap: 1rem
+
+        .progress-step
+          width: 100%
+
+        .progress-line
+          width: 3px
+          height: 40px
+          margin: 0
+
+    &__content
+      padding: 1rem
+
+    .preview-mappings
+      grid-template-columns: 1fr !important
+
+    .preview-actions
+      flex-direction: column
+
+      .btn
+        width: 100%
+
+// Keyframes animations (outside component scope)
+@keyframes bounce
+  0%, 100%
+    transform: translateY(0)
+  50%
+    transform: translateY(-20px)
+
+@keyframes spin
+  from
+    transform: rotate(0deg)
+  to
+    transform: rotate(360deg)
