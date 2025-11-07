@@ -615,7 +615,11 @@ const InfrastructureSetup: React.FC = () => {
             <>
               {!steps.step2.completed && (
                 <div className="provisioning-step__content" style={{ display: steps.step2.detailsExpanded ? 'block' : 'none' }}>
-                  <EnhancedProvisionSection ref={step2Ref} onProvisioningComplete={handleStep2Success} />
+                  <EnhancedProvisionSection
+                    ref={step2Ref}
+                    onProvisioningComplete={handleStep2Success}
+                    domainName={domainName}
+                  />
                 </div>
               )}
               {steps.step2.completed && (

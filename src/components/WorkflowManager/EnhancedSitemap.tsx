@@ -13,6 +13,7 @@ import GenerateSitemapButton from '../GenerateSitemapButton';
 import GeneratedSitemapSelector from '../GeneratedSitemapSelector';
 import SitemapViewToggle from '../Sitemap/SitemapViewToggle';
 import JsonExportImport from '../Sitemap/JsonExportImport';
+import DefaultTemplateSelector from '../DefaultTemplateSelector/DefaultTemplateSelector';
 import './EnhancedSitemap.sass';
 
 const EnhancedSitemap: React.FC = () => {
@@ -96,6 +97,14 @@ const EnhancedSitemap: React.FC = () => {
           <div className="template-selector-card">
             <h3 className="text-lg font-semibold mb-2">Load a Previous Sitemap</h3>
             <GeneratedSitemapSelector onSelectSitemap={sitemapActions.handleSelectStoredSitemap} />
+          </div>
+
+          <div className="template-selector-card">
+            <h3 className="text-lg font-semibold mb-2">Load a Default Template</h3>
+            <DefaultTemplateSelector
+              selectedModelGroupKey={selectedModelGroupKey}
+              onTemplateSelect={sitemapActions.importPagesFromJson}
+            />
           </div>
         </div>
 

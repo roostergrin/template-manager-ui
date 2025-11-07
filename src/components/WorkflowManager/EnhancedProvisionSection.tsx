@@ -10,6 +10,7 @@ import "./EnhancedProvisionSection.sass";
 
 interface EnhancedProvisionSectionProps {
   onProvisioningComplete?: (data: any) => void;
+  domainName?: string;
 }
 
 export interface EnhancedProvisionSectionRef {
@@ -17,7 +18,8 @@ export interface EnhancedProvisionSectionRef {
 }
 
 const EnhancedProvisionSection = forwardRef<EnhancedProvisionSectionRef, EnhancedProvisionSectionProps>(({
-  onProvisioningComplete
+  onProvisioningComplete,
+  domainName
 }, ref) => {
   const { state, actions } = useGithubRepo();
   const { githubOwner, githubRepo, pageType } = state;
@@ -148,12 +150,13 @@ const EnhancedProvisionSection = forwardRef<EnhancedProvisionSectionRef, Enhance
         enable_redirect: enableRedirect,
         redirect_source_domain: enableRedirect ? redirectSource : undefined,
         redirect_target_domain: enableRedirect ? redirectTarget : undefined,
+        domain_name: domainName,
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
       updateTaskStatus('infrastructure', 'awsProvisioning', 'error');
     }
-  }, [bucketName, githubOwner, githubRepo, githubBranch, pageType, enableRedirect, redirectSource, redirectTarget, provisionSite, updateTaskStatus]);
+  }, [bucketName, githubOwner, githubRepo, githubBranch, pageType, enableRedirect, redirectSource, redirectTarget, domainName, provisionSite, updateTaskStatus]);
 
   // Expose the handleProvision method to parent via ref
   useImperativeHandle(ref, () => ({

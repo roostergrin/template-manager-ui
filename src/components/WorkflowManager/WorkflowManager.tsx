@@ -31,7 +31,7 @@ const WorkflowManager: React.FC = () => {
   const { state: questionnaireState } = useQuestionnaire();
   // const { state: sitemapState } = useSitemap();
   const { actions: workflowActions } = useWorkflow();
-  // const { state: appConfigState } = useAppConfig();
+  // const { state: appConfigState, actions: appConfigActions } = useAppConfig();
 
   // const questionnaireData = questionnaireState.data;
   // const sitemapPages = sitemapState.pages;

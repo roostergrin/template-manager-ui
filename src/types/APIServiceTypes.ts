@@ -159,6 +159,7 @@ export interface SiteProvision {
   enable_redirect?: boolean;
   redirect_source_domain?: string;
   redirect_target_domain?: string;
+  domain_name?: string;
 }
 
 // Base API Response Types
