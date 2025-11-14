@@ -411,6 +411,14 @@ const PageListTOCItem: React.FC<PageListTOCItemProps> = ({ page, index, isExpand
             placeholder="Page Title"
             aria-label="Page Title"
           />
+          <input
+            type="text"
+            className="page-list-toc__page-id-input"
+            value={page.wordpress_id || ''}
+            onChange={e => actions.updatePageWordpressId(page.id, e.target.value)}
+            placeholder="Page ID"
+            aria-label="WordPress Page ID"
+          />
         </div>
         <div
           className={`page-list-toc__col page-list-toc__col--allocated-group ${hasAllocatedContent ? 'page-list-toc__col--clickable' : ''}`}

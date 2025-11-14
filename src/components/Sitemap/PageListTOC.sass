@@ -210,7 +210,7 @@
 
 // Content column
 .page-list-toc__title-input
-  width: 100%
+  flex: 1
   border: none
   background: transparent
   padding: 6px 8px
@@ -218,6 +218,7 @@
   font-weight: 600
   color: #0f172a
   border-radius: 3px
+  min-width: 0
 
   &:hover
     background: #f8fafc
@@ -226,6 +227,33 @@
     outline: none
     background: #f1f5f9
     border: 1px solid #e2e8f0
+
+.page-list-toc__page-id-input
+  width: 80px
+  flex-shrink: 0
+  border: 1px solid #e2e8f0
+  background: #fafafa
+  padding: 4px 8px
+  font-size: 12px
+  font-weight: 500
+  color: #64748b
+  border-radius: 3px
+  font-family: 'Monaco', 'Menlo', monospace
+  text-align: center
+
+  &::placeholder
+    color: #cbd5e1
+    font-size: 11px
+
+  &:hover
+    background: #f8fafc
+    border-color: #cbd5e1
+
+  &:focus
+    outline: none
+    background: #ffffff
+    border-color: #3b82f6
+    color: #0f172a
 
 .page-list-toc__section-description
   font-size: 14px
