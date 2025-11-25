@@ -81,18 +81,16 @@ const EnhancedSitemap: React.FC = () => {
 
 
         <div className="sitemap-actions-row">
-          {questionnaireState.activeMode !== 'template-markdown' && (
-            <GenerateSitemapButton
-              questionnaireData={effectiveQuestionnaireData as any}
-              generateSitemap={generateSitemap}
-              generateSitemapStatus={generateSitemapStatus}
-              generateSitemapData={generateSitemapData}
-              onSitemapGenerated={sitemapActions.handleGeneratedSitemap}
-              controls={{
-                backendSiteType,
-              }}
-            />
-          )}
+          <GenerateSitemapButton
+            questionnaireData={effectiveQuestionnaireData as any}
+            generateSitemap={generateSitemap}
+            generateSitemapStatus={generateSitemapStatus}
+            generateSitemapData={generateSitemapData}
+            onSitemapGenerated={sitemapActions.handleGeneratedSitemap}
+            controls={{
+              backendSiteType,
+            }}
+          />
 
           <div className="template-selector-card">
             <h3 className="text-lg font-semibold mb-2">Load a Previous Sitemap</h3>

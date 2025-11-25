@@ -75,49 +75,55 @@ const GenerateSitemapButton: React.FC<GenerateSitemapButtonProps> = ({
   }, [generateSitemapStatus, generateSitemapData, backendSiteType]); // Removed onSitemapGenerated from dependencies
 
   const handleClick = useCallback(() => {
+    console.log('🔍 DEBUG: fullScrapedContent:', fullScrapedContent);
     console.log('🔍 DEBUG: allocatedSitemap:', allocatedSitemap);
     console.log('🔍 DEBUG: currentSitemapPages:', currentSitemapPages);
 
-    // Build sitemap to send to backend
-    let sitemapToSend = allocatedSitemap;
+    // Check if we're in scraping mode (has scraped content)
+    if (fullScrapedContent) {
+      // Scraping mode - build sitemap to send
+      let sitemapToSend = allocatedSitemap;
 
-    // If no allocatedSitemap, build one from currentSitemapPages
-    if (!sitemapToSend && currentSitemapPages && currentSitemapPages.length > 0) {
-      console.log('📋 Building sitemap from current pages');
+      if (!sitemapToSend && currentSitemapPages && currentSitemapPages.length > 0) {
+        console.log('📋 Building sitemap from current pages');
+        const pagesObject: Record<string, any> = {};
+        currentSitemapPages.forEach((page) => {
+          const pageTitle = page.title || 'Untitled';
+          pagesObject[pageTitle] = {
+            internal_id: page.id || `page-${pageTitle.toLowerCase().replace(/\s+/g, '-')}`,
+            page_id: page.id || pageTitle,
+            model_query_pairs: page.sections || [],
+            ...(page.allocated_markdown && { allocated_markdown: page.allocated_markdown }),
+            ...(page.allocation_confidence && { allocation_confidence: page.allocation_confidence }),
+            ...(page.source_location && { source_location: page.source_location }),
+            ...(page.mapped_scraped_page && { mapped_scraped_page: page.mapped_scraped_page }),
+          };
+        });
 
-      // Convert pages array to pages object keyed by title
-      const pagesObject: Record<string, any> = {};
-      currentSitemapPages.forEach((page) => {
-        const pageTitle = page.title || 'Untitled';
-        pagesObject[pageTitle] = {
-          internal_id: page.id || `page-${pageTitle.toLowerCase().replace(/\s+/g, '-')}`,
-          page_id: page.id || pageTitle,
-          model_query_pairs: page.sections || [],
-          // Include allocated markdown if it exists
-          ...(page.allocated_markdown && { allocated_markdown: page.allocated_markdown }),
-          ...(page.allocation_confidence && { allocation_confidence: page.allocation_confidence }),
-          ...(page.source_location && { source_location: page.source_location }),
-          ...(page.mapped_scraped_page && { mapped_scraped_page: page.mapped_scraped_page }),
+        sitemapToSend = {
+          pages: pagesObject,
+          modelGroups: [],
+          siteType: backendSiteType,
+          questionnaireData: questionnaireData || {},
         };
-      });
+        console.log('✅ Built sitemap with', Object.keys(pagesObject).length, 'pages');
+      }
 
-      sitemapToSend = {
-        pages: pagesObject,
-        modelGroups: [],
-        siteType: backendSiteType,
-        questionnaireData: questionnaireData || {},
-      };
-
-      console.log('✅ Built sitemap with', Object.keys(pagesObject).length, 'pages');
+      console.log('🚀 Sending to /generate-sitemap-from-scraped/');
+      generateSitemap({
+        scraped_content: fullScrapedContent,
+        site_type: backendSiteType,
+        sitemap: sitemapToSend,
+      } as any);
+    } else {
+      // Questionnaire/Markdown mode - send questionnaire data
+      console.log('🚀 Sending to /generate-sitemap/');
+      generateSitemap({
+        questionnaire: questionnaireData,
+        site_type: backendSiteType,
+        use_page_json: false,
+      } as any);
     }
-
-    console.log('🚀 Sending sitemap to backend:', sitemapToSend);
-
-    generateSitemap({
-      scraped_content: fullScrapedContent,
-      site_type: backendSiteType,
-      sitemap: sitemapToSend, // Use allocated sitemap or build from current pages
-    } as any);
   }, [fullScrapedContent, backendSiteType, allocatedSitemap, currentSitemapPages, questionnaireData, generateSitemap]);
 
   const pagesCount = generateSitemapData?.sitemap_data

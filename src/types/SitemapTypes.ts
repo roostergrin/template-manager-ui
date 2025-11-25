@@ -40,11 +40,33 @@ export interface QuestionnaireData {
   financialOptions: string;
 }
 
-export type GenerateSitemapRequest = {
-  questionnaire: QuestionnaireData;
+// Questionnaire-based request (for /generate-sitemap/)
+export type QuestionnaireGenerateSitemapRequest = {
+  questionnaire: QuestionnaireData | Record<string, any>;
   site_type?: string;
   use_page_json?: boolean;
 };
+
+// Scraped content-based request (for /generate-sitemap-from-scraped/)
+export type ScrapedGenerateSitemapRequest = {
+  scraped_content: Record<string, any>;
+  site_type: string;
+  sitemap?: Record<string, any>;
+};
+
+// Union type for the service - supports both endpoints
+export type GenerateSitemapRequest =
+  | QuestionnaireGenerateSitemapRequest
+  | ScrapedGenerateSitemapRequest;
+
+// Type guards to differentiate between request types
+export function isScrapedRequest(req: GenerateSitemapRequest): req is ScrapedGenerateSitemapRequest {
+  return 'scraped_content' in req;
+}
+
+export function isQuestionnaireRequest(req: GenerateSitemapRequest): req is QuestionnaireGenerateSitemapRequest {
+  return 'questionnaire' in req;
+}
 
 export type GenerateSitemapResponse = {
   sitemap_data: unknown;
