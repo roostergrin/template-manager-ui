@@ -176,6 +176,7 @@ class APIClient {
     // Identify long-running operations that need extended timeouts
     const longRunningEndpoints = [
       '/generate-sitemap/',
+      '/generate-sitemap-from-scraped/',
       '/generate-content',
       '/generate-global',
       '/provision-site',

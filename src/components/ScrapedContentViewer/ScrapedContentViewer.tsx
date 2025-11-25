@@ -206,7 +206,7 @@ const ScrapedContentViewer: React.FC<ScrapedContentViewerProps> = ({
               <ChevronRight size={14} className="tree-subitem__chevron" />
             )}
             <Globe size={14} className="tree-subitem__icon" />
-            <span className="tree-subitem__title">{node.fullUrl}</span>
+            <span className="tree-subitem__title">{node.url}</span>
             <span className="tree-subitem__meta">
               <span className="meta-words">{countWords(node.markdown)} words</span>
               <span className="meta-images">{countImages(node.markdown)} images</span>
@@ -228,7 +228,7 @@ const ScrapedContentViewer: React.FC<ScrapedContentViewerProps> = ({
               <div className="markdown-display__header">
                 <div className="markdown-display__url-section">
                   <Globe size={16} />
-                  <span className="markdown-display__url">{node.fullUrl}</span>
+                  <span className="markdown-display__url">{node.url}</span>
                 </div>
                 <button
                   className="btn btn--copy"
