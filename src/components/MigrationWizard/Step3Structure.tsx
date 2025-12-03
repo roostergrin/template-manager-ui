@@ -7,6 +7,7 @@ import GenerateSitemapButton from '../GenerateSitemapButton';
 import GeneratedSitemapSelector from '../GeneratedSitemapSelector';
 import SitemapViewToggle from '../Sitemap/SitemapViewToggle';
 import JsonExportImport from '../Sitemap/JsonExportImport';
+import RagWorkflow from './RagWorkflow';
 import useImportExport from '../../hooks/useImportExport';
 import useGenerateSitemap from '../../hooks/useGenerateSitemap';
 import useAllocateContent from '../../hooks/useAllocateContent';
@@ -395,6 +396,16 @@ const Step3Structure: React.FC = () => {
     }
   };
 
+  // Handler for RAG-generated sitemap
+  const handleRagSitemapGenerated = (sitemapData: Record<string, any>, savedPath: string) => {
+    console.log('🎯 RAG sitemap generated');
+    console.log('  📄 Saved to:', savedPath);
+    console.log('  📋 Pages:', Object.keys(sitemapData.pages || {}).length);
+
+    // Use the same handler as regular sitemap generation
+    handleSitemapGenerated(sitemapData, backendSiteType);
+  };
+
   const headerControls = (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', width: '100%' }}>
       <div className="step-3-structure__sitemap-source">
@@ -519,6 +530,16 @@ const Step3Structure: React.FC = () => {
             fullScrapedContent={state.scrapedContent}
             allocatedSitemap={state.allocatedSitemap}
             currentSitemapPages={sitemapState.pages}
+          />
+        </div>
+        
+        {/* RAG Workflow - Multi-step sitemap generation */}
+        <div className="step-3-structure__rag-section">
+          <RagWorkflow
+            domain={state.scrapedContent.domain || ''}
+            siteType={backendSiteType}
+            scrapedContent={state.scrapedContent}
+            onSitemapGenerated={handleRagSitemapGenerated}
           />
         </div>
         <div className="step-3-structure__export-import-row">

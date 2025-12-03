@@ -1,0 +1,181 @@
+.generate-from-rag-button
+  display: flex
+  flex-direction: column
+  gap: 0.5rem
+
+  &__button
+    display: flex
+    align-items: center
+    justify-content: center
+    gap: 0.5rem
+    padding: 0.625rem 1rem
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)
+    border: none
+    border-radius: 6px
+    font-size: 0.875rem
+    font-weight: 600
+    color: white
+    cursor: pointer
+    transition: all 0.2s ease
+    box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3)
+
+    &:hover:not(:disabled)
+      transform: translateY(-1px)
+      box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4)
+
+    &:active:not(:disabled)
+      transform: translateY(0)
+
+    &:disabled
+      opacity: 0.5
+      cursor: not-allowed
+      transform: none
+      box-shadow: none
+
+  &__error
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    padding: 0.5rem 0.75rem
+    background: #fef2f2
+    border-radius: 4px
+    font-size: 0.75rem
+    color: #dc2626
+
+  // Success Dialog
+  &__dialog-overlay
+    position: fixed
+    top: 0
+    left: 0
+    right: 0
+    bottom: 0
+    background: rgba(0, 0, 0, 0.5)
+    display: flex
+    align-items: center
+    justify-content: center
+    z-index: 1000
+    backdrop-filter: blur(4px)
+
+  &__dialog
+    position: relative
+    background: white
+    border-radius: 16px
+    padding: 2rem
+    max-width: 420px
+    width: 90%
+    text-align: center
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3)
+    animation: dialogSlideIn 0.3s ease
+
+  &__dialog-close
+    position: absolute
+    top: 1rem
+    right: 1rem
+    background: transparent
+    border: none
+    color: #94a3b8
+    cursor: pointer
+    padding: 0.25rem
+    border-radius: 4px
+    transition: all 0.2s ease
+
+    &:hover
+      background: #f1f5f9
+      color: #475569
+
+  &__dialog-icon
+    color: #22c55e
+    margin-bottom: 1rem
+
+    svg
+      filter: drop-shadow(0 4px 8px rgba(34, 197, 94, 0.3))
+
+  &__dialog-title
+    font-size: 1.375rem
+    font-weight: 700
+    color: #1e293b
+    margin: 0 0 0.5rem
+
+  &__dialog-message
+    font-size: 0.9375rem
+    color: #64748b
+    margin: 0 0 1.5rem
+    line-height: 1.5
+
+  &__dialog-stats
+    display: flex
+    justify-content: center
+    gap: 2rem
+    margin-bottom: 1.5rem
+
+  &__stat
+    display: flex
+    flex-direction: column
+    align-items: center
+    gap: 0.25rem
+
+  &__stat-value
+    font-size: 1.5rem
+    font-weight: 700
+    color: #667eea
+
+  &__stat-label
+    font-size: 0.75rem
+    color: #94a3b8
+    text-transform: uppercase
+    letter-spacing: 0.05em
+
+  &__dialog-path
+    background: #f8fafc
+    border-radius: 8px
+    padding: 0.75rem 1rem
+    margin-bottom: 1.5rem
+    text-align: left
+    font-size: 0.8125rem
+
+    strong
+      display: block
+      color: #475569
+      margin-bottom: 0.25rem
+
+    code
+      display: block
+      color: #1e293b
+      font-family: 'SF Mono', 'Fira Code', monospace
+      font-size: 0.75rem
+      word-break: break-all
+
+  &__dialog-button
+    width: 100%
+    padding: 0.875rem 1.5rem
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)
+    border: none
+    border-radius: 8px
+    font-size: 0.9375rem
+    font-weight: 600
+    color: white
+    cursor: pointer
+    transition: all 0.2s ease
+
+    &:hover
+      transform: translateY(-1px)
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4)
+
+// Spinning animation
+.spinning
+  animation: spin 1s linear infinite
+
+@keyframes spin
+  from
+    transform: rotate(0deg)
+  to
+    transform: rotate(360deg)
+
+@keyframes dialogSlideIn
+  from
+    opacity: 0
+    transform: scale(0.95) translateY(10px)
+  to
+    opacity: 1
+    transform: scale(1) translateY(0)
+

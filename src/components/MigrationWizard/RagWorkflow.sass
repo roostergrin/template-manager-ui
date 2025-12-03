@@ -1,0 +1,645 @@
+.rag-workflow
+  background: #fefefe
+  border: 1px solid #e2e8f0
+  border-radius: 10px
+  overflow: hidden
+
+  // Step indicators
+  &__steps
+    display: flex
+    align-items: center
+    justify-content: center
+    gap: 0.5rem
+    padding: 1rem
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)
+
+  &__step
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    padding: 0.5rem 0.75rem
+    background: rgba(255, 255, 255, 0.15)
+    border-radius: 6px
+    font-size: 0.8125rem
+    font-weight: 500
+    color: rgba(255, 255, 255, 0.7)
+    cursor: pointer
+    transition: all 0.2s ease
+
+    &:hover:not(.active)
+      background: rgba(255, 255, 255, 0.25)
+
+    &.active
+      background: white
+      color: #667eea
+      font-weight: 600
+
+    &.completed
+      background: rgba(255, 255, 255, 0.3)
+      color: white
+
+  &__step-icon
+    display: flex
+    align-items: center
+    justify-content: center
+    width: 22px
+    height: 22px
+    background: rgba(255, 255, 255, 0.2)
+    border-radius: 50%
+
+    .active &
+      background: #667eea
+      color: white
+
+    .completed &
+      background: #22c55e
+
+  &__step-arrow
+    color: rgba(255, 255, 255, 0.5)
+
+  // Content area
+  &__content
+    padding: 1.25rem
+
+  &__panel
+    display: flex
+    flex-direction: column
+    gap: 1rem
+
+  &__panel-title
+    font-size: 1rem
+    font-weight: 600
+    color: #1e293b
+    margin: 0
+
+  &__panel-description
+    font-size: 0.875rem
+    color: #64748b
+    margin: 0
+
+  // Vector store section
+  &__create-btn
+    display: flex
+    align-items: center
+    justify-content: center
+    gap: 0.5rem
+    width: 100%
+    padding: 0.75rem 1rem
+    background: #f0fdf4
+    border: 1px dashed #86efac
+    border-radius: 6px
+    font-size: 0.875rem
+    font-weight: 500
+    color: #15803d
+    cursor: pointer
+    transition: all 0.2s ease
+
+    &:hover:not(:disabled)
+      background: #dcfce7
+      border-color: #4ade80
+
+    &:disabled
+      opacity: 0.5
+      cursor: not-allowed
+
+  &__success-msg
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    padding: 0.5rem 0.75rem
+    background: #f0fdf4
+    border-radius: 4px
+    font-size: 0.8125rem
+    color: #15803d
+
+  &__vs-list
+    display: flex
+    flex-direction: column
+    gap: 0.5rem
+    margin-top: 0.5rem
+
+  &__vs-list-header
+    display: flex
+    align-items: center
+    justify-content: space-between
+    font-size: 0.75rem
+    font-weight: 600
+    color: #64748b
+    text-transform: uppercase
+    letter-spacing: 0.05em
+
+    button
+      background: transparent
+      border: none
+      color: #94a3b8
+      cursor: pointer
+      padding: 0.25rem
+
+      &:hover
+        color: #64748b
+
+  &__vs-item
+    display: flex
+    align-items: center
+    justify-content: space-between
+    padding: 0.75rem
+    background: #f8fafc
+    border: 1px solid #e2e8f0
+    border-radius: 6px
+    cursor: pointer
+    transition: all 0.2s ease
+
+    &:hover
+      background: #f1f5f9
+      border-color: #cbd5e1
+
+    &.selected
+      background: #eff6ff
+      border-color: #3b82f6
+
+  &__vs-info
+    display: flex
+    flex-direction: column
+    gap: 0.125rem
+
+  &__vs-id
+    font-size: 0.8125rem
+    font-weight: 600
+    color: #1e293b
+    font-family: 'SF Mono', 'Fira Code', monospace
+
+  &__vs-meta
+    font-size: 0.6875rem
+    color: #64748b
+
+  &__empty-msg
+    font-size: 0.8125rem
+    color: #94a3b8
+    text-align: center
+    padding: 1rem
+
+  // Information Architecture section
+  &__extract-btn
+    display: flex
+    align-items: center
+    justify-content: center
+    gap: 0.5rem
+    width: 100%
+    padding: 0.75rem 1rem
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)
+    border: none
+    border-radius: 6px
+    font-size: 0.875rem
+    font-weight: 600
+    color: white
+    cursor: pointer
+    transition: all 0.2s ease
+
+    &:hover:not(:disabled)
+      transform: translateY(-1px)
+      box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3)
+
+    &:disabled
+      opacity: 0.5
+      cursor: not-allowed
+
+  &__loading
+    display: flex
+    align-items: center
+    justify-content: center
+    gap: 0.75rem
+    padding: 2rem
+    color: #64748b
+
+  &__error
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    padding: 0.75rem
+    background: #fef2f2
+    border-radius: 6px
+    font-size: 0.8125rem
+    color: #dc2626
+
+  &__hierarchy-stats
+    display: flex
+    align-items: center
+    justify-content: space-between
+    padding: 0.5rem 0.75rem
+    background: #f8fafc
+    border-radius: 6px
+    font-size: 0.8125rem
+    color: #475569
+
+    button
+      display: flex
+      align-items: center
+      gap: 0.25rem
+      background: transparent
+      border: none
+      color: #64748b
+      font-size: 0.75rem
+      cursor: pointer
+
+      &:hover
+        color: #3b82f6
+
+  &__hierarchy
+    max-height: 300px
+    overflow-y: auto
+    border: 1px solid #e2e8f0
+    border-radius: 6px
+    padding: 0.5rem
+
+  &__continue-btn
+    display: flex
+    align-items: center
+    justify-content: center
+    gap: 0.5rem
+    width: 100%
+    padding: 0.75rem 1rem
+    background: #3b82f6
+    border: none
+    border-radius: 6px
+    font-size: 0.875rem
+    font-weight: 600
+    color: white
+    cursor: pointer
+    transition: all 0.2s ease
+
+    &:hover
+      background: #2563eb
+
+  // Generate section
+  &__generate-summary
+    display: flex
+    flex-direction: column
+    gap: 0.5rem
+    padding: 1rem
+    background: #f8fafc
+    border-radius: 6px
+
+  &__summary-item
+    display: flex
+    justify-content: space-between
+    font-size: 0.8125rem
+
+    .label
+      color: #64748b
+
+    .value
+      font-weight: 600
+      color: #1e293b
+
+  &__generate-btn
+    display: flex
+    align-items: center
+    justify-content: center
+    gap: 0.5rem
+    width: 100%
+    padding: 1rem
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)
+    border: none
+    border-radius: 8px
+    font-size: 1rem
+    font-weight: 600
+    color: white
+    cursor: pointer
+    transition: all 0.2s ease
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3)
+
+    &:hover:not(:disabled)
+      transform: translateY(-2px)
+      box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4)
+
+    &:disabled
+      opacity: 0.5
+      cursor: not-allowed
+      transform: none
+      box-shadow: none
+
+  // Success Dialog
+  &__dialog-overlay
+    position: fixed
+    top: 0
+    left: 0
+    right: 0
+    bottom: 0
+    background: rgba(0, 0, 0, 0.5)
+    display: flex
+    align-items: center
+    justify-content: center
+    z-index: 1000
+    backdrop-filter: blur(4px)
+
+  &__dialog
+    position: relative
+    background: white
+    border-radius: 16px
+    padding: 2rem
+    max-width: 400px
+    width: 90%
+    text-align: center
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3)
+
+    h3
+      font-size: 1.25rem
+      font-weight: 700
+      color: #1e293b
+      margin: 1rem 0 0.5rem
+
+    p
+      font-size: 0.9375rem
+      color: #64748b
+      margin: 0 0 1rem
+
+  &__dialog-close
+    position: absolute
+    top: 1rem
+    right: 1rem
+    background: transparent
+    border: none
+    color: #94a3b8
+    cursor: pointer
+
+    &:hover
+      color: #475569
+
+  &__dialog-icon
+    color: #22c55e
+
+  &__dialog-path
+    background: #f8fafc
+    border-radius: 6px
+    padding: 0.75rem
+    margin-bottom: 1rem
+
+    code
+      font-size: 0.75rem
+      color: #475569
+      font-family: 'SF Mono', 'Fira Code', monospace
+      word-break: break-all
+
+  &__dialog-btn
+    width: 100%
+    padding: 0.875rem
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)
+    border: none
+    border-radius: 8px
+    font-size: 0.9375rem
+    font-weight: 600
+    color: white
+    cursor: pointer
+
+    &:hover
+      opacity: 0.95
+
+  &__dialog--large
+    max-width: 700px
+
+  &__structure-toggle
+    display: flex
+    justify-content: center
+    gap: 0.5rem
+    margin: 1rem 0
+
+    button
+      display: flex
+      align-items: center
+      gap: 0.375rem
+      padding: 0.5rem 1rem
+      background: #f1f5f9
+      border: 1px solid #e2e8f0
+      border-radius: 6px
+      font-size: 0.8125rem
+      font-weight: 500
+      color: #64748b
+      cursor: pointer
+      transition: all 0.15s ease
+
+      &:hover
+        background: #e2e8f0
+
+      &.active
+        background: #667eea
+        border-color: #667eea
+        color: white
+
+  &__structure-view
+    max-height: 350px
+    overflow-y: auto
+    border: 1px solid #e2e8f0
+    border-radius: 8px
+    margin-bottom: 1rem
+    text-align: left
+
+  &__structure-ui
+    padding: 0.75rem
+
+  &__structure-json
+    margin: 0
+    padding: 1rem
+    background: #1e293b
+    color: #e2e8f0
+    font-size: 0.75rem
+    font-family: 'SF Mono', 'Fira Code', monospace
+    white-space: pre-wrap
+    word-break: break-word
+    border-radius: 8px
+
+  &__empty-structure
+    text-align: center
+    color: #94a3b8
+    padding: 2rem
+
+// Hierarchy Tree
+.hierarchy-tree
+  list-style: none
+  margin: 0
+  padding: 0
+  padding-left: 0.5rem
+
+  &__node
+    margin: 0.25rem 0
+
+  &__node-content
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    padding: 0.375rem 0.5rem
+    border-radius: 4px
+    transition: background 0.15s ease
+
+    &:hover
+      background: #f1f5f9
+
+      .hierarchy-tree__remove-btn
+        opacity: 1
+
+  &__expand-btn
+    display: flex
+    align-items: center
+    justify-content: center
+    width: 20px
+    height: 20px
+    background: transparent
+    border: none
+    color: #94a3b8
+    cursor: pointer
+    padding: 0
+
+    &:hover
+      color: #475569
+
+  &__expand-placeholder
+    width: 20px
+
+  &__node-info
+    flex: 1
+    display: flex
+    align-items: center
+    gap: 0.5rem
+
+  &__node-title
+    font-size: 0.8125rem
+    font-weight: 500
+    color: #1e293b
+
+  &__node-slug
+    font-size: 0.6875rem
+    color: #94a3b8
+    font-family: 'SF Mono', 'Fira Code', monospace
+
+  &__remove-btn
+    display: flex
+    align-items: center
+    justify-content: center
+    width: 24px
+    height: 24px
+    background: transparent
+    border: none
+    color: #94a3b8
+    cursor: pointer
+    opacity: 0
+    transition: all 0.15s ease
+
+    &:hover
+      color: #dc2626
+      background: #fee2e2
+      border-radius: 4px
+
+  // Nested trees
+  & > .hierarchy-tree__node > .hierarchy-tree
+    margin-left: 1.25rem
+    border-left: 1px solid #e2e8f0
+    padding-left: 0.5rem
+
+// Structure Tree (Step 3 display)
+.structure-tree
+  list-style: none
+  margin: 0
+  padding: 0
+  padding-left: 0.5rem
+
+  &__node
+    margin: 0.25rem 0
+
+  &__page
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    padding: 0.5rem 0.5rem
+    background: #f8fafc
+    border-radius: 6px
+    border: 1px solid #e2e8f0
+
+  &__expand-btn
+    display: flex
+    align-items: center
+    justify-content: center
+    width: 20px
+    height: 20px
+    background: transparent
+    border: none
+    color: #64748b
+    cursor: pointer
+    padding: 0
+    flex-shrink: 0
+
+    &:hover
+      color: #3b82f6
+
+  &__page-icon
+    color: #3b82f6
+    flex-shrink: 0
+
+  &__page-title
+    font-size: 0.875rem
+    font-weight: 600
+    color: #1e293b
+
+  &__page-slug
+    font-size: 0.6875rem
+    color: #94a3b8
+    font-family: 'SF Mono', 'Fira Code', monospace
+
+  &__section-count
+    margin-left: auto
+    font-size: 0.6875rem
+    color: #667eea
+    font-weight: 500
+    background: #eff6ff
+    padding: 0.125rem 0.5rem
+    border-radius: 10px
+
+  &__sections
+    list-style: none
+    margin: 0.25rem 0 0.25rem 2rem
+    padding: 0
+
+  &__section
+    display: flex
+    align-items: center
+    gap: 0.375rem
+    padding: 0.25rem 0.5rem
+    font-size: 0.75rem
+    color: #475569
+
+    svg
+      color: #94a3b8
+
+  &__section-model
+    font-weight: 500
+
+  // Nested trees
+  & > .structure-tree__node > .structure-tree
+    margin-left: 1.5rem
+    margin-top: 0.25rem
+
+// Spinning animation
+.spinning
+  animation: spin 1s linear infinite
+
+@keyframes spin
+  from
+    transform: rotate(0deg)
+  to
+    transform: rotate(360deg)
+
+// Responsive
+@media (max-width: 600px)
+  .rag-workflow
+    &__steps
+      flex-wrap: wrap
+      gap: 0.375rem
+
+    &__step
+      padding: 0.375rem 0.5rem
+      font-size: 0.75rem
+
+      span
+        display: none
+
+    &__step-arrow
+      display: none
+

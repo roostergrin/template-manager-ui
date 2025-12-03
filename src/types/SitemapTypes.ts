@@ -77,4 +77,139 @@ export interface StoredSitemap {
   created: string;
   sitemap: unknown;
   siteType?: string;
-} 
+}
+
+// ============================================================================
+// Vector Store Types (for RAG-based sitemap generation)
+// ============================================================================
+
+/**
+ * Metadata about a vector store
+ */
+export interface VectorStore {
+  vector_store_id: string;
+  domain: string;
+  timestamp: string;
+  page_count: number;
+  created_at: string;
+  status: 'active' | 'inactive' | 'deleted';
+}
+
+/**
+ * Request to create a vector store
+ */
+export interface CreateVectorStoreRequest {
+  domain: string;
+  scraped_content: Record<string, any>;
+  timestamp?: string;
+}
+
+/**
+ * Response from creating a vector store
+ */
+export interface CreateVectorStoreResponse {
+  success: boolean;
+  vector_store_id: string;
+  page_count: number;
+  metadata_path: string;
+  message?: string;
+}
+
+/**
+ * Response from listing vector stores
+ */
+export interface ListVectorStoresResponse {
+  success: boolean;
+  domain: string;
+  vector_stores: VectorStore[];
+  count: number;
+}
+
+/**
+ * Response from deleting a vector store
+ */
+export interface DeleteVectorStoreResponse {
+  success: boolean;
+  vector_store_id: string;
+  message?: string;
+}
+
+/**
+ * Request to generate sitemap from RAG
+ */
+export interface RagGenerateSitemapRequest {
+  domain: string;
+  site_type: string;
+  vector_store_id?: string;
+}
+
+/**
+ * Response from generating sitemap from RAG
+ */
+export interface RagGenerateSitemapResponse {
+  success: boolean;
+  sitemap: Record<string, any>;
+  saved_path: string;
+}
+
+// ============================================================================
+// Information Architecture Types
+// ============================================================================
+
+/**
+ * A page node in the information architecture hierarchy
+ */
+export interface HierarchyPageNode {
+  title: string;
+  slug: string;
+  description: string;
+  children: HierarchyPageNode[];
+}
+
+/**
+ * Response from extracting information architecture
+ */
+export interface ExtractInformationArchitectureResponse {
+  success: boolean;
+  pages: HierarchyPageNode[];
+  total_pages: number;
+  message?: string;
+}
+
+/**
+ * Request to generate sitemap from a custom hierarchy
+ */
+export interface GenerateSitemapFromHierarchyRequest {
+  vector_store_id: string;
+  site_type: string;
+  domain: string;
+  pages: HierarchyPageNode[];
+}
+
+/**
+ * Section in the sitemap structure (for Step 3 display)
+ */
+export interface SitemapStructureSection {
+  model: string;
+  internal_id: string;
+}
+
+/**
+ * Page in the sitemap structure (for Step 3 display)
+ */
+export interface SitemapStructurePage {
+  title: string;
+  slug: string;
+  sections: SitemapStructureSection[];
+  children: SitemapStructurePage[];
+}
+
+/**
+ * Enhanced RAG generation response with step details
+ */
+export interface RagGenerateSitemapResponseWithSteps extends RagGenerateSitemapResponse {
+  _hierarchy?: HierarchyPageNode[];
+  _sitemap_structure?: SitemapStructurePage[];
+  _total_pages?: number;
+  _total_sections?: number;
+}
