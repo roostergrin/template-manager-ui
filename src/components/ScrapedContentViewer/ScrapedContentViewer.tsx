@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import { Globe, ChevronDown, ChevronRight, CheckCircle, AlertCircle, Copy, Check, ChevronsDown, ChevronsUp, Clock, ExternalLink, Image, Palette } from 'lucide-react';
+import { Globe, ChevronDown, ChevronRight, CheckCircle, AlertCircle, Copy, Check, ChevronsDown, ChevronsUp, Clock, ExternalLink, Image, Palette, Paintbrush } from 'lucide-react';
 import StyleOverview from '../StyleOverview/StyleOverview';
+import DesignSystemViewer, { DesignSystem } from '../DesignSystemViewer';
 import './ScrapedContentViewer.sass';
 
 export interface ScrapedContent {
@@ -17,6 +18,7 @@ export interface ScrapedContent {
     scroll: boolean;
   };
   style_overview?: string;
+  design_system?: DesignSystem;
 }
 
 interface ScrapedContentViewerProps {
@@ -40,6 +42,7 @@ const ScrapedContentViewer: React.FC<ScrapedContentViewerProps> = ({
   const [expandedParentPages, setExpandedParentPages] = useState<Set<string>>(new Set());
   const [showGlobalMarkdown, setShowGlobalMarkdown] = useState(false);
   const [showStyleOverview, setShowStyleOverview] = useState(false);
+  const [showDesignSystem, setShowDesignSystem] = useState(false);
   const [showPagesSection, setShowPagesSection] = useState(false);
   const [copiedPage, setCopiedPage] = useState<string | null>(null);
 
@@ -146,6 +149,7 @@ const ScrapedContentViewer: React.FC<ScrapedContentViewerProps> = ({
   const handleExpandAll = () => {
     setShowGlobalMarkdown(true);
     setShowStyleOverview(true);
+    setShowDesignSystem(true);
     setShowPagesSection(true);
     const allUrls = getAllPageUrls(buildPageTree);
     setExpandedMarkdownPages(new Set(allUrls));
@@ -155,6 +159,7 @@ const ScrapedContentViewer: React.FC<ScrapedContentViewerProps> = ({
   const handleCollapseAll = () => {
     setShowGlobalMarkdown(false);
     setShowStyleOverview(false);
+    setShowDesignSystem(false);
     setShowPagesSection(false);
     setExpandedMarkdownPages(new Set());
     setExpandedParentPages(new Set());
@@ -269,9 +274,9 @@ const ScrapedContentViewer: React.FC<ScrapedContentViewerProps> = ({
               <h3 className="tree-section__title">{scrapedContent.domain}</h3>
               <button
                 className="btn btn--expand-toggle"
-                onClick={expandedMarkdownPages.size === 0 && !showGlobalMarkdown && !showStyleOverview && !showPagesSection ? handleExpandAll : handleCollapseAll}
+                onClick={expandedMarkdownPages.size === 0 && !showGlobalMarkdown && !showStyleOverview && !showDesignSystem && !showPagesSection ? handleExpandAll : handleCollapseAll}
               >
-                {expandedMarkdownPages.size === 0 && !showGlobalMarkdown && !showStyleOverview && !showPagesSection ? (
+                {expandedMarkdownPages.size === 0 && !showGlobalMarkdown && !showStyleOverview && !showDesignSystem && !showPagesSection ? (
                   <>
                     <ChevronsDown size={16} />
                     <span>Expand All</span>
@@ -346,8 +351,32 @@ const ScrapedContentViewer: React.FC<ScrapedContentViewerProps> = ({
               )}
             </div>
 
-            {/* Style Overview Section */}
-            {scrapedContent.style_overview && (
+            {/* Design System Section (Structured) */}
+            {scrapedContent.design_system && (
+              <div className="tree-item tree-item--design-system">
+                <div
+                  className="tree-item__header"
+                  onClick={() => setShowDesignSystem(!showDesignSystem)}
+                >
+                  {showDesignSystem ? (
+                    <ChevronDown size={16} className="tree-item__chevron" />
+                  ) : (
+                    <ChevronRight size={16} className="tree-item__chevron" />
+                  )}
+                  <Paintbrush size={16} className="tree-item__icon" />
+                  <span className="tree-item__title">Design System</span>
+                  <span className="tree-item__badge tree-item__badge--new">AI</span>
+                </div>
+                {showDesignSystem && (
+                  <div className="tree-item__content">
+                    <DesignSystemViewer designSystem={scrapedContent.design_system} />
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Style Overview Section (Raw/Legacy) */}
+            {scrapedContent.style_overview && !scrapedContent.design_system && (
               <div className="tree-item tree-item--style-overview">
                 <div
                   className="tree-item__header"
