@@ -614,3 +614,42 @@
 
   &:hover
     background: #fecaca
+
+// Child page (hierarchy) styles
+.page-list-toc__item--child
+  background: #f8fafc
+  border-left: 3px solid #e2e8f0
+
+  &:hover
+    border-left-color: #94a3b8
+
+  // Depth-based visual hierarchy
+  &.page-list-toc__item--depth-1
+    border-left-color: #93c5fd
+
+  &.page-list-toc__item--depth-2
+    border-left-color: #a5b4fc
+
+  &.page-list-toc__item--depth-3
+    border-left-color: #c4b5fd
+
+.page-list-toc__hierarchy-indicator
+  display: flex
+  align-items: center
+  justify-content: center
+  color: #94a3b8
+  flex-shrink: 0
+  margin-right: 2px
+
+.page-list-toc__slug
+  font-family: 'Monaco', 'Menlo', monospace
+  font-size: 11px
+  color: #64748b
+  background: #f1f5f9
+  padding: 2px 6px
+  border-radius: 3px
+  flex-shrink: 0
+  max-width: 180px
+  overflow: hidden
+  text-overflow: ellipsis
+  white-space: nowrap

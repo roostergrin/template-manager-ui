@@ -89,10 +89,36 @@ const GenerateContentProgress: React.FC<GenerateContentProgressProps> = ({
 
   useEffect(() => {
     if (pagesData) {
-      // Extract just the pages data from the API response (remove the "pages" wrapper)
-      const actualPagesData = (pagesData as any)?.pages || pagesData;
-      setPagesContent(actualPagesData);
-      const jsonPages = JSON.stringify(actualPagesData, null, 2);
+      // Get the pages and sitemap_metadata from API response
+      const rawPagesData = (pagesData as any)?.pages || pagesData;
+      const sitemapMetadata = (pagesData as any)?.sitemap_metadata || {};
+      
+      // Reorder pages to match original sitemap order
+      const orderedPagesData: Record<string, unknown> = {};
+      const pageOrder = pages.map((p: any) => p.title);
+      
+      // First add pages in sitemap order
+      for (const pageTitle of pageOrder) {
+        if (rawPagesData[pageTitle]) {
+          orderedPagesData[pageTitle] = rawPagesData[pageTitle];
+        }
+      }
+      
+      // Then add any remaining pages that weren't in the original order
+      for (const pageTitle of Object.keys(rawPagesData)) {
+        if (!orderedPagesData[pageTitle]) {
+          orderedPagesData[pageTitle] = rawPagesData[pageTitle];
+        }
+      }
+      
+      // Use backend-provided sitemap_metadata
+      const wrappedPagesData = { 
+        pages: orderedPagesData,
+        sitemap_metadata: sitemapMetadata,
+      };
+      
+      setPagesContent(wrappedPagesData);
+      const jsonPages = JSON.stringify(wrappedPagesData, null, 2);
       const blobPages = new Blob([jsonPages], { type: "application/json" });
       setDownloadUrlPages(URL.createObjectURL(blobPages));
     }
@@ -101,7 +127,7 @@ const GenerateContentProgress: React.FC<GenerateContentProgressProps> = ({
       setDownloadUrlPages(null);
       setError(pagesError instanceof Error ? pagesError.message : "An error occurred");
     }
-  }, [pagesData, pagesStatus, pagesError]);
+  }, [pagesData, pagesStatus, pagesError, pages]);
 
   // Handler to start both fetches
   const handleGenerateContent = useCallback(() => {
@@ -165,10 +191,12 @@ const GenerateContentProgress: React.FC<GenerateContentProgressProps> = ({
       return;
     }
     try {
+      // Extract pages from wrapper for GitHub update (API expects flat pages object)
+      const pagesForGithub = (pagesContent as any)?.pages || pagesContent;
       await updateGithub({
         owner: githubOwner,
         repo: githubRepo,
-        pages_data: pagesContent,
+        pages_data: pagesForGithub,
         global_data: globalContent,
       });
     } catch (err) {

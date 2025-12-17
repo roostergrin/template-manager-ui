@@ -56,12 +56,21 @@ const WorkflowManager: React.FC = () => {
   // }, [workflowActions]);
 
   const handleContentGenerationComplete = useCallback((pagesContent: object, globalContent: object) => {
-    workflowActions.addGeneratedContent({
-      type: 'page-content',
-      title: 'Generated Content',
-      content: { pages: pagesContent, global: globalContent },
-      metadata: {},
-    });
+    // Check if content already exists to prevent duplicates
+    const existingContent = workflowActions.getContentByType('page-content');
+    if (existingContent.length > 0) {
+      // Update existing content instead of adding new
+      workflowActions.updateGeneratedContent(existingContent[0].id, {
+        content: { pages: pagesContent, global: globalContent },
+      });
+    } else {
+      workflowActions.addGeneratedContent({
+        type: 'page-content',
+        title: 'Generated Content',
+        content: { pages: pagesContent, global: globalContent },
+        metadata: {},
+      });
+    }
     workflowActions.updateTaskStatus('planning', 'contentGeneration', 'completed');
   }, [workflowActions]);
 

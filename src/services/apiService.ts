@@ -177,6 +177,8 @@ class APIClient {
     const longRunningEndpoints = [
       '/generate-sitemap/',
       '/generate-sitemap-from-scraped/',
+      '/generate-sitemap-from-hierarchy/',
+      '/generate-sitemap-from-rag/',
       '/generate-content',
       '/generate-global',
       '/provision-site',

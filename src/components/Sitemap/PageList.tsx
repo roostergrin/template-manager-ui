@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { DndContext, DragEndEvent, DragOverEvent, DragStartEvent, KeyboardSensor, PointerSensor, UniqueIdentifier, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, arrayMove, verticalListSortingStrategy, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
+import { Copy, Check } from 'lucide-react';
 import { useSitemap } from '../../contexts/SitemapProvider';
 import PageListTOCItem from './PageListTOC';
 import { SitemapItem, SitemapSection, StoredSitemap } from '../../types/SitemapTypes';
@@ -40,6 +41,7 @@ const PageList: React.FC<PageListProps> = ({
   const [activeDragType, setActiveDragType] = useState<ActiveDragType>(null);
   const [hasAttemptedAutoLoad, setHasAttemptedAutoLoad] = useState<boolean>(false);
   const [expandedPageIds, setExpandedPageIds] = useState<Set<string>>(new Set());
+  const [copiedPageNames, setCopiedPageNames] = useState<boolean>(false);
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
@@ -90,6 +92,22 @@ const PageList: React.FC<PageListProps> = ({
       return newSet;
     });
   }, []);
+
+  const copyPageNamesToClipboard = useCallback(() => {
+    // Build hierarchical list with indentation based on depth
+    const pageNames = pages.map(p => {
+      const depth = p.depth || 0;
+      const indent = '  '.repeat(depth); // 2 spaces per level
+      return `${indent}${p.title}`;
+    }).join('\n');
+    
+    navigator.clipboard.writeText(pageNames).then(() => {
+      setCopiedPageNames(true);
+      setTimeout(() => setCopiedPageNames(false), 2000);
+    }).catch(err => {
+      console.error('Failed to copy page names:', err);
+    });
+  }, [pages]);
 
   const findPageByItemId = useCallback(
     (itemId: UniqueIdentifier): SitemapSection | undefined => pages.find(p => p.items.some(i => i.id === itemId)),
@@ -241,6 +259,28 @@ const PageList: React.FC<PageListProps> = ({
             {exportImportControls}
           </div>
         )}
+
+        {/* Page List Toolbar */}
+        <div className="page-list__toolbar">
+          <span className="page-list__count">{pages.length} pages</span>
+          <button
+            className="page-list__copy-names-btn"
+            onClick={copyPageNamesToClipboard}
+            title="Copy all page names to clipboard"
+          >
+            {copiedPageNames ? (
+              <>
+                <Check size={14} />
+                <span>Copied!</span>
+              </>
+            ) : (
+              <>
+                <Copy size={14} />
+                <span>Copy Names</span>
+              </>
+            )}
+          </button>
+        </div>
 
         <SortableContext items={pageIds} strategy={verticalListSortingStrategy}>
           {pages.map((page) => (

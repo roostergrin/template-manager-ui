@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useMemo } from 'react';
+import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { CheckCircle2 } from 'lucide-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { generateContentQueryFunction } from '../../services/generateContentService';
@@ -27,6 +27,9 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
   const [globalContent, setGlobalContent] = useState<Record<string, unknown> | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadMode, setUploadMode] = useState<'generate' | 'upload'>('generate');
+
+  // Ref to track if parent has been notified for current content (prevents infinite loop)
+  const hasNotifiedParentRef = useRef(false);
 
   const queryClient = useQueryClient();
 
@@ -205,9 +208,17 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
     }
   }, [globalStatus, globalData, generateGlobal]);
 
-  // Notify parent when both contents are ready
+  // Reset notification flag when content is cleared (allows re-notification with new content)
   useEffect(() => {
-    if (pagesContent && globalContent && onContentGenerated) {
+    if (!pagesContent || !globalContent) {
+      hasNotifiedParentRef.current = false;
+    }
+  }, [pagesContent, globalContent]);
+
+  // Notify parent when both contents are ready (only once per content set)
+  useEffect(() => {
+    if (pagesContent && globalContent && onContentGenerated && !hasNotifiedParentRef.current) {
+      hasNotifiedParentRef.current = true;
       onContentGenerated(pagesContent, globalContent);
       updateTaskStatus('planning', 'contentGeneration', 'completed');
     }

@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { FileText, Image as ImageIcon, Zap, FileInput } from 'lucide-react';
+import { FileText, Image as ImageIcon, Zap, FileInput, CornerDownRight } from 'lucide-react';
 import { SitemapSection, SitemapItem } from '../../types/SitemapTypes';
 import { useSitemap } from '../../contexts/SitemapProvider';
 import { useAppConfig } from '../../contexts/AppConfigProvider';
@@ -10,6 +10,7 @@ import { useQuestionnaire } from '../../contexts/QuestionnaireProvider';
 import useGenerateSitemap from '../../hooks/useGenerateSitemap';
 import { getEffectiveQuestionnaireData } from '../../utils/questionnaireDataUtils';
 import { getBackendSiteTypeForModelGroup } from '../../utils/modelGroupKeyToBackendSiteType';
+import { getParentPageTitle } from '../../utils/flattenSitemapPages';
 import DefaultPageTemplateSelector, { PageTemplate } from '../DefaultPageTemplateSelector/DefaultPageTemplateSelector';
 import './PageListTOC.sass';
 
@@ -381,10 +382,25 @@ const PageListTOCItem: React.FC<PageListTOCItemProps> = ({ page, index, isExpand
   const wordCount = countWords(page.allocated_markdown);
   const imageCount = countImages(page.allocated_markdown);
 
+  // Hierarchy support: compute depth and indentation
+  const pageDepth = page.depth || 0;
+  const { state: sitemapState } = useSitemap();
+  const parentTitle = pageDepth > 0 ? getParentPageTitle(page, sitemapState.pages) : null;
+  const indentStyle = pageDepth > 0 ? { marginLeft: `${pageDepth * 24}px` } : {};
+
   return (
-    <div ref={setNodeRef} style={style} className="page-list-toc__item">
-      <div className="page-list-toc__row page-list-toc__row--header">
+    <div 
+      ref={setNodeRef} 
+      style={style} 
+      className={`page-list-toc__item ${pageDepth > 0 ? `page-list-toc__item--child page-list-toc__item--depth-${pageDepth}` : ''}`}
+    >
+      <div className="page-list-toc__row page-list-toc__row--header" style={indentStyle}>
         <div className="page-list-toc__col page-list-toc__col--controls">
+          {pageDepth > 0 && (
+            <span className="page-list-toc__hierarchy-indicator" title={`Child of: ${parentTitle || 'Unknown'}`}>
+              <CornerDownRight size={14} />
+            </span>
+          )}
           <button
             className="page-list-toc__chevron"
             onClick={handleTogglePageExpanded}
@@ -403,6 +419,11 @@ const PageListTOCItem: React.FC<PageListTOCItemProps> = ({ page, index, isExpand
         </div>
         <div className="page-list-toc__col page-list-toc__col--content">
           <span className="page-list-toc__number">{index + 1}</span>
+          {pageDepth > 0 && page.slug && (
+            <span className="page-list-toc__slug" title={`URL: ${page.slug}`}>
+              {page.slug}
+            </span>
+          )}
           <input
             type="text"
             className="page-list-toc__title-input"

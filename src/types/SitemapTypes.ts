@@ -16,6 +16,11 @@ export interface SitemapSection {
   allocation_confidence?: number;
   source_location?: string;
   mapped_scraped_page?: string;
+  // Hierarchy fields (for flattened child pages)
+  slug?: string;           // Full URL path (e.g., "/our-office/your-doctor")
+  parent_slug?: string;    // Parent's slug for hierarchy display (e.g., "/our-office")
+  depth?: number;          // Nesting level (0 = top-level, 1 = child, etc.)
+  description?: string;    // Page description from RAG generator
 }
 
 export interface QuestionnaireData {
@@ -191,6 +196,7 @@ export interface GenerateSitemapFromHierarchyRequest {
  */
 export interface SitemapStructureSection {
   model: string;
+  query: string;  // AI-generated contextual query describing section purpose
   internal_id: string;
 }
 

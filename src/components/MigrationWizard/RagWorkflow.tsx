@@ -15,6 +15,9 @@ import {
   FileText,
   Eye,
   Code,
+  Copy,
+  Save,
+  FolderOpen,
 } from 'lucide-react';
 import useRagSitemap from '../../hooks/useRagSitemap';
 import { VectorStore, HierarchyPageNode, SitemapStructurePage } from '../../types/SitemapTypes';
@@ -41,6 +44,9 @@ const RagWorkflow: React.FC<RagWorkflowProps> = ({
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [showStructureView, setShowStructureView] = useState<'ui' | 'json'>('ui');
   const [sitemapStructure, setSitemapStructure] = useState<SitemapStructurePage[]>([]);
+  const [copiedHierarchy, setCopiedHierarchy] = useState(false);
+  const [showSavedHierarchies, setShowSavedHierarchies] = useState(false);
+  const [hierarchySaved, setHierarchySaved] = useState(false);
 
   const {
     vectorStores,
@@ -59,6 +65,16 @@ const RagWorkflow: React.FC<RagWorkflowProps> = ({
     generatedFromHierarchy,
     generateFromHierarchyError,
     resetGenerateFromHierarchy,
+    // Hierarchy save/load
+    savedHierarchies,
+    savedHierarchiesLoading,
+    refetchSavedHierarchies,
+    saveHierarchy,
+    isSavingHierarchy,
+    savedHierarchyData,
+    loadHierarchy,
+    isLoadingHierarchy,
+    loadedHierarchy,
   } = useRagSitemap(domain);
 
   // Initialize editedHierarchy when IA is extracted
@@ -67,6 +83,14 @@ const RagWorkflow: React.FC<RagWorkflowProps> = ({
       setEditedHierarchy(extractedIA.pages);
     }
   }, [extractedIA]);
+
+  // Load hierarchy when loadedHierarchy changes
+  useEffect(() => {
+    if (loadedHierarchy?.pages) {
+      setEditedHierarchy(loadedHierarchy.pages);
+      setShowSavedHierarchies(false);
+    }
+  }, [loadedHierarchy]);
 
   // Handle successful generation
   useEffect(() => {
@@ -149,6 +173,28 @@ const RagWorkflow: React.FC<RagWorkflowProps> = ({
       count += countTotalPages(page.children);
     }
     return count;
+  };
+
+  const handleCopyHierarchy = async () => {
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(editedHierarchy, null, 2));
+      setCopiedHierarchy(true);
+      setTimeout(() => setCopiedHierarchy(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy hierarchy:', err);
+    }
+  };
+
+  const handleSaveHierarchy = () => {
+    if (!domain || editedHierarchy.length === 0) return;
+    saveHierarchy({ domain, hierarchy: editedHierarchy });
+    setHierarchySaved(true);
+    setTimeout(() => setHierarchySaved(false), 2000);
+  };
+
+  const handleLoadHierarchy = (filename: string) => {
+    if (!domain) return;
+    loadHierarchy({ domain, filename });
   };
 
   const hasScrapedContent = scrapedContent && Object.keys(scrapedContent.pages || {}).length > 0;
@@ -263,15 +309,47 @@ const RagWorkflow: React.FC<RagWorkflowProps> = ({
               Review the extracted pages and remove any you don't need.
             </p>
 
-            {!extractedIA && !isExtractingIA && (
-              <button
-                className="rag-workflow__extract-btn"
-                onClick={handleExtractIA}
-                disabled={!selectedVectorStore}
-              >
-                <GitBranch size={16} />
-                Extract Page Structure
-              </button>
+            {!extractedIA && !isExtractingIA && editedHierarchy.length === 0 && (
+              <div className="rag-workflow__extract-options">
+                <button
+                  className="rag-workflow__extract-btn"
+                  onClick={handleExtractIA}
+                  disabled={!selectedVectorStore}
+                >
+                  <GitBranch size={16} />
+                  Extract Page Structure
+                </button>
+                
+                {savedHierarchies.length > 0 && (
+                  <div className="rag-workflow__load-saved">
+                    <button
+                      className="rag-workflow__load-btn"
+                      onClick={() => setShowSavedHierarchies(!showSavedHierarchies)}
+                      disabled={isLoadingHierarchy}
+                    >
+                      <FolderOpen size={16} />
+                      Load Saved ({savedHierarchies.length})
+                    </button>
+                    
+                    {showSavedHierarchies && (
+                      <div className="rag-workflow__saved-list">
+                        {savedHierarchies.map((h) => (
+                          <button
+                            key={h.filename}
+                            className="rag-workflow__saved-item"
+                            onClick={() => handleLoadHierarchy(h.filename)}
+                          >
+                            <span className="rag-workflow__saved-pages">{h.total_pages} pages</span>
+                            <span className="rag-workflow__saved-date">
+                              {new Date(h.saved_at).toLocaleDateString()}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             )}
 
             {isExtractingIA && (
@@ -292,10 +370,29 @@ const RagWorkflow: React.FC<RagWorkflowProps> = ({
               <>
                 <div className="rag-workflow__hierarchy-stats">
                   <span>{countTotalPages(editedHierarchy)} pages</span>
-                  <button onClick={() => setEditedHierarchy(extractedIA?.pages || [])}>
-                    <RefreshCw size={12} />
-                    Reset
-                  </button>
+                  <div className="rag-workflow__hierarchy-actions">
+                    <button 
+                      className="rag-workflow__copy-btn"
+                      onClick={handleCopyHierarchy}
+                      title="Copy hierarchy JSON to clipboard"
+                    >
+                      {copiedHierarchy ? <Check size={12} /> : <Copy size={12} />}
+                      {copiedHierarchy ? 'Copied!' : 'Copy JSON'}
+                    </button>
+                    <button 
+                      className="rag-workflow__save-btn"
+                      onClick={handleSaveHierarchy}
+                      disabled={isSavingHierarchy}
+                      title="Save hierarchy for later use"
+                    >
+                      {hierarchySaved ? <Check size={12} /> : <Save size={12} />}
+                      {hierarchySaved ? 'Saved!' : isSavingHierarchy ? 'Saving...' : 'Save'}
+                    </button>
+                    <button onClick={() => setEditedHierarchy(extractedIA?.pages || [])}>
+                      <RefreshCw size={12} />
+                      Reset
+                    </button>
+                  </div>
                 </div>
                 <div className="rag-workflow__hierarchy">
                   <HierarchyTree
@@ -483,8 +580,13 @@ const HierarchyTreeNode: React.FC<HierarchyTreeNodeProps> = ({
           <span className="hierarchy-tree__expand-placeholder" />
         )}
         <div className="hierarchy-tree__node-info">
-          <span className="hierarchy-tree__node-title">{page.title}</span>
-          <span className="hierarchy-tree__node-slug">{page.slug}</span>
+          <div className="hierarchy-tree__node-header">
+            <span className="hierarchy-tree__node-title">{page.title}</span>
+            <span className="hierarchy-tree__node-slug">{page.slug}</span>
+          </div>
+          {page.description && (
+            <span className="hierarchy-tree__node-description">{page.description}</span>
+          )}
         </div>
         <button
           className="hierarchy-tree__remove-btn"

@@ -39,11 +39,31 @@ const useWorkflowStorage = () => {
     generatedContent: GeneratedContent[]
   ) => {
     try {
+      // Always save progress state (small)
       localStorage.setItem(STORAGE_KEY, JSON.stringify(progressState))
-      localStorage.setItem(CONTENT_STORAGE_KEY, JSON.stringify(generatedContent))
+
+      // Check content size before attempting to save
+      const contentJson = JSON.stringify(generatedContent)
+      const contentSizeKB = new Blob([contentJson]).size / 1024
+
+      // Skip saving if content exceeds reasonable threshold (2MB)
+      if (contentSizeKB > 2048) {
+        console.warn(`Generated content too large for localStorage (${Math.round(contentSizeKB)}KB). Skipping content persistence.`)
+        // Clear existing content storage to free space
+        localStorage.removeItem(CONTENT_STORAGE_KEY)
+        lastSavedRef.current = new Date().toISOString()
+        return
+      }
+
+      localStorage.setItem(CONTENT_STORAGE_KEY, contentJson)
       lastSavedRef.current = new Date().toISOString()
     } catch (error) {
-      console.warn('Failed to save workflow data to localStorage:', error)
+      if (error instanceof DOMException && error.name === 'QuotaExceededError') {
+        console.warn('localStorage quota exceeded. Clearing content storage.')
+        localStorage.removeItem(CONTENT_STORAGE_KEY)
+      } else {
+        console.warn('Failed to save workflow data to localStorage:', error)
+      }
     }
   }, [])
 

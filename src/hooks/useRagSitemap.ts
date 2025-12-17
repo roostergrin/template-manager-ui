@@ -6,6 +6,12 @@ import {
   generateSitemapFromRag,
   extractInformationArchitecture,
   generateSitemapFromHierarchy,
+  saveHierarchy,
+  listHierarchies,
+  getHierarchy,
+  SaveHierarchyResponse,
+  ListHierarchiesResponse,
+  GetHierarchyResponse,
 } from '../services/ragService';
 import {
   VectorStore,
@@ -119,6 +125,47 @@ const useRagSitemap = (domain?: string) => {
     },
   });
 
+  // Query for listing saved hierarchies
+  const hierarchiesQuery = useQuery<ListHierarchiesResponse>({
+    queryKey: ['hierarchies', domain],
+    queryFn: () => listHierarchies(domain!),
+    enabled: !!domain,
+    staleTime: 30000,
+  });
+
+  // Mutation for saving hierarchy
+  const saveHierarchyMutation = useMutation<
+    SaveHierarchyResponse,
+    Error,
+    { domain: string; hierarchy: HierarchyPageNode[] }
+  >({
+    mutationFn: ({ domain, hierarchy }) => saveHierarchy(domain, hierarchy),
+    onSuccess: (data) => {
+      console.log('✅ Hierarchy saved:', data.filename);
+      console.log(`   📄 ${data.total_pages} pages`);
+      // Refresh the hierarchies list
+      hierarchiesQuery.refetch();
+    },
+    onError: (error) => {
+      console.error('❌ Error saving hierarchy:', error);
+    },
+  });
+
+  // Mutation for loading a saved hierarchy
+  const loadHierarchyMutation = useMutation<
+    GetHierarchyResponse,
+    Error,
+    { domain: string; filename: string }
+  >({
+    mutationFn: ({ domain, filename }) => getHierarchy(domain, filename),
+    onSuccess: (data) => {
+      console.log('✅ Hierarchy loaded:', data.total_pages, 'pages');
+    },
+    onError: (error) => {
+      console.error('❌ Error loading hierarchy:', error);
+    },
+  });
+
   return {
     // Vector store list
     vectorStores: vectorStoresQuery.data?.vector_stores || [],
@@ -169,6 +216,25 @@ const useRagSitemap = (domain?: string) => {
     generateFromHierarchyError: generateFromHierarchyMutation.error,
     isGeneratingFromHierarchy: generateFromHierarchyMutation.isPending,
     resetGenerateFromHierarchy: generateFromHierarchyMutation.reset,
+
+    // Saved hierarchies list
+    savedHierarchies: hierarchiesQuery.data?.hierarchies || [],
+    savedHierarchiesLoading: hierarchiesQuery.isLoading,
+    refetchSavedHierarchies: hierarchiesQuery.refetch,
+
+    // Save hierarchy
+    saveHierarchy: saveHierarchyMutation.mutate,
+    saveHierarchyAsync: saveHierarchyMutation.mutateAsync,
+    isSavingHierarchy: saveHierarchyMutation.isPending,
+    savedHierarchyData: saveHierarchyMutation.data,
+    saveHierarchyError: saveHierarchyMutation.error,
+
+    // Load hierarchy
+    loadHierarchy: loadHierarchyMutation.mutate,
+    loadHierarchyAsync: loadHierarchyMutation.mutateAsync,
+    isLoadingHierarchy: loadHierarchyMutation.isPending,
+    loadedHierarchy: loadHierarchyMutation.data,
+    loadHierarchyError: loadHierarchyMutation.error,
   };
 };
 

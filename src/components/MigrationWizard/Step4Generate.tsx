@@ -5,7 +5,6 @@ import { useSitemap } from '../../contexts/SitemapProvider';
 import { useAppConfig } from '../../contexts/AppConfigProvider';
 import useGenerateContentForScraped from '../../hooks/useGenerateContentForScraped';
 import useGenerateGlobal from '../../hooks/useGenerateGlobal';
-import useReplaceImagesWithImageKit from '../../hooks/useReplaceImagesWithImageKit';
 import { getBackendSiteTypeForModelGroup } from '../../utils/modelGroupKeyToBackendSiteType';
 import './Step4Generate.sass';
 
@@ -15,10 +14,7 @@ const Step4Generate: React.FC = () => {
   const { state: appConfigState } = useAppConfig();
   const [generateContentData, generateContentStatus, generateContentMutation] = useGenerateContentForScraped();
   const [globalContentData, globalContentStatus, generateGlobalMutation] = useGenerateGlobal();
-  const [replaceImagesData, replaceImagesStatus, replaceImagesMutation] = useReplaceImagesWithImageKit();
   const [copiedToClipboard, setCopiedToClipboard] = useState(false);
-  const [uploadedContent, setUploadedContent] = useState<any>(null);
-  const [uploadedFileName, setUploadedFileName] = useState<string>('');
 
   if (!state.scrapedContent) {
     return (
@@ -228,114 +224,10 @@ const Step4Generate: React.FC = () => {
     }
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const content = JSON.parse(e.target?.result as string);
-
-        console.log('📄 Uploaded file structure:', Object.keys(content));
-        console.log('📄 Full uploaded content:', content);
-
-        // Validate that the content has a usable structure
-        // Accept either { pages: {...} } or just the pages object directly
-        let processedContent = content;
-
-        if (!content.pages && typeof content === 'object') {
-          // If there's no "pages" property, assume the entire object IS the pages
-          console.log('📦 No "pages" property found, treating entire object as pages');
-          processedContent = { pages: content };
-        }
-
-        if (!processedContent.pages || typeof processedContent.pages !== 'object') {
-          alert('Invalid content structure. The JSON file should contain a "pages" object or be a pages object directly.');
-          return;
-        }
-
-        const pageCount = Object.keys(processedContent.pages).length;
-        console.log(`✅ Content uploaded successfully: ${file.name} (${pageCount} pages)`);
-
-        setUploadedContent(processedContent);
-        setUploadedFileName(file.name);
-      } catch (error) {
-        console.error('❌ Failed to parse JSON file:', error);
-        alert('Invalid JSON file. Please upload a valid JSON file.');
-      }
-    };
-    reader.readAsText(file);
-  };
-
-  const handleClearUploadedFile = () => {
-    setUploadedContent(null);
-    setUploadedFileName('');
-    console.log('🗑️ Uploaded content cleared');
-  };
-
-  const handleReplaceImages = async () => {
-    // Determine which content to use: uploaded content takes priority over generated content
-    const contentToUse = uploadedContent?.pages || generateContentData?.pages;
-    const contentSource = uploadedContent ? 'uploaded' : 'generated';
-
-    // Debug logging
-    console.log('🔍 Debug - Replace Images Check:');
-    console.log('  uploadedContent:', uploadedContent);
-    console.log('  uploadedContent?.pages:', uploadedContent?.pages);
-    console.log('  generateContentData?.pages:', generateContentData?.pages);
-    console.log('  contentToUse:', contentToUse);
-    console.log('  contentSource:', contentSource);
-
-    if (!contentToUse) {
-      console.error('❌ No content available to replace images');
-      console.error('  uploadedContent:', uploadedContent);
-      console.error('  generateContentData:', generateContentData);
-      alert('Please either generate content or upload a content JSON file first.');
-      return;
-    }
-
-    try {
-      const pageCount = Object.keys(contentToUse).length;
-      console.log(`🖼️ Replacing images in ${contentSource} content (${pageCount} pages)...`);
-
-      const result = await replaceImagesMutation({
-        generated_content: contentToUse,
-        site_type: backendSiteType,
-      });
-
-      // Update the displayed content with new images
-      if (result && result.data) {
-        console.log(`✅ Images replaced successfully! Updated ${Object.keys(result.data).length} pages`);
-
-        if (uploadedContent) {
-          // Update uploaded content
-          setUploadedContent({
-            ...uploadedContent,
-            pages: result.data,
-          });
-          console.log('📝 Updated uploaded content state');
-        } else {
-          // Update generated content
-          actions.setGeneratedContent({
-            ...generateContentData,
-            pages: result.data,
-          });
-          console.log('📝 Updated generated content state');
-        }
-      }
-    } catch (error) {
-      console.error('❌ Image replacement failed:', error);
-      alert(`Image replacement failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
-  };
-
   const isGenerating = generateContentStatus === 'pending';
   const hasGenerated = generateContentStatus === 'success' && generateContentData;
   const isGeneratingGlobal = globalContentStatus === 'pending';
   const hasGeneratedGlobal = globalContentStatus === 'success' && globalContentData;
-  const isReplacingImages = replaceImagesStatus === 'pending';
-  const hasReplacedImages = replaceImagesStatus === 'success' && replaceImagesData;
 
   const globalMarkdownLength = state.scrapedContent.global_markdown.length;
   const totalScrapedChars = globalMarkdownLength + Object.values(state.scrapedContent.pages).reduce((sum, md) => sum + md.length, 0);
@@ -439,94 +331,6 @@ const Step4Generate: React.FC = () => {
         )}
       </div>
 
-      {/* Image Replacement Section - Always Visible */}
-      <div className="step-4-generate__image-replacement">
-        <h3>Image Replacement</h3>
-        <p className="section-description">
-          Replace images in your content with fresh ImageKit/Adobe Stock images
-        </p>
-
-        {/* File Upload */}
-        <div className="image-replacement__upload">
-          <label htmlFor="content-file-upload" className="upload-label">
-            Upload Content (Optional):
-          </label>
-          <div className="upload-controls">
-            <input
-              id="content-file-upload"
-              type="file"
-              accept=".json"
-              onChange={handleFileUpload}
-              style={{ display: 'none' }}
-            />
-            <button
-              className="btn btn--secondary"
-              onClick={() => document.getElementById('content-file-upload')?.click()}
-            >
-              Choose File
-            </button>
-            {uploadedFileName && (
-              <>
-                <span className="uploaded-filename">{uploadedFileName}</span>
-                <button
-                  className="btn btn--secondary btn--small"
-                  onClick={handleClearUploadedFile}
-                  title="Clear uploaded file"
-                >
-                  ✕ Clear
-                </button>
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* Content Source Indicator */}
-        <div className="image-replacement__status">
-          {uploadedContent && (
-            <p className="status-message status-message--uploaded">
-              📁 Using uploaded content: <strong>{uploadedFileName}</strong>
-              {uploadedContent.pages && (
-                <span> ({Object.keys(uploadedContent.pages).length} pages)</span>
-              )}
-            </p>
-          )}
-          {!uploadedContent && generateContentData && (
-            <p className="status-message status-message--generated">
-              ✨ Using generated content
-              {generateContentData.pages && (
-                <span> ({Object.keys(generateContentData.pages).length} pages)</span>
-              )}
-            </p>
-          )}
-          {!uploadedContent && !generateContentData && (
-            <p className="status-message status-message--none">
-              ⚠️ No content available. Please generate content or upload a file.
-            </p>
-          )}
-        </div>
-
-        {/* Replace Images Button */}
-        <div className="image-replacement__action">
-          <button
-            className="btn btn--primary btn--large"
-            onClick={handleReplaceImages}
-            disabled={isReplacingImages || (!uploadedContent && !generateContentData)}
-          >
-            {isReplacingImages ? (
-              <>
-                <Loader2 className="spinning" size={20} />
-                Replacing Images...
-              </>
-            ) : (
-              <>
-                <Sparkles size={20} />
-                Replace with ImageKit Images
-              </>
-            )}
-          </button>
-        </div>
-      </div>
-
       {isGenerating && (
         <div className="step-4-generate__progress">
           <Loader2 className="progress-spinner spinning" size={48} />
@@ -561,58 +365,7 @@ const Step4Generate: React.FC = () => {
         </div>
       )}
 
-      {isReplacingImages && (
-        <div className="step-4-generate__progress">
-          <Loader2 className="progress-spinner spinning" size={48} />
-          <p>Replacing images with ImageKit/Adobe Stock images...</p>
-          <p className="progress-note">Searching for relevant stock photos.</p>
-        </div>
-      )}
-
-      {hasReplacedImages && replaceImagesData && (
-        <div className="step-4-generate__success">
-          <div className="success-message">
-            <CheckCircle size={24} className="success-icon" />
-            <p>
-              Images replaced successfully!
-              {' '}✅ {replaceImagesData.success_count} replaced,
-              ⏭️ {replaceImagesData.skipped_count} skipped
-              {replaceImagesData.failed_count > 0 && `, ❌ ${replaceImagesData.failed_count} failed`}
-            </p>
-          </div>
-        </div>
-      )}
-
-      {uploadedContent && (
-        <div className="step-4-generate__preview">
-          <h4>Uploaded Content Preview</h4>
-          <div className="preview-actions" style={{ marginBottom: '1rem' }}>
-            <button
-              className="btn btn--secondary"
-              onClick={() => {
-                const blob = new Blob([JSON.stringify(uploadedContent, null, 2)], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = uploadedFileName.replace('.json', '-updated.json');
-                a.click();
-                URL.revokeObjectURL(url);
-              }}
-            >
-              <Download size={18} />
-              Download Updated Content
-            </button>
-          </div>
-          <textarea
-            className="content-preview"
-            value={JSON.stringify(uploadedContent, null, 2)}
-            readOnly
-            rows={12}
-          />
-        </div>
-      )}
-
-      {hasGenerated && generateContentData && !uploadedContent && (
+      {hasGenerated && generateContentData && (
         <div className="step-4-generate__preview">
           <h4>Generated Content Preview</h4>
           <textarea

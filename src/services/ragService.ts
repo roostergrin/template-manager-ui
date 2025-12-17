@@ -134,6 +134,87 @@ export const generateSitemapFromHierarchy = async (
   );
 };
 
+// ============================================================================
+// Hierarchy Save/Load Functions
+// ============================================================================
+
+export interface SaveHierarchyResponse {
+  success: boolean;
+  filename: string;
+  path: string;
+  total_pages: number;
+}
+
+export interface HierarchyListItem {
+  filename: string;
+  saved_at: string;
+  total_pages: number;
+}
+
+export interface ListHierarchiesResponse {
+  hierarchies: HierarchyListItem[];
+}
+
+export interface GetHierarchyResponse {
+  domain: string;
+  saved_at: string;
+  pages: HierarchyPageNode[];
+  total_pages: number;
+}
+
+/**
+ * Save a page hierarchy for later retrieval
+ * 
+ * @param domain - Domain the hierarchy is for
+ * @param hierarchy - Page hierarchy to save
+ * @returns Save result with filename
+ */
+export const saveHierarchy = async (
+  domain: string,
+  hierarchy: HierarchyPageNode[]
+): Promise<SaveHierarchyResponse> => {
+  console.log(`💾 Saving hierarchy for ${domain}...`);
+  
+  return await apiClient.post<SaveHierarchyResponse>(
+    `/save-hierarchy/${encodeURIComponent(domain)}`,
+    hierarchy
+  );
+};
+
+/**
+ * List all saved hierarchies for a domain
+ * 
+ * @param domain - Domain to list hierarchies for
+ * @returns List of saved hierarchies
+ */
+export const listHierarchies = async (
+  domain: string
+): Promise<ListHierarchiesResponse> => {
+  console.log(`📋 Listing hierarchies for ${domain}...`);
+  
+  return await apiClient.get<ListHierarchiesResponse>(
+    `/list-hierarchies/${encodeURIComponent(domain)}`
+  );
+};
+
+/**
+ * Get a saved hierarchy by filename
+ * 
+ * @param domain - Domain the hierarchy belongs to
+ * @param filename - Filename of the saved hierarchy
+ * @returns Full hierarchy data
+ */
+export const getHierarchy = async (
+  domain: string,
+  filename: string
+): Promise<GetHierarchyResponse> => {
+  console.log(`📂 Loading hierarchy ${filename} for ${domain}...`);
+  
+  return await apiClient.get<GetHierarchyResponse>(
+    `/get-hierarchy/${encodeURIComponent(domain)}/${encodeURIComponent(filename)}`
+  );
+};
+
 // Export all functions as a service object for convenience
 const ragService = {
   createVectorStore,
@@ -142,6 +223,9 @@ const ragService = {
   generateSitemapFromRag,
   extractInformationArchitecture,
   generateSitemapFromHierarchy,
+  saveHierarchy,
+  listHierarchies,
+  getHierarchy,
 };
 
 export default ragService;
