@@ -239,7 +239,6 @@
     background: #f0fdf4
     border-radius: 6px
     border: 1px solid #86efac
-    text-align: center
 
     .allocate-description
       margin: 0 0 0.75rem 0
@@ -249,6 +248,29 @@
 
     .btn
       margin: 0 auto
+
+  &__two-pass-buttons
+    display: flex
+    gap: 1rem
+    align-items: center
+    flex-wrap: wrap
+    margin-bottom: 0.75rem
+
+    .btn
+      display: flex
+      align-items: center
+      gap: 0.5rem
+
+      svg
+        flex-shrink: 0
+
+  &__pass-status
+    display: flex
+    flex-direction: column
+    gap: 0.25rem
+
+    span
+      display: block
 
   &__actions
     display: flex

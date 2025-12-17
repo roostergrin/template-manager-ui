@@ -28,6 +28,7 @@ interface RagWorkflowProps {
   siteType: string;
   scrapedContent?: Record<string, any>;
   onSitemapGenerated?: (sitemapData: Record<string, any>, savedPath: string) => void;
+  onVectorStoreSelect?: (vectorStore: VectorStore | null) => void;
 }
 
 type WorkflowStep = 'vector-store' | 'information-architecture' | 'generate';
@@ -37,6 +38,7 @@ const RagWorkflow: React.FC<RagWorkflowProps> = ({
   siteType,
   scrapedContent,
   onSitemapGenerated,
+  onVectorStoreSelect,
 }) => {
   const [currentStep, setCurrentStep] = useState<WorkflowStep>('vector-store');
   const [selectedVectorStore, setSelectedVectorStore] = useState<VectorStore | null>(null);
@@ -107,6 +109,17 @@ const RagWorkflow: React.FC<RagWorkflowProps> = ({
     }
   }, [generatedFromHierarchy, onSitemapGenerated]);
 
+  // Notify parent when a new vector store is created
+  useEffect(() => {
+    if (createVectorStoreData?.vector_store_id) {
+      // Find the newly created vector store in the list
+      const newVs = vectorStores.find(vs => vs.id === createVectorStoreData.vector_store_id);
+      if (newVs) {
+        onVectorStoreSelect?.(newVs);
+      }
+    }
+  }, [createVectorStoreData, vectorStores, onVectorStoreSelect]);
+
   const handleCreateVectorStore = () => {
     if (!scrapedContent) return;
     createVectorStore({ domain, scrapedContent });
@@ -115,6 +128,8 @@ const RagWorkflow: React.FC<RagWorkflowProps> = ({
   const handleSelectVectorStore = (vs: VectorStore) => {
     setSelectedVectorStore(vs);
     setCurrentStep('information-architecture');
+    // Notify parent of vector store selection
+    onVectorStoreSelect?.(vs);
     // Reset any previous IA extraction
     resetExtractIA();
     setEditedHierarchy([]);

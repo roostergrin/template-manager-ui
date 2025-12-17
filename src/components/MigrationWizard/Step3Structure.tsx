@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { List, FileJson, Loader2 } from 'lucide-react';
+import { List, FileJson, Loader2, GitBranch, FileText } from 'lucide-react';
 import { useAppConfig } from '../../contexts/AppConfigProvider';
 import { useSitemap } from '../../contexts/SitemapProvider';
 import { useMigrationWizard } from '../../contexts/MigrationWizardProvider';
@@ -11,9 +11,12 @@ import RagWorkflow from './RagWorkflow';
 import useImportExport from '../../hooks/useImportExport';
 import useGenerateSitemap from '../../hooks/useGenerateSitemap';
 import useAllocateContent from '../../hooks/useAllocateContent';
+import useFirstPassAllocation from '../../hooks/useFirstPassAllocation';
+import useSecondPassAllocation from '../../hooks/useSecondPassAllocation';
 import { getBackendSiteTypeForModelGroup } from '../../utils/modelGroupKeyToBackendSiteType';
 import { getEffectiveQuestionnaireData } from '../../utils/questionnaireDataUtils';
 import { modelGroups } from '../../modelGroups';
+import { VectorStore } from '../../types/SitemapTypes';
 import './Step3Structure.sass';
 
 type SitemapSource = 'default' | 'allocated' | 'scraped';
@@ -25,9 +28,12 @@ const Step3Structure: React.FC = () => {
   const { exportJson, importJson } = useImportExport();
   const [generateSitemapData, generateSitemapStatus, generateSitemap] = useGenerateSitemap();
   const [allocateContentData, allocateContentStatus, allocateContentMutation] = useAllocateContent();
+  const [firstPassData, firstPassStatus, firstPassMutation] = useFirstPassAllocation();
+  const [secondPassData, secondPassStatus, secondPassMutation] = useSecondPassAllocation();
   const [selectorResetTrigger, setSelectorResetTrigger] = useState(0);
   const [sitemapSource, setSitemapSource] = useState<SitemapSource>('default');
   const [extractedSitemap, setExtractedSitemap] = useState<any>(null);
+  const [selectedVectorStore, setSelectedVectorStore] = useState<VectorStore | null>(null);
   const hasSavedAllocationRef = useRef(false);
   const hasRestoredSourceRef = useRef(false);
 
@@ -126,6 +132,67 @@ const Step3Structure: React.FC = () => {
       hasSavedAllocationRef.current = false;
     }
   }, [allocateContentStatus]);
+
+  // Handle First Pass success - update sitemap with suggested model_query_pairs
+  useEffect(() => {
+    if (firstPassStatus === 'success' && firstPassData?.enhanced_sitemap) {
+      console.log('✅ First Pass successful, updating sitemap with suggested sections');
+
+      const enhancedPages = firstPassData.enhanced_sitemap.pages;
+
+      // Update sitemap pages with model_query_pairs (items)
+      const updatedPages = sitemapState.pages.map(page => {
+        // Find matching enhanced page
+        const matchingPage = enhancedPages[page.title];
+        if (matchingPage && matchingPage.model_query_pairs) {
+          return {
+            ...page,
+            items: matchingPage.model_query_pairs.map((mqp: any) => ({
+              model: mqp.model,
+              query: mqp.query,
+              id: mqp.internal_id,
+              useDefault: mqp.use_default || false,
+            })),
+            has_content: matchingPage.has_content,
+            content_confidence: matchingPage.content_confidence,
+          };
+        }
+        return page;
+      });
+
+      sitemapActions.setPages(updatedPages);
+      console.log(`📊 Updated ${updatedPages.length} pages with suggested sections`);
+    }
+  }, [firstPassStatus, firstPassData]);
+
+  // Handle Second Pass success - update sitemap with allocated markdown
+  useEffect(() => {
+    if (secondPassStatus === 'success' && secondPassData?.enhanced_sitemap) {
+      console.log('✅ Second Pass successful, updating sitemap with allocated markdown');
+
+      const enhancedPages = secondPassData.enhanced_sitemap.pages;
+
+      // Update sitemap pages with allocated_markdown
+      const updatedPages = sitemapState.pages.map(page => {
+        // Find matching enhanced page
+        const matchingPage = enhancedPages[page.title];
+        if (matchingPage) {
+          return {
+            ...page,
+            allocated_markdown: matchingPage.allocated_markdown,
+          };
+        }
+        return page;
+      });
+
+      sitemapActions.setPages(updatedPages);
+
+      // Also save to wizard state for persistence
+      actions.setAllocatedPagesSitemap(updatedPages);
+
+      console.log(`📝 Updated ${updatedPages.length} pages with allocated markdown`);
+    }
+  }, [secondPassStatus, secondPassData]);
 
   // Helper function to extract sitemap from scraped content
   const extractSitemapFromScrapedContent = () => {
@@ -273,6 +340,74 @@ const Step3Structure: React.FC = () => {
     });
   };
 
+  // Handler for vector store selection from RagWorkflow
+  const handleVectorStoreSelect = (vs: VectorStore | null) => {
+    console.log('📦 Vector store selected:', vs?.vector_store_id);
+    setSelectedVectorStore(vs);
+  };
+
+  // First Pass: Suggest sections (model_query_pairs)
+  const handleFirstPass = () => {
+    if (!selectedVectorStore) {
+      console.error('❌ No vector store selected');
+      return;
+    }
+
+    console.log('🔍 Starting First Pass: Suggesting sections...');
+    console.log('  📦 Vector Store:', selectedVectorStore.vector_store_id);
+    console.log('  📋 Sitemap pages:', sitemapState.pages.length);
+
+    // Build sitemap for backend
+    const sitemapForBackend = {
+      pages: sitemapState.pages.map(page => ({
+        title: page.title,
+        path: page.slug,
+        slug: page.slug,
+        description: page.description || '',
+        id: page.id,
+      })),
+      siteType: backendSiteType,
+    };
+
+    firstPassMutation({
+      sitemap: sitemapForBackend,
+      vector_store_id: selectedVectorStore.vector_store_id,
+      site_type: backendSiteType,
+    });
+  };
+
+  // Second Pass: Allocate markdown using model_query_pairs
+  const handleSecondPass = () => {
+    if (!selectedVectorStore) {
+      console.error('❌ No vector store selected');
+      return;
+    }
+
+    console.log('📝 Starting Second Pass: Allocating markdown...');
+    console.log('  📦 Vector Store:', selectedVectorStore.vector_store_id);
+    console.log('  📋 Sitemap pages:', sitemapState.pages.length);
+
+    // Build sitemap with model_query_pairs for backend
+    const sitemapForBackend = {
+      pages: sitemapState.pages.map(page => ({
+        title: page.title,
+        path: page.slug,
+        slug: page.slug,
+        description: page.description || '',
+        id: page.id,
+        model_query_pairs: page.items || [],
+        items: page.items || [],
+      })),
+      siteType: backendSiteType,
+    };
+
+    secondPassMutation({
+      sitemap: sitemapForBackend,
+      vector_store_id: selectedVectorStore.vector_store_id,
+      site_type: backendSiteType,
+    });
+  };
+
   const handleSitemapSourceChange = (source: SitemapSource) => {
     console.log('🔄 Sitemap source changed to:', source);
     setSitemapSource(source);
@@ -342,6 +477,12 @@ const Step3Structure: React.FC = () => {
   const isAllocating = allocateContentStatus === 'pending';
   const hasAllocated = state.allocatedPagesSitemap && state.allocatedPagesSitemap.length > 0;
   const allocatedPagesCount = state.allocatedPagesSitemap?.length || 0;
+
+  // Two-pass allocation status
+  const isFirstPassPending = firstPassStatus === 'pending';
+  const isSecondPassPending = secondPassStatus === 'pending';
+  const hasModelQueryPairs = sitemapState.pages.some(page => page.items && page.items.length > 0);
+  const hasAllocatedMarkdown = sitemapState.pages.some(page => page.allocated_markdown);
 
   // Wrapper for onSitemapGenerated to save to wizard state when on scraped pages
   const handleSitemapGenerated = (sitemapData: unknown, siteType?: string) => {
@@ -438,25 +579,96 @@ const Step3Structure: React.FC = () => {
       </div>
 
       <div className="step-3-structure__allocate-section">
-        <button
-          className="btn btn--primary"
-          onClick={handleAllocate}
-          disabled={isAllocating || !sitemapState.pages || sitemapState.pages.length === 0 || sitemapSource === 'allocated'}
-        >
-          {isAllocating ? (
-            <>
-              <Loader2 className="spinning" size={18} />
-              Allocating Content...
-            </>
-          ) : (
-            '📋 Allocate Markdown to Pages'
+        {/* Two-Pass RAG Allocation Buttons */}
+        <div className="step-3-structure__two-pass-buttons">
+          {/* First Pass Button - Suggest Sections */}
+          <button
+            className="btn btn--secondary"
+            onClick={handleFirstPass}
+            disabled={isFirstPassPending || !selectedVectorStore || sitemapSource === 'allocated'}
+            title={!selectedVectorStore ? 'Select a vector store in RAG Workflow first' : 'Analyze content and suggest page sections'}
+          >
+            {isFirstPassPending ? (
+              <>
+                <Loader2 className="spinning" size={18} />
+                Analyzing...
+              </>
+            ) : (
+              <>
+                <GitBranch size={18} />
+                First Pass: Suggest Sections
+              </>
+            )}
+          </button>
+
+          {/* Second Pass Button - Allocate Markdown */}
+          <button
+            className="btn btn--primary"
+            onClick={handleSecondPass}
+            disabled={isSecondPassPending || !selectedVectorStore || !hasModelQueryPairs || sitemapSource === 'allocated'}
+            title={!selectedVectorStore ? 'Select a vector store first' : !hasModelQueryPairs ? 'Run First Pass to populate sections first' : 'Allocate markdown content to sections'}
+          >
+            {isSecondPassPending ? (
+              <>
+                <Loader2 className="spinning" size={18} />
+                Allocating...
+              </>
+            ) : (
+              <>
+                <FileText size={18} />
+                Second Pass: Allocate Markdown
+              </>
+            )}
+          </button>
+        </div>
+
+        {/* Status Indicators */}
+        <div className="step-3-structure__pass-status">
+          {selectedVectorStore?.vector_store_id && (
+            <span style={{ color: '#666', fontSize: '0.85rem' }}>
+              Vector Store: {selectedVectorStore.vector_store_id.substring(0, 20)}...
+            </span>
           )}
-        </button>
-        {hasAllocated && (
-          <span style={{ color: 'green', fontSize: '0.9rem', marginLeft: '1rem' }}>
-            ✓ Content allocated successfully
-          </span>
-        )}
+          {firstPassStatus === 'success' && firstPassData && (
+            <span style={{ color: 'green', fontSize: '0.85rem' }}>
+              ✓ First Pass: {firstPassData.summary.total_sections_suggested} sections suggested
+            </span>
+          )}
+          {secondPassStatus === 'success' && secondPassData && (
+            <span style={{ color: 'green', fontSize: '0.85rem' }}>
+              ✓ Second Pass: {secondPassData.summary.allocated_pages} pages allocated
+            </span>
+          )}
+          {hasAllocatedMarkdown && (
+            <span style={{ color: 'green', fontSize: '0.85rem' }}>
+              ✓ Pages have allocated markdown
+            </span>
+          )}
+        </div>
+
+        {/* Legacy Single-Pass Button (for scraped content flow) */}
+        <div style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid #e5e7eb' }}>
+          <button
+            className="btn btn--outline"
+            onClick={handleAllocate}
+            disabled={isAllocating || !sitemapState.pages || sitemapState.pages.length === 0 || sitemapSource === 'allocated'}
+            title="Legacy allocation using scraped content (no vector store needed)"
+          >
+            {isAllocating ? (
+              <>
+                <Loader2 className="spinning" size={18} />
+                Allocating Content...
+              </>
+            ) : (
+              '📋 Legacy: Allocate from Scraped Content'
+            )}
+          </button>
+          {hasAllocated && (
+            <span style={{ color: 'green', fontSize: '0.9rem', marginLeft: '1rem' }}>
+              ✓ Content allocated successfully
+            </span>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -470,7 +682,7 @@ const Step3Structure: React.FC = () => {
     if (selectedGroup && selectedGroup.templates.length > 0) {
       const firstTemplate = selectedGroup.templates[0];
       const jsonString = JSON.stringify(firstTemplate.data);
-      handleTemplateSelect(jsonString, selectedModelGroupKey);
+      sitemapActions.importPagesFromJson(jsonString);
       setSelectorResetTrigger(prev => prev + 1); // Increment to trigger reset
     }
   };
@@ -540,6 +752,7 @@ const Step3Structure: React.FC = () => {
             siteType={backendSiteType}
             scrapedContent={state.scrapedContent}
             onSitemapGenerated={handleRagSitemapGenerated}
+            onVectorStoreSelect={handleVectorStoreSelect}
           />
         </div>
         <div className="step-3-structure__export-import-row">
