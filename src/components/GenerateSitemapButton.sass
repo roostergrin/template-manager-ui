@@ -1,5 +1,7 @@
 .generate-sitemap-button
-  display: inline-flex
+  display: flex
+  flex-direction: column
+  gap: 0.75rem
   position: relative
 
   &__button
@@ -81,6 +83,44 @@
     border-radius: 4px
     font-size: 0.7rem
     white-space: nowrap
+
+  &__strict-mode
+    display: flex
+    align-items: flex-start
+    gap: 0.5rem
+    padding: 0.75rem
+    background: #f8fafc
+    border-radius: 6px
+    border: 1px solid #e2e8f0
+    cursor: pointer
+    transition: all 0.2s
+    flex-wrap: wrap
+
+    &:hover
+      background: #f1f5f9
+      border-color: #cbd5e1
+
+    input[type="checkbox"]
+      margin-top: 0.125rem
+      width: 1rem
+      height: 1rem
+      cursor: pointer
+      accent-color: #3b82f6
+
+      &:disabled
+        cursor: not-allowed
+        opacity: 0.5
+
+  &__strict-mode-label
+    font-weight: 600
+    font-size: 0.875rem
+    color: #1e293b
+
+  &__strict-mode-hint
+    flex-basis: 100%
+    font-size: 0.75rem
+    color: #64748b
+    margin-left: 1.5rem
 
   &__loading-overlay
     position: absolute

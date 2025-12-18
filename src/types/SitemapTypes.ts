@@ -57,6 +57,7 @@ export type ScrapedGenerateSitemapRequest = {
   scraped_content: Record<string, any>;
   site_type: string;
   sitemap?: Record<string, any>;
+  strict_template_mode?: boolean;  // When true, AI follows template sections closely
 };
 
 // Union type for the service - supports both endpoints

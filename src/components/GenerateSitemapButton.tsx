@@ -44,6 +44,7 @@ const GenerateSitemapButton: React.FC<GenerateSitemapButtonProps> = ({
   const hasProcessedCurrentSuccessRef = useRef<boolean>(false);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [savedPath, setSavedPath] = useState<string>('');
+  const [strictTemplateMode, setStrictTemplateMode] = useState(false);
 
   useEffect(() => {
     if (
@@ -110,10 +111,12 @@ const GenerateSitemapButton: React.FC<GenerateSitemapButtonProps> = ({
       }
 
       console.log('🚀 Sending to /generate-sitemap-from-scraped/');
+      console.log(`📐 Strict Template Mode: ${strictTemplateMode}`);
       generateSitemap({
         scraped_content: fullScrapedContent,
         site_type: backendSiteType,
         sitemap: sitemapToSend,
+        strict_template_mode: strictTemplateMode,
       } as any);
     } else {
       // Questionnaire/Markdown mode - send questionnaire data
@@ -124,7 +127,7 @@ const GenerateSitemapButton: React.FC<GenerateSitemapButtonProps> = ({
         use_page_json: false,
       } as any);
     }
-  }, [fullScrapedContent, backendSiteType, allocatedSitemap, currentSitemapPages, questionnaireData, generateSitemap]);
+  }, [fullScrapedContent, backendSiteType, allocatedSitemap, currentSitemapPages, questionnaireData, generateSitemap, strictTemplateMode]);
 
   const pagesCount = generateSitemapData?.sitemap_data
     ? Object.keys((generateSitemapData.sitemap_data as any).pages || {}).length
@@ -132,6 +135,23 @@ const GenerateSitemapButton: React.FC<GenerateSitemapButtonProps> = ({
 
   return (
     <div className="generate-sitemap-button">
+      {/* Strict Template Mode toggle - only show when using scraped content */}
+      {fullScrapedContent && (
+        <label className="generate-sitemap-button__strict-mode">
+          <input
+            type="checkbox"
+            checked={strictTemplateMode}
+            onChange={(e) => setStrictTemplateMode(e.target.checked)}
+            disabled={generateSitemapStatus === 'pending'}
+          />
+          <span className="generate-sitemap-button__strict-mode-label">
+            Strict Template Mode
+          </span>
+          <span className="generate-sitemap-button__strict-mode-hint">
+            Follow template sections closely, only fill in content
+          </span>
+        </label>
+      )}
       <button
         className="generate-sitemap-button__button"
         onClick={handleClick}
