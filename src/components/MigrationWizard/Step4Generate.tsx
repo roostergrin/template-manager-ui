@@ -15,6 +15,7 @@ const Step4Generate: React.FC = () => {
   const [generateContentData, generateContentStatus, generateContentMutation] = useGenerateContentForScraped();
   const [globalContentData, globalContentStatus, generateGlobalMutation] = useGenerateGlobal();
   const [copiedToClipboard, setCopiedToClipboard] = useState(false);
+  const [useSitePool, setUseSitePool] = useState(true);  // Default to site-wide pool for image deduplication
 
   if (!state.scrapedContent) {
     return (
@@ -180,6 +181,7 @@ const Step4Generate: React.FC = () => {
         },
         site_type: backendSiteType,
         assign_images: true,
+        use_site_pool: useSitePool,
       });
 
       actions.setGeneratedContent(result);
@@ -258,6 +260,18 @@ const Step4Generate: React.FC = () => {
           <p>
             📝 Using scraped content as context: <strong>{totalScrapedChars.toLocaleString()}</strong> characters from <strong>{pagesCount + 1}</strong> sources (global + {pagesCount} pages)
           </p>
+        </div>
+        <div className="step-4-generate__options">
+          <label className="checkbox-option">
+            <input
+              type="checkbox"
+              checked={useSitePool}
+              onChange={(e) => setUseSitePool(e.target.checked)}
+            />
+            <span className="checkbox-label">
+              Use site-wide image pool (prevents duplicate images across pages)
+            </span>
+          </label>
         </div>
       </div>
 

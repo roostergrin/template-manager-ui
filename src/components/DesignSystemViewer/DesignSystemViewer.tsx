@@ -7,7 +7,8 @@ import {
   Layers,
   Copy,
   Check,
-  ExternalLink
+  ExternalLink,
+  Download
 } from 'lucide-react';
 import './DesignSystemViewer.sass';
 
@@ -35,10 +36,13 @@ interface DesignSystemComponents {
 
 interface DesignSystemColors {
   primary?: string | null;
+  secondary?: string | null;
   accent?: string | null;
-  background?: string | null;
-  text_primary?: string | null;
-  link?: string | null;
+  text?: string | null;
+  bg_1?: string | null;
+  bg_2?: string | null;
+  topbar_light?: string | null;
+  topbar_dark?: string | null;
 }
 
 interface FontWithCount {
@@ -84,6 +88,7 @@ interface RawColorData {
 
 interface RawExtractedData {
   all_colors?: RawColorData[];
+  brand_colors?: RawColorData[];  // Filtered on-brand colors
   all_fonts?: FontWithCount[];
   button_styles?: Record<string, unknown>;
   typography_sizes?: Record<string, unknown>;
@@ -107,6 +112,127 @@ interface DesignSystemViewerProps {
 
 const DesignSystemViewer: React.FC<DesignSystemViewerProps> = ({ designSystem }) => {
   const [copiedItem, setCopiedItem] = useState<string | null>(null);
+
+  // Helper to convert hex to RGBA format for theme.json
+  const hexToRgba = (hex: string): { red: number; green: number; blue: number; alpha: number } => {
+    const cleanHex = hex.replace('#', '');
+    const fullHex = cleanHex.length === 3
+      ? cleanHex.split('').map(c => c + c).join('')
+      : cleanHex;
+    return {
+      red: parseInt(fullHex.substring(0, 2), 16),
+      green: parseInt(fullHex.substring(2, 4), 16),
+      blue: parseInt(fullHex.substring(4, 6), 16),
+      alpha: 1
+    };
+  };
+
+  // Calculate relative luminance (WCAG formula)
+  const getLuminance = (hex: string): number => {
+    const rgba = hexToRgba(hex);
+    const adjust = (c: number) => {
+      const sRGB = c / 255;
+      return sRGB <= 0.03928 ? sRGB / 12.92 : Math.pow((sRGB + 0.055) / 1.055, 2.4);
+    };
+    return 0.2126 * adjust(rgba.red) + 0.7152 * adjust(rgba.green) + 0.0722 * adjust(rgba.blue);
+  };
+
+  // Calculate contrast ratio between two colors
+  const getContrastRatio = (hex1: string, hex2: string): number => {
+    const l1 = getLuminance(hex1);
+    const l2 = getLuminance(hex2);
+    const lighter = Math.max(l1, l2);
+    const darker = Math.min(l1, l2);
+    return (lighter + 0.05) / (darker + 0.05);
+  };
+
+  // Get accessible text color (white or black) for a background
+  const getAccessibleTextColor = (bgHex: string): { color: string; contrast: number } => {
+    const whiteContrast = getContrastRatio(bgHex, '#ffffff');
+    const blackContrast = getContrastRatio(bgHex, '#000000');
+    return whiteContrast > blackContrast
+      ? { color: '#ffffff', contrast: whiteContrast }
+      : { color: '#000000', contrast: blackContrast };
+  };
+
+  // Get WCAG rating based on contrast ratio
+  const getWcagRating = (contrast: number): { rating: string; class: string } => {
+    if (contrast >= 7) return { rating: 'AAA', class: 'wcag-aaa' };
+    if (contrast >= 4.5) return { rating: 'AA', class: 'wcag-aa' };
+    if (contrast >= 3) return { rating: 'AA Large', class: 'wcag-aa-large' };
+    return { rating: 'Fail', class: 'wcag-fail' };
+  };
+
+  // Format font stack for theme.json
+  const formatFontStack = (fontFamily: string | null | undefined, type: 'body' | 'heading'): string => {
+    const defaultBody = "'Open Sans', helvetica, arial, sans-serif";
+    const defaultHeading = "'Archivo', sans-serif";
+
+    if (!fontFamily) return type === 'body' ? defaultBody : defaultHeading;
+
+    const font = fontFamily.trim();
+    if (font.includes(',')) return font;
+
+    const quotedFont = font.startsWith("'") || font.startsWith('"') ? font : `'${font}'`;
+    return type === 'body'
+      ? `${quotedFont}, helvetica, arial, sans-serif`
+      : `${quotedFont}, sans-serif`;
+  };
+
+  const handleDownloadTheme = () => {
+    const colors = designSystem.colors || {};
+
+    // Helper to build color entry with accessibility info
+    const buildColorEntry = (label: string, hex: string) => {
+      const luminance = getLuminance(hex);
+      const accessibleText = getAccessibleTextColor(hex);
+      const wcag = getWcagRating(accessibleText.contrast);
+      return {
+        label,
+        color: hexToRgba(hex),
+        hex,
+        accessibility: {
+          luminance: Math.round(luminance * 100) / 100,
+          luminancePercent: `${Math.round(luminance * 100)}%`,
+          recommendedTextColor: accessibleText.color,
+          contrastRatio: Math.round(accessibleText.contrast * 100) / 100,
+          wcagRating: wcag.rating
+        }
+      };
+    };
+
+    // Build theme.json structure
+    const themeJson = {
+      default: {
+        colors: [
+          buildColorEntry('primary', colors.primary || '#1c79a0'),
+          buildColorEntry('secondary', colors.secondary || '#13526e'),
+          buildColorEntry('accent', colors.accent || '#ed6a40'),
+          buildColorEntry('text', colors.text || '#272727'),
+          buildColorEntry('bg-1', colors.bg_1 || '#ffffff'),
+          buildColorEntry('bg-2', colors.bg_2 || '#f5f5f5'),
+          buildColorEntry('topbar-light', colors.topbar_light || '#f2f2f2'),
+          buildColorEntry('topbar-dark', colors.topbar_dark || '#1c79a0'),
+        ],
+        typography: [
+          { label: 'font', font: formatFontStack(designSystem.typography?.font_families?.primary, 'body') },
+          { label: 'font-title', font: formatFontStack(designSystem.typography?.font_families?.heading || designSystem.typography?.font_families?.primary, 'heading') },
+        ],
+        logo_url: designSystem.images?.logo || null,
+        favicon_url: designSystem.images?.favicon || null,
+      }
+    };
+
+    const blob = new Blob([JSON.stringify(themeJson, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'theme.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 
   const handleCopy = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
@@ -151,6 +277,19 @@ const DesignSystemViewer: React.FC<DesignSystemViewerProps> = ({ designSystem })
 
   return (
     <div className="design-system-viewer">
+      {/* Download Theme Button */}
+      {hasColors && (
+        <div className="design-system-viewer__actions">
+          <button
+            className="design-system-viewer__download-btn"
+            onClick={handleDownloadTheme}
+          >
+            <Download size={16} />
+            Download theme.json
+          </button>
+        </div>
+      )}
+
       {/* Images Section */}
       {hasImages && (
         <div className="design-system-viewer__section">
@@ -223,23 +362,46 @@ const DesignSystemViewer: React.FC<DesignSystemViewerProps> = ({ designSystem })
         <div className="design-system-viewer__section">
           <div className="design-system-viewer__section-header">
             <Palette size={16} />
-            <h4 className="design-system-viewer__section-title">Colors</h4>
+            <h4 className="design-system-viewer__section-title">Theme Colors</h4>
           </div>
           <div className="design-system-viewer__colors-grid">
             {Object.entries(designSystem.colors || {}).map(([key, value]) => {
-              if (!value) return null;
-              const label = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+              if (!value || !isValidColor(value)) return null;
+              const label = key.replace(/_/g, '-');
               const colorId = `color-${key}`;
+              const luminance = getLuminance(value);
+              const accessibleText = getAccessibleTextColor(value);
+              const wcag = getWcagRating(accessibleText.contrast);
 
               return (
                 <div key={key} className="design-system-viewer__color-item">
                   <div
                     className="design-system-viewer__color-swatch"
-                    style={{ backgroundColor: isValidColor(value) ? value : '#ccc' }}
-                  />
+                    style={{ backgroundColor: value }}
+                  >
+                    <span
+                      className="design-system-viewer__swatch-text"
+                      style={{ color: accessibleText.color }}
+                    >
+                      Aa
+                    </span>
+                  </div>
                   <div className="design-system-viewer__color-info">
                     <span className="design-system-viewer__color-label">{label}</span>
                     <code className="design-system-viewer__color-value">{value}</code>
+                    <div className="design-system-viewer__color-meta">
+                      <span className="design-system-viewer__luminance">
+                        L: {(luminance * 100).toFixed(0)}%
+                      </span>
+                      <span className={`design-system-viewer__wcag ${wcag.class}`}>
+                        {wcag.rating}
+                      </span>
+                      <span
+                        className="design-system-viewer__text-color"
+                        style={{ backgroundColor: accessibleText.color }}
+                        title={`Use ${accessibleText.color === '#ffffff' ? 'white' : 'black'} text (${accessibleText.contrast.toFixed(1)}:1)`}
+                      />
+                    </div>
                   </div>
                   <button
                     className="design-system-viewer__copy-btn"

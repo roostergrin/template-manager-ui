@@ -79,6 +79,11 @@
           "model": "Image Text",
           "query": "Community Involvement info",
           "internal_id": "section-image-text-community-186"
+        },
+        {
+          "model": "Multi Use Banner",
+          "query": "Call to action to get started",
+          "internal_id": "section-186-multi-use-banner-about"
         }
       ]
     },
@@ -156,6 +161,11 @@
           "model": "Image Text",
           "query": "Technology with accordion",
           "internal_id": "section-8-image-text-technology"
+        },
+        {
+          "model": "Multi Use Banner",
+          "query": "Call to action to get started",
+          "internal_id": "section-9-multi-use-banner-treatments"
         }
       ]
     },
@@ -193,6 +203,11 @@
           "model": "Accordion",
           "query": "FAQ questions and answers",
           "internal_id": "section_2_accordion_faq_850"
+        },
+        {
+          "model": "Multi Use Banner",
+          "query": "Call to action to get started",
+          "internal_id": "section-10-multi-use-banner-faq"
         }
       ]
     }

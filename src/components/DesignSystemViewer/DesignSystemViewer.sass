@@ -458,3 +458,204 @@
     border-radius: 3px
     border: 1px solid #dadce0
     font-size: 0.75rem
+
+  // Generate Theme Actions
+  &__actions
+    display: flex
+    gap: 0.75rem
+    padding: 0.75rem
+    background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%)
+    border-radius: 6px
+    border: 1px solid #e0e7ff
+    margin-bottom: 0.5rem
+
+  &__generate-theme-btn
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    padding: 0.625rem 1rem
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)
+    color: white
+    border: none
+    border-radius: 6px
+    font-size: 0.875rem
+    font-weight: 600
+    cursor: pointer
+    transition: all 0.2s ease
+
+    &:hover:not(:disabled)
+      transform: translateY(-1px)
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4)
+
+    &:disabled
+      opacity: 0.7
+      cursor: not-allowed
+
+    svg
+      flex-shrink: 0
+
+  &__download-btn
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    padding: 0.625rem 1rem
+    background: white
+    color: #667eea
+    border: 2px solid #667eea
+    border-radius: 6px
+    font-size: 0.875rem
+    font-weight: 600
+    cursor: pointer
+    transition: all 0.2s ease
+
+    &:hover
+      background: #667eea
+      color: white
+
+    svg
+      flex-shrink: 0
+
+  &__spinner
+    animation: spin 1s linear infinite
+
+  @keyframes spin
+    from
+      transform: rotate(0deg)
+    to
+      transform: rotate(360deg)
+
+  // Generated Theme Section
+  &__section--generated
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)
+    border: 2px solid #7dd3fc
+
+  &__theme-colors
+    display: grid
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr))
+    gap: 0.75rem
+
+  &__theme-color
+    display: flex
+    align-items: center
+    gap: 0.75rem
+    padding: 0.625rem
+    background: white
+    border-radius: 6px
+    border: 1px solid #e0e7ff
+    position: relative
+    transition: border-color 0.15s ease
+
+    &:hover
+      border-color: #667eea
+
+      .design-system-viewer__copy-btn
+        opacity: 1
+
+  &__theme-swatch
+    width: 40px
+    height: 40px
+    border-radius: 6px
+    border: 1px solid rgba(0, 0, 0, 0.1)
+    flex-shrink: 0
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1)
+
+  &__theme-color-info
+    display: flex
+    flex-direction: column
+    gap: 0.25rem
+    flex: 1
+    min-width: 0
+
+  &__theme-label
+    font-size: 0.8125rem
+    font-weight: 600
+    color: #1e293b
+    text-transform: capitalize
+
+  &__theme-hex
+    font-family: 'Roboto Mono', 'Courier New', monospace
+    font-size: 0.75rem
+    color: #64748b
+    background: transparent
+    padding: 0
+
+  &__source-badge
+    display: inline-flex
+    padding: 0.125rem 0.5rem
+    border-radius: 10px
+    font-size: 0.625rem
+    font-weight: 600
+    text-transform: uppercase
+    letter-spacing: 0.3px
+    width: fit-content
+
+    &--website
+      background: #dcfce7
+      color: #15803d
+
+    &--semantic
+      background: #e0e7ff
+      color: #4338ca
+
+    &--generated
+      background: #fef3c7
+      color: #b45309
+
+  &__theme-typography
+    margin-top: 0.75rem
+    padding-top: 0.75rem
+    border-top: 1px dashed #cbd5e1
+
+  &__theme-subsection-title
+    margin: 0 0 0.5rem 0
+    font-size: 0.75rem
+    font-weight: 600
+    color: #64748b
+    text-transform: uppercase
+    letter-spacing: 0.3px
+
+  &__theme-font
+    display: flex
+    align-items: center
+    justify-content: space-between
+    padding: 0.5rem 0.75rem
+    background: white
+    border-radius: 4px
+    border: 1px solid #e2e8f0
+    margin-bottom: 0.375rem
+
+    code
+      font-family: 'Roboto Mono', 'Courier New', monospace
+      font-size: 0.75rem
+      color: #334155
+      flex: 1
+      margin-left: 1rem
+
+  &__theme-images
+    margin-top: 0.75rem
+    padding-top: 0.75rem
+    border-top: 1px dashed #cbd5e1
+
+  &__theme-image
+    display: flex
+    align-items: center
+    gap: 0.75rem
+    padding: 0.5rem
+    background: white
+    border-radius: 4px
+    border: 1px solid #e2e8f0
+    margin-bottom: 0.375rem
+
+    span
+      font-size: 0.75rem
+      font-weight: 500
+      color: #64748b
+
+    img
+      max-height: 40px
+      max-width: 120px
+      object-fit: contain
+
+  &__theme-favicon
+    max-width: 24px !important
+    max-height: 24px !important
