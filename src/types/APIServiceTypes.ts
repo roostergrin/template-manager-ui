@@ -123,10 +123,31 @@ export interface ThemeTypography {
   font: string;
 }
 
+export interface LogoColorEntry {
+  hex: string;
+  luminosity_percent: number;
+  count: number;
+}
+
+export interface LogoColors {
+  colors: LogoColorEntry[];
+  dominant_color: string;
+  avg_luminosity: number;
+  is_light: boolean;
+}
+
+export interface LogoConfig {
+  type: 'svg' | 'url';
+  variant: 'dark' | 'light';
+  url: string | null;
+}
+
 export interface ThemeDefault {
   colors: ThemeColor[];
   typography: ThemeTypography[];
   logo_url?: string | null;
+  logo_config?: LogoConfig | null;
+  logo_colors?: LogoColors | null;
   favicon_url?: string | null;
 }
 

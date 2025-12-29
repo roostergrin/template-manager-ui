@@ -96,6 +96,26 @@ interface RawExtractedData {
   logo_urls?: string[];
 }
 
+// Logo color analysis types
+interface LogoColorEntry {
+  hex: string;
+  luminosity_percent: number;
+  count: number;
+}
+
+interface LogoColors {
+  colors: LogoColorEntry[];
+  dominant_color: string;
+  avg_luminosity: number;
+  is_light: boolean;
+}
+
+interface LogoConfig {
+  type: 'svg' | 'url';
+  variant: 'dark' | 'light';
+  url: string | null;
+}
+
 export interface DesignSystem {
   images?: DesignSystemImages;
   components?: DesignSystemComponents;
@@ -104,6 +124,9 @@ export interface DesignSystem {
   typography?: DesignSystemTypography;
   spacing?: DesignSystemSpacing;
   raw?: RawExtractedData | null;
+  // Logo analysis (from backend /generate-theme/ endpoint)
+  logo_colors?: LogoColors | null;
+  logo_config?: LogoConfig | null;
 }
 
 interface DesignSystemViewerProps {
@@ -179,6 +202,28 @@ const DesignSystemViewer: React.FC<DesignSystemViewerProps> = ({ designSystem })
       : `${quotedFont}, sans-serif`;
   };
 
+  // Determine logo config based on URL (basic client-side detection)
+  // Full color analysis is done on the backend via /generate-theme/ endpoint
+  const determineLogoConfig = (logoUrl: string | null | undefined) => {
+    if (!logoUrl) return null;
+
+    const urlLower = logoUrl.toLowerCase();
+    const isSvg = (
+      urlLower.startsWith('data:image/svg') ||
+      urlLower.endsWith('.svg') ||
+      urlLower.includes('.svg?') ||
+      urlLower.includes('.svg#')
+    );
+
+    // Default to 'dark' variant (most logos are designed for light backgrounds)
+    // Backend analysis will provide accurate variant based on actual color analysis
+    return {
+      type: isSvg ? 'svg' : 'url',
+      variant: 'dark',
+      url: isSvg ? null : logoUrl
+    };
+  };
+
   const handleDownloadTheme = () => {
     const colors = designSystem.colors || {};
 
@@ -201,6 +246,10 @@ const DesignSystemViewer: React.FC<DesignSystemViewerProps> = ({ designSystem })
       };
     };
 
+    const logoUrl = designSystem.images?.logo || null;
+    // Use backend-generated logo_config if available, otherwise use client-side detection
+    const logoConfig = designSystem.logo_config || determineLogoConfig(logoUrl);
+
     // Build theme.json structure
     const themeJson = {
       default: {
@@ -218,7 +267,9 @@ const DesignSystemViewer: React.FC<DesignSystemViewerProps> = ({ designSystem })
           { label: 'font', font: formatFontStack(designSystem.typography?.font_families?.primary, 'body') },
           { label: 'font-title', font: formatFontStack(designSystem.typography?.font_families?.heading || designSystem.typography?.font_families?.primary, 'heading') },
         ],
-        logo_url: designSystem.images?.logo || null,
+        logo_url: logoUrl,
+        logo_config: logoConfig,
+        logo_colors: designSystem.logo_colors || null,
         favicon_url: designSystem.images?.favicon || null,
       }
     };
@@ -266,6 +317,7 @@ const DesignSystemViewer: React.FC<DesignSystemViewerProps> = ({ designSystem })
     (designSystem.raw.all_fonts && designSystem.raw.all_fonts.length > 0) ||
     (designSystem.raw.logo_urls && designSystem.raw.logo_urls.length > 0)
   );
+  const hasLogoAnalysis = designSystem.logo_colors || designSystem.logo_config;
 
   if (!hasImages && !hasColors && !hasTypography && !hasFonts && !hasSpacing && !hasButtons) {
     return (
@@ -354,6 +406,108 @@ const DesignSystemViewer: React.FC<DesignSystemViewerProps> = ({ designSystem })
               </div>
             )}
           </div>
+        </div>
+      )}
+
+      {/* Logo Analysis Section */}
+      {hasLogoAnalysis && (
+        <div className="design-system-viewer__section">
+          <div className="design-system-viewer__section-header">
+            <ImageIcon size={16} />
+            <h4 className="design-system-viewer__section-title">Logo Analysis</h4>
+            {designSystem.logo_config && (
+              <span className={`design-system-viewer__badge design-system-viewer__badge--${designSystem.logo_config.variant}`}>
+                {designSystem.logo_config.variant} variant
+              </span>
+            )}
+          </div>
+
+          {/* Logo Config Summary */}
+          {designSystem.logo_config && (
+            <div className="design-system-viewer__logo-config">
+              <div className="design-system-viewer__logo-config-grid">
+                <div className="design-system-viewer__logo-config-item">
+                  <span className="design-system-viewer__label">Type</span>
+                  <code className="design-system-viewer__value">{designSystem.logo_config.type}</code>
+                </div>
+                <div className="design-system-viewer__logo-config-item">
+                  <span className="design-system-viewer__label">Variant</span>
+                  <code className="design-system-viewer__value">{designSystem.logo_config.variant}</code>
+                </div>
+                <div className="design-system-viewer__logo-config-item">
+                  <span className="design-system-viewer__label">Background Needed</span>
+                  <code className="design-system-viewer__value">
+                    {designSystem.logo_config.variant === 'dark' ? 'Dark background' : 'Light background'}
+                  </code>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Logo Colors Analysis */}
+          {designSystem.logo_colors && (
+            <div className="design-system-viewer__logo-colors">
+              <div className="design-system-viewer__logo-colors-summary">
+                <div className="design-system-viewer__logo-colors-stat">
+                  <span className="design-system-viewer__label">Dominant Color</span>
+                  <div className="design-system-viewer__logo-dominant">
+                    <div
+                      className="design-system-viewer__color-swatch design-system-viewer__color-swatch--small"
+                      style={{ backgroundColor: designSystem.logo_colors.dominant_color }}
+                    />
+                    <code>{designSystem.logo_colors.dominant_color}</code>
+                    <button
+                      className="design-system-viewer__copy-btn"
+                      onClick={() => handleCopy(designSystem.logo_colors!.dominant_color, 'dominant-color')}
+                      title="Copy color"
+                    >
+                      {copiedItem === 'dominant-color' ? <Check size={10} /> : <Copy size={10} />}
+                    </button>
+                  </div>
+                </div>
+                <div className="design-system-viewer__logo-colors-stat">
+                  <span className="design-system-viewer__label">Avg Luminosity</span>
+                  <div className="design-system-viewer__luminosity-bar">
+                    <div
+                      className="design-system-viewer__luminosity-fill"
+                      style={{ width: `${designSystem.logo_colors.avg_luminosity}%` }}
+                    />
+                    <span className="design-system-viewer__luminosity-value">
+                      {designSystem.logo_colors.avg_luminosity.toFixed(1)}%
+                    </span>
+                  </div>
+                </div>
+                <div className="design-system-viewer__logo-colors-stat">
+                  <span className="design-system-viewer__label">Classification</span>
+                  <span className={`design-system-viewer__classification design-system-viewer__classification--${designSystem.logo_colors.is_light ? 'light' : 'dark'}`}>
+                    {designSystem.logo_colors.is_light ? 'Light/Bright Logo' : 'Dark Logo'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Color Palette */}
+              <div className="design-system-viewer__logo-palette">
+                <span className="design-system-viewer__label">Extracted Colors</span>
+                <div className="design-system-viewer__logo-colors-grid">
+                  {designSystem.logo_colors.colors.slice(0, 8).map((color, index) => (
+                    <div key={index} className="design-system-viewer__logo-color-item">
+                      <div
+                        className="design-system-viewer__color-swatch design-system-viewer__color-swatch--small"
+                        style={{ backgroundColor: color.hex }}
+                        title={`${color.hex} - L: ${color.luminosity_percent}%`}
+                      />
+                      <div className="design-system-viewer__logo-color-info">
+                        <code>{color.hex}</code>
+                        <span className="design-system-viewer__logo-color-meta">
+                          L: {color.luminosity_percent}%
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -670,7 +824,7 @@ const DesignSystemViewer: React.FC<DesignSystemViewerProps> = ({ designSystem })
                   All Colors ({designSystem.raw.all_colors.length})
                 </h5>
                 <div className="design-system-viewer__raw-colors">
-                  {designSystem.raw.all_colors.slice(0, 20).map((colorData, index) => (
+                  {designSystem.raw.all_colors.map((colorData, index) => (
                     <div key={index} className="design-system-viewer__raw-color">
                       <div
                         className="design-system-viewer__raw-swatch"

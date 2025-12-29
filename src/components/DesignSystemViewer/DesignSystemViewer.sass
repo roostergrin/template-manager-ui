@@ -301,6 +301,164 @@
     font-weight: 600
     margin-left: auto
 
+    &--dark
+      background: #1e293b
+      color: #f8fafc
+
+    &--light
+      background: #fef3c7
+      color: #b45309
+
+  // Logo Analysis Section
+  &__logo-config
+    margin-bottom: 0.75rem
+
+  &__logo-config-grid
+    display: grid
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr))
+    gap: 0.5rem
+
+  &__logo-config-item
+    display: flex
+    flex-direction: column
+    gap: 0.25rem
+    padding: 0.5rem 0.75rem
+    background: white
+    border-radius: 4px
+    border: 1px solid #dadce0
+
+    code
+      font-family: 'Roboto Mono', 'Courier New', monospace
+      font-size: 0.8125rem
+      color: #202124
+      font-weight: 600
+
+  &__logo-colors
+    display: flex
+    flex-direction: column
+    gap: 0.75rem
+
+  &__logo-colors-summary
+    display: grid
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr))
+    gap: 0.75rem
+
+  &__logo-colors-stat
+    display: flex
+    flex-direction: column
+    gap: 0.375rem
+    padding: 0.625rem 0.75rem
+    background: white
+    border-radius: 6px
+    border: 1px solid #dadce0
+
+  &__logo-dominant
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    position: relative
+
+    code
+      font-family: 'Roboto Mono', 'Courier New', monospace
+      font-size: 0.875rem
+      color: #202124
+      font-weight: 600
+
+  &__luminosity-bar
+    position: relative
+    height: 24px
+    background: linear-gradient(90deg, #1e293b 0%, #f8fafc 100%)
+    border-radius: 4px
+    border: 1px solid #dadce0
+    overflow: hidden
+
+  &__luminosity-fill
+    position: absolute
+    top: 0
+    left: 0
+    height: 100%
+    background: rgba(102, 126, 234, 0.3)
+    border-right: 2px solid #667eea
+
+  &__luminosity-value
+    position: absolute
+    top: 50%
+    left: 50%
+    transform: translate(-50%, -50%)
+    font-size: 0.75rem
+    font-weight: 600
+    color: #202124
+    text-shadow: 0 0 4px white, 0 0 4px white
+
+  &__classification
+    display: inline-flex
+    align-items: center
+    padding: 0.375rem 0.75rem
+    border-radius: 4px
+    font-size: 0.8125rem
+    font-weight: 600
+    width: fit-content
+
+    &--light
+      background: #fef3c7
+      color: #b45309
+      border: 1px solid #fcd34d
+
+    &--dark
+      background: #1e293b
+      color: #f8fafc
+      border: 1px solid #475569
+
+  &__logo-palette
+    display: flex
+    flex-direction: column
+    gap: 0.5rem
+    padding-top: 0.5rem
+    border-top: 1px dashed #e8eaed
+
+  &__logo-colors-grid
+    display: grid
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr))
+    gap: 0.5rem
+
+  &__logo-color-item
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    padding: 0.375rem 0.5rem
+    background: white
+    border-radius: 4px
+    border: 1px solid #dadce0
+
+    &:hover
+      border-color: #80868b
+
+  &__color-swatch--small
+    width: 24px
+    height: 24px
+    border-radius: 4px
+    border: 1px solid rgba(0, 0, 0, 0.1)
+    flex-shrink: 0
+
+  &__logo-color-info
+    display: flex
+    flex-direction: column
+    gap: 0.125rem
+
+    code
+      font-family: 'Roboto Mono', 'Courier New', monospace
+      font-size: 0.6875rem
+      color: #202124
+
+  &__logo-color-meta
+    font-size: 0.625rem
+    color: #5f6368
+
+  &__value
+    font-family: 'Roboto Mono', 'Courier New', monospace
+    font-size: 0.8125rem
+    color: #202124
+
   // Font stacks
   &__font-stacks
     display: flex
