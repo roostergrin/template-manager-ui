@@ -21,17 +21,17 @@
         },
         {
           "model": "Image Text",
-          "query": "Trust and care message with buttons",
+          "query": "Meet the Doctor details",
           "internal_id": "section-4-image-text"
         },
         {
           "model": "Block Masonary Grid",
-          "query": "Treatment options overview",
+          "query": "Treatment options overview: Max 4",
           "internal_id": "section-5-block-masonary-grid"
         },
         {
           "model": "Multi Item Testimonial",
-          "query": "Client testimonials and reviews",
+          "query": "Client testimonials 'a'nd reviews",
           "internal_id": "section-6-multi-item-testimonial"
         },
         {
@@ -108,7 +108,7 @@
         },
         {
           "model": "Image Text",
-          "query": "Health History Forms with buttons",
+          "query": "Health History Forms with PDF download URLs, patient intake form links, online form submission endpoints",
           "internal_id": "section-4-image-text-health-history"
         },
         {
@@ -185,7 +185,7 @@
         },
         {
           "model": "Form",
-          "query": "Contact form for inquiries",
+          "query": "Contact form",
           "internal_id": "section_form_contact_268"
         }
       ]

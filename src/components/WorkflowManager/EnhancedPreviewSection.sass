@@ -101,7 +101,26 @@
           padding: 4px 8px
           border-radius: 12px
           align-self: flex-start
-          
+
+        .image-count
+          font-size: 12px
+          background: #e2e3e5
+          color: #383d41
+          padding: 4px 8px
+          border-radius: 12px
+          align-self: flex-start
+          display: flex
+          align-items: center
+          gap: 8px
+
+          .preserved-badge
+            background: #d4edda
+            color: #155724
+            padding: 2px 6px
+            border-radius: 8px
+            font-weight: 600
+            font-size: 10px
+
         .component-types
           display: flex
           flex-wrap: wrap
@@ -192,6 +211,86 @@
                 max-height: 200px
                 overflow-y: auto
                 
+            .images-preview
+              margin-bottom: 20px
+              padding: 16px
+              background: #f8f9fa
+              border-radius: 8px
+              border: 1px solid #e9ecef
+
+              strong
+                color: #495057
+                display: block
+                margin-bottom: 12px
+
+              .images-grid
+                display: grid
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr))
+                gap: 12px
+
+                .image-preview-item
+                  background: white
+                  border: 2px solid #e9ecef
+                  border-radius: 8px
+                  overflow: hidden
+                  transition: all 0.2s ease
+
+                  &:hover
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1)
+
+                  &.preserved
+                    border-color: #28a745
+                    background: #f0fff4
+
+                  .image-thumbnail
+                    position: relative
+                    aspect-ratio: 1
+                    overflow: hidden
+
+                    img
+                      width: 100%
+                      height: 100%
+                      object-fit: cover
+
+                    .preserve-overlay
+                      position: absolute
+                      top: 0
+                      left: 0
+                      right: 0
+                      bottom: 0
+                      background: rgba(40, 167, 69, 0.15)
+                      display: flex
+                      align-items: center
+                      justify-content: center
+
+                      .preserve-icon
+                        font-size: 24px
+                        background: rgba(255, 255, 255, 0.9)
+                        padding: 4px 8px
+                        border-radius: 4px
+
+                  .image-info
+                    padding: 8px
+                    display: flex
+                    flex-direction: column
+                    gap: 4px
+
+                    .image-component
+                      font-size: 10px
+                      color: #6c757d
+                      white-space: nowrap
+                      overflow: hidden
+                      text-overflow: ellipsis
+
+                    .preserve-label
+                      font-size: 9px
+                      background: #28a745
+                      color: white
+                      padding: 2px 6px
+                      border-radius: 4px
+                      align-self: flex-start
+                      font-weight: 600
+
             .sections-preview
               strong
                 color: #495057

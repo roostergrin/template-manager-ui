@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Loader2, CheckCircle, Download, Copy, Check, Sparkles } from 'lucide-react';
 import { useMigrationWizard } from '../../contexts/MigrationWizardProvider';
 import { useSitemap } from '../../contexts/SitemapProvider';
@@ -6,7 +6,19 @@ import { useAppConfig } from '../../contexts/AppConfigProvider';
 import useGenerateContentForScraped from '../../hooks/useGenerateContentForScraped';
 import useGenerateGlobal from '../../hooks/useGenerateGlobal';
 import { getBackendSiteTypeForModelGroup } from '../../utils/modelGroupKeyToBackendSiteType';
+import { sanitizePracticeContext, getSanitizationStats } from '../../utils/sanitizePracticeContext';
 import './Step4Generate.sass';
+
+const formatElapsedTime = (ms: number): string => {
+  const seconds = Math.floor(ms / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+
+  if (minutes > 0) {
+    return `${minutes}m ${remainingSeconds}s`;
+  }
+  return `${seconds}.${Math.floor((ms % 1000) / 100)}s`;
+};
 
 const Step4Generate: React.FC = () => {
   const { state, actions } = useMigrationWizard();
@@ -16,6 +28,42 @@ const Step4Generate: React.FC = () => {
   const [globalContentData, globalContentStatus, generateGlobalMutation] = useGenerateGlobal();
   const [copiedToClipboard, setCopiedToClipboard] = useState(false);
   const [useSitePool, setUseSitePool] = useState(true);  // Default to site-wide pool for image deduplication
+  const [startTime, setStartTime] = useState<number | null>(null);
+  const [elapsedTime, setElapsedTime] = useState<number>(0);
+  const [globalStartTime, setGlobalStartTime] = useState<number | null>(null);
+  const [globalElapsedTime, setGlobalElapsedTime] = useState<number>(0);
+
+  // Update elapsed time while content generation is in progress
+  useEffect(() => {
+    let intervalId: ReturnType<typeof setInterval> | null = null;
+
+    if (generateContentStatus === 'pending' && startTime) {
+      setElapsedTime(Date.now() - startTime);
+      intervalId = setInterval(() => {
+        setElapsedTime(Date.now() - startTime);
+      }, 100);
+    }
+
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [generateContentStatus, startTime]);
+
+  // Update elapsed time while global generation is in progress
+  useEffect(() => {
+    let intervalId: ReturnType<typeof setInterval> | null = null;
+
+    if (globalContentStatus === 'pending' && globalStartTime) {
+      setGlobalElapsedTime(Date.now() - globalStartTime);
+      intervalId = setInterval(() => {
+        setGlobalElapsedTime(Date.now() - globalStartTime);
+      }, 100);
+    }
+
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [globalContentStatus, globalStartTime]);
 
   if (!state.scrapedContent) {
     return (
@@ -45,6 +93,8 @@ const Step4Generate: React.FC = () => {
   const pagesCount = Object.keys(scrapedPages).length;
 
   const handleGenerate = async () => {
+    setStartTime(Date.now());
+    setElapsedTime(0);
     try {
       // Check if we have allocated sitemap (with allocated_markdown per page)
       // Priority: Use sitemap state (current) if it has allocated data, otherwise fall back to cached allocated sitemap
@@ -81,7 +131,7 @@ const Step4Generate: React.FC = () => {
 
       // Combine global_markdown and all page markdowns into a single context string
       // (This is only used as fallback if no allocated sitemap)
-      const allMarkdown = [
+      const rawMarkdown = [
         '# Global Content',
         state.scrapedContent.global_markdown,
         '\n# Pages',
@@ -90,10 +140,16 @@ const Step4Generate: React.FC = () => {
         )
       ].join('\n\n');
 
+      // Sanitize the markdown to remove noise (SVG data URIs, Google Maps tiles, etc.)
+      const allMarkdown = sanitizePracticeContext(rawMarkdown);
+      const sanitizationStats = getSanitizationStats(rawMarkdown, allMarkdown);
+
       console.log('🔍 Scraped content being sent to backend:');
       console.log('- Global markdown length:', state.scrapedContent.global_markdown.length, 'characters');
       console.log('- Number of pages:', Object.keys(state.scrapedContent.pages).length);
-      console.log('- Total combined markdown length:', allMarkdown.length, 'characters');
+      console.log('- Raw combined markdown length:', rawMarkdown.length, 'characters');
+      console.log('- Sanitized markdown length:', allMarkdown.length, 'characters');
+      console.log(`- Removed ${sanitizationStats.removedChars} chars (${sanitizationStats.removedPercent}% reduction)`);
 
       // Convert scraped markdown content to questionnaire data format
       // The backend expects questionnaire data, so we put all scraped content in practiceDetails
@@ -209,12 +265,19 @@ const Step4Generate: React.FC = () => {
   };
 
   const handleGenerateGlobal = async () => {
+    setGlobalStartTime(Date.now());
+    setGlobalElapsedTime(0);
     try {
+      // Sanitize global markdown to remove noise (SVG data URIs, map tiles, etc.)
+      const sanitizedGlobalMarkdown = state.scrapedContent
+        ? sanitizePracticeContext(state.scrapedContent.global_markdown)
+        : '';
+
       await generateGlobalMutation({
         sitemap_data: {
           pages: sitemapState.pages,
           questionnaireData: state.scrapedContent ? {
-            practiceDetails: state.scrapedContent.global_markdown,
+            practiceDetails: sanitizedGlobalMarkdown,
             _isScrapedContent: true,
             _domain: state.scrapedContent.domain,
           } : {},
@@ -319,7 +382,7 @@ const Step4Generate: React.FC = () => {
           <div className="step-4-generate__success">
             <div className="success-message">
               <CheckCircle size={24} className="success-icon" />
-              <p>Content generated successfully!</p>
+              <p>Content generated successfully!{elapsedTime > 0 && <span className="success-time"> ({formatElapsedTime(elapsedTime)})</span>}</p>
             </div>
             <div className="action-buttons">
               <button className="btn btn--primary" onClick={handleGenerate} disabled={isGenerating}>
@@ -350,6 +413,9 @@ const Step4Generate: React.FC = () => {
           <Loader2 className="progress-spinner spinning" size={48} />
           <p>Generating content from your scraped data and sitemap structure...</p>
           <p className="progress-note">This may take a minute or two.</p>
+          {elapsedTime > 0 && (
+            <p className="progress-timer">Elapsed: {formatElapsedTime(elapsedTime)}</p>
+          )}
         </div>
       )}
 
@@ -358,6 +424,9 @@ const Step4Generate: React.FC = () => {
           <Loader2 className="progress-spinner spinning" size={48} />
           <p>Generating global content (header, footer, contact info)...</p>
           <p className="progress-note">This may take a moment.</p>
+          {globalElapsedTime > 0 && (
+            <p className="progress-timer">Elapsed: {formatElapsedTime(globalElapsedTime)}</p>
+          )}
         </div>
       )}
 
@@ -365,7 +434,7 @@ const Step4Generate: React.FC = () => {
         <div className="step-4-generate__success">
           <div className="success-message">
             <CheckCircle size={24} className="success-icon" />
-            <p>Global content generated successfully!</p>
+            <p>Global content generated successfully!{globalElapsedTime > 0 && <span className="success-time"> ({formatElapsedTime(globalElapsedTime)})</span>}</p>
           </div>
           <div className="step-4-generate__preview">
             <h4>Global Content Preview</h4>

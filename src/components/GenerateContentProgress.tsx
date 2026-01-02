@@ -28,6 +28,8 @@ const GenerateContentProgress: React.FC<GenerateContentProgressProps> = ({
   const [shouldFetch, setShouldFetch] = useState(false);
   const [isStarted, setIsStarted] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [startTime, setStartTime] = useState<number | null>(null);
+  const [elapsedTime, setElapsedTime] = useState<number>(0);
   const [, githubStatus, updateGithub] = useUpdateGithubRepoDataFiles();
   const [createRepoData, createRepoStatus, createRepo] = useCreateGithubRepoFromTemplate();
   const [newRepoName, setNewRepoName] = useState("");
@@ -133,6 +135,8 @@ const GenerateContentProgress: React.FC<GenerateContentProgressProps> = ({
   const handleGenerateContent = useCallback(() => {
     setShouldFetch(false);
     setIsStarted(true);
+    setStartTime(Date.now());
+    setElapsedTime(0);
     setPagesContent(null);
     setGlobalContent(null);
     setDownloadUrlPages(null);
@@ -216,6 +220,27 @@ const GenerateContentProgress: React.FC<GenerateContentProgressProps> = ({
     }
   }, [isStarted, pagesStatus, globalStatus]);
 
+  // Update elapsed time while generation is in progress
+  useEffect(() => {
+    let intervalId: ReturnType<typeof setInterval> | null = null;
+
+    if (isStarted && startTime) {
+      // Update immediately
+      setElapsedTime(Date.now() - startTime);
+
+      // Then update every 100ms for smooth display
+      intervalId = setInterval(() => {
+        setElapsedTime(Date.now() - startTime);
+      }, 100);
+    }
+
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [isStarted, startTime]);
+
   const handleUseRgTemplateAssetsChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     setUseRgTemplateAssets(event.target.checked);
   }, []);
@@ -254,6 +279,7 @@ const GenerateContentProgress: React.FC<GenerateContentProgressProps> = ({
           isStarted={isStarted}
           contentStatus={isStarted ? pagesStatus : "idle"}
           globalStatus={isStarted ? globalStatus : "idle"}
+          elapsedTime={elapsedTime}
         />
         <ContentPreviewSection
           pagesContent={pagesContent}
