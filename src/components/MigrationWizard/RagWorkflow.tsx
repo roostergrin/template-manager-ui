@@ -29,6 +29,8 @@ interface RagWorkflowProps {
   scrapedContent?: Record<string, any>;
   onSitemapGenerated?: (sitemapData: Record<string, any>, savedPath: string) => void;
   onVectorStoreSelect?: (vectorStore: VectorStore | null) => void;
+  externalVectorStore?: VectorStore | null;
+  hideVectorStoreStep?: boolean;
 }
 
 type WorkflowStep = 'vector-store' | 'information-architecture' | 'generate';
@@ -39,9 +41,20 @@ const RagWorkflow: React.FC<RagWorkflowProps> = ({
   scrapedContent,
   onSitemapGenerated,
   onVectorStoreSelect,
+  externalVectorStore,
+  hideVectorStoreStep = false,
 }) => {
-  const [currentStep, setCurrentStep] = useState<WorkflowStep>('vector-store');
-  const [selectedVectorStore, setSelectedVectorStore] = useState<VectorStore | null>(null);
+  // If external vector store is provided or hideVectorStoreStep is true, start at IA step
+  const initialStep: WorkflowStep = (externalVectorStore || hideVectorStoreStep) ? 'information-architecture' : 'vector-store';
+  const [currentStep, setCurrentStep] = useState<WorkflowStep>(initialStep);
+  const [selectedVectorStore, setSelectedVectorStore] = useState<VectorStore | null>(externalVectorStore || null);
+
+  // Update selected vector store when external one changes
+  useEffect(() => {
+    if (externalVectorStore) {
+      setSelectedVectorStore(externalVectorStore);
+    }
+  }, [externalVectorStore]);
   const [editedHierarchy, setEditedHierarchy] = useState<HierarchyPageNode[]>([]);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [showStructureView, setShowStructureView] = useState<'ui' | 'json'>('ui');
@@ -214,20 +227,28 @@ const RagWorkflow: React.FC<RagWorkflowProps> = ({
 
   const hasScrapedContent = scrapedContent && Object.keys(scrapedContent.pages || {}).length > 0;
 
+  // Determine step numbering based on whether vector store step is hidden
+  const iaStepNumber = hideVectorStoreStep ? 1 : 2;
+  const generateStepNumber = hideVectorStoreStep ? 2 : 3;
+
   return (
     <div className="rag-workflow">
       {/* Step indicators */}
       <div className="rag-workflow__steps">
-        <div
-          className={`rag-workflow__step ${currentStep === 'vector-store' ? 'active' : ''} ${selectedVectorStore ? 'completed' : ''}`}
-          onClick={() => setCurrentStep('vector-store')}
-        >
-          <div className="rag-workflow__step-icon">
-            {selectedVectorStore ? <Check size={14} /> : <Database size={14} />}
-          </div>
-          <span>1. Vector Store</span>
-        </div>
-        <ChevronRight size={16} className="rag-workflow__step-arrow" />
+        {!hideVectorStoreStep && (
+          <>
+            <div
+              className={`rag-workflow__step ${currentStep === 'vector-store' ? 'active' : ''} ${selectedVectorStore ? 'completed' : ''}`}
+              onClick={() => setCurrentStep('vector-store')}
+            >
+              <div className="rag-workflow__step-icon">
+                {selectedVectorStore ? <Check size={14} /> : <Database size={14} />}
+              </div>
+              <span>1. Vector Store</span>
+            </div>
+            <ChevronRight size={16} className="rag-workflow__step-arrow" />
+          </>
+        )}
         <div
           className={`rag-workflow__step ${currentStep === 'information-architecture' ? 'active' : ''} ${editedHierarchy.length > 0 ? 'completed' : ''}`}
           onClick={() => selectedVectorStore && setCurrentStep('information-architecture')}
@@ -235,7 +256,7 @@ const RagWorkflow: React.FC<RagWorkflowProps> = ({
           <div className="rag-workflow__step-icon">
             {editedHierarchy.length > 0 ? <Check size={14} /> : <GitBranch size={14} />}
           </div>
-          <span>2. Page Structure</span>
+          <span>{iaStepNumber}. Page Structure</span>
         </div>
         <ChevronRight size={16} className="rag-workflow__step-arrow" />
         <div
@@ -245,14 +266,14 @@ const RagWorkflow: React.FC<RagWorkflowProps> = ({
           <div className="rag-workflow__step-icon">
             <Sparkles size={14} />
           </div>
-          <span>3. Generate</span>
+          <span>{generateStepNumber}. Generate</span>
         </div>
       </div>
 
       {/* Step content */}
       <div className="rag-workflow__content">
-        {/* Step 1: Vector Store Selection */}
-        {currentStep === 'vector-store' && (
+        {/* Step 1: Vector Store Selection (hidden when hideVectorStoreStep is true) */}
+        {!hideVectorStoreStep && currentStep === 'vector-store' && (
           <div className="rag-workflow__panel">
             <h4 className="rag-workflow__panel-title">Select or Create Vector Store</h4>
             <p className="rag-workflow__panel-description">

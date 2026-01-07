@@ -1,0 +1,33 @@
+.step3-container
+  &__tabs
+    display: flex
+    gap: 0
+    border-bottom: 2px solid #e2e8f0
+    margin-bottom: 1.5rem
+
+  &__tab
+    padding: 0.75rem 1.5rem
+    background: transparent
+    border: none
+    border-bottom: 2px solid transparent
+    margin-bottom: -2px
+    cursor: pointer
+    font-size: 0.9375rem
+    font-weight: 500
+    color: #64748b
+    transition: all 0.2s ease
+
+    &:hover
+      color: #334155
+      background: #f8fafc
+
+    &--active
+      color: #3b82f6
+      border-bottom-color: #3b82f6
+      background: transparent
+
+      &:hover
+        background: transparent
+
+  &__content
+    // Content area for the active tab

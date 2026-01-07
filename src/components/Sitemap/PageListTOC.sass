@@ -376,6 +376,28 @@
     opacity: 1
     color: #3b82f6
 
+// Preserve image toggle
+.page-list-toc__preserve-image-toggle
+  background: transparent
+  border: none
+  font-size: 12px
+  cursor: pointer
+  padding: 4px
+  line-height: 1
+  border-radius: 3px
+  transition: all 0.15s ease
+  opacity: 0.4
+  filter: grayscale(100%)
+
+  &:hover
+    opacity: 0.8
+    transform: scale(1.2)
+    filter: grayscale(0%)
+
+  &--active
+    opacity: 1
+    filter: grayscale(0%)
+
 // Dropdown - Google Sheets style
 .page-list-toc__dropdown
   position: absolute

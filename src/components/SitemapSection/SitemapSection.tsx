@@ -44,10 +44,10 @@ const SitemapSection: React.FC<SitemapSectionProps> = ({
   };
 
   // Edit item function
-  const editItem = (itemId: string, newModel: string, newQuery: string, useDefault?: boolean) => {
+  const editItem = (itemId: string, newModel: string, newQuery: string, useDefault?: boolean, preserve_image?: boolean) => {
     onItemsChange(
       items.map(item =>
-        item.id === itemId ? { ...item, model: newModel, query: newQuery, useDefault } : item
+        item.id === itemId ? { ...item, model: newModel, query: newQuery, useDefault, preserve_image } : item
       )
     );
   };

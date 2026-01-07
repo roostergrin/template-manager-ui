@@ -48,6 +48,7 @@ interface SitemapContextActions {
     query: string;
     internal_id: string;
     use_default?: boolean;
+    preserve_image?: boolean;
   }>) => void
 
   // Page selection

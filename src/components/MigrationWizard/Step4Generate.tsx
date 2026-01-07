@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Loader2, CheckCircle, Download, Copy, Check, Sparkles } from 'lucide-react';
 import { useMigrationWizard } from '../../contexts/MigrationWizardProvider';
 import { useSitemap } from '../../contexts/SitemapProvider';
@@ -7,6 +7,7 @@ import useGenerateContentForScraped from '../../hooks/useGenerateContentForScrap
 import useGenerateGlobal from '../../hooks/useGenerateGlobal';
 import { getBackendSiteTypeForModelGroup } from '../../utils/modelGroupKeyToBackendSiteType';
 import { sanitizePracticeContext, getSanitizationStats } from '../../utils/sanitizePracticeContext';
+import { createPreserveImageMap, injectPreserveImageIntoContent, PreserveImageMap } from '../../utils/injectPreserveImage';
 import './Step4Generate.sass';
 
 const formatElapsedTime = (ms: number): string => {
@@ -32,6 +33,10 @@ const Step4Generate: React.FC = () => {
   const [elapsedTime, setElapsedTime] = useState<number>(0);
   const [globalStartTime, setGlobalStartTime] = useState<number | null>(null);
   const [globalElapsedTime, setGlobalElapsedTime] = useState<number>(0);
+  const [processedContentData, setProcessedContentData] = useState<any>(null);
+
+  // Ref to store preserve_image values from sitemap before generation
+  const preserveImageMapRef = useRef<PreserveImageMap>(new Map());
 
   // Update elapsed time while content generation is in progress
   useEffect(() => {
@@ -95,6 +100,39 @@ const Step4Generate: React.FC = () => {
   const handleGenerate = async () => {
     setStartTime(Date.now());
     setElapsedTime(0);
+
+    // Store preserve_image values from sitemap before generation
+    console.log('📸 === PRESERVE_IMAGE DEBUG (Step4Generate) ===');
+    const pagesArray = Array.isArray(sitemapState.pages) ? sitemapState.pages : Object.values(sitemapState.pages);
+    console.log('📸 Sitemap pages count:', pagesArray.length);
+    pagesArray.forEach((page: any, pageIdx: number) => {
+      console.log(`📸 Page[${pageIdx}]: title="${page.title}"`);
+      const items = page.items || page.model_query_pairs || [];
+      items.forEach((item: any, itemIdx: number) => {
+        console.log(`📸   Item[${itemIdx}]: model="${item.model}" preserve_image=${item.preserve_image}`);
+      });
+    });
+
+    // Convert sitemap pages to the format expected by createPreserveImageMap
+    const sitemapPagesForMap = pagesArray.map((page: any) => ({
+      id: page.id || page.internal_id,
+      title: page.title,
+      wordpress_id: page.wordpress_id || page.page_id,
+      items: (page.items || page.model_query_pairs || []).map((item: any) => ({
+        id: item.id || item.internal_id,
+        model: item.model,
+        query: item.query,
+        preserve_image: item.preserve_image,
+      })),
+    }));
+    preserveImageMapRef.current = createPreserveImageMap(sitemapPagesForMap);
+
+    console.log('📸 PreserveImageMap created with', preserveImageMapRef.current.size, 'pages');
+    for (const [pageKey, itemMap] of preserveImageMapRef.current.entries()) {
+      console.log(`📸 Stored preserve_image for "${pageKey}":`, Array.from(itemMap.entries()));
+    }
+    console.log('📸 === END PRESERVE_IMAGE DEBUG ===');
+
     try {
       // Check if we have allocated sitemap (with allocated_markdown per page)
       // Priority: Use sitemap state (current) if it has allocated data, otherwise fall back to cached allocated sitemap
@@ -240,15 +278,37 @@ const Step4Generate: React.FC = () => {
         use_site_pool: useSitePool,
       });
 
-      actions.setGeneratedContent(result);
+      // Inject preserve_image from sitemap into generated content
+      console.log('📸 Injecting preserve_image into generated content...');
+      const pagesData = (result as any)?.pages || result;
+      const pagesWithPreserveImage = injectPreserveImageIntoContent(pagesData, preserveImageMapRef.current);
+
+      // Log what was injected
+      for (const [pageKey, components] of Object.entries(pagesWithPreserveImage)) {
+        if (Array.isArray(components)) {
+          components.forEach((comp: any, idx: number) => {
+            if (comp.preserve_image) {
+              console.log(`📸 Injected preserve_image=true for "${pageKey}" component ${idx} (${comp.acf_fc_layout || 'unknown'})`);
+            }
+          });
+        }
+      }
+
+      // Wrap back in pages if original had that structure
+      const finalResult = (result as any)?.pages ? { ...result, pages: pagesWithPreserveImage } : pagesWithPreserveImage;
+
+      // Store the processed content for display/download (with preserve_image injected)
+      setProcessedContentData(finalResult);
+      actions.setGeneratedContent(finalResult);
     } catch (error) {
       console.error('Content generation failed:', error);
     }
   };
 
   const handleDownload = () => {
-    if (!generateContentData) return;
-    const blob = new Blob([JSON.stringify(generateContentData, null, 2)], { type: 'application/json' });
+    const dataToDownload = processedContentData || generateContentData;
+    if (!dataToDownload) return;
+    const blob = new Blob([JSON.stringify(dataToDownload, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -258,8 +318,9 @@ const Step4Generate: React.FC = () => {
   };
 
   const handleCopy = () => {
-    if (!generateContentData) return;
-    navigator.clipboard.writeText(JSON.stringify(generateContentData, null, 2));
+    const dataToCopy = processedContentData || generateContentData;
+    if (!dataToCopy) return;
+    navigator.clipboard.writeText(JSON.stringify(dataToCopy, null, 2));
     setCopiedToClipboard(true);
     setTimeout(() => setCopiedToClipboard(false), 2000);
   };
@@ -448,12 +509,12 @@ const Step4Generate: React.FC = () => {
         </div>
       )}
 
-      {hasGenerated && generateContentData && (
+      {hasGenerated && (processedContentData || generateContentData) && (
         <div className="step-4-generate__preview">
           <h4>Generated Content Preview</h4>
           <textarea
             className="content-preview"
-            value={JSON.stringify(generateContentData, null, 2)}
+            value={JSON.stringify(processedContentData || generateContentData, null, 2)}
             readOnly
             rows={12}
           />

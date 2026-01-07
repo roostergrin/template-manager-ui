@@ -14,6 +14,7 @@ interface RagPageData {
     query: string;
     internal_id: string;
     use_default?: boolean;
+    preserve_image?: boolean;
   }>;
   allocated_markdown?: string;
   allocation_confidence?: number;
@@ -52,6 +53,7 @@ export function flattenSitemapPages(
       model: pair.model,
       query: pair.query,
       useDefault: pair.use_default || false,
+      preserve_image: pair.preserve_image,
     }));
 
     // Create the flattened page

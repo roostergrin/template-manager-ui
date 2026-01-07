@@ -88,6 +88,10 @@ const SectionRow: React.FC<SectionRowProps> = ({
     onUpdateItem(item.id, { useDefault: !item.useDefault });
   };
 
+  const handleTogglePreserveImage = () => {
+    onUpdateItem(item.id, { preserve_image: !item.preserve_image });
+  };
+
   const handleQueryChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     onUpdateItem(item.id, { query: e.target.value });
   };
@@ -149,6 +153,15 @@ const SectionRow: React.FC<SectionRowProps> = ({
           title={item.useDefault ? 'Using default content' : 'Using custom content'}
         >
           {item.useDefault ? '●' : '○'}
+        </button>
+        <button
+          className={`page-list-toc__preserve-image-toggle ${item.preserve_image ? 'page-list-toc__preserve-image-toggle--active' : ''}`}
+          onClick={handleTogglePreserveImage}
+          aria-label={item.preserve_image ? 'Disable preserve image' : 'Enable preserve image'}
+          tabIndex={0}
+          title={item.preserve_image ? 'Preserve image ON' : 'Preserve image OFF'}
+        >
+          📷
         </button>
         <button
           className="page-list-toc__duplicate"
@@ -284,7 +297,8 @@ const PageListTOCItem: React.FC<PageListTOCItemProps> = ({ page, index, isExpand
             model: item.model,
             query: item.query,
             internal_id: item.id,
-            use_default: item.useDefault
+            use_default: item.useDefault,
+            preserve_image: item.preserve_image
           })),
           // Include allocated markdown if exists
           ...(page.allocated_markdown && { allocated_markdown: page.allocated_markdown }),
@@ -310,6 +324,9 @@ const PageListTOCItem: React.FC<PageListTOCItemProps> = ({ page, index, isExpand
     } as any);
   };
 
+  // Store original preserve_image values before generation
+  const originalPreserveImageMapRef = useRef<Map<string, boolean>>(new Map());
+
   // Handle response from sitemap generation
   useEffect(() => {
     if (generateSitemapStatus === 'success' && generateSitemapData?.sitemap_data && isGenerating) {
@@ -325,12 +342,18 @@ const PageListTOCItem: React.FC<PageListTOCItemProps> = ({ page, index, isExpand
           console.log('📝 Updating page sections with generated data');
 
           // Convert generated sections back to SitemapItem format
-          const updatedItems: SitemapItem[] = generatedPage.model_query_pairs.map((item: any) => ({
-            model: item.model,
-            query: item.query,
-            id: item.internal_id || `item-${Date.now()}-${Math.random()}`,
-            useDefault: item.use_default
-          }));
+          // Restore preserve_image from original items if not in generated data
+          const updatedItems: SitemapItem[] = generatedPage.model_query_pairs.map((item: any) => {
+            const itemId = item.internal_id || `item-${Date.now()}-${Math.random()}`;
+            const preserveImage = item.preserve_image ?? originalPreserveImageMapRef.current.get(itemId);
+            return {
+              model: item.model,
+              query: item.query,
+              id: itemId,
+              useDefault: item.use_default,
+              preserve_image: preserveImage
+            };
+          });
 
           // Update the page with generated sections
           actions.updatePageItems(page.id, updatedItems);
@@ -351,7 +374,18 @@ const PageListTOCItem: React.FC<PageListTOCItemProps> = ({ page, index, isExpand
       setGenerateError('Failed to generate page sections');
       setIsGenerating(false);
     }
-  }, [generateSitemapStatus, generateSitemapData, isGenerating, page.title, page.id, actions]);
+
+    // Store preserve_image values when generation starts
+    if (generateSitemapStatus === 'pending' && isGenerating) {
+      originalPreserveImageMapRef.current.clear();
+      page.items.forEach(item => {
+        if (item.preserve_image !== undefined) {
+          originalPreserveImageMapRef.current.set(item.id, item.preserve_image);
+        }
+      });
+      console.log('📸 Stored preserve_image values for', originalPreserveImageMapRef.current.size, 'items');
+    }
+  }, [generateSitemapStatus, generateSitemapData, isGenerating, page.title, page.id, page.items, actions]);
 
   const itemIds = page.items.map(item => item.id);
 

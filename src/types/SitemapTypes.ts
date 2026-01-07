@@ -4,6 +4,8 @@ export interface SitemapItem {
   id: string;
   // When true, instructs backend to use default content for this component
   useDefault?: boolean;
+  // When true, preserves the original scraped image for this component
+  preserve_image?: boolean;
 }
 
 export interface SitemapSection {

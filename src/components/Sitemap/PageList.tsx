@@ -47,7 +47,7 @@ const PageList: React.FC<PageListProps> = ({
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
-  const { pages, sitemapSource } = state;
+  const { pages } = state;
   const { addPage } = actions;
 
   // Auto-load the most recent sitemap if none is loaded
@@ -219,7 +219,7 @@ const PageList: React.FC<PageListProps> = ({
   }, [actions, findPageByItemId, pages]);
 
   // Show loading state while attempting auto-load
-  if (!sitemapSource && !hasAttemptedAutoLoad) {
+  if (!state.sitemapSource && !hasAttemptedAutoLoad) {
     return (
       <div className="text-center py-8 text-gray-500">
         <p>Loading sitemap...</p>
@@ -227,8 +227,8 @@ const PageList: React.FC<PageListProps> = ({
     );
   }
 
-  // Show empty state only if no sitemap exists at all after auto-load attempt
-  if (!sitemapSource || pages.length === 0) {
+  // Show empty state only if no pages exist after auto-load attempt
+  if (pages.length === 0) {
     return (
       <div className="text-center py-8 text-gray-500">
         <p>No sitemaps available. Generate your first sitemap to get started.</p>

@@ -22,7 +22,8 @@
         {
           "model": "Image Text",
           "query": "Meet the Doctor details, include doctor photo/headshot URL",
-          "internal_id": "section-4-image-text"
+          "internal_id": "section-4-image-text",
+          "preserve_image": true
         },
         {
           "model": "Block Masonary Grid",
@@ -63,12 +64,14 @@
         {
           "model": "Tabs",
           "query": "Meet the Doctor details, include doctor photo/headshot URL",
-          "internal_id": "section-tabs-meet-doctor-186"
+          "internal_id": "section-tabs-meet-doctor-186",
+          "preserve_image": true
         },
         {
           "model": "Block Grid",
           "query": "Meet the Team profiles",
-          "internal_id": "section-block-grid-meet-team-186"
+          "internal_id": "section-block-grid-meet-team-186",
+          "preserve_image": true
         },
         {
           "model": "Single Image Slider",

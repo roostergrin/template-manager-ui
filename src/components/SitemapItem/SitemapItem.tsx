@@ -13,7 +13,7 @@ interface SitemapItemProps {
   showDeleteButton: boolean;
   showItemNumber: boolean;
   isCompactMode?: boolean;
-  onEdit: (itemId: string, newModel: string, newQuery: string, useDefault?: boolean) => void;
+  onEdit: (itemId: string, newModel: string, newQuery: string, useDefault?: boolean, preserve_image?: boolean) => void;
   onRemove: (itemId: string) => void;
   containerId?: string;
 }
@@ -36,7 +36,7 @@ const SitemapItem: React.FC<SitemapItemProps> = ({
 
   const handleKeyPress = (e: React.KeyboardEvent, itemId: string, newModel: string, newQuery: string) => {
     if (e.key === 'Enter') {
-      onEdit(itemId, newModel, newQuery, item.useDefault);
+      onEdit(itemId, newModel, newQuery, item.useDefault, item.preserve_image);
     }
   };
 
@@ -49,12 +49,22 @@ const SitemapItem: React.FC<SitemapItemProps> = ({
       <div className="sitemap-item__left-controls" aria-label="Item controls">
         <button
           className={`sitemap-item__default-toggle ${item.useDefault ? 'sitemap-item__default-toggle--active' : ''}`}
-          onClick={() => onEdit(item.id, item.model, item.query, !item.useDefault)}
+          onClick={() => onEdit(item.id, item.model, item.query, !item.useDefault, item.preserve_image)}
           aria-pressed={!!item.useDefault}
           aria-label="Use defaults for this component"
           tabIndex={0}
         >
           D
+        </button>
+        <button
+          className={`sitemap-item__preserve-image-toggle ${item.preserve_image ? 'sitemap-item__preserve-image-toggle--active' : ''}`}
+          onClick={() => onEdit(item.id, item.model, item.query, item.useDefault, !item.preserve_image)}
+          aria-pressed={!!item.preserve_image}
+          aria-label="Preserve original scraped image"
+          title={item.preserve_image ? "Preserve image ON - click to disable" : "Preserve image OFF - click to enable"}
+          tabIndex={0}
+        >
+          📷
         </button>
         <button
           className="sitemap-item__handle"
@@ -73,7 +83,7 @@ const SitemapItem: React.FC<SitemapItemProps> = ({
           <select
             className="sitemap-item__select"
             value={item.model}
-            onChange={(e) => onEdit(item.id, e.target.value, item.query, item.useDefault)}
+            onChange={(e) => onEdit(item.id, e.target.value, item.query, item.useDefault, item.preserve_image)}
             aria-label="Model selector"
           >
             {models.map(model => (
@@ -85,7 +95,7 @@ const SitemapItem: React.FC<SitemapItemProps> = ({
           <textarea
             className="sitemap-item__input"
             value={item.query}
-            onChange={(e) => onEdit(item.id, item.model, e.target.value, item.useDefault)}
+            onChange={(e) => onEdit(item.id, item.model, e.target.value, item.useDefault, item.preserve_image)}
             onKeyPress={(e) => handleKeyPress(e, item.id, item.model, e.currentTarget.value)}
             rows={2}
             aria-label="Query input"

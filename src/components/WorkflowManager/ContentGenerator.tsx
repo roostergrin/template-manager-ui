@@ -6,6 +6,7 @@ import { generateGlobalQueryFunction } from '../../services/generateGlobalServic
 import { GenerateContentRequest } from '../../types/APIServiceTypes';
 import { getEffectiveQuestionnaireData, isMarkdownData } from '../../utils/questionnaireDataUtils';
 import { getBackendSiteTypeForModelGroup } from '../../utils/modelGroupKeyToBackendSiteType';
+import { createPreserveImageMap, injectPreserveImageIntoContent, PreserveImageMap } from '../../utils/injectPreserveImage';
 import { useQuestionnaire } from '../../contexts/QuestionnaireProvider';
 import { useSitemap } from '../../contexts/SitemapProvider';
 import { useAppConfig } from '../../contexts/AppConfigProvider';
@@ -31,6 +32,9 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
   // Ref to track if parent has been notified for current content (prevents infinite loop)
   const hasNotifiedParentRef = useRef(false);
 
+  // Ref to store preserve_image values from sitemap when generation starts
+  const preserveImageMapRef = useRef<PreserveImageMap>(new Map());
+
   const queryClient = useQueryClient();
 
   // Use contexts instead of props
@@ -47,6 +51,31 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
 
   // Get the effective questionnaire data (memoized to avoid identity changes)
   const effectiveQuestionnaireData = useMemo(() => getEffectiveQuestionnaireData(questionnaireData), [questionnaireData]);
+
+  // Helper function to inject preserve_image from stored ref into generated content
+  const injectPreserveImage = useCallback((generatedContent: Record<string, any>): Record<string, any> => {
+    console.log('📸 Starting preserve_image injection. Stored pages:', Array.from(preserveImageMapRef.current.keys()));
+
+    // Log details for debugging
+    for (const [pageKey, itemMap] of preserveImageMapRef.current.entries()) {
+      console.log(`📸 Page "${pageKey}" has preserve_image at indices:`, Array.from(itemMap.entries()));
+    }
+
+    const result = injectPreserveImageIntoContent(generatedContent, preserveImageMapRef.current);
+
+    // Log what was injected
+    for (const [pageKey, components] of Object.entries(result)) {
+      if (Array.isArray(components)) {
+        components.forEach((comp: any, idx: number) => {
+          if (comp.preserve_image) {
+            console.log(`📸 Injected preserve_image=true for "${pageKey}" component ${idx} (${comp.acf_fc_layout || 'unknown'})`);
+          }
+        });
+      }
+    }
+
+    return result;
+  }, []);
 
   // File upload handlers
   const validateContentStructure = useCallback((content: any, type: 'pages' | 'global'): string | null => {
@@ -191,11 +220,14 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
       console.log('✅ Setting pages content (extracted from API response):', Object.keys(actualPagesData));
       console.log('🔍 Raw API response keys:', Object.keys(pagesData));
       console.log('🔍 Extracted pages data keys:', Object.keys(actualPagesData));
-      setPagesContent(actualPagesData);
+
+      // Inject preserve_image from sitemap into generated content
+      const pagesWithPreserveImage = injectPreserveImage(actualPagesData);
+      setPagesContent(pagesWithPreserveImage);
     } else {
       console.log('❌ Not setting pages content - status:', pagesStatus, 'data:', !!pagesData);
     }
-  }, [pagesStatus, pagesData]);
+  }, [pagesStatus, pagesData, injectPreserveImage]);
 
   useEffect(() => {
     console.log('🌐 Global useEffect FIRED - Status:', globalStatus, 'Data present:', !!globalData, 'Generate Global:', generateGlobal);
@@ -238,14 +270,51 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
 
   const handleGenerateContent = useCallback(() => {
     console.log('🚀 Starting content generation...');
-    
+
     // Invalidate existing queries to force fresh requests
     queryClient.invalidateQueries({ queryKey: ['generate-content'] });
     if (generateGlobal) {
       queryClient.invalidateQueries({ queryKey: ['generate-global'] });
     }
     console.log('🧹 Invalidated React Query cache');
-    
+
+    // Store preserve_image values from current sitemap before generation
+    // Log the raw sitemap pages for debugging
+    console.log('📸 === PRESERVE_IMAGE DEBUG START ===');
+    console.log('📸 Raw sitemap pages count:', pages.length);
+    pages.forEach((page, pageIdx) => {
+      console.log(`📸 Page[${pageIdx}]: title="${page.title}" id="${page.id}" wordpress_id="${page.wordpress_id}"`);
+      console.log(`📸   Items count: ${page.items.length}`);
+      page.items.forEach((item, itemIdx) => {
+        console.log(`📸   Item[${itemIdx}]: model="${item.model}" preserve_image=${item.preserve_image} (type: ${typeof item.preserve_image})`);
+      });
+    });
+
+    // Convert sitemap pages to the format expected by createPreserveImageMap
+    const sitemapPagesForMap = pages.map(page => ({
+      id: page.id,
+      title: page.title,
+      wordpress_id: page.wordpress_id,
+      items: page.items.map(item => ({
+        id: item.id,
+        model: item.model,
+        query: item.query,
+        preserve_image: item.preserve_image,
+      })),
+    }));
+
+    preserveImageMapRef.current = createPreserveImageMap(sitemapPagesForMap);
+
+    // Log what was stored for debugging
+    console.log('📸 After createPreserveImageMap - Total pages with preserve_image:', preserveImageMapRef.current.size);
+    if (preserveImageMapRef.current.size === 0) {
+      console.log('📸 WARNING: No preserve_image values were stored!');
+    }
+    for (const [pageKey, itemMap] of preserveImageMapRef.current.entries()) {
+      console.log(`📸 Stored preserve_image for "${pageKey}":`, Array.from(itemMap.entries()));
+    }
+    console.log('📸 === PRESERVE_IMAGE DEBUG END ===');
+
     // Capture stable snapshot of the request
     const snapshot: GenerateContentRequest = {
       sitemap_data: {
@@ -262,7 +331,7 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({
     setPagesContent(null);
     setGlobalContent(null);
     updateTaskStatus('planning', 'contentGeneration', 'in-progress');
-    
+
     console.log('🧹 Clearing previous content states');
   }, [queryClient, pages, effectiveQuestionnaireData, siteType, useRgTemplateAssets, generateGlobal, updateTaskStatus]);
 

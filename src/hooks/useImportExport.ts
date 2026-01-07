@@ -23,6 +23,7 @@ const useImportExport = () => {
           query: item.query,
           id: item.id,
           useDefault: Boolean(item.useDefault),
+          preserve_image: item.preserve_image,
         })),
         // RAG allocation fields - only include if present
         ...(page.allocated_markdown && { allocated_markdown: page.allocated_markdown }),

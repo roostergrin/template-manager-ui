@@ -23,6 +23,7 @@ const mapImportedPages = (pagesObj: Record<string, any> | any[], fullSitemapJson
         query: item.query,
         id: item.id || item.internal_id,
         useDefault: Boolean(item.useDefault || item.use_default),
+        preserve_image: item.preserve_image,
       })),
       // Preserve all optional fields
       ...(page.allocated_markdown && { allocated_markdown: page.allocated_markdown }),
@@ -96,6 +97,7 @@ const mapImportedPages = (pagesObj: Record<string, any> | any[], fullSitemapJson
         query: item.query,
         id: item.internal_id,
         useDefault: Boolean(item.use_default),
+        preserve_image: item.preserve_image,
       })),
       // Preserve allocation fields if they exist
       ...(allocated_markdown && { allocated_markdown }),
