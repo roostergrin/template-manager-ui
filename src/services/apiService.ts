@@ -1,5 +1,6 @@
 import axios, { AxiosHeaders, AxiosInstance, AxiosRequestConfig } from 'axios';
 import { createAPIError, handleAPIResponse, logAPIError, APIError } from './apiErrorHandler';
+import { mockApiHandler } from '../mocks/mockApiClient';
 
 export interface APIClientConfig {
   baseURL?: string;
@@ -163,12 +164,33 @@ class APIClient {
 
   async post<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> {
     try {
+      // Check if mock mode is enabled - return mock data if available
+      const mockResult = await mockApiHandler<T>(url, data);
+      if (mockResult !== null) {
+        return mockResult;
+      }
+
       // For specific long-running operations, use extended timeout
       const extendedTimeoutConfig = this.getExtendedTimeoutConfig(url, config);
       const response = await this.instance.post<T>(url, data, extendedTimeoutConfig);
       return handleAPIResponse(response);
     } catch (error) {
       throw createAPIError(error, `POST ${url} failed`);
+    }
+  }
+
+  async postForm<T>(url: string, formData: FormData, config?: AxiosRequestConfig): Promise<T> {
+    try {
+      const response = await this.instance.post<T>(url, formData, {
+        ...config,
+        headers: {
+          ...config?.headers,
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return handleAPIResponse(response);
+    } catch (error) {
+      throw createAPIError(error, `POST (form) ${url} failed`);
     }
   }
 
@@ -217,6 +239,12 @@ class APIClient {
 
   async delete<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
     try {
+      // Check if mock mode is enabled - return mock data if available
+      const mockResult = await mockApiHandler<T>(url, config?.data);
+      if (mockResult !== null) {
+        return mockResult;
+      }
+
       const response = await this.instance.delete<T>(url, config);
       return handleAPIResponse(response);
     } catch (error) {
