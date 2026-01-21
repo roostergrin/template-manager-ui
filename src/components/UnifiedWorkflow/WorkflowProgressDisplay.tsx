@@ -21,6 +21,7 @@ import {
   Map,
   Download,
   Edit3,
+  RotateCw,
 } from 'lucide-react';
 import { useUnifiedWorkflow } from '../../contexts/UnifiedWorkflowProvider';
 import { WorkflowStep, WorkflowStepStatus, WorkflowProgressEvent } from '../../types/UnifiedWorkflowTypes';
@@ -270,17 +271,28 @@ const StepItem: React.FC<StepItemProps> = ({
         </div>
 
         <div className="workflow-progress__step-actions">
-          {/* Download button for completed steps - always visible */}
+          {/* Download and Retry buttons for completed steps - always visible */}
           {step.status === 'completed' && step.result && (
-            <button
-              type="button"
-              className="workflow-progress__step-action workflow-progress__step-action--download"
-              onClick={handleDownloadClick}
-              aria-label={`Download ${step.name} result`}
-              title="Download JSON"
-            >
-              <Download size={14} />
-            </button>
+            <>
+              <button
+                type="button"
+                className="workflow-progress__step-action workflow-progress__step-action--download"
+                onClick={handleDownloadClick}
+                aria-label={`Download ${step.name} result`}
+                title="Download JSON"
+              >
+                <Download size={14} />
+              </button>
+              <button
+                type="button"
+                className="workflow-progress__step-action workflow-progress__step-action--retry"
+                onClick={handleRetryClick}
+                aria-label={`Retry ${step.name}`}
+                title="Retry with same parameters"
+              >
+                <RotateCw size={14} />
+              </button>
+            </>
           )}
 
           {/* Manual mode actions */}

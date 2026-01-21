@@ -32,6 +32,9 @@ import {
   ImageSlot,
   ImageAgentResponse,
 } from '../utils/jsonImageAnalyzer';
+import { buildThemeFromDesignSystem, mergeThemeWithDesignSystem } from '../utils/themeBuilder';
+import { isMockModeEnabled } from '../mocks';
+import { createPreserveImageMap, injectPreserveImageIntoContent } from '../utils/injectPreserveImage';
 
 interface StepResult {
   success: boolean;
@@ -109,6 +112,110 @@ export const useWorkflowStepRunner = () => {
     console.log('[DEBUG] setGeneratedDataWithRef - ref updated, keys:', Object.keys(generatedDataRef.current));
     actions.setGeneratedData(key as keyof typeof state.generatedData, data);
   }, [actions]);
+
+  // Session ID for grouping workflow logs (generated once per workflow run)
+  const sessionIdRef = useRef<string | null>(null);
+
+  // Helper to get or create session ID
+  const getSessionId = useCallback(() => {
+    if (!sessionIdRef.current) {
+      sessionIdRef.current = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+    }
+    return sessionIdRef.current;
+  }, []);
+
+  // Helper to download JSON file
+  const downloadJson = useCallback((data: unknown, filename: string) => {
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, []);
+
+  // Helper to save step result to backend and download
+  const saveAndDownloadStepResult = useCallback(async (
+    stepId: string,
+    stepName: string,
+    result: unknown,
+    durationMs: number,
+    status: string
+  ) => {
+    const domain = state.config.siteConfig.domain;
+    if (!domain) return;
+
+    const sessionId = getSessionId();
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+    const domainSlug = domain.replace(/\./g, '-');
+
+    // Auto-download the step result
+    const filename = `${stepId}_${domainSlug}_${timestamp}.json`;
+    downloadJson(result, filename);
+    console.log(`[Workflow] Auto-downloaded: ${filename}`);
+
+    // Skip backend save in mock mode
+    if (isMockModeEnabled()) {
+      console.log(`%c[MOCK] Skipping backend save for: ${filename}`, 'color: #9333EA; font-weight: bold');
+      return;
+    }
+
+    // Save to backend
+    try {
+      // Validate required fields before sending to prevent 422 errors
+      if (!stepId || !stepName) {
+        console.warn('[Workflow] Skipping backend save - missing stepId or stepName');
+        return;
+      }
+
+      // Ensure result is serializable with fallback for undefined/circular references
+      let serializedResult: string;
+      try {
+        serializedResult = JSON.stringify(result ?? { error: 'No result data' });
+      } catch (serializeError) {
+        console.warn('[Workflow] Could not serialize result, using error placeholder');
+        serializedResult = JSON.stringify({ error: 'Result serialization failed' });
+      }
+
+      const formData = new FormData();
+      formData.append('domain', domain);
+      formData.append('step_id', stepId);
+      formData.append('step_name', stepName);
+      formData.append('result', serializedResult);
+      formData.append('session_id', sessionId);
+      formData.append('duration_ms', String(durationMs ?? 0));
+      formData.append('status', status || 'unknown');
+
+      // Build URL properly - use same default as apiService
+      const baseUrl = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/').replace(/\/$/, '');
+
+      // Get API key from environment (same as apiService)
+      const apiKey = import.meta.env.VITE_INTERNAL_API_KEY || import.meta.env.VITE_INTERNAL_API_TOKEN || '';
+
+      const headers: Record<string, string> = {};
+      if (apiKey) {
+        headers['X-API-Key'] = apiKey.split(',')[0]?.trim() || '';
+      }
+
+      const response = await fetch(`${baseUrl}/workflow-logs/save-step/`, {
+        method: 'POST',
+        body: formData,
+        headers,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log(`[Workflow] Saved to backend: ${data.saved_to}`);
+      } else {
+        console.error('[Workflow] Failed to save to backend:', response.statusText);
+      }
+    } catch (error) {
+      console.error('[Workflow] Error saving to backend:', error);
+    }
+  }, [state.config.siteConfig.domain, getSessionId, downloadJson]);
 
   // Helper to execute a step with proper status management and logging
   const executeStepWithStatus = useCallback(async (
@@ -190,6 +297,11 @@ export const useWorkflowStepRunner = () => {
           durationMs: totalDuration,
           dataFileRef: stepToDataKey[stepId],
         });
+
+        // Auto-save to backend and download
+        if (result.data) {
+          saveAndDownloadStepResult(stepId, step.name, result.data, totalDuration, 'completed');
+        }
       } else {
         // Log error
         const errorDetails = logger.logError(result.error, { data: result.data });
@@ -209,6 +321,11 @@ export const useWorkflowStepRunner = () => {
           event: 'error',
           durationMs: totalDuration,
         });
+
+        // Save error result to backend (no download for errors)
+        if (result.data || result.error) {
+          saveAndDownloadStepResult(stepId, step.name, { error: result.error, data: result.data }, totalDuration, 'error');
+        }
       }
 
       return result;
@@ -237,7 +354,7 @@ export const useWorkflowStepRunner = () => {
 
       return { success: false, error: errorMessage, details: errorDetails };
     }
-  }, [state.steps, state.config.siteConfig, actions]);
+  }, [state.steps, state.config.siteConfig, actions, saveAndDownloadStepResult]);
 
   // Step executors for each workflow step
   const runCreateGithubRepo = useCallback(async (logger: StepLogger): Promise<StepResult> => {
@@ -312,7 +429,7 @@ export const useWorkflowStepRunner = () => {
       bucket_name: siteConfig.domain.replace(/\./g, '-'),
       github_owner: 'roostergrin',
       github_repo: siteConfig.domain.replace(/\./g, '-'),
-      github_branch: 'main',
+      github_branch: 'master',
       page_type: 'template',
     };
 
@@ -354,6 +471,19 @@ export const useWorkflowStepRunner = () => {
       logger.logApiResponse(response, apiTimer.elapsed());
       console.log('[DEBUG] runScrapeSite - storing scrapeResult:', response);
       console.log('[DEBUG] runScrapeSite - response.pages:', response?.pages ? 'present' : 'missing');
+
+      // Check for empty scrape results (no pages found)
+      const hasPages = response?.pages && Object.keys(response.pages).length > 0;
+      if (!hasPages) {
+        logger.logProcessing('WARNING: Scrape returned no pages');
+        setGeneratedDataWithRef('scrapeResult', response);
+        return {
+          success: false,
+          error: 'EMPTY_SCRAPE: No pages found in scrape results',
+          data: response,
+        };
+      }
+
       setGeneratedDataWithRef('scrapeResult', response);
       console.log('[DEBUG] runScrapeSite - after store, generatedDataRef keys:', Object.keys(generatedDataRef.current));
       return { success: isResponseSuccessful(response as Record<string, unknown>), data: response };
@@ -424,8 +554,9 @@ export const useWorkflowStepRunner = () => {
   const runGenerateSitemap = useCallback(async (logger: StepLogger): Promise<StepResult> => {
     const { siteConfig } = state.config;
     const scrapeResult = getGeneratedData<ScrapeStepResult>('scrapeResult');
+    const allocatedSitemap = getGeneratedData<AllocatedSitemapResult>('allocatedSitemap');
 
-    // Always generate sitemap from scraped content with strict template mode
+    // Generate sitemap from scraped content, including allocated content if available
     try {
       let response: SitemapStepResult;
       let endpoint: string;
@@ -435,6 +566,35 @@ export const useWorkflowStepRunner = () => {
         // Generate from scraped content with strict template mode
         // Backend expects full scrape structure with nested 'pages' key
         endpoint = '/generate-sitemap-from-scraped/';
+
+        // Build sitemap structure from allocatedSitemap if available
+        // This mirrors how MigrationWizard's Step3Standard.tsx handles it
+        let sitemapToSend: Record<string, unknown> | undefined;
+
+        if (allocatedSitemap?.pages) {
+          logger.logProcessing('Including allocated sitemap in generate-sitemap request');
+          const pagesObject: Record<string, unknown> = {};
+
+          Object.entries(allocatedSitemap.pages).forEach(([pageTitle, pageData]) => {
+            pagesObject[pageTitle] = {
+              internal_id: pageData.page_id,
+              page_id: pageData.page_id,
+              title: pageData.title,
+              model_query_pairs: pageData.model_query_pairs || [],
+              allocated_markdown: pageData.allocated_markdown,
+              source_location: pageData.source_location,
+              allocation_confidence: pageData.allocation_confidence,
+            };
+          });
+
+          sitemapToSend = {
+            pages: pagesObject,
+            siteType: siteConfig.siteType,
+          };
+
+          logger.logProcessing(`Built sitemap with ${Object.keys(pagesObject).length} pages containing allocated content`);
+        }
+
         payload = {
           scraped_content: {
             pages: scrapeResult.pages,
@@ -443,6 +603,7 @@ export const useWorkflowStepRunner = () => {
           },
           site_type: siteConfig.siteType,
           strict_template_mode: true,
+          ...(sitemapToSend && { sitemap: sitemapToSend }),
         };
       } else {
         // Generate from RAG/template
@@ -552,83 +713,161 @@ export const useWorkflowStepRunner = () => {
     const sitemapResult = getGeneratedData<SitemapStepResult>('sitemapResult');
     const allocatedSitemap = getGeneratedData<AllocatedSitemapResult>('allocatedSitemap');
 
-    // Prefer allocated sitemap if available, but merge preserve_image from sitemapResult
-    let pages = allocatedSitemap?.pages || sitemapResult?.pages;
+    // Use sitemapResult as primary source (it now contains allocated content + preserve_image)
+    // Note: sitemapResult has structure {sitemap_data: {pages: ...}, saved_path: ...}
+    // Fall back to allocatedSitemap if generate-sitemap was skipped
+    const sitemapPages = sitemapResult?.sitemap_data?.pages || sitemapResult?.pages;
+    const pages = sitemapPages || allocatedSitemap?.pages;
 
     if (!pages) {
       return { success: false, error: 'No sitemap data available' };
     }
 
-    // If we have both allocated sitemap and sitemap result, merge preserve_image from sitemapResult
-    // The sitemapResult from /generate-sitemap-from-scraped/ has the correct preserve_image values
-    if (allocatedSitemap?.pages && sitemapResult?.pages) {
-      logger.logProcessing('Merging preserve_image from generated sitemap into allocated sitemap');
-      const mergedPages: Record<string, unknown> = {};
-
-      Object.entries(allocatedSitemap.pages).forEach(([pageKey, allocatedPage]) => {
-        const sitemapPage = sitemapResult.pages[pageKey] as Record<string, unknown> | undefined;
-        const allocatedPageData = allocatedPage as Record<string, unknown>;
-
-        // Start with allocated page data
-        const mergedPage: Record<string, unknown> = { ...allocatedPageData };
-
-        // If sitemap result has model_query_pairs for this page, merge preserve_image values
-        if (sitemapPage?.model_query_pairs && allocatedPageData.model_query_pairs) {
-          const sitemapPairs = sitemapPage.model_query_pairs as Array<Record<string, unknown>>;
-          const allocatedPairs = allocatedPageData.model_query_pairs as Array<Record<string, unknown>>;
-
-          // Merge preserve_image from sitemap pairs into allocated pairs
-          const mergedPairs = allocatedPairs.map((allocatedPair, index) => {
-            const sitemapPair = sitemapPairs[index];
-            if (sitemapPair && 'preserve_image' in sitemapPair) {
-              return { ...allocatedPair, preserve_image: sitemapPair.preserve_image };
-            }
-            return allocatedPair;
-          });
-
-          mergedPage.model_query_pairs = mergedPairs;
-        }
-
-        mergedPages[pageKey] = mergedPage;
-      });
-
-      pages = mergedPages;
+    // Log which source we're using
+    if (sitemapPages) {
+      logger.logProcessing('Using sitemapResult as primary source (contains allocated content + preserve_image)');
+      // Debug: log sample page to verify preserve_image is present
+      const samplePage = Object.values(pages)[0] as Record<string, unknown>;
+      if (samplePage?.model_query_pairs) {
+        const pairs = samplePage.model_query_pairs as Array<Record<string, unknown>>;
+        logger.logProcessing(`Sample page has ${pairs.length} model_query_pairs, first preserve_image: ${pairs[0]?.preserve_image}`);
+      }
+    } else if (allocatedSitemap?.pages) {
+      logger.logProcessing('Using allocatedSitemap as fallback (generate-sitemap may have been skipped)');
     }
 
-    // Build questionnaire data from allocated content if available
+    // Build questionnaire data from pages (allocated_markdown is now in pages from sitemapResult)
     const questionnaireData: Record<string, unknown> = {};
-    if (allocatedSitemap?.pages) {
-      Object.entries(allocatedSitemap.pages).forEach(([pageId, page]) => {
-        if (page.allocated_markdown) {
-          questionnaireData[pageId] = {
-            allocated_markdown: page.allocated_markdown,
-            source_location: page.source_location,
-            allocation_confidence: page.allocation_confidence,
-          };
-        }
-      });
-    }
+    const pagesForQuestionnaire = pages as Record<string, unknown>;
+    Object.entries(pagesForQuestionnaire).forEach(([pageId, page]) => {
+      const pageData = page as Record<string, unknown>;
+      if (pageData.allocated_markdown) {
+        questionnaireData[pageId] = {
+          allocated_markdown: pageData.allocated_markdown,
+          source_location: pageData.source_location,
+          allocation_confidence: pageData.allocation_confidence,
+        };
+      }
+    });
 
-    const endpoint = '/generate-content/';
-    const payload = {
+    // Build sitemap_metadata from pages (depth, slug, parent_slug)
+    // This ensures the backend returns proper sitemap_metadata in the response
+    const sitemap_metadata: Record<string, { depth: number; slug?: string; parent_slug?: string }> = {};
+    const pagesRecord = pages as Record<string, unknown>;
+    Object.entries(pagesRecord).forEach(([pageTitle, pageData], index) => {
+      const pageObj = pageData as Record<string, unknown>;
+      // Generate slug from page title (lowercase, replace spaces with hyphens)
+      const slug = pageTitle.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+
+      // Extract depth from page data if available, otherwise use 0 for top-level
+      const depth = typeof pageObj?.depth === 'number' ? pageObj.depth : 0;
+      const parentSlug = typeof pageObj?.parent_slug === 'string' ? pageObj.parent_slug : undefined;
+
+      sitemap_metadata[pageTitle] = {
+        depth,
+        slug: slug || `page-${index}`,
+        ...(parentSlug && { parent_slug: parentSlug }),
+      };
+    });
+
+    logger.logProcessing(`Built sitemap_metadata for ${Object.keys(sitemap_metadata).length} pages`);
+
+    const contentEndpoint = '/generate-content-for-scraped/';
+    const contentPayload = {
       sitemap_data: {
         pages,
         questionnaireData,
+        sitemap_metadata,
       },
       site_type: siteConfig.siteType,
-      assign_images: true,
+      assign_images: false,  // Disabled - image assignment handled by separate image-picker step
       use_site_pool: true,
     };
 
+    const globalEndpoint = '/generate-global/';
+    // Get scraped content to pass global_markdown and social_links for extraction
+    const scrapeResult = getGeneratedData<ScrapeStepResult>('scrapeResult');
+    const globalPayload = {
+      sitemap_data: {
+        questionnaireData,
+      },
+      site_type: siteConfig.siteType,
+      // Pass scraped content so backend can extract all social links
+      scraped_content: scrapeResult ? {
+        global_markdown: scrapeResult.global_markdown,
+        pages: scrapeResult.pages,
+        social_links: scrapeResult.social_links,
+      } : undefined,
+    };
+
     try {
-      logger.logApiRequest(endpoint, payload);
+      logger.logProcessing('Generating content and global data in parallel...');
       const apiTimer = createTimer();
 
-      const response = await apiClient.post<ContentStepResult>(endpoint, payload);
+      // Call both endpoints in parallel
+      const [contentResponse, globalResponse] = await Promise.all([
+        apiClient.post<ContentStepResult>(contentEndpoint, contentPayload),
+        apiClient.post<Record<string, unknown>>(globalEndpoint, globalPayload),
+      ]);
 
-      logger.logApiResponse(response, apiTimer.elapsed());
-      setGeneratedDataWithRef('contentResult', response);
-      return { success: isResponseSuccessful(response as Record<string, unknown>), data: response };
+      logger.logApiResponse({ content: contentResponse, global: globalResponse }, apiTimer.elapsed());
+
+      // Inject preserve_image from sitemap into generated content
+      // This ensures preserve_image is applied even if the backend loses it
+      const pagesForMap = Object.entries(pages).map(([title, pageData]) => {
+        const data = pageData as Record<string, unknown>;
+        return {
+          id: (data.internal_id as string) || title,
+          title: title,
+          wordpress_id: data.page_id as string,
+          items: ((data.model_query_pairs as Array<Record<string, unknown>>) || []).map(item => ({
+            id: (item.internal_id as string) || '',
+            model: item.model as string,
+            query: item.query as string,
+            preserve_image: item.preserve_image as boolean | undefined,
+          })),
+        };
+      });
+
+      const preserveImageMap = createPreserveImageMap(pagesForMap);
+      logger.logProcessing(`Created preserve_image map for ${preserveImageMap.size} pages`);
+
+      // Log which pages/items have preserve_image
+      for (const [pageKey, itemMap] of preserveImageMap.entries()) {
+        for (const [idx, value] of itemMap.entries()) {
+          if (value) {
+            logger.logProcessing(`  📸 ${pageKey} section ${idx}: preserve_image=true`);
+          }
+        }
+      }
+
+      // Inject into generated content
+      const generatedPages = contentResponse.pages || contentResponse;
+      const pagesWithPreserveImage = injectPreserveImageIntoContent(
+        generatedPages as Record<string, unknown[]>,
+        preserveImageMap
+      );
+
+      // Log injection results
+      for (const [pageKey, components] of Object.entries(pagesWithPreserveImage)) {
+        if (Array.isArray(components)) {
+          components.forEach((comp: Record<string, unknown>, idx: number) => {
+            if (comp.preserve_image) {
+              logger.logProcessing(`  ✅ Injected preserve_image=true: ${pageKey} component ${idx}`);
+            }
+          });
+        }
+      }
+
+      // Merge global data into content result with injected preserve_image
+      const mergedResult: ContentStepResult = {
+        ...contentResponse,
+        pages: pagesWithPreserveImage,
+        globalData: globalResponse,
+      };
+
+      setGeneratedDataWithRef('contentResult', mergedResult);
+      return { success: isResponseSuccessful(contentResponse as Record<string, unknown>), data: mergedResult };
     } catch (error) {
       return { success: false, error: error instanceof Error ? error.message : 'Content generation failed' };
     }
@@ -636,38 +875,82 @@ export const useWorkflowStepRunner = () => {
 
   const runDownloadTheme = useCallback(async (logger: StepLogger): Promise<StepResult> => {
     const scrapeResult = getGeneratedData<ScrapeStepResult>('scrapeResult');
-    const endpoint = '/generate-theme/';
-    const payload = {
-      design_system: scrapeResult?.designSystem || {},
-    };
+    // Backend returns design_system (snake_case), not designSystem (camelCase)
+    const scrapeResultAny = scrapeResult as Record<string, unknown> | undefined;
+    const designSystem = (scrapeResultAny?.design_system || scrapeResultAny?.designSystem) as {
+      images?: { logo?: string; favicon?: string };
+      colors?: {
+        primary?: string | null;
+        accent?: string | null;
+        background?: string | null;
+        text_primary?: string | null;
+        link?: string | null;
+      };
+      typography?: {
+        font_families?: {
+          primary?: string | null;
+          heading?: string | null;
+        };
+      };
+      logo_config?: { type: 'svg' | 'url'; variant: 'dark' | 'light'; url: string | null } | null;
+      logo_colors?: {
+        colors: Array<{ hex: string; luminosity_percent: number; count: number }>;
+        dominant_color: string;
+        avg_luminosity: number;
+        is_light: boolean;
+      } | null;
+    } | undefined;
+
+    // Use empty design system with defaults if not available
+    const effectiveDesignSystem = designSystem || {};
 
     try {
-      logger.logApiRequest(endpoint, payload);
-      const apiTimer = createTimer();
+      // Build theme client-side from design system (same as DesignSystemViewer)
+      // Debug: Log scrape result keys to help diagnose issues
+      logger.logProcessing(`Scrape result keys: ${scrapeResultAny ? Object.keys(scrapeResultAny).join(', ') : 'none'}`);
+      logger.logProcessing(`design_system present: ${scrapeResultAny?.design_system ? 'yes' : 'no'}`);
+      logger.logProcessing(`designSystem present: ${scrapeResultAny?.designSystem ? 'yes' : 'no'}`);
 
-      const response = await apiClient.post<ThemeStepResult>(endpoint, payload);
+      if (!designSystem) {
+        logger.logProcessing('WARNING: No design system data from scrape step - using defaults');
+      } else {
+        logger.logProcessing('Building theme from design system data');
+        logger.logProcessing(`Design system keys: ${Object.keys(designSystem).join(', ')}`);
+      }
+      logger.logProcessing(`Design system logo: ${effectiveDesignSystem.images?.logo || 'none'}`);
+      logger.logProcessing(`Design system favicon: ${effectiveDesignSystem.images?.favicon || 'none'}`);
 
-      logger.logApiResponse(response, apiTimer.elapsed());
+      const theme = buildThemeFromDesignSystem(effectiveDesignSystem);
+
+      // Log what we built
+      logger.logProcessing(`Theme logo_url: ${theme.default.logo_url || 'none'}`);
+      logger.logProcessing(`Theme logo_config: ${theme.default.logo_config ? JSON.stringify(theme.default.logo_config) : 'none'}`);
+      logger.logProcessing(`Theme favicon_url: ${theme.default.favicon_url || 'none'}`);
+      logger.logProcessing(`Theme colors: ${theme.default.colors.length} entries`);
+      logger.logProcessing(`Theme typography: ${theme.default.typography.length} entries`);
+
+      const response: ThemeStepResult = {
+        success: true,
+        theme,
+        themeJson: JSON.stringify(theme, null, 2),
+      };
+
       setGeneratedDataWithRef('themeResult', response);
 
-      const success = isResponseSuccessful(response as Record<string, unknown>);
-
       // Trigger download of theme.json
-      if (success && response.theme) {
-        logger.logProcessing('Triggering theme.json download');
-        const themeJson = JSON.stringify(response.theme, null, 2);
-        const blob = new Blob([themeJson], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'theme.json';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      }
+      logger.logProcessing('Triggering theme.json download');
+      const themeJson = JSON.stringify(theme, null, 2);
+      const blob = new Blob([themeJson], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'theme.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
 
-      return { success, data: response };
+      return { success: true, data: response };
     } catch (error) {
       return { success: false, error: error instanceof Error ? error.message : 'Theme generation failed' };
     }
@@ -692,7 +975,16 @@ export const useWorkflowStepRunner = () => {
     if (editedInputData !== undefined) {
       // Use edited input data instead of generated data
       logger.logProcessing('Using edited input data from manual mode');
-      pagesData = editedInputData as Record<string, unknown>;
+      // The editor panel wraps the data as {pageData: {...}, config: {...}}
+      const editedInputAny = editedInputData as Record<string, unknown>;
+      if (editedInputAny.pageData) {
+        // Unwrap the pageData from the editor's wrapper
+        pagesData = editedInputAny.pageData as Record<string, unknown>;
+        logger.logProcessing('Unwrapped pageData from editor wrapper');
+      } else {
+        // Use directly if not wrapped
+        pagesData = editedInputData as Record<string, unknown>;
+      }
       // Clear the edited data after using it (both ref and state)
       delete editedInputDataRef.current['image-picker'];
       actions.clearEditedInputData();
@@ -713,17 +1005,63 @@ export const useWorkflowStepRunner = () => {
     const pagesDataRecord = pagesData as Record<string, unknown>;
     logger.logProcessing(`Found page data with ${Object.keys(pagesDataRecord).length} pages`);
 
+    // Debug: Verify preserve_image is present in the content result
+    logger.logProcessing('📸 [Image Picker] Verifying preserve_image in content result:');
+    let totalWithPreserveImage = 0;
+    for (const [pageName, pageData] of Object.entries(pagesDataRecord)) {
+      if (Array.isArray(pageData)) {
+        const sectionsWithFlag = pageData.filter((s: Record<string, unknown>) => s.preserve_image !== undefined).length;
+        const sectionsWithTrue = pageData.filter((s: Record<string, unknown>) => s.preserve_image === true).length;
+        if (sectionsWithTrue > 0) {
+          logger.logProcessing(`  📸 ${pageName}: ${sectionsWithTrue}/${pageData.length} sections have preserve_image=true`);
+          totalWithPreserveImage += sectionsWithTrue;
+        }
+      }
+    }
+    if (totalWithPreserveImage === 0) {
+      logger.logProcessing('  ⚠️ WARNING: No sections have preserve_image=true! Images may be replaced incorrectly.');
+    }
+
     try {
+      // Debug: Log preserve_image status on incoming data
+      logger.logProcessing('📸 [Image Picker] Checking preserve_image on sections:');
+      for (const [pageName, pageData] of Object.entries(pagesDataRecord)) {
+        if (Array.isArray(pageData)) {
+          pageData.forEach((section: Record<string, unknown>, idx: number) => {
+            const preserveImage = section.preserve_image;
+            const layout = section.acf_fc_layout || 'unknown';
+            if (preserveImage !== undefined) {
+              logger.logProcessing(`  📸 ${pageName}[${idx}] (${layout}): preserve_image=${preserveImage}`);
+            }
+          });
+        }
+      }
+
       // Parse the JSON to find all image slots (json-analyzer approach)
       const parsedJson = parseJsonForImages(pagesDataRecord);
       logger.logProcessing(`Parsed ${parsedJson.totalImages} total images, ${parsedJson.totalImagesNeeded} need replacement`);
 
+      // Debug: Log which slots are marked as preserved
+      let preservedCount = 0;
+      for (const page of parsedJson.pages) {
+        for (const section of page.sections) {
+          for (const slot of section.imageSlots) {
+            if (slot.preserveImage) {
+              logger.logProcessing(`  🔒 Preserved: ${slot.path}`);
+              preservedCount++;
+            }
+          }
+        }
+      }
+      logger.logProcessing(`Total preserved image slots: ${preservedCount}`);
+
       // Get slots that need images (excluding preserved ones)
-      // When using edited input data (manual testing), process ALL images including existing ones
-      const isManualTesting = editedInputData !== undefined;
-      const includeExistingImages = isManualTesting || !siteConfig.preserveDoctorPhotos;
+      // Always include existing images for replacement - the per-section preserve_image flag
+      // handles which specific images should be preserved (skipped in getSlotsNeedingImages)
+      const includeExistingImages = true;
+      logger.logProcessing(`Replacing all images except ${preservedCount} preserved slots`);
       const slotsNeedingImages = getSlotsNeedingImages(parsedJson, includeExistingImages);
-      logger.logProcessing(`Processing ${slotsNeedingImages.length} image slots (includeExisting: ${includeExistingImages})`);
+      logger.logProcessing(`Processing ${slotsNeedingImages.length} image slots (includeExisting: ${includeExistingImages}, preserved skipped: ${preservedCount})`);
 
       if (slotsNeedingImages.length === 0) {
         logger.logProcessing('No images need replacement');
@@ -876,11 +1214,13 @@ export const useWorkflowStepRunner = () => {
     const editedInput = editedInputDataRef.current['prevent-hotlinking'] as {
       pages?: Record<string, unknown>;
       theme?: Record<string, unknown>;
+      globalData?: Record<string, unknown>;
       config?: { siteIdentifier?: string; bucketName?: string; cloudFrontDomain?: string };
     } | undefined;
 
     let pageData: Record<string, unknown> | undefined;
     let themeData: Record<string, unknown> | undefined;
+    let globalData: Record<string, unknown> | undefined;
     let bucketName: string;
     let cloudfrontDomain: string | undefined;
 
@@ -888,6 +1228,7 @@ export const useWorkflowStepRunner = () => {
       logger.logProcessing('Using edited input data from pre-step editor');
       pageData = editedInput.pages;
       themeData = editedInput.theme;
+      globalData = editedInput.globalData;
       bucketName = editedInput.config?.bucketName || editedInput.config?.siteIdentifier || siteConfig.domain.replace(/\./g, '-');
       cloudfrontDomain = editedInput.config?.cloudFrontDomain;
     } else {
@@ -899,6 +1240,9 @@ export const useWorkflowStepRunner = () => {
 
       // Get the page data (prefer image picker result which has updated images)
       pageData = imagePickerResult?.pageData || contentResult?.pageData;
+
+      // Get globalData from content result
+      globalData = contentResult?.globalData as Record<string, unknown> | undefined;
 
       // Extract bucket name and CloudFront domain from provision step (step 3)
       // Use provision result values if available, otherwise fall back to derived values
@@ -943,6 +1287,10 @@ export const useWorkflowStepRunner = () => {
     logger.logProcessing(`--- Data being sent to sync ---`);
     logger.logProcessing(`Pages data keys: ${pageData ? Object.keys(pageData).join(', ') : 'none'}`);
     logger.logProcessing(`Pages count: ${pageData ? Object.keys(pageData).length : 0}`);
+    logger.logProcessing(`GlobalData included: ${globalData ? 'yes' : 'no'}`);
+    if (globalData) {
+      logger.logProcessing(`GlobalData keys: ${Object.keys(globalData).join(', ')}`);
+    }
     if (themeData) {
       const themeDefault = themeData.default as Record<string, unknown> | undefined;
       logger.logProcessing(`Theme logo_url: ${themeDefault?.logo_url || themeData.logo_url || 'none'}`);
@@ -958,6 +1306,7 @@ export const useWorkflowStepRunner = () => {
       context: {
         pages: pageData,
         theme: themeData,
+        globalData: globalData,
       },
       provision_result: cloudfrontDomain ? {
         assets_cdn_domain: cloudfrontDomain
@@ -1012,9 +1361,10 @@ export const useWorkflowStepRunner = () => {
         logger.logProcessing('No images were successfully synced to S3');
       }
 
-      // Replace URLs in pages and theme data
+      // Replace URLs in pages, theme, and globalData
       let updatedPages: Record<string, unknown> | undefined;
       let updatedTheme: Record<string, unknown> | undefined;
+      let updatedGlobalData: Record<string, unknown> | undefined;
 
       if (urlMap.size > 0) {
         // Replace URLs in page data
@@ -1028,14 +1378,21 @@ export const useWorkflowStepRunner = () => {
           updatedTheme = replaceUrlsInObject(themeData, urlMap) as Record<string, unknown>;
           logger.logProcessing('Replaced URLs in theme data with CloudFront URLs');
         }
+
+        // Replace URLs in globalData
+        if (globalData) {
+          updatedGlobalData = replaceUrlsInObject(globalData, urlMap) as Record<string, unknown>;
+          logger.logProcessing('Replaced URLs in globalData with CloudFront URLs');
+        }
       } else {
         logger.logProcessing('No URL replacements needed - using original data');
         // Use original data when no URLs were replaced
         updatedPages = pageData;
         updatedTheme = themeData;
+        updatedGlobalData = globalData;
       }
 
-      // Always store the pages and theme data for download
+      // Always store the pages, theme, and globalData for download
       if (updatedPages) {
         logger.logProcessing(`Storing hotlinkPagesResult with ${Object.keys(updatedPages).length} pages`);
         setGeneratedDataWithRef('hotlinkPagesResult', updatedPages);
@@ -1050,11 +1407,19 @@ export const useWorkflowStepRunner = () => {
         logger.logProcessing('No theme data to store (this may be normal)');
       }
 
+      if (updatedGlobalData) {
+        logger.logProcessing(`Storing hotlinkGlobalDataResult`);
+        setGeneratedDataWithRef('hotlinkGlobalDataResult', updatedGlobalData);
+      } else {
+        logger.logProcessing('No globalData to store (this may be normal)');
+      }
+
       // Store the full response with updated data
       const enrichedResponse: HotlinkProtectionResult = {
         ...response,
         updatedPages,
         updatedTheme,
+        updatedGlobalData,
       };
 
       setGeneratedDataWithRef('hotlinkResult', enrichedResponse);
@@ -1145,7 +1510,13 @@ export const useWorkflowStepRunner = () => {
         logger.logProcessing('Using pages with CloudFront URLs from hotlink step');
       }
 
-      globalData = (contentResult?.globalData as Record<string, unknown>) || {};
+      // Get globalData - prefer hotlink-processed (has CloudFront URLs), then content result
+      const hotlinkGlobalData = getGeneratedData<Record<string, unknown>>('hotlinkGlobalDataResult');
+      globalData = hotlinkGlobalData || (contentResult?.globalData as Record<string, unknown>) || {};
+
+      if (hotlinkGlobalData) {
+        logger.logProcessing('Using globalData with CloudFront URLs from hotlink step');
+      }
 
       // Get theme data - prefer updated theme from hotlink step (has CloudFront URLs)
       const hotlinkTheme = getGeneratedData<Record<string, unknown>>('hotlinkThemeResult');
@@ -1584,10 +1955,16 @@ export const useWorkflowStepRunner = () => {
     }
   }, []);
 
+  // Reset session ID for a new workflow run
+  const resetSessionId = useCallback(() => {
+    sessionIdRef.current = null;
+  }, []);
+
   return {
     executeStep,
     abortStep,
     setEditedInputDataImmediate,
+    resetSessionId,
   };
 };
 

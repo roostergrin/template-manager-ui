@@ -23,11 +23,12 @@ const STEP_TO_DATA_KEY: Record<string, string> = {
   'upload-favicon': 'faviconResult',
 };
 
-// Steps that export multiple files (pages.json and theme.json with CloudFront URLs)
-const MULTI_FILE_EXPORT_STEPS: Record<string, { pages: string; theme: string }> = {
+// Steps that export multiple files (pages.json, theme.json, and globalData.json with CloudFront URLs)
+const MULTI_FILE_EXPORT_STEPS: Record<string, { pages: string; theme: string; globalData?: string }> = {
   'prevent-hotlinking': {
     pages: 'hotlinkPagesResult',
     theme: 'hotlinkThemeResult',
+    globalData: 'hotlinkGlobalDataResult',
   },
 };
 
@@ -130,19 +131,24 @@ export const useWorkflowExport = () => {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
     const domainSlug = state.config.siteConfig.domain?.replace(/\./g, '-') || 'site';
 
-    // Check if this step has multi-file exports (pages.json + theme.json with CloudFront URLs)
+    // Check if this step has multi-file exports (pages.json + theme.json + globalData.json with CloudFront URLs)
     const multiFileConfig = MULTI_FILE_EXPORT_STEPS[stepId];
     if (multiFileConfig) {
       console.log(`[Export] Multi-file export for step: ${stepId}`);
       console.log(`[Export] Looking for pages in: ${multiFileConfig.pages}`);
       console.log(`[Export] Looking for theme in: ${multiFileConfig.theme}`);
+      console.log(`[Export] Looking for globalData in: ${multiFileConfig.globalData}`);
       console.log(`[Export] Available generatedData keys:`, Object.keys(state.generatedData));
 
       const pagesData = state.generatedData[multiFileConfig.pages as keyof typeof state.generatedData];
       const themeData = state.generatedData[multiFileConfig.theme as keyof typeof state.generatedData];
+      const globalDataResult = multiFileConfig.globalData
+        ? state.generatedData[multiFileConfig.globalData as keyof typeof state.generatedData]
+        : null;
 
       console.log(`[Export] pagesData found: ${!!pagesData}`);
       console.log(`[Export] themeData found: ${!!themeData}`);
+      console.log(`[Export] globalData found: ${!!globalDataResult}`);
 
       if (pagesData) {
         console.log(`[Export] Downloading pages.json...`);
@@ -158,8 +164,15 @@ export const useWorkflowExport = () => {
         console.warn(`[Export] No themeData found in generatedData.${multiFileConfig.theme}`);
       }
 
-      if (!pagesData && !themeData) {
-        console.warn(`No pages or theme data for step ${stepId}`);
+      if (globalDataResult) {
+        console.log(`[Export] Downloading globalData.json...`);
+        downloadJson(globalDataResult, `globalData_${domainSlug}_${timestamp}.json`);
+      } else {
+        console.warn(`[Export] No globalData found in generatedData.${multiFileConfig.globalData}`);
+      }
+
+      if (!pagesData && !themeData && !globalDataResult) {
+        console.warn(`No pages, theme, or globalData for step ${stepId}`);
       }
       return;
     }

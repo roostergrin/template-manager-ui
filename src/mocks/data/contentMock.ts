@@ -42,6 +42,12 @@ export const createMockContentResult = (domain: string): ContentStepResult => {
       social_links: {
         facebook: `https://facebook.com/${domain.replace('.', '')}`,
         instagram: `https://instagram.com/${domain.replace('.', '')}`,
+        twitter: `https://x.com/${domain.replace('.', '')}`,
+        linkedin: `https://linkedin.com/company/${domain.replace('.', '')}`,
+        youtube: `https://youtube.com/@${domain.replace('.', '')}`,
+        tiktok: `https://tiktok.com/@${domain.replace('.', '')}`,
+        yelp: `https://yelp.com/biz/${domain.replace('.', '')}`,
+        google_review: `https://g.page/${domain.replace('.', '')}/review`,
       },
       hours: [
         { day: 'Monday', hours: '9:00 AM - 5:00 PM' },

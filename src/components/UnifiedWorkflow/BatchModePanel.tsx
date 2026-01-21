@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef } from 'react';
-import { Upload, FileText, AlertCircle, CheckCircle, X, Download } from 'lucide-react';
+import { Upload, FileText, AlertCircle, CheckCircle, X, Download, FastForward } from 'lucide-react';
 import { useUnifiedWorkflow } from '../../contexts/UnifiedWorkflowProvider';
 import { BatchSiteEntry, CSVParseResult } from '../../types/UnifiedWorkflowTypes';
 import { AVAILABLE_TEMPLATES } from '../../constants/workflowSteps';
@@ -101,7 +101,9 @@ const BatchModePanel: React.FC<BatchModePanelProps> = ({ onProcessSite, disabled
           currentIndex: 0,
           completedCount: 0,
           failedCount: 0,
+          skippedCount: 0,
           failedSites: [],
+          skippedSites: [],
         });
       }
     };
@@ -154,7 +156,9 @@ const BatchModePanel: React.FC<BatchModePanelProps> = ({ onProcessSite, disabled
       currentIndex: 0,
       completedCount: 0,
       failedCount: 0,
+      skippedCount: 0,
       failedSites: [],
+      skippedSites: [],
     });
   }, [actions]);
 
@@ -287,6 +291,11 @@ const BatchModePanel: React.FC<BatchModePanelProps> = ({ onProcessSite, disabled
                     ({batchConfig.failedCount} failed)
                   </span>
                 )}
+                {(batchConfig.skippedCount || 0) > 0 && (
+                  <span className="batch-mode-panel__skipped-count">
+                    ({batchConfig.skippedCount} skipped)
+                  </span>
+                )}
               </p>
             </div>
           )}
@@ -296,15 +305,17 @@ const BatchModePanel: React.FC<BatchModePanelProps> = ({ onProcessSite, disabled
               const isProcessed = index < batchConfig.currentIndex;
               const isCurrent = index === batchConfig.currentIndex && state.isRunning;
               const isFailed = batchConfig.failedSites.some(f => f.site.domain === site.domain);
+              const isSkipped = batchConfig.skippedSites?.some(s => s.site.domain === site.domain);
 
               return (
                 <li
                   key={site.domain}
-                  className={`batch-mode-panel__site ${isProcessed ? 'batch-mode-panel__site--processed' : ''} ${isCurrent ? 'batch-mode-panel__site--current' : ''} ${isFailed ? 'batch-mode-panel__site--failed' : ''}`}
+                  className={`batch-mode-panel__site ${isProcessed ? 'batch-mode-panel__site--processed' : ''} ${isCurrent ? 'batch-mode-panel__site--current' : ''} ${isFailed && !isSkipped ? 'batch-mode-panel__site--failed' : ''} ${isSkipped ? 'batch-mode-panel__site--skipped' : ''}`}
                 >
                   <span className="batch-mode-panel__site-status">
-                    {isProcessed && !isFailed && <CheckCircle size={14} className="batch-mode-panel__site-status--success" />}
-                    {isFailed && <AlertCircle size={14} className="batch-mode-panel__site-status--error" />}
+                    {isProcessed && !isFailed && !isSkipped && <CheckCircle size={14} className="batch-mode-panel__site-status--success" />}
+                    {isFailed && !isSkipped && <AlertCircle size={14} className="batch-mode-panel__site-status--error" />}
+                    {isSkipped && <FastForward size={14} className="batch-mode-panel__site-status--skipped" />}
                     {isCurrent && <span className="batch-mode-panel__site-spinner" />}
                   </span>
                   <span className="batch-mode-panel__site-domain">{site.domain}</span>
@@ -329,19 +340,38 @@ const BatchModePanel: React.FC<BatchModePanelProps> = ({ onProcessSite, disabled
             })}
           </ul>
 
-          {/* Failed sites details */}
-          {batchConfig.failedSites.length > 0 && (
+          {/* Skipped sites details (empty scrape) */}
+          {batchConfig.skippedSites && batchConfig.skippedSites.length > 0 && (
+            <div className="batch-mode-panel__skipped-details">
+              <h4 className="batch-mode-panel__skipped-title">
+                <FastForward size={16} />
+                Skipped Sites (Empty Scrape)
+              </h4>
+              <ul className="batch-mode-panel__skipped-list">
+                {batchConfig.skippedSites.map((skipped, i) => (
+                  <li key={i}>
+                    <strong>{skipped.site.domain}:</strong> {skipped.reason}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Failed sites details (non-skip failures) */}
+          {batchConfig.failedSites.filter(f => !batchConfig.skippedSites?.some(s => s.site.domain === f.site.domain)).length > 0 && (
             <div className="batch-mode-panel__failed-details">
               <h4 className="batch-mode-panel__failed-title">
                 <AlertCircle size={16} />
                 Failed Sites
               </h4>
               <ul className="batch-mode-panel__failed-list">
-                {batchConfig.failedSites.map((failed, i) => (
-                  <li key={i}>
-                    <strong>{failed.site.domain}:</strong> {failed.error}
-                  </li>
-                ))}
+                {batchConfig.failedSites
+                  .filter(f => !batchConfig.skippedSites?.some(s => s.site.domain === f.site.domain))
+                  .map((failed, i) => (
+                    <li key={i}>
+                      <strong>{failed.site.domain}:</strong> {failed.error}
+                    </li>
+                  ))}
               </ul>
             </div>
           )}

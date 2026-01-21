@@ -13,6 +13,10 @@ const CleanupPanel: React.FC<CleanupPanelProps> = ({ onClose }) => {
     customDomain,
     setCustomDomain,
     resetToWorkflowDomain,
+    manualCloudfrontId,
+    setManualCloudfrontId,
+    manualAssetsCloudfrontId,
+    setManualAssetsCloudfrontId,
     resourceList,
     isUsingDerivedResources,
     performCleanup,
@@ -116,9 +120,38 @@ const CleanupPanel: React.FC<CleanupPanelProps> = ({ onClose }) => {
         <div className="cleanup-panel__derived-notice">
           <Info size={16} />
           <span>
-            Resource names are derived from the domain pattern. CloudFront IDs are only
-            available for the currently provisioned site.
+            Resource names are derived from the domain pattern. Enter CloudFront distribution IDs below
+            to include them in cleanup (find them in AWS Console &gt; CloudFront).
           </span>
+        </div>
+      )}
+
+      {/* CloudFront ID inputs for derived resources */}
+      {activeDomain && isUsingDerivedResources && (
+        <div className="cleanup-panel__cloudfront-section">
+          <h4>CloudFront Distribution IDs (optional):</h4>
+          <label className="cleanup-panel__cloudfront-label">
+            <span>Main Distribution:</span>
+            <input
+              type="text"
+              value={manualCloudfrontId}
+              onChange={(e) => setManualCloudfrontId(e.target.value)}
+              placeholder="E1234567890ABC"
+              disabled={isCleaningUp || !!cleanupResult}
+              className="cleanup-panel__cloudfront-input"
+            />
+          </label>
+          <label className="cleanup-panel__cloudfront-label">
+            <span>Assets Distribution:</span>
+            <input
+              type="text"
+              value={manualAssetsCloudfrontId}
+              onChange={(e) => setManualAssetsCloudfrontId(e.target.value)}
+              placeholder="E0987654321XYZ"
+              disabled={isCleaningUp || !!cleanupResult}
+              className="cleanup-panel__cloudfront-input"
+            />
+          </label>
         </div>
       )}
 

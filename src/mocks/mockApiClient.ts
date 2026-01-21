@@ -105,7 +105,7 @@ export const mockApiHandler = async <T>(
     } as T;
   }
 
-  if (endpoint.includes('/allocate-content-to-sitemap')) {
+  if (endpoint.includes('/allocate-content-second-pass') || endpoint.includes('/allocate-content-to-sitemap')) {
     const vectorStoreId = data?.vector_store_id || 'mock-vs-id';
     console.log(`%c[MOCK] Allocating content using vector store: ${vectorStoreId}`, 'color: #9333EA');
 
@@ -237,6 +237,41 @@ export const mockApiHandler = async <T>(
     return createMockContentResult(domain) as T;
   }
 
+  if (endpoint.includes('/generate-global')) {
+    console.log(`%c[MOCK] Generating global data`, 'color: #9333EA');
+    return {
+      success: true,
+      practiceName: 'Mock Dental Practice',
+      phone: '(555) 123-4567',
+      email: 'info@mockdental.com',
+      address: {
+        street: '123 Mock Street',
+        city: 'San Francisco',
+        state: 'CA',
+        zip: '94102',
+      },
+      hours: {
+        monday: '9:00 AM - 5:00 PM',
+        tuesday: '9:00 AM - 5:00 PM',
+        wednesday: '9:00 AM - 5:00 PM',
+        thursday: '9:00 AM - 5:00 PM',
+        friday: '9:00 AM - 3:00 PM',
+        saturday: 'Closed',
+        sunday: 'Closed',
+      },
+      socialLinks: {
+        facebook: 'https://facebook.com/mockdental',
+        instagram: 'https://instagram.com/mockdental',
+        twitter: 'https://x.com/mockdental',
+        linkedin: 'https://linkedin.com/company/mockdental',
+        youtube: 'https://youtube.com/@mockdental',
+        tiktok: 'https://tiktok.com/@mockdental',
+        yelp: 'https://yelp.com/biz/mockdental',
+        google_review: 'https://g.page/mockdental/review',
+      },
+    } as T;
+  }
+
   if (endpoint.includes('/generate-theme')) {
     return createMockThemeResult() as T;
   }
@@ -270,6 +305,48 @@ export const mockApiHandler = async <T>(
 
   if (endpoint.includes('/upload-favicon')) {
     return createMockFaviconResult() as T;
+  }
+
+  // Image agent endpoint - return mock search results
+  if (endpoint.includes('/adobe/image-agent/find-images')) {
+    console.log(`%c[MOCK] Image agent search`, 'color: #9333EA');
+    return {
+      success: true,
+      results: {
+        licensed_results: [
+          {
+            id: Math.floor(Math.random() * 10000) + 1,
+            filename: 'mock-dental-image-1.jpg',
+            s3_url: 'https://mock-s3.example.com/images/mock-dental-image-1.jpg',
+            title: 'Mock Dental Image',
+            category: 'dental',
+          },
+          {
+            id: Math.floor(Math.random() * 10000) + 10001,
+            filename: 'mock-dental-image-2.jpg',
+            s3_url: 'https://mock-s3.example.com/images/mock-dental-image-2.jpg',
+            title: 'Mock Dental Image 2',
+            category: 'dental',
+          },
+        ],
+        catalog_results: [],
+      },
+    } as T;
+  }
+
+  // GitHub file update endpoint
+  if (endpoint.includes('/update-github-repo-file')) {
+    const owner = data?.owner || 'roostergrin';
+    const repo = data?.repo || 'mock-repo';
+    const filePath = data?.file_path || 'data/pages.json';
+    console.log(`%c[MOCK] GitHub file update: ${owner}/${repo}/${filePath}`, 'color: #9333EA');
+    return {
+      success: true,
+      content: {
+        html_url: `https://github.com/${owner}/${repo}/blob/master/${filePath}`,
+      },
+      message: `[MOCK] File updated: ${filePath}`,
+    } as T;
   }
 
   // Cleanup endpoints (return success for these too)

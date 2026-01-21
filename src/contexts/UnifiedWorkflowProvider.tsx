@@ -60,6 +60,8 @@ const defaultSiteConfig: SiteConfig = {
   templateType: 'json', // 'json' for ai-template-*, 'wordpress' for rg-template-*
   siteType: 'stinson',
   preserveDoctorPhotos: true,
+  enableImagePicker: false,
+  enableHotlinking: false,
 };
 
 // Default config

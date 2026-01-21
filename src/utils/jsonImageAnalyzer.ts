@@ -162,6 +162,8 @@ function parseSection(
   const description = extractParagraphText(sectionData);
   const preserveImage = sectionData.preserve_image === true;
 
+  console.log(`[parseSection] ${pageName}[${sectionIndex}] layout=${layoutType}, preserve_image=${preserveImage}`);
+
   const basePath = `${pageName}[${sectionIndex}]`;
   const imageSlots = deepScanForImages(sectionData, basePath, {
     title,
@@ -169,6 +171,8 @@ function parseSection(
     description,
     preserveImage
   }, sectionData);
+
+  console.log(`[parseSection] ${pageName}[${sectionIndex}] found ${imageSlots.length} image slots`);
 
   const uniqueSlots = imageSlots.filter((slot, index, self) => {
     return !self.some((other, otherIndex) =>
@@ -222,15 +226,22 @@ export function parseJsonForImages(json: Record<string, unknown>): ParsedJson {
   let pagesData: Record<string, unknown> = json;
   let hasWrapper = false;
 
+  // Debug logging
+  console.log('[parseJsonForImages] Input keys:', Object.keys(json));
+
   if ('pages' in json && isObject(json.pages)) {
     pagesData = json.pages as Record<string, unknown>;
     hasWrapper = true;
+    console.log('[parseJsonForImages] Found pages wrapper, inner keys:', Object.keys(pagesData));
   }
 
   for (const [key, value] of Object.entries(pagesData)) {
+    console.log(`[parseJsonForImages] Processing key "${key}", isArray: ${Array.isArray(value)}, type: ${typeof value}`);
     if (Array.isArray(value)) {
       const pathPrefix = hasWrapper ? `pages.${key}` : key;
-      pages.push(parsePage(pathPrefix, value, key));
+      const parsedPage = parsePage(pathPrefix, value, key);
+      console.log(`[parseJsonForImages] Page "${key}" has ${parsedPage.sections.length} sections, ${parsedPage.totalImagesNeeded + parsedPage.totalImagesHave} images`);
+      pages.push(parsedPage);
     }
   }
 

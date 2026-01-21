@@ -43,6 +43,8 @@ export interface SiteConfig {
   siteType: string;
   scrapeDomain?: string;
   preserveDoctorPhotos: boolean;
+  enableImagePicker: boolean;
+  enableHotlinking: boolean;
   wordpressApiUrl?: string;
   githubOwner?: string;
   githubRepo?: string;
@@ -60,9 +62,14 @@ export interface BatchConfig {
   currentIndex: number;
   completedCount: number;
   failedCount: number;
+  skippedCount: number;
   failedSites: Array<{
     site: BatchSiteEntry;
     error: string;
+  }>;
+  skippedSites: Array<{
+    site: BatchSiteEntry;
+    reason: string;
   }>;
 }
 
@@ -128,6 +135,7 @@ export interface UnifiedWorkflowState {
     hotlinkResult?: HotlinkProtectionResult;
     hotlinkPagesResult?: Record<string, unknown>;
     hotlinkThemeResult?: Record<string, unknown>;
+    hotlinkGlobalDataResult?: Record<string, unknown>;
     wordpressResult?: unknown;
     secondPassResult?: unknown;
     logoResult?: unknown;
@@ -253,6 +261,22 @@ export interface ScrapeStepResult {
   }>;
   global_markdown?: string;
   style_overview?: string;
+  // Social links extracted from the scraped site
+  social_links?: {
+    facebook?: string;
+    instagram?: string;
+    twitter?: string;
+    linkedin?: string;
+    youtube?: string;
+    tiktok?: string;
+    yelp?: string;
+    google_review?: string;
+    pinterest?: string;
+    snapchat?: string;
+  };
+  // Backend returns design_system (snake_case)
+  design_system?: unknown;
+  // Legacy support for camelCase
   designSystem?: unknown;
 }
 
@@ -272,6 +296,8 @@ export interface ContentStepResult {
   pagesGenerated?: number;
   globalData?: unknown;
   pageData?: Record<string, unknown>;
+  pages?: Record<string, unknown>;  // Backend returns 'pages' from /generate-content/
+  sitemap_metadata?: Record<string, { depth: number; slug?: string; parent_slug?: string }>;
 }
 
 export interface ThemeStepResult {
@@ -314,6 +340,7 @@ export interface HotlinkProtectionResult {
   // Derived by step runner after URL replacement
   updatedTheme?: Record<string, unknown>;
   updatedPages?: Record<string, unknown>;
+  updatedGlobalData?: Record<string, unknown>;
 }
 
 export interface WordPressStepResult {

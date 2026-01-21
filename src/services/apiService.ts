@@ -155,6 +155,12 @@ class APIClient {
 
   async get<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
     try {
+      // Check if mock mode is enabled - return mock data if available
+      const mockResult = await mockApiHandler<T>(url, config?.params);
+      if (mockResult !== null) {
+        return mockResult;
+      }
+
       const response = await this.instance.get<T>(url, config);
       return handleAPIResponse(response);
     } catch (error) {
@@ -181,6 +187,17 @@ class APIClient {
 
   async postForm<T>(url: string, formData: FormData, config?: AxiosRequestConfig): Promise<T> {
     try {
+      // Check if mock mode is enabled - return mock data if available
+      // Convert FormData to object for mock handler
+      const formDataObj: Record<string, unknown> = {};
+      formData.forEach((value, key) => {
+        formDataObj[key] = value;
+      });
+      const mockResult = await mockApiHandler<T>(url, formDataObj);
+      if (mockResult !== null) {
+        return mockResult;
+      }
+
       const response = await this.instance.post<T>(url, formData, {
         ...config,
         headers: {
@@ -204,7 +221,11 @@ class APIClient {
       '/generate-content',
       '/generate-global',
       '/provision-site',
-      '/generate-router/'
+      '/generate-router/',
+      // Content allocation endpoints (can take 5-15+ minutes for large sites with vector store queries)
+      '/allocate-content-to-sitemap/',
+      '/allocate-content-first-pass/',
+      '/allocate-content-second-pass/'
     ];
 
     const isLongRunningOperation = longRunningEndpoints.some(endpoint => url.includes(endpoint));
@@ -221,6 +242,12 @@ class APIClient {
 
   async put<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> {
     try {
+      // Check if mock mode is enabled - return mock data if available
+      const mockResult = await mockApiHandler<T>(url, data);
+      if (mockResult !== null) {
+        return mockResult;
+      }
+
       const response = await this.instance.put<T>(url, data, config);
       return handleAPIResponse(response);
     } catch (error) {
@@ -230,6 +257,12 @@ class APIClient {
 
   async patch<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> {
     try {
+      // Check if mock mode is enabled - return mock data if available
+      const mockResult = await mockApiHandler<T>(url, data);
+      if (mockResult !== null) {
+        return mockResult;
+      }
+
       const response = await this.instance.patch<T>(url, data, config);
       return handleAPIResponse(response);
     } catch (error) {
@@ -258,9 +291,12 @@ class APIClient {
   }
 }
 
-// Create and export the default API client
+// Create and export the default API client with retry support for transient failures
 console.log('🚀 Creating default APIClient instance...');
-const apiClient = new APIClient();
+const apiClient = new APIClient({
+  retries: 2,           // Retry up to 2 times on network errors or 5xx responses
+  retryDelay: 2000      // Wait 2 seconds before first retry (exponential backoff applied)
+});
 console.log('🎯 Default APIClient created and ready to use');
 
 // Export both the class and default instance

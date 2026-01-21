@@ -14,6 +14,8 @@ export const useCleanup = () => {
   const [isCleaningUp, setIsCleaningUp] = useState(false);
   const [cleanupResult, setCleanupResult] = useState<CleanupResult | null>(null);
   const [customDomain, setCustomDomain] = useState<string>('');
+  const [manualCloudfrontId, setManualCloudfrontId] = useState<string>('');
+  const [manualAssetsCloudfrontId, setManualAssetsCloudfrontId] = useState<string>('');
 
   /**
    * Get the current workflow domain (if any)
@@ -39,6 +41,7 @@ export const useCleanup = () => {
   /**
    * Derive resources from a domain name
    * Some resources (CloudFront IDs, Pipeline name) can only be known from provision result
+   * Manual CloudFront IDs can be provided for derived resources
    */
   const deriveResourcesFromDomain = useCallback((domain: string): CleanupResources => {
     if (!domain) {
@@ -52,12 +55,16 @@ export const useCleanup = () => {
 
     return {
       s3Bucket: useProvisionResult ? provisionResult.bucket : domainSlug,
-      cloudfrontDistributionId: useProvisionResult ? provisionResult.cloudfront_distribution_id : undefined,
-      assetsCloudfrontDistributionId: useProvisionResult ? provisionResult.assets_distribution_id : undefined,
+      cloudfrontDistributionId: useProvisionResult
+        ? provisionResult.cloudfront_distribution_id
+        : (manualCloudfrontId.trim() || undefined),
+      assetsCloudfrontDistributionId: useProvisionResult
+        ? provisionResult.assets_distribution_id
+        : (manualAssetsCloudfrontId.trim() || undefined),
       githubRepo: domainSlug,
       pipelineName: useProvisionResult ? provisionResult.pipeline_name : `${domainSlug}-pipeline`,
     };
-  }, [workflowDomain, provisionResult]);
+  }, [workflowDomain, provisionResult, manualCloudfrontId, manualAssetsCloudfrontId]);
 
   /**
    * Get cleanup config for the active domain
@@ -177,6 +184,8 @@ export const useCleanup = () => {
    */
   const resetToWorkflowDomain = useCallback(() => {
     setCustomDomain('');
+    setManualCloudfrontId('');
+    setManualAssetsCloudfrontId('');
     setCleanupResult(null);
   }, []);
 
@@ -187,6 +196,12 @@ export const useCleanup = () => {
     customDomain,
     setCustomDomain,
     resetToWorkflowDomain,
+
+    // Manual CloudFront ID input (for derived resources)
+    manualCloudfrontId,
+    setManualCloudfrontId,
+    manualAssetsCloudfrontId,
+    setManualAssetsCloudfrontId,
 
     // Resource info
     cleanupConfig,

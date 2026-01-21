@@ -52,6 +52,17 @@ export const createMockScrapeResult = (domain: string): ScrapeStepResult => {
     },
     // Global markdown - combined content from all pages
     global_markdown: `## Header\n\n[Home](https://${domain}/)\n[About](https://${domain}/about)\n[Treatments](https://${domain}/treatments)\n[Contact](https://${domain}/contact)\n[Get Started](https://${domain}/get-started)\n\n## Welcome to ${practiceName}\n\nWe are dedicated to providing exceptional orthodontic care for patients of all ages.`,
+    // Social links extracted from the scraped site
+    social_links: {
+      facebook: `https://facebook.com/${domain.replace('.', '')}`,
+      instagram: `https://instagram.com/${domain.replace('.', '')}`,
+      twitter: `https://x.com/${domain.replace('.', '')}`,
+      linkedin: `https://linkedin.com/company/${domain.replace('.', '')}`,
+      youtube: `https://youtube.com/@${domain.replace('.', '')}`,
+      tiktok: `https://tiktok.com/@${domain.replace('.', '')}`,
+      yelp: `https://yelp.com/biz/${domain.replace('.', '')}`,
+      google_review: `https://g.page/${domain.replace('.', '')}/review`,
+    },
     // Style overview - extracted design information
     style_overview: `# Style & Design Overview\n\n## Logo Images\n\n- https://${domain}/wp-content/uploads/logo.png\n\n## Colors\n\n| Color | Count |\n|-------|-------|\n| #3B82F6 | 45 |\n| #10B981 | 23 |\n| #FFFFFF | 120 |\n| #1F2937 | 89 |\n\n## Typography\n\n- Primary: Inter\n- Heading: Poppins`,
     // Design system extracted from the scraped site - used by /generate-theme/

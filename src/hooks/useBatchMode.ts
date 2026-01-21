@@ -8,7 +8,9 @@ interface BatchModeResult {
   totalProcessed: number;
   successCount: number;
   failedCount: number;
+  skippedCount: number;
   failedSites: Array<{ site: BatchSiteEntry; error: string }>;
+  skippedSites: Array<{ site: BatchSiteEntry; reason: string }>;
 }
 
 export const useBatchMode = (
@@ -70,7 +72,9 @@ export const useBatchMode = (
         totalProcessed: 0,
         successCount: 0,
         failedCount: 0,
+        skippedCount: 0,
         failedSites: [],
+        skippedSites: [],
       };
     }
 
@@ -82,7 +86,9 @@ export const useBatchMode = (
       totalProcessed: 0,
       successCount: 0,
       failedCount: 0,
+      skippedCount: 0,
       failedSites: [],
+      skippedSites: [],
     };
 
     actions.addProgressEvent({
@@ -112,7 +118,9 @@ export const useBatchMode = (
         currentIndex: i,
         completedCount: result.successCount,
         failedCount: result.failedCount,
+        skippedCount: result.skippedCount,
         failedSites: result.failedSites,
+        skippedSites: result.skippedSites,
       });
 
       actions.addProgressEvent({
@@ -135,14 +143,32 @@ export const useBatchMode = (
           message: `Completed: ${site.domain}`,
         });
       } else {
-        result.failedCount++;
-        result.failedSites.push({ site, error: siteResult.error || 'Unknown error' });
-        actions.addProgressEvent({
-          stepId: 'batch',
-          stepName: 'Batch Mode',
-          status: 'error',
-          message: `Failed: ${site.domain} - ${siteResult.error}`,
-        });
+        // Check if this is an empty scrape (should be skipped, not just failed)
+        const isEmptyScrape = siteResult.error?.startsWith('EMPTY_SCRAPE:');
+
+        if (isEmptyScrape) {
+          result.skippedCount++;
+          const reason = siteResult.error?.replace('EMPTY_SCRAPE: ', '') || 'No pages found';
+          result.skippedSites.push({ site, reason });
+          // Also add to failedSites per user request (track in both)
+          result.failedSites.push({ site, error: siteResult.error || 'Empty scrape' });
+          result.failedCount++;
+          actions.addProgressEvent({
+            stepId: 'batch',
+            stepName: 'Batch Mode',
+            status: 'skipped',
+            message: `Skipped: ${site.domain} - Empty scrape (no pages found)`,
+          });
+        } else {
+          result.failedCount++;
+          result.failedSites.push({ site, error: siteResult.error || 'Unknown error' });
+          actions.addProgressEvent({
+            stepId: 'batch',
+            stepName: 'Batch Mode',
+            status: 'error',
+            message: `Failed: ${site.domain} - ${siteResult.error}`,
+          });
+        }
       }
 
       // Update batch config with current progress
@@ -151,7 +177,9 @@ export const useBatchMode = (
         currentIndex: i + 1,
         completedCount: result.successCount,
         failedCount: result.failedCount,
+        skippedCount: result.skippedCount,
         failedSites: result.failedSites,
+        skippedSites: result.skippedSites,
       });
 
       // Delay between sites
@@ -163,11 +191,12 @@ export const useBatchMode = (
     setIsBatchRunning(false);
     actions.stopWorkflow();
 
+    const skippedMsg = result.skippedCount > 0 ? `, ${result.skippedCount} skipped (empty scrape)` : '';
     actions.addProgressEvent({
       stepId: 'batch',
       stepName: 'Batch Mode',
       status: result.failedCount === 0 ? 'completed' : 'error',
-      message: `Batch complete: ${result.successCount} succeeded, ${result.failedCount} failed`,
+      message: `Batch complete: ${result.successCount} succeeded, ${result.failedCount} failed${skippedMsg}`,
     });
 
     return result;
@@ -187,7 +216,7 @@ export const useBatchMode = (
   const getBatchProgress = useCallback(() => {
     const { batchConfig } = state.config;
     if (!batchConfig || batchConfig.sites.length === 0) {
-      return { current: 0, total: 0, percentage: 0 };
+      return { current: 0, total: 0, percentage: 0, skipped: 0 };
     }
 
     const processed = batchConfig.completedCount + batchConfig.failedCount;
@@ -195,6 +224,7 @@ export const useBatchMode = (
       current: processed,
       total: batchConfig.sites.length,
       percentage: Math.round((processed / batchConfig.sites.length) * 100),
+      skipped: batchConfig.skippedCount || 0,
     };
   }, [state.config]);
 

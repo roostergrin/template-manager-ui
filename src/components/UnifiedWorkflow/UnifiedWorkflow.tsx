@@ -28,6 +28,7 @@ import PreventHotlinkingEditorPanel from './PreventHotlinkingEditorPanel';
 import GithubJsonEditorPanel from './GithubJsonEditorPanel';
 import ExportPanel from './ExportPanel';
 import CleanupPanel from './CleanupPanel';
+import ThemeJsonDebugViewer from '../ThemeJsonDebugViewer';
 import { getStepInputData } from '../../constants/stepInputMappings';
 import { AVAILABLE_TEMPLATES, getStepById } from '../../constants/workflowSteps';
 import { WorkflowMode, SiteConfig, TemplateType } from '../../types/UnifiedWorkflowTypes';
@@ -223,6 +224,30 @@ const ConfigurationPanel: React.FC<ConfigurationPanelProps> = ({
                 <span>Preserve doctor photos during image updates</span>
               </label>
             </div>
+
+            <div className="config-panel__field config-panel__field--checkbox">
+              <label className="config-panel__checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={config.enableImagePicker}
+                  onChange={(e) => handleInputChange('enableImagePicker', e.target.checked)}
+                  disabled={disabled}
+                />
+                <span>Enable Image Picker</span>
+              </label>
+            </div>
+
+            <div className="config-panel__field config-panel__field--checkbox">
+              <label className="config-panel__checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={config.enableHotlinking}
+                  onChange={(e) => handleInputChange('enableHotlinking', e.target.checked)}
+                  disabled={disabled}
+                />
+                <span>Enable Hotlink Protection</span>
+              </label>
+            </div>
           </div>
         </div>
       )}
@@ -313,7 +338,7 @@ const UnifiedWorkflow: React.FC = () => {
   }, []);
 
   // Initialize the step runner
-  const { executeStep } = useWorkflowStepRunner();
+  const { executeStep, resetSessionId } = useWorkflowStepRunner();
 
   // Initialize YOLO mode
   const {
@@ -322,6 +347,7 @@ const UnifiedWorkflow: React.FC = () => {
     continueFromIntervention,
     continueFromPreStepInput,
     cancelFromPreStepInput,
+    retryStepAndContinue,
     isYoloRunning
   } = useYoloMode(executeStep);
 
@@ -363,6 +389,9 @@ const UnifiedWorkflow: React.FC = () => {
   }, [actions, isRunning]);
 
   const handleStartWorkflow = useCallback(async () => {
+    // Reset session ID for a new workflow run (creates new log folder)
+    resetSessionId();
+
     if (mode === 'yolo') {
       await startYoloMode();
     } else if (mode === 'batch') {
@@ -370,7 +399,7 @@ const UnifiedWorkflow: React.FC = () => {
     } else {
       actions.startWorkflow();
     }
-  }, [mode, actions, startYoloMode, startBatchMode]);
+  }, [mode, actions, startYoloMode, startBatchMode, resetSessionId]);
 
   const handlePauseWorkflow = useCallback(() => {
     if (mode === 'yolo') {
@@ -470,11 +499,11 @@ const UnifiedWorkflow: React.FC = () => {
 
   const handleInterventionRetry = useCallback(async () => {
     if (pendingIntervention) {
-      actions.setPendingIntervention(null);
-      actions.setStepStatus(pendingIntervention, 'pending');
-      await executeStep(pendingIntervention);
+      // Use retryStepAndContinue to properly handle YOLO mode tracking
+      // This removes the step from completedStepsRef and resets status to pending
+      retryStepAndContinue(pendingIntervention);
     }
-  }, [pendingIntervention, actions, executeStep]);
+  }, [pendingIntervention, retryStepAndContinue]);
 
   const handleInterventionStop = useCallback(() => {
     stopYoloMode();
@@ -546,6 +575,15 @@ const UnifiedWorkflow: React.FC = () => {
           onProcessSite={executeStep}
           disabled={isRunning}
         />
+      )}
+
+      {/* Theme JSON Debug Viewer - shows when design system data is available */}
+      {(generatedData.scrapeResult as { design_system?: Record<string, unknown> } | undefined)?.design_system && (
+        <div className="unified-workflow__theme-debug">
+          <ThemeJsonDebugViewer
+            designSystem={(generatedData.scrapeResult as { design_system: Record<string, unknown> }).design_system as import('../DesignSystemViewer').DesignSystem}
+          />
+        </div>
       )}
 
       {/* Control Buttons */}

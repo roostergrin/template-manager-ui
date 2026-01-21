@@ -18,6 +18,9 @@ export const useYoloMode = (executeStep: ExecuteStepFn) => {
   // Track completed steps during execution (since state.steps is stale in async loop)
   const completedStepsRef = useRef<Set<string>>(new Set());
 
+  // Track if retry was requested during intervention - will re-run the step
+  const retryRequestedRef = useRef(false);
+
   // Intervention continuation signal
   const interventionResolveRef = useRef<(() => void) | null>(null);
 
@@ -34,6 +37,7 @@ export const useYoloMode = (executeStep: ExecuteStepFn) => {
       currentStepIndexRef.current = 0;
       completedStepsRef.current = new Set();
       generatedDataRef.current = {};
+      retryRequestedRef.current = false;
     }
   }, [state.isRunning]);
 
@@ -79,6 +83,7 @@ export const useYoloMode = (executeStep: ExecuteStepFn) => {
     setIsYoloRunning(true);
     shouldStopRef.current = false;
     completedStepsRef.current = new Set();
+    retryRequestedRef.current = false;
     actions.startWorkflow();
 
     logWorkflowEvent('start', 'Starting YOLO mode - automated execution');
@@ -272,6 +277,20 @@ export const useYoloMode = (executeStep: ExecuteStepFn) => {
           break;
         }
 
+        // Check if retry was requested - decrement i to re-run this step
+        if (retryRequestedRef.current) {
+          retryRequestedRef.current = false;
+          logWorkflowEvent('retry', `Retrying step ${step.name}`);
+          actions.addProgressEvent({
+            stepId: 'intervention',
+            stepName: 'Intervention',
+            status: 'completed',
+            message: `Retrying ${step.name}`,
+          });
+          i--; // Decrement to re-run this step
+          continue; // Skip the delay and immediately retry
+        }
+
         logWorkflowEvent('resume', `Continuing after intervention for ${step.name}`);
         actions.addProgressEvent({
           stepId: 'intervention',
@@ -370,6 +389,35 @@ export const useYoloMode = (executeStep: ExecuteStepFn) => {
     });
   }, [actions]);
 
+  // Retry a step - resets it to pending and removes from completed tracking
+  const retryStep = useCallback((stepId: string) => {
+    const step = getStepById(state.steps, stepId);
+    if (!step) return;
+
+    // Remove from completed tracking so YOLO will re-run it
+    completedStepsRef.current.delete(stepId);
+
+    // Reset step status to pending
+    actions.setStepStatus(stepId, 'pending');
+
+    logWorkflowEvent('retry', `Step ${step.name} marked for retry`);
+    actions.addProgressEvent({
+      stepId,
+      stepName: step.name,
+      status: 'pending',
+      message: `Retry requested: ${step.name}`,
+    });
+  }, [state.steps, actions]);
+
+  // Retry and immediately continue YOLO mode
+  const retryStepAndContinue = useCallback((stepId: string) => {
+    retryStep(stepId);
+    // Set flag so the loop knows to re-run the step
+    retryRequestedRef.current = true;
+    // Clear intervention state and continue (this resolves the wait)
+    actions.setPendingIntervention(null);
+  }, [retryStep, actions]);
+
   return {
     startYoloMode,
     stopYoloMode,
@@ -378,6 +426,8 @@ export const useYoloMode = (executeStep: ExecuteStepFn) => {
     continueFromIntervention,
     continueFromPreStepInput,
     cancelFromPreStepInput,
+    retryStep,
+    retryStepAndContinue,
     isYoloRunning,
     currentStepIndex: currentStepIndexRef.current,
   };
