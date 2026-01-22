@@ -36,6 +36,9 @@ export interface WorkflowStep {
 
 export type TemplateType = 'json' | 'wordpress';
 
+// Deployment target: 'production' uses AWS (S3/CloudFront/CodePipeline), 'demo' uses Cloudflare Pages
+export type DeploymentTarget = 'production' | 'demo';
+
 export interface SiteConfig {
   domain: string;
   template: string;
@@ -48,6 +51,8 @@ export interface SiteConfig {
   wordpressApiUrl?: string;
   githubOwner?: string;
   githubRepo?: string;
+  // Deployment target - controls whether to use AWS or Cloudflare Pages
+  deploymentTarget?: DeploymentTarget;
 }
 
 export interface BatchSiteEntry {
@@ -140,6 +145,10 @@ export interface UnifiedWorkflowState {
     secondPassResult?: unknown;
     logoResult?: unknown;
     faviconResult?: unknown;
+    // Demo site (Cloudflare Pages) results
+    demoRepoResult?: CreateDemoRepoResult;
+    cloudflarePagesResult?: ProvisionCloudflarePageResult;
+    demoSiteResult?: ProvisionDemoSiteResult;
   };
 
   // Error state
@@ -374,6 +383,42 @@ export interface GithubJsonUploadResult {
   themeJsonUrl?: string;
   skipped?: boolean;
   message?: string;
+}
+
+// Demo Site (Cloudflare Pages) result types
+export interface CreateDemoRepoResult {
+  success: boolean;
+  owner?: string;
+  repo?: string;
+  full_name?: string;
+  html_url?: string;
+  clone_url?: string;
+  message?: string;
+  already_existed?: boolean;
+}
+
+export interface ProvisionCloudflarePageResult {
+  success: boolean;
+  project_name?: string;
+  subdomain?: string;
+  pages_url?: string;
+  message?: string;
+  already_existed?: boolean;
+}
+
+export interface ProvisionDemoSiteResult {
+  success: boolean;
+  message?: string;
+  // GitHub repo details
+  repo_owner?: string;
+  repo_name?: string;
+  repo_url?: string;
+  // Cloudflare Pages details
+  pages_project_name?: string;
+  pages_url?: string;
+  // Status flags
+  repo_already_existed?: boolean;
+  pages_already_existed?: boolean;
 }
 
 // Vector Store types

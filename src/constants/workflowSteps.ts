@@ -18,6 +18,9 @@ export const WORKFLOW_STEP_IDS = {
   SECOND_PASS: 'second-pass',
   UPLOAD_LOGO: 'upload-logo',
   UPLOAD_FAVICON: 'upload-favicon',
+  // Demo site (Cloudflare Pages) steps
+  CREATE_DEMO_REPO: 'create-demo-repo',
+  PROVISION_CLOUDFLARE_PAGES: 'provision-cloudflare-pages',
 } as const;
 
 export type WorkflowStepId = typeof WORKFLOW_STEP_IDS[keyof typeof WORKFLOW_STEP_IDS];
@@ -203,6 +206,27 @@ export const DEFAULT_WORKFLOW_STEPS: WorkflowStep[] = [
     estimatedDurationSeconds: 10,
     isOptional: true,
   },
+  // Demo site (Cloudflare Pages) steps - skipped by default, enabled when deploymentTarget === 'demo'
+  {
+    id: WORKFLOW_STEP_IDS.CREATE_DEMO_REPO,
+    name: 'Create Demo Repository',
+    description: 'Create GitHub repository in demo-rooster organization',
+    phase: 'infrastructure',
+    status: 'skipped',
+    dependencies: [],
+    estimatedDurationSeconds: 15,
+    isOptional: true,
+  },
+  {
+    id: WORKFLOW_STEP_IDS.PROVISION_CLOUDFLARE_PAGES,
+    name: 'Provision Cloudflare Pages',
+    description: 'Create Cloudflare Pages project and connect to GitHub repo',
+    phase: 'infrastructure',
+    status: 'skipped',
+    dependencies: [WORKFLOW_STEP_IDS.CREATE_DEMO_REPO],
+    estimatedDurationSeconds: 30,
+    isOptional: true,
+  },
 ];
 
 export const AVAILABLE_TEMPLATES = [
@@ -281,7 +305,7 @@ export const getElapsedTime = (steps: WorkflowStep[]): number => {
   return steps.reduce((total, step) => total + (step.actualDurationSeconds || 0), 0);
 };
 
-// Get execution order for YOLO mode
+// Get execution order for YOLO mode (production AWS deployment)
 export const getYoloExecutionOrder = (): string[] => {
   return [
     WORKFLOW_STEP_IDS.CREATE_GITHUB_REPO,
@@ -302,4 +326,27 @@ export const getYoloExecutionOrder = (): string[] => {
     WORKFLOW_STEP_IDS.UPLOAD_LOGO,
     WORKFLOW_STEP_IDS.UPLOAD_FAVICON,
   ];
+};
+
+// Get execution order for demo mode (Cloudflare Pages deployment)
+export const getDemoExecutionOrder = (): string[] => {
+  return [
+    WORKFLOW_STEP_IDS.CREATE_DEMO_REPO,
+    WORKFLOW_STEP_IDS.SCRAPE_SITE,
+    WORKFLOW_STEP_IDS.CREATE_VECTOR_STORE,
+    WORKFLOW_STEP_IDS.SELECT_TEMPLATE,
+    WORKFLOW_STEP_IDS.ALLOCATE_CONTENT,
+    WORKFLOW_STEP_IDS.GENERATE_SITEMAP,
+    WORKFLOW_STEP_IDS.GENERATE_CONTENT,
+    WORKFLOW_STEP_IDS.DOWNLOAD_THEME,
+    WORKFLOW_STEP_IDS.IMAGE_PICKER,
+    // Note: For demo sites, we skip hotlinking prevention (images stay hotlinked)
+    WORKFLOW_STEP_IDS.UPLOAD_JSON_TO_GITHUB,
+    WORKFLOW_STEP_IDS.PROVISION_CLOUDFLARE_PAGES,
+  ];
+};
+
+// Get execution order based on deployment target
+export const getExecutionOrderByTarget = (deploymentTarget: 'production' | 'demo' = 'production'): string[] => {
+  return deploymentTarget === 'demo' ? getDemoExecutionOrder() : getYoloExecutionOrder();
 };

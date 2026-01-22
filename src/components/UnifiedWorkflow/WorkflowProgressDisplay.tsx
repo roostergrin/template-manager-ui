@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 import { useUnifiedWorkflow } from '../../contexts/UnifiedWorkflowProvider';
 import { WorkflowStep, WorkflowStepStatus, WorkflowProgressEvent } from '../../types/UnifiedWorkflowTypes';
-import { getYoloExecutionOrder, WORKFLOW_STEP_IDS } from '../../constants/workflowSteps';
+import { getYoloExecutionOrder, getExecutionOrderByTarget, WORKFLOW_STEP_IDS } from '../../constants/workflowSteps';
 import { useWorkflowExport } from '../../hooks/useWorkflowExport';
 import { useWorkflowStepRunner } from '../../hooks/useWorkflowStepRunner';
 import { STEP_INPUT_MAPPINGS, getStepInputData } from '../../constants/stepInputMappings';
@@ -123,6 +123,22 @@ const STEP_METADATA: Record<string, {
   'upload-favicon': {
     icon: <Image size={16} />,
     outputs: ['faviconUrl'],
+    phase: 'deployment',
+  },
+  // Demo site (Cloudflare Pages) steps
+  'create-demo-repo': {
+    icon: <Globe size={16} />,
+    outputs: ['repo_url', 'owner', 'repo_name'],
+    phase: 'infrastructure',
+  },
+  'provision-cloudflare-pages': {
+    icon: <Server size={16} />,
+    outputs: ['pages_url', 'project_name'],
+    phase: 'infrastructure',
+  },
+  'upload-json-to-github': {
+    icon: <Upload size={16} />,
+    outputs: ['pages.json', 'globalData.json', 'theme.json'],
     phase: 'deployment',
   },
 };
@@ -521,8 +537,12 @@ const WorkflowProgressDisplay: React.FC<WorkflowProgressDisplayProps> = ({
 
   const progress = useMemo(() => actions.getProgress(), [actions]);
 
-  // Get steps in execution order
-  const executionOrder = getYoloExecutionOrder();
+  // Get steps in execution order based on deployment target
+  const deploymentTarget = siteConfig.deploymentTarget || 'production';
+  const executionOrder = useMemo(() =>
+    getExecutionOrderByTarget(deploymentTarget),
+    [deploymentTarget]
+  );
   const orderedSteps = useMemo(() => {
     return executionOrder
       .map(stepId => steps.find(s => s.id === stepId))

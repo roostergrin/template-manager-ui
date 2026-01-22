@@ -62,6 +62,7 @@ const defaultSiteConfig: SiteConfig = {
   preserveDoctorPhotos: true,
   enableImagePicker: false,
   enableHotlinking: false,
+  deploymentTarget: 'production', // 'production' for AWS, 'demo' for Cloudflare Pages
 };
 
 // Default config
@@ -101,14 +102,49 @@ const unifiedWorkflowReducer = (
         config: { ...state.config, mode: action.payload },
       };
 
-    case 'SET_SITE_CONFIG':
+    case 'SET_SITE_CONFIG': {
+      const newSiteConfig = { ...state.config.siteConfig, ...action.payload };
+      const deploymentTarget = newSiteConfig.deploymentTarget || 'production';
+      const prevTarget = state.config.siteConfig.deploymentTarget || 'production';
+
+      console.log('[DEBUG] SET_SITE_CONFIG - payload:', action.payload);
+      console.log('[DEBUG] SET_SITE_CONFIG - deploymentTarget:', deploymentTarget, 'prevTarget:', prevTarget);
+
+      // If deployment target changed, update step statuses
+      let updatedSteps = state.steps;
+      if (deploymentTarget !== prevTarget) {
+        console.log('[DEBUG] Deployment target changed! Updating steps...');
+        updatedSteps = state.steps.map(step => {
+          if (deploymentTarget === 'demo') {
+            // Demo mode: enable demo steps, skip production steps
+            if (step.id === 'create-demo-repo' || step.id === 'provision-cloudflare-pages') {
+              return { ...step, status: 'pending' as const };
+            }
+            if (step.id === 'create-github-repo' || step.id === 'provision-site' || step.id === 'prevent-hotlinking') {
+              return { ...step, status: 'skipped' as const };
+            }
+          } else {
+            // Production mode: enable production steps, skip demo steps
+            if (step.id === 'create-github-repo' || step.id === 'provision-site' || step.id === 'prevent-hotlinking') {
+              return { ...step, status: 'pending' as const };
+            }
+            if (step.id === 'create-demo-repo' || step.id === 'provision-cloudflare-pages') {
+              return { ...step, status: 'skipped' as const };
+            }
+          }
+          return step;
+        });
+      }
+
       return {
         ...state,
+        steps: updatedSteps,
         config: {
           ...state.config,
-          siteConfig: { ...state.config.siteConfig, ...action.payload },
+          siteConfig: newSiteConfig,
         },
       };
+    }
 
     case 'SET_BATCH_CONFIG':
       return {

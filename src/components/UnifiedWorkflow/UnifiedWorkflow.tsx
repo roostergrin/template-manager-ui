@@ -83,6 +83,7 @@ const ConfigurationPanel: React.FC<ConfigurationPanelProps> = ({
   const [isExpanded, setIsExpanded] = useState(true);
 
   const handleInputChange = (field: keyof SiteConfig, value: string | boolean) => {
+    console.log('[DEBUG] handleInputChange called:', field, value);
     onConfigChange({ [field]: value });
 
     // Trigger template type change callback when templateType is changed
@@ -173,6 +174,42 @@ const ConfigurationPanel: React.FC<ConfigurationPanelProps> = ({
                   <span className="config-panel__radio-text">
                     <strong>WordPress</strong>
                     <span className="config-panel__radio-hint">rg-template-* (with WordPress backend)</span>
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <div className="config-panel__field">
+              <label htmlFor="deploymentTarget" className="config-panel__label">
+                Deployment Target
+              </label>
+              <div className="config-panel__radio-group">
+                <label className="config-panel__radio-label">
+                  <input
+                    type="radio"
+                    name="deploymentTarget"
+                    value="production"
+                    checked={config.deploymentTarget !== 'demo'}
+                    onChange={() => handleInputChange('deploymentTarget', 'production')}
+                    disabled={disabled}
+                  />
+                  <span className="config-panel__radio-text">
+                    <strong>Production (AWS)</strong>
+                    <span className="config-panel__radio-hint">S3 + CloudFront + CodePipeline</span>
+                  </span>
+                </label>
+                <label className="config-panel__radio-label">
+                  <input
+                    type="radio"
+                    name="deploymentTarget"
+                    value="demo"
+                    checked={config.deploymentTarget === 'demo'}
+                    onChange={() => handleInputChange('deploymentTarget', 'demo')}
+                    disabled={disabled}
+                  />
+                  <span className="config-panel__radio-text">
+                    <strong>Demo (Cloudflare Pages)</strong>
+                    <span className="config-panel__radio-hint">demo-rooster org + Cloudflare Pages</span>
                   </span>
                 </label>
               </div>

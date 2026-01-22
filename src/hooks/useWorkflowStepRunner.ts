@@ -21,6 +21,9 @@ import {
   FaviconUploadResult,
   GithubJsonUploadResult,
   StepLogDetails,
+  // Demo site (Cloudflare Pages) types
+  CreateDemoRepoResult,
+  ProvisionCloudflarePageResult,
 } from '../types/UnifiedWorkflowTypes';
 import apiClient from '../services/apiService';
 import { createStepLogger, createTimer, StepLogger } from '../utils/workflowLogger';
@@ -1869,6 +1872,83 @@ export const useWorkflowStepRunner = () => {
     }
   }, [state.config, getGeneratedData]);
 
+  // ============================================================================
+  // Demo Site (Cloudflare Pages) Step Executors
+  // ============================================================================
+
+  const runCreateDemoRepo = useCallback(async (logger: StepLogger): Promise<StepResult> => {
+    const { siteConfig } = state.config;
+    const deploymentTarget = siteConfig.deploymentTarget || 'production';
+
+    // Skip if not in demo mode
+    if (deploymentTarget !== 'demo') {
+      logger.logProcessing('Skipping demo repo - using production deployment');
+      return { success: true, data: { skipped: true, message: 'Not needed for production deployment' } };
+    }
+
+    const endpoint = '/create-demo-repo/';
+    const repoName = siteConfig.domain.replace(/\./g, '-');
+    const payload = {
+      repo_name: repoName,
+      description: `Demo site for ${siteConfig.domain}`,
+      is_template: true,
+    };
+
+    try {
+      logger.logApiRequest(endpoint, payload);
+      const apiTimer = createTimer();
+
+      const response = await apiClient.post<CreateDemoRepoResult>(endpoint, payload);
+
+      logger.logApiResponse(response, apiTimer.elapsed());
+      setGeneratedDataWithRef('demoRepoResult', response);
+      return { success: isResponseSuccessful(response as Record<string, unknown>), data: response };
+    } catch (error) {
+      return { success: false, error: error instanceof Error ? error.message : 'Demo repo creation failed' };
+    }
+  }, [state.config, setGeneratedDataWithRef]);
+
+  const runProvisionCloudflarePages = useCallback(async (logger: StepLogger): Promise<StepResult> => {
+    const { siteConfig } = state.config;
+    const deploymentTarget = siteConfig.deploymentTarget || 'production';
+
+    // Skip if not in demo mode
+    if (deploymentTarget !== 'demo') {
+      logger.logProcessing('Skipping Cloudflare Pages - using production deployment');
+      return { success: true, data: { skipped: true, message: 'Not needed for production deployment' } };
+    }
+
+    // Get the demo repo result
+    const demoRepoResult = getGeneratedData<CreateDemoRepoResult>('demoRepoResult');
+    if (!demoRepoResult?.repo) {
+      return { success: false, error: 'Demo repository must be created first' };
+    }
+
+    const endpoint = '/provision-cloudflare-pages/';
+    const projectName = siteConfig.domain.replace(/\./g, '-');
+    const payload = {
+      project_name: projectName,
+      repo_name: demoRepoResult.repo,
+      repo_owner: demoRepoResult.owner || 'demo-rooster',
+      build_command: 'npm run generate',
+      build_output_dir: 'dist',
+      node_version: '16',
+    };
+
+    try {
+      logger.logApiRequest(endpoint, payload);
+      const apiTimer = createTimer();
+
+      const response = await apiClient.post<ProvisionCloudflarePageResult>(endpoint, payload);
+
+      logger.logApiResponse(response, apiTimer.elapsed());
+      setGeneratedDataWithRef('cloudflarePagesResult', response);
+      return { success: isResponseSuccessful(response as Record<string, unknown>), data: response };
+    } catch (error) {
+      return { success: false, error: error instanceof Error ? error.message : 'Cloudflare Pages provisioning failed' };
+    }
+  }, [state.config, getGeneratedData, setGeneratedDataWithRef]);
+
   // Map step IDs to executors
   const getStepExecutor = useCallback((stepId: string): StepExecutor | null => {
     switch (stepId) {
@@ -1906,6 +1986,11 @@ export const useWorkflowStepRunner = () => {
         return runUploadLogo;
       case WORKFLOW_STEP_IDS.UPLOAD_FAVICON:
         return runUploadFavicon;
+      // Demo site (Cloudflare Pages) steps
+      case WORKFLOW_STEP_IDS.CREATE_DEMO_REPO:
+        return runCreateDemoRepo;
+      case WORKFLOW_STEP_IDS.PROVISION_CLOUDFLARE_PAGES:
+        return runProvisionCloudflarePages;
       default:
         return null;
     }
@@ -1927,6 +2012,9 @@ export const useWorkflowStepRunner = () => {
     runSecondPass,
     runUploadLogo,
     runUploadFavicon,
+    // Demo site steps
+    runCreateDemoRepo,
+    runProvisionCloudflarePages,
   ]);
 
   // Main execution function
