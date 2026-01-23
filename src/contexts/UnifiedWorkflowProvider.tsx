@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, useCallback, useMemo, ReactNode, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, useCallback, useMemo, ReactNode, useEffect, useState } from 'react';
 import {
   UnifiedWorkflowState,
   UnifiedWorkflowActions,
@@ -17,6 +17,7 @@ import {
   areDependenciesMet,
   getStepById,
 } from '../constants/workflowSteps';
+import { getOrCreateSessionId, getSessionStorageKey, openNewSession } from '../utils/workflowSession';
 
 // Generate unique ID for progress events
 const generateId = (): string => {
@@ -62,7 +63,7 @@ const defaultSiteConfig: SiteConfig = {
   preserveDoctorPhotos: true,
   enableImagePicker: false,
   enableHotlinking: false,
-  deploymentTarget: 'production', // 'production' for AWS, 'demo' for Cloudflare Pages
+  deploymentTarget: 'demo', // 'demo' for Cloudflare Pages (default), 'production' for AWS
 };
 
 // Default config
@@ -380,8 +381,8 @@ const unifiedWorkflowReducer = (
   }
 };
 
-// Storage key
-const STORAGE_KEY = 'unified-workflow-state';
+// Base storage key (will be combined with session ID)
+const BASE_STORAGE_KEY = 'unified-workflow-state';
 
 // Context
 const UnifiedWorkflowContext = createContext<UnifiedWorkflowContextValue | undefined>(undefined);
@@ -394,11 +395,18 @@ interface UnifiedWorkflowProviderProps {
 // Provider component
 export const UnifiedWorkflowProvider: React.FC<UnifiedWorkflowProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(unifiedWorkflowReducer, null, createInitialState);
+  const [sessionId] = useState(() => getOrCreateSessionId());
+
+  // Get session-scoped storage key
+  const storageKey = useMemo(
+    () => getSessionStorageKey(BASE_STORAGE_KEY, sessionId),
+    [sessionId]
+  );
 
   // Load state from localStorage on mount
   useEffect(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY);
+      const saved = localStorage.getItem(storageKey);
       if (saved) {
         const parsedState = JSON.parse(saved);
         // Don't restore running state - always start stopped
@@ -414,7 +422,7 @@ export const UnifiedWorkflowProvider: React.FC<UnifiedWorkflowProviderProps> = (
     } catch (error) {
       console.error('Failed to load unified workflow state:', error);
     }
-  }, []);
+  }, [storageKey]);
 
   // Save state to localStorage on changes
   useEffect(() => {
@@ -426,11 +434,11 @@ export const UnifiedWorkflowProvider: React.FC<UnifiedWorkflowProviderProps> = (
         sessionLog: state.sessionLog,
         progressEvents: state.progressEvents.slice(0, 20), // Only save recent events
       };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(stateToSave));
+      localStorage.setItem(storageKey, JSON.stringify(stateToSave));
     } catch (error) {
       console.error('Failed to save unified workflow state:', error);
     }
-  }, [state.config, state.steps, state.generatedData, state.sessionLog, state.progressEvents]);
+  }, [storageKey, state.config, state.steps, state.generatedData, state.sessionLog, state.progressEvents]);
 
   // Always warn user before closing window to prevent accidental loss of work
   useEffect(() => {
@@ -704,7 +712,9 @@ export const UnifiedWorkflowProvider: React.FC<UnifiedWorkflowProviderProps> = (
   const value: UnifiedWorkflowContextValue = useMemo(() => ({
     state,
     actions,
-  }), [state, actions]);
+    sessionId,
+    openNewSession,
+  }), [state, actions, sessionId]);
 
   return (
     <UnifiedWorkflowContext.Provider value={value}>

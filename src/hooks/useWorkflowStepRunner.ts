@@ -1476,29 +1476,48 @@ export const useWorkflowStepRunner = () => {
     let themeToUpload: Record<string, unknown> | undefined;
     let usingEditedData = false;
 
+    // Check deployment target to determine which repo result to use
+    const deploymentTarget = siteConfig.deploymentTarget || 'demo';
+    const isDemoMode = deploymentTarget === 'demo';
+
     if (editedInput) {
       logger.logProcessing('Using edited input data from pre-step editor');
       usingEditedData = true;
 
       // Get config from edited input or fall back to generated data
       const githubRepoResult = getGeneratedData<CreateGithubRepoResult>('githubRepoResult');
-      owner = editedInput.config?.owner || githubRepoResult?.owner || 'roostergrin';
-      repo = editedInput.config?.repo || githubRepoResult?.repo || '';
+      const demoRepoResult = getGeneratedData<CreateDemoRepoResult>('demoRepoResult');
+      const repoResult = isDemoMode ? demoRepoResult : githubRepoResult;
+      owner = editedInput.config?.owner || repoResult?.owner || (isDemoMode ? 'demo-rooster' : 'roostergrin');
+      repo = editedInput.config?.repo || repoResult?.repo || '';
       branch = editedInput.config?.branch || 'master';
 
       pageData = editedInput.pages;
       globalData = editedInput.globalData || {};
       themeToUpload = editedInput.theme;
     } else {
-      // Get GitHub repo info from create-github-repo step
+      // Get GitHub repo info from appropriate step based on deployment target
       const githubRepoResult = getGeneratedData<CreateGithubRepoResult>('githubRepoResult');
-      if (!githubRepoResult?.repo) {
-        return { success: false, error: 'No GitHub repository information available' };
-      }
+      const demoRepoResult = getGeneratedData<CreateDemoRepoResult>('demoRepoResult');
+      const repoResult = isDemoMode ? demoRepoResult : githubRepoResult;
 
-      owner = githubRepoResult.owner || 'roostergrin';
-      repo = githubRepoResult.repo;
-      branch = 'master';
+      // In demo mode, derive repo name from domain if demoRepoResult not available
+      if (!repoResult?.repo) {
+        if (isDemoMode) {
+          // Fallback: derive repo name from domain (same logic as create-demo-repo step)
+          const derivedRepoName = siteConfig.domain.replace(/\./g, '-');
+          owner = 'demo-rooster';
+          repo = derivedRepoName;
+          branch = 'master';
+          logger.logProcessing(`Using derived repo name for demo mode: ${owner}/${repo}`);
+        } else {
+          return { success: false, error: 'No GitHub repository information available' };
+        }
+      } else {
+        owner = repoResult.owner || (isDemoMode ? 'demo-rooster' : 'roostergrin');
+        repo = repoResult.repo;
+        branch = 'master';
+      }
 
       // Get page data - prefer hotlink-processed pages (has CloudFront URLs), then image picker, then content
       const hotlinkPages = getGeneratedData<Record<string, unknown>>('hotlinkPagesResult');
@@ -1878,7 +1897,7 @@ export const useWorkflowStepRunner = () => {
 
   const runCreateDemoRepo = useCallback(async (logger: StepLogger): Promise<StepResult> => {
     const { siteConfig } = state.config;
-    const deploymentTarget = siteConfig.deploymentTarget || 'production';
+    const deploymentTarget = siteConfig.deploymentTarget || 'demo';
 
     // Skip if not in demo mode
     if (deploymentTarget !== 'demo') {
@@ -1886,13 +1905,19 @@ export const useWorkflowStepRunner = () => {
       return { success: true, data: { skipped: true, message: 'Not needed for production deployment' } };
     }
 
-    const endpoint = '/create-demo-repo/';
+    // Use the same template as production (roostergrin/ai-template-*), but create in demo-rooster org
     const repoName = siteConfig.domain.replace(/\./g, '-');
+    const templateType = siteConfig.templateType || 'json';
+    const templateRepoName = getGithubTemplateRepo(siteConfig.template, templateType);
+    const endpoint = '/create-demo-repo/';
     const payload = {
       repo_name: repoName,
       description: `Demo site for ${siteConfig.domain}`,
-      is_template: true,
+      template_repo: `roostergrin/${templateRepoName}`, // Full owner/repo format (e.g., 'roostergrin/ai-template-stinson')
+      is_template: false, // Not a template, just a regular repo
     };
+
+    logger.logProcessing(`Using template: roostergrin/${templateRepoName} -> demo-rooster/${repoName}`);
 
     try {
       logger.logApiRequest(endpoint, payload);
@@ -1910,7 +1935,7 @@ export const useWorkflowStepRunner = () => {
 
   const runProvisionCloudflarePages = useCallback(async (logger: StepLogger): Promise<StepResult> => {
     const { siteConfig } = state.config;
-    const deploymentTarget = siteConfig.deploymentTarget || 'production';
+    const deploymentTarget = siteConfig.deploymentTarget || 'demo';
 
     // Skip if not in demo mode
     if (deploymentTarget !== 'demo') {
@@ -1932,7 +1957,7 @@ export const useWorkflowStepRunner = () => {
       repo_owner: demoRepoResult.owner || 'demo-rooster',
       build_command: 'npm run generate',
       build_output_dir: 'dist',
-      node_version: '16',
+      node_version: '14',
     };
 
     try {

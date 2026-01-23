@@ -46,7 +46,7 @@ export const DEFAULT_WORKFLOW_STEPS: WorkflowStep[] = [
     name: 'Create GitHub Repo',
     description: 'Create GitHub repository from template',
     phase: 'infrastructure',
-    status: 'pending',
+    status: 'skipped', // Skipped by default (demo mode), enabled for production
     dependencies: [],
     estimatedDurationSeconds: 15,
   },
@@ -65,7 +65,7 @@ export const DEFAULT_WORKFLOW_STEPS: WorkflowStep[] = [
     name: 'Provision Site',
     description: 'Create S3 bucket and CloudFront distributions (dist + assets)',
     phase: 'infrastructure',
-    status: 'pending',
+    status: 'skipped', // Skipped by default (demo mode), enabled for production
     dependencies: [WORKFLOW_STEP_IDS.CREATE_GITHUB_REPO],
     estimatedDurationSeconds: 45,
   },
@@ -146,7 +146,7 @@ export const DEFAULT_WORKFLOW_STEPS: WorkflowStep[] = [
     name: 'Prevent Hotlinking',
     description: 'Sync images to S3 and configure CloudFront-only access',
     phase: 'infrastructure',
-    status: 'pending',
+    status: 'skipped', // Skipped by default (demo mode), enabled for production
     dependencies: [WORKFLOW_STEP_IDS.PROVISION_SITE, WORKFLOW_STEP_IDS.IMAGE_PICKER, WORKFLOW_STEP_IDS.DOWNLOAD_THEME],
     estimatedDurationSeconds: 15,
   },
@@ -206,13 +206,13 @@ export const DEFAULT_WORKFLOW_STEPS: WorkflowStep[] = [
     estimatedDurationSeconds: 10,
     isOptional: true,
   },
-  // Demo site (Cloudflare Pages) steps - skipped by default, enabled when deploymentTarget === 'demo'
+  // Demo site (Cloudflare Pages) steps - enabled by default (demo mode), skipped for production
   {
     id: WORKFLOW_STEP_IDS.CREATE_DEMO_REPO,
     name: 'Create Demo Repository',
-    description: 'Create GitHub repository in demo-rooster organization',
+    description: 'Create GitHub repository in demo-rooster org from roostergrin template',
     phase: 'infrastructure',
-    status: 'skipped',
+    status: 'pending', // Enabled by default (demo mode)
     dependencies: [],
     estimatedDurationSeconds: 15,
     isOptional: true,
@@ -222,7 +222,7 @@ export const DEFAULT_WORKFLOW_STEPS: WorkflowStep[] = [
     name: 'Provision Cloudflare Pages',
     description: 'Create Cloudflare Pages project and connect to GitHub repo',
     phase: 'infrastructure',
-    status: 'skipped',
+    status: 'pending', // Enabled by default (demo mode)
     dependencies: [WORKFLOW_STEP_IDS.CREATE_DEMO_REPO],
     estimatedDurationSeconds: 30,
     isOptional: true,

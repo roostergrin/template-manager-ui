@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState, useEffect } from 'react';
 import { useUnifiedWorkflow } from '../contexts/UnifiedWorkflowProvider';
 import {
-  getYoloExecutionOrder,
+  getExecutionOrderByTarget,
   getStepById,
 } from '../constants/workflowSteps';
 import { logWorkflowEvent } from '../utils/workflowLogger';
@@ -79,7 +79,11 @@ export const useYoloMode = (executeStep: ExecuteStepFn) => {
       return;
     }
 
-    const executionOrder = getYoloExecutionOrder();
+    const deploymentTarget = state.config.deploymentTarget || 'demo';
+    const executionOrder = getExecutionOrderByTarget(deploymentTarget);
+    console.log('🚀 YOLO MODE - deploymentTarget:', deploymentTarget);
+    console.log('🚀 YOLO MODE - executionOrder:', executionOrder);
+    console.log('🚀 YOLO MODE - all steps:', state.steps.map(s => ({ id: s.id, status: s.status })));
     setIsYoloRunning(true);
     shouldStopRef.current = false;
     completedStepsRef.current = new Set();
@@ -106,8 +110,10 @@ export const useYoloMode = (executeStep: ExecuteStepFn) => {
 
     // Find the first pending step to start from
     let startIndex = 0;
+    console.log('🚀 YOLO MODE - Looking for pending steps in execution order...');
     for (let i = 0; i < executionOrder.length; i++) {
       const step = getStepById(state.steps, executionOrder[i]);
+      console.log(`🚀 Step ${i}: ${executionOrder[i]} - found: ${!!step}, status: ${step?.status}`);
       if (step && step.status === 'pending') {
         startIndex = i;
         break; // Found first pending step, stop searching
@@ -115,6 +121,7 @@ export const useYoloMode = (executeStep: ExecuteStepFn) => {
     }
 
     currentStepIndexRef.current = startIndex;
+    console.log('🚀 YOLO MODE - startIndex:', startIndex, 'first step:', executionOrder[startIndex]);
 
     // Track failed steps for dependency checking
     const failedSteps = new Set<string>();
@@ -136,9 +143,10 @@ export const useYoloMode = (executeStep: ExecuteStepFn) => {
       const step = getStepById(state.steps, stepId);
 
       if (!step) {
-        console.warn(`Step ${stepId} not found in workflow`);
+        console.warn(`🚀 Step ${stepId} not found in workflow - skipping`);
         continue;
       }
+      console.log(`🚀 YOLO MODE - Processing step: ${stepId}, status: ${step.status}`);
 
       // Skip if already completed or skipped (using our ref for accurate tracking)
       if (completedStepsRef.current.has(stepId)) {
@@ -319,7 +327,7 @@ export const useYoloMode = (executeStep: ExecuteStepFn) => {
         message: 'YOLO mode completed successfully!',
       });
     }
-  }, [isYoloRunning, state.steps, state.config, state.interventionMode, state.preStepPauseEnabled, state.editedInputData, actions, executeStep, waitForInterventionContinue, waitForPreStepInputContinue]);
+  }, [isYoloRunning, state.steps, state.config, state.config.deploymentTarget, state.interventionMode, state.preStepPauseEnabled, state.editedInputData, actions, executeStep, waitForInterventionContinue, waitForPreStepInputContinue]);
 
   const stopYoloMode = useCallback(() => {
     shouldStopRef.current = true;

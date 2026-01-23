@@ -214,6 +214,8 @@ export interface UnifiedWorkflowActions {
 export interface UnifiedWorkflowContextValue {
   state: UnifiedWorkflowState;
   actions: UnifiedWorkflowActions;
+  sessionId: string;
+  openNewSession: () => void;
 }
 
 // Step result types for each workflow step

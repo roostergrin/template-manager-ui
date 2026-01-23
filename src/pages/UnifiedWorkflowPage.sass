@@ -20,6 +20,12 @@ $border-color: #e2e8f0
     top: 0
     z-index: 10
 
+  &__header-top
+    display: flex
+    justify-content: space-between
+    align-items: center
+    margin-bottom: 1rem
+
   &__back-btn
     display: flex
     align-items: center
@@ -32,11 +38,50 @@ $border-color: #e2e8f0
     color: $text-secondary
     cursor: pointer
     transition: all 0.2s ease
-    margin-bottom: 1rem
 
     &:hover
       border-color: $primary-color
       color: $primary-color
+
+  &__session-controls
+    display: flex
+    align-items: center
+    gap: 0.5rem
+
+  &__session-badge
+    font-size: 0.75rem
+    font-family: monospace
+    color: $text-secondary
+    background: #f1f5f9
+    padding: 0.25rem 0.5rem
+    border-radius: 4px
+
+  &__session-btn
+    display: flex
+    align-items: center
+    gap: 0.25rem
+    padding: 0.375rem 0.5rem
+    background: transparent
+    border: 1px solid $border-color
+    border-radius: 4px
+    font-size: 0.75rem
+    color: $text-secondary
+    cursor: pointer
+    transition: all 0.2s ease
+
+    &:hover
+      border-color: $primary-color
+      color: $primary-color
+
+    &--new
+      background: $primary-color
+      border-color: $primary-color
+      color: white
+
+      &:hover
+        background: darken($primary-color, 10%)
+        border-color: darken($primary-color, 10%)
+        color: white
 
   &__title-container
     display: flex
@@ -81,6 +126,15 @@ $border-color: #e2e8f0
   .unified-workflow-page
     &__header
       padding: 1rem
+
+    &__header-top
+      flex-direction: column
+      align-items: flex-start
+      gap: 0.75rem
+
+    &__session-controls
+      width: 100%
+      justify-content: flex-end
 
     &__title
       font-size: 1.25rem
