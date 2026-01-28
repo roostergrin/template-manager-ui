@@ -1,11 +1,24 @@
 // Mock data for Image Picker step
 // Matches the structure returned by the real /replace-images/ endpoint
-// Returns updated pageData with new image URLs from ImageKit
+// Returns updated pageData with new stock image URLs (CloudFront or ImageKit)
 import { ImagePickerResult } from '../../types/UnifiedWorkflowTypes';
 
-// Helper to generate ImageKit stock image URLs
-const imagekitUrl = (category: string, index: number) =>
-  `https://ik.imagekit.io/roostergrin/stock/${category}/stock-${category}-${index}-${Date.now()}.jpg`;
+// Helper to generate stock image URLs for mocks
+// Uses CloudFront domain if configured, otherwise falls back to ImageKit
+const MOCK_CLOUDFRONT_DOMAIN = import.meta.env.VITE_CLOUDFRONT_IMAGE_DOMAIN || '';
+
+const stockImageUrl = (category: string, index: number, isHero: boolean = false) => {
+  const filename = `stock-${category}-${index}`;
+  if (MOCK_CLOUDFRONT_DOMAIN) {
+    const sizePrefix = isHero ? 'hero' : 'standard';
+    return `https://${MOCK_CLOUDFRONT_DOMAIN}/${sizePrefix}/${filename}.jpg`;
+  }
+  // Fallback to ImageKit for mock data
+  return `https://ik.imagekit.io/roostergrin/stock/${category}/${filename}-${Date.now()}.jpg`;
+};
+
+// Alias for backward compatibility
+const imagekitUrl = stockImageUrl;
 
 export const createMockImagePickerResult = (preserveDoctorPhotos: boolean): ImagePickerResult & { pageData: Record<string, unknown> } => {
   const preservedPhotos = preserveDoctorPhotos

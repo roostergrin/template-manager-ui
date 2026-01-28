@@ -53,6 +53,10 @@ export interface SiteConfig {
   githubRepo?: string;
   // Deployment target - controls whether to use AWS or Cloudflare Pages
   deploymentTarget?: DeploymentTarget;
+  // Use Firecrawl API for scraping (handles anti-bot, extracts branding)
+  useFirecrawl?: boolean;
+  // Maximum number of pages to scrape (default: 1)
+  maxScrapePages?: number;
 }
 
 export interface BatchSiteEntry {
@@ -161,6 +165,8 @@ export interface UnifiedWorkflowActions {
 
   // Configuration
   setSiteConfig: (config: Partial<SiteConfig>) => void;
+  getSiteConfigSync: () => SiteConfig; // Returns current siteConfig from ref (avoids stale closures in batch mode)
+  getStepsSync: () => WorkflowStep[]; // Returns current steps from ref (avoids stale closures in batch mode)
   setBatchConfig: (config: BatchConfig) => void;
 
   // Step management

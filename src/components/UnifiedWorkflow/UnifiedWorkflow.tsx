@@ -254,6 +254,33 @@ const ConfigurationPanel: React.FC<ConfigurationPanelProps> = ({
               <label className="config-panel__checkbox-label">
                 <input
                   type="checkbox"
+                  checked={config.useFirecrawl ?? true}
+                  onChange={(e) => handleInputChange('useFirecrawl', e.target.checked)}
+                  disabled={disabled}
+                />
+                <span>Use Firecrawl (anti-bot + branding extraction)</span>
+              </label>
+            </div>
+
+            <div className="config-panel__field">
+              <label className="config-panel__label">
+                Max Pages to Scrape
+                <input
+                  type="number"
+                  className="config-panel__input"
+                  value={config.maxScrapePages ?? 1}
+                  onChange={(e) => handleInputChange('maxScrapePages', parseInt(e.target.value, 10) || 1)}
+                  min={1}
+                  max={100}
+                  disabled={disabled}
+                />
+              </label>
+            </div>
+
+            <div className="config-panel__field config-panel__field--checkbox">
+              <label className="config-panel__checkbox-label">
+                <input
+                  type="checkbox"
                   checked={config.preserveDoctorPhotos}
                   onChange={(e) => handleInputChange('preserveDoctorPhotos', e.target.checked)}
                   disabled={disabled}

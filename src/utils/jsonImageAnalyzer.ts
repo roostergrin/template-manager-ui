@@ -301,17 +301,45 @@ export function updateImageSlot(
 }
 
 /**
- * Get ImageKit URL for an Adobe Stock image
- * For hero components, uses larger dimensions (1920x1280)
+ * CloudFront domain for stock images
+ * Set via VITE_CLOUDFRONT_IMAGE_DOMAIN environment variable
+ */
+const CLOUDFRONT_IMAGE_DOMAIN = import.meta.env.VITE_CLOUDFRONT_IMAGE_DOMAIN || '';
+
+/**
+ * Get CloudFront URL for a stock image
+ * For hero components, uses hero/ prefix (1920x1280)
+ * For standard images, uses standard/ prefix (1000w)
+ *
+ * @deprecated Use getStockImageUrl for new code. This function name is kept for backward compatibility.
  */
 export function getImageKitUrl(filename: string, isHero: boolean = false): { src: string; webp: string } {
-  const baseUrl = 'https://ik.imagekit.io/rooster';
+  return getStockImageUrl(filename, isHero);
+}
 
-  // Hero images get larger dimensions with fixed aspect ratio
-  const transform = isHero ? 'tr:w-1920,h-1280' : 'tr:w-1000';
+/**
+ * Get CloudFront URL for a stock image
+ * For hero components, uses hero/ prefix (1920x1280)
+ * For standard images, uses standard/ prefix (1000w)
+ */
+export function getStockImageUrl(filename: string, isHero: boolean = false): { src: string; webp: string } {
+  // Strip any existing path prefix and extension from filename
+  const cleanFilename = filename.split('/').pop()?.replace(/\.[^/.]+$/, '') || filename;
 
-  const src = `${baseUrl}/${transform},f-jpg,q-auto,fo-auto/${filename}`;
-  const webp = `${baseUrl}/${transform},f-webp,q-auto,fo-auto/${filename}`;
+  if (!CLOUDFRONT_IMAGE_DOMAIN) {
+    // Fallback to ImageKit if CloudFront not configured
+    const baseUrl = 'https://ik.imagekit.io/rooster';
+    const transform = isHero ? 'tr:w-1920,h-1280' : 'tr:w-1000';
+    const src = `${baseUrl}/${transform},f-jpg,q-auto,fo-auto/${filename}`;
+    const webp = `${baseUrl}/${transform},f-webp,q-auto,fo-auto/${filename}`;
+    return { src, webp };
+  }
+
+  const baseUrl = `https://${CLOUDFRONT_IMAGE_DOMAIN}`;
+  const sizePrefix = isHero ? 'hero' : 'standard';
+
+  const src = `${baseUrl}/${sizePrefix}/${cleanFilename}.jpg`;
+  const webp = `${baseUrl}/${sizePrefix}/${cleanFilename}.webp`;
   return { src, webp };
 }
 

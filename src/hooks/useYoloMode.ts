@@ -30,6 +30,9 @@ export const useYoloMode = (executeStep: ExecuteStepFn) => {
   // Track generated data for pre-step input editing
   const generatedDataRef = useRef<Record<string, unknown>>({});
 
+  // Track edited input data via ref to avoid stale closures in async loop
+  const editedInputDataRef = useRef<Record<string, unknown>>({});
+
   // Reset stop flag when workflow is reset
   useEffect(() => {
     if (!state.isRunning) {
@@ -45,6 +48,11 @@ export const useYoloMode = (executeStep: ExecuteStepFn) => {
   useEffect(() => {
     generatedDataRef.current = { ...state.generatedData };
   }, [state.generatedData]);
+
+  // Keep editedInputDataRef in sync with state.editedInputData
+  useEffect(() => {
+    editedInputDataRef.current = { ...state.editedInputData };
+  }, [state.editedInputData]);
 
   // Handle intervention continuation when pendingIntervention is cleared
   useEffect(() => {
@@ -74,16 +82,25 @@ export const useYoloMode = (executeStep: ExecuteStepFn) => {
     });
   }, []);
 
-  const startYoloMode = useCallback(async () => {
+  const startYoloMode = useCallback(async (): Promise<{ success: boolean; error?: string }> => {
     if (isYoloRunning) {
-      return;
+      return { success: false, error: 'YOLO mode already running' };
     }
 
-    const deploymentTarget = state.config.deploymentTarget || 'demo';
+    // CRITICAL: Get fresh config values at function start to avoid stale closures
+    // These values are captured once at the start and used throughout the execution
+    const currentConfig = actions.getSiteConfigSync();
+    const deploymentTarget = currentConfig.deploymentTarget || 'demo';
+    const stopOnError = currentConfig.stopOnError !== false;
+
+    // Capture mode settings at start - these determine behavior for the entire run
+    const interventionModeEnabled = state.interventionMode;
+    const preStepPauseEnabled = state.preStepPauseEnabled;
+
     const executionOrder = getExecutionOrderByTarget(deploymentTarget);
     console.log('🚀 YOLO MODE - deploymentTarget:', deploymentTarget);
     console.log('🚀 YOLO MODE - executionOrder:', executionOrder);
-    console.log('🚀 YOLO MODE - all steps:', state.steps.map(s => ({ id: s.id, status: s.status })));
+    console.log('🚀 YOLO MODE - all steps:', actions.getStepsSync().map(s => ({ id: s.id, status: s.status })));
     setIsYoloRunning(true);
     shouldStopRef.current = false;
     completedStepsRef.current = new Set();
@@ -95,24 +112,31 @@ export const useYoloMode = (executeStep: ExecuteStepFn) => {
       stepId: 'yolo',
       stepName: 'YOLO Mode',
       status: 'in_progress',
-      message: state.interventionMode
+      message: interventionModeEnabled
         ? 'Starting YOLO mode with intervention (will pause after each step)'
         : 'Starting YOLO mode - automated execution',
     });
 
+    // Get fresh steps from ref (avoids stale closure in batch mode)
+    const currentSteps = actions.getStepsSync();
+    console.log('[BATCH DEBUG] startYoloMode - getStepsSync returned', currentSteps.length, 'steps');
+    console.log('[BATCH DEBUG] startYoloMode - step statuses:', currentSteps.map(s => `${s.id}:${s.status}`).join(', '));
+
     // Track all already completed/skipped steps
     for (const stepId of executionOrder) {
-      const step = getStepById(state.steps, stepId);
+      const step = getStepById(currentSteps, stepId);
       if (step && (step.status === 'completed' || step.status === 'skipped')) {
+        console.log('[BATCH DEBUG] Marking as already done:', stepId, step.status);
         completedStepsRef.current.add(step.id);
       }
     }
+    console.log('[BATCH DEBUG] completedStepsRef after init:', Array.from(completedStepsRef.current));
 
     // Find the first pending step to start from
     let startIndex = 0;
     console.log('🚀 YOLO MODE - Looking for pending steps in execution order...');
     for (let i = 0; i < executionOrder.length; i++) {
-      const step = getStepById(state.steps, executionOrder[i]);
+      const step = getStepById(currentSteps, executionOrder[i]);
       console.log(`🚀 Step ${i}: ${executionOrder[i]} - found: ${!!step}, status: ${step?.status}`);
       if (step && step.status === 'pending') {
         startIndex = i;
@@ -140,7 +164,11 @@ export const useYoloMode = (executeStep: ExecuteStepFn) => {
       }
 
       const stepId = executionOrder[i];
-      const step = getStepById(state.steps, stepId);
+      console.log(`[BATCH DEBUG] Loop iteration ${i}, stepId: ${stepId}`);
+
+      // Get fresh steps from ref for each iteration (in case state changed during async operations)
+      const loopSteps = actions.getStepsSync();
+      const step = getStepById(loopSteps, stepId);
 
       if (!step) {
         console.warn(`🚀 Step ${stepId} not found in workflow - skipping`);
@@ -150,13 +178,26 @@ export const useYoloMode = (executeStep: ExecuteStepFn) => {
 
       // Skip if already completed or skipped (using our ref for accurate tracking)
       if (completedStepsRef.current.has(stepId)) {
+        console.log(`[BATCH DEBUG] Step ${stepId} already in completedStepsRef, skipping`);
         continue;
       }
 
       // Check if dependencies are met using our tracked completed steps
-      const dependenciesMet = step.dependencies.every(depId =>
-        completedStepsRef.current.has(depId)
-      );
+      // Also check steps for skipped steps not in execution order (e.g., CREATE_GITHUB_REPO in demo mode)
+      console.log(`[BATCH DEBUG] Step ${stepId} dependencies:`, step.dependencies);
+      const dependenciesMet = step.dependencies.every(depId => {
+        // First check our tracked completed steps
+        if (completedStepsRef.current.has(depId)) {
+          console.log(`[BATCH DEBUG] Dependency ${depId} met via completedStepsRef`);
+          return true;
+        }
+        // Also check if the step is skipped in state (for steps not in execution order)
+        const depStep = getStepById(loopSteps, depId);
+        const isSkipped = depStep && depStep.status === 'skipped';
+        console.log(`[BATCH DEBUG] Dependency ${depId} - found: ${!!depStep}, status: ${depStep?.status}, skipped: ${isSkipped}`);
+        return isSkipped;
+      });
+      console.log(`[BATCH DEBUG] Step ${stepId} dependenciesMet: ${dependenciesMet}`);
 
       if (!dependenciesMet) {
         // Check if dependencies failed
@@ -181,7 +222,7 @@ export const useYoloMode = (executeStep: ExecuteStepFn) => {
       }
 
       // Check for pre-step input editing mode - pause before editable steps
-      if (state.preStepPauseEnabled && isStepInputEditable(stepId)) {
+      if (preStepPauseEnabled && isStepInputEditable(stepId)) {
         // Get current input data for this step
         const inputData = getStepInputData(stepId, generatedDataRef.current);
 
@@ -216,8 +257,8 @@ export const useYoloMode = (executeStep: ExecuteStepFn) => {
             break;
           }
 
-          // Check if there's edited input data to apply
-          const editedStepData = state.editedInputData[stepId];
+          // Check if there's edited input data to apply (use ref for fresh value in async loop)
+          const editedStepData = editedInputDataRef.current[stepId];
           if (editedStepData !== undefined) {
             // Apply the edited data to the appropriate place in generatedData
             // This will be picked up by the step when it executes
@@ -243,17 +284,22 @@ export const useYoloMode = (executeStep: ExecuteStepFn) => {
       // Execute the step
       // Pass true to skip dependency check since YOLO mode tracks dependencies via completedStepsRef
       currentStepIndexRef.current = i;
+      console.log(`[BATCH DEBUG] About to executeStep: ${stepId}`);
       const result = await executeStep(stepId, true);
+      console.log(`[BATCH DEBUG] executeStep result for ${stepId}:`, result);
 
       if (result.success) {
         // Track this step as completed
         completedStepsRef.current.add(stepId);
+        console.log(`[BATCH DEBUG] Step ${stepId} succeeded, added to completedStepsRef`);
       } else {
         // Track as failed
         failedSteps.add(stepId);
+        console.log(`[BATCH DEBUG] Step ${stepId} FAILED:`, result.error);
 
-        // Check if we should stop on error
-        if (state.config.stopOnError !== false) {
+        // Check if we should stop on error (captured at start of execution)
+        if (stopOnError) {
+          console.log(`[BATCH DEBUG] stopOnError is true, breaking loop`);
           logWorkflowEvent('error', `YOLO mode stopped due to error in ${step.name}`);
           actions.addProgressEvent({
             stepId: 'yolo',
@@ -265,8 +311,8 @@ export const useYoloMode = (executeStep: ExecuteStepFn) => {
         }
       }
 
-      // Check for intervention mode - pause after successful step completion
-      if (result.success && state.interventionMode) {
+      // Check for intervention mode - pause after successful step completion (captured at start)
+      if (result.success && interventionModeEnabled) {
         logWorkflowEvent('pause', `Pausing for intervention after ${step.name}`);
         actions.setPendingIntervention(stepId);
         actions.addProgressEvent({
@@ -326,8 +372,13 @@ export const useYoloMode = (executeStep: ExecuteStepFn) => {
         status: 'completed',
         message: 'YOLO mode completed successfully!',
       });
+      return { success: true };
     }
-  }, [isYoloRunning, state.steps, state.config, state.config.deploymentTarget, state.interventionMode, state.preStepPauseEnabled, state.editedInputData, actions, executeStep, waitForInterventionContinue, waitForPreStepInputContinue]);
+
+    // Find what went wrong
+    const failedStepIds = executionOrder.filter(stepId => !completedStepsRef.current.has(stepId));
+    return { success: false, error: `Steps not completed: ${failedStepIds.join(', ')}` };
+  }, [isYoloRunning, state.interventionMode, state.preStepPauseEnabled, actions, executeStep, waitForInterventionContinue, waitForPreStepInputContinue]);
 
   const stopYoloMode = useCallback(() => {
     shouldStopRef.current = true;
@@ -399,7 +450,7 @@ export const useYoloMode = (executeStep: ExecuteStepFn) => {
 
   // Retry a step - resets it to pending and removes from completed tracking
   const retryStep = useCallback((stepId: string) => {
-    const step = getStepById(state.steps, stepId);
+    const step = getStepById(actions.getStepsSync(), stepId);
     if (!step) return;
 
     // Remove from completed tracking so YOLO will re-run it
@@ -415,7 +466,7 @@ export const useYoloMode = (executeStep: ExecuteStepFn) => {
       status: 'pending',
       message: `Retry requested: ${step.name}`,
     });
-  }, [state.steps, actions]);
+  }, [actions]);
 
   // Retry and immediately continue YOLO mode
   const retryStepAndContinue = useCallback((stepId: string) => {

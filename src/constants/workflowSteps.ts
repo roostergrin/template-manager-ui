@@ -157,8 +157,11 @@ export const DEFAULT_WORKFLOW_STEPS: WorkflowStep[] = [
     phase: 'deployment',
     status: 'pending',
     dependencies: [
+      // Both repo steps listed - whichever is active will be completed, the skipped one counts as "met"
       WORKFLOW_STEP_IDS.CREATE_GITHUB_REPO,
-      WORKFLOW_STEP_IDS.PREVENT_HOTLINKING,
+      WORKFLOW_STEP_IDS.CREATE_DEMO_REPO,
+      // Image picker is the last content step before upload (hotlinking is skipped in demo mode)
+      WORKFLOW_STEP_IDS.IMAGE_PICKER,
     ],
     estimatedDurationSeconds: 20,
     isOptional: true,

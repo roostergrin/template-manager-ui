@@ -15,7 +15,7 @@ interface BatchModeResult {
 
 export const useBatchMode = (
   executeStep: ExecuteStepFn,
-  startYoloMode: () => Promise<void>,
+  startYoloMode: () => Promise<{ success: boolean; error?: string }>,
   stopYoloMode: () => void
 ) => {
   const { state, actions } = useUnifiedWorkflow();
@@ -23,46 +23,57 @@ export const useBatchMode = (
   const shouldStopRef = useRef(false);
 
   const processSite = useCallback(async (site: BatchSiteEntry): Promise<{ success: boolean; error?: string }> => {
+    console.log('[BATCH DEBUG]', Date.now(), 'processSite START for:', site.domain);
+
     // Configure the site
-    actions.setSiteConfig({
+    const configToSet = {
       domain: site.domain,
       template: site.template,
       siteType: site.siteType,
       scrapeDomain: site.scrapeDomain,
       preserveDoctorPhotos: true, // Default to true for batch mode
-    });
+    };
+    console.log('[BATCH DEBUG]', Date.now(), 'About to call setSiteConfig with:', configToSet);
+    actions.setSiteConfig(configToSet);
+    console.log('[BATCH DEBUG]', Date.now(), 'setSiteConfig returned');
+
+    // Verify the ref was updated by calling getSiteConfigSync immediately
+    if (actions.getSiteConfigSync) {
+      const syncConfig = actions.getSiteConfigSync();
+      console.log('[BATCH DEBUG]', Date.now(), 'Immediately after setSiteConfig, getSiteConfigSync returns:', syncConfig.domain);
+    } else {
+      console.log('[BATCH DEBUG]', Date.now(), 'WARNING: getSiteConfigSync is not available on actions!');
+    }
 
     // Reset workflow for this site
+    console.log('[BATCH DEBUG]', Date.now(), 'About to call resetWorkflow');
     actions.resetWorkflow();
 
-    // Wait a moment for state to update
-    await new Promise(resolve => setTimeout(resolve, 100));
+    // Wait longer for state to update (500ms instead of 100ms to handle React async updates)
+    console.log('[BATCH DEBUG]', Date.now(), 'Waiting 500ms...');
+    await new Promise(resolve => setTimeout(resolve, 500));
+    console.log('[BATCH DEBUG]', Date.now(), 'Done waiting, about to call startYoloMode');
+
+    // Check getSiteConfigSync again right before startYoloMode
+    if (actions.getSiteConfigSync) {
+      const syncConfig = actions.getSiteConfigSync();
+      console.log('[BATCH DEBUG]', Date.now(), 'Right before startYoloMode, getSiteConfigSync returns:', syncConfig.domain);
+    }
 
     // Run YOLO mode for this site
     try {
-      await startYoloMode();
+      // startYoloMode now returns success/error directly (avoids stale state.steps closure issue)
+      const yoloResult = await startYoloMode();
+      console.log('[BATCH DEBUG]', Date.now(), 'startYoloMode returned:', yoloResult);
 
-      // Check if all steps completed
-      const allCompleted = state.steps.every(
-        step => step.status === 'completed' || step.status === 'skipped'
-      );
-
-      if (!allCompleted) {
-        const failedStep = state.steps.find(step => step.status === 'error');
-        return {
-          success: false,
-          error: failedStep?.error || 'Unknown error during site processing',
-        };
-      }
-
-      return { success: true };
+      return yoloResult;
     } catch (error) {
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Site processing failed',
       };
     }
-  }, [actions, startYoloMode, state.steps]);
+  }, [actions, startYoloMode]);
 
   const startBatchMode = useCallback(async (): Promise<BatchModeResult> => {
     const { batchConfig } = state.config;

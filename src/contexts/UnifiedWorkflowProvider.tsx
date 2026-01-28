@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, useCallback, useMemo, ReactNode, useEffect, useState } from 'react';
+import React, { createContext, useContext, useReducer, useCallback, useMemo, ReactNode, useEffect, useState, useRef } from 'react';
 import {
   UnifiedWorkflowState,
   UnifiedWorkflowActions,
@@ -64,6 +64,8 @@ const defaultSiteConfig: SiteConfig = {
   enableImagePicker: false,
   enableHotlinking: false,
   deploymentTarget: 'demo', // 'demo' for Cloudflare Pages (default), 'production' for AWS
+  maxScrapePages: 1, // Limit pages scraped (1 for testing, increase for production)
+  useFirecrawl: true, // Use Firecrawl API for scraping (handles anti-bot, extracts branding)
 };
 
 // Default config
@@ -397,6 +399,12 @@ export const UnifiedWorkflowProvider: React.FC<UnifiedWorkflowProviderProps> = (
   const [state, dispatch] = useReducer(unifiedWorkflowReducer, null, createInitialState);
   const [sessionId] = useState(() => getOrCreateSessionId());
 
+  // Ref for siteConfig that updates synchronously (avoids stale closure issues in batch mode)
+  const siteConfigRef = useRef<SiteConfig>(defaultSiteConfig);
+
+  // Ref for steps that updates synchronously (avoids stale closure issues in batch mode)
+  const stepsRef = useRef<WorkflowStep[]>(DEFAULT_WORKFLOW_STEPS.map(step => ({ ...step })));
+
   // Get session-scoped storage key
   const storageKey = useMemo(
     () => getSessionStorageKey(BASE_STORAGE_KEY, sessionId),
@@ -409,6 +417,7 @@ export const UnifiedWorkflowProvider: React.FC<UnifiedWorkflowProviderProps> = (
       const saved = localStorage.getItem(storageKey);
       if (saved) {
         const parsedState = JSON.parse(saved);
+        console.log('[BATCH DEBUG] Loading state from localStorage, siteConfig:', parsedState.config?.siteConfig);
         // Don't restore running state - always start stopped
         dispatch({
           type: 'LOAD_STATE',
@@ -418,11 +427,28 @@ export const UnifiedWorkflowProvider: React.FC<UnifiedWorkflowProviderProps> = (
             isPaused: false,
           },
         });
+        // CRITICAL: Also update the ref when loading from localStorage
+        if (parsedState.config?.siteConfig) {
+          console.log('[BATCH DEBUG] Syncing siteConfigRef from localStorage');
+          siteConfigRef.current = { ...defaultSiteConfig, ...parsedState.config.siteConfig };
+        }
       }
     } catch (error) {
       console.error('Failed to load unified workflow state:', error);
     }
   }, [storageKey]);
+
+  // Keep siteConfigRef in sync with state.config.siteConfig
+  // This catches any state updates that don't go through setSiteConfig (like LOAD_STATE)
+  useEffect(() => {
+    console.log('[BATCH DEBUG] siteConfig changed in state, syncing ref:', state.config.siteConfig.domain);
+    siteConfigRef.current = state.config.siteConfig;
+  }, [state.config.siteConfig]);
+
+  // Keep stepsRef in sync with state.steps
+  useEffect(() => {
+    stepsRef.current = state.steps;
+  }, [state.steps]);
 
   // Save state to localStorage on changes
   useEffect(() => {
@@ -460,7 +486,30 @@ export const UnifiedWorkflowProvider: React.FC<UnifiedWorkflowProviderProps> = (
   }, []);
 
   const setSiteConfig = useCallback((config: Partial<SiteConfig>) => {
+    // Update ref synchronously BEFORE dispatch to avoid stale closure issues in batch mode
+    const prevRef = { ...siteConfigRef.current };
+    siteConfigRef.current = { ...siteConfigRef.current, ...config };
+    console.log('[BATCH DEBUG] setSiteConfig called:', {
+      incoming: config,
+      prevRef,
+      newRef: siteConfigRef.current,
+      domain: siteConfigRef.current.domain,
+    });
     dispatch({ type: 'SET_SITE_CONFIG', payload: config });
+  }, []);
+
+  // Getter for the current siteConfig that reads from the ref (always up-to-date)
+  const getSiteConfigSync = useCallback((): SiteConfig => {
+    console.log('[BATCH DEBUG] getSiteConfigSync called, returning:', {
+      domain: siteConfigRef.current.domain,
+      fullConfig: siteConfigRef.current,
+    });
+    return siteConfigRef.current;
+  }, []);
+
+  // Getter for current steps from ref (always up-to-date, avoids stale closures in batch mode)
+  const getStepsSync = useCallback((): WorkflowStep[] => {
+    return stepsRef.current;
   }, []);
 
   const setBatchConfig = useCallback((config: BatchConfig) => {
@@ -497,6 +546,9 @@ export const UnifiedWorkflowProvider: React.FC<UnifiedWorkflowProviderProps> = (
   }, []);
 
   const resetWorkflow = useCallback(() => {
+    // Update stepsRef synchronously BEFORE dispatch to avoid stale closure issues in batch mode
+    stepsRef.current = DEFAULT_WORKFLOW_STEPS.map(step => ({ ...step }));
+    console.log('[BATCH DEBUG] resetWorkflow - stepsRef reset to default steps:', stepsRef.current.map(s => `${s.id}:${s.status}`).join(', '));
     dispatch({ type: 'RESET_WORKFLOW' });
   }, []);
 
@@ -643,6 +695,8 @@ export const UnifiedWorkflowProvider: React.FC<UnifiedWorkflowProviderProps> = (
   const actions: UnifiedWorkflowActions = useMemo(() => ({
     setMode,
     setSiteConfig,
+    getSiteConfigSync,
+    getStepsSync,
     setBatchConfig,
     setStepStatus,
     setCurrentStep,
@@ -676,6 +730,8 @@ export const UnifiedWorkflowProvider: React.FC<UnifiedWorkflowProviderProps> = (
   }), [
     setMode,
     setSiteConfig,
+    getSiteConfigSync,
+    getStepsSync,
     setBatchConfig,
     setStepStatus,
     setCurrentStep,

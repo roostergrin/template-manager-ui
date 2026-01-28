@@ -148,7 +148,8 @@ export const useWorkflowStepRunner = () => {
     durationMs: number,
     status: string
   ) => {
-    const domain = state.config.siteConfig.domain;
+    // Use getSiteConfigSync() to get fresh domain from ref (avoids stale closure in batch mode)
+    const domain = actions.getSiteConfigSync().domain;
     if (!domain) return;
 
     const sessionId = getSessionId();
@@ -218,14 +219,15 @@ export const useWorkflowStepRunner = () => {
     } catch (error) {
       console.error('[Workflow] Error saving to backend:', error);
     }
-  }, [state.config.siteConfig.domain, getSessionId, downloadJson]);
+  }, [actions, getSessionId, downloadJson]);
 
   // Helper to execute a step with proper status management and logging
   const executeStepWithStatus = useCallback(async (
     stepId: string,
     executor: StepExecutor
   ): Promise<StepResult> => {
-    const step = getStepById(state.steps, stepId);
+    // Use getStepsSync() to get fresh steps from ref (avoids stale closure in batch mode)
+    const step = getStepById(actions.getStepsSync(), stepId);
     if (!step) {
       return { success: false, error: `Step ${stepId} not found` };
     }
@@ -260,7 +262,7 @@ export const useWorkflowStepRunner = () => {
       actions.setCurrentStep(stepId);
 
       // Log step start
-      const startDetails = logger.logStart(state.config.siteConfig as Record<string, unknown>);
+      const startDetails = logger.logStart(actions.getSiteConfigSync() as Record<string, unknown>);
       actions.addProgressEvent({
         stepId,
         stepName: step.name,
@@ -357,12 +359,35 @@ export const useWorkflowStepRunner = () => {
 
       return { success: false, error: errorMessage, details: errorDetails };
     }
-  }, [state.steps, state.config.siteConfig, actions, saveAndDownloadStepResult]);
+  }, [actions, saveAndDownloadStepResult]);
 
   // Step executors for each workflow step
   const runCreateGithubRepo = useCallback(async (logger: StepLogger): Promise<StepResult> => {
-    const { siteConfig } = state.config;
+    console.log('[BATCH DEBUG] runCreateGithubRepo START');
+    console.log('[BATCH DEBUG] state.config.siteConfig.domain (stale?):', state.config.siteConfig.domain);
+    console.log('[BATCH DEBUG] typeof actions.getSiteConfigSync:', typeof actions.getSiteConfigSync);
+
+    // Use getSiteConfigSync() to get current config from ref (avoids stale closure in batch mode)
+    const siteConfig = actions.getSiteConfigSync();
+    console.log('[BATCH DEBUG] getSiteConfigSync() returned domain:', siteConfig.domain);
+    console.log('[BATCH DEBUG] getSiteConfigSync() returned full config:', JSON.stringify(siteConfig));
+
+    // Validate domain before proceeding - catches batch mode race condition
+    if (!siteConfig.domain || siteConfig.domain.trim() === '') {
+      console.log('[BATCH DEBUG] Domain is EMPTY! Full siteConfig:', siteConfig);
+      logger.logProcessing('Domain is empty - state may not have updated yet');
+      return {
+        success: false,
+        error: 'Domain is empty - state may not have updated. This is a batch mode timing issue.',
+      };
+    }
+
     const repoName = siteConfig.domain.replace(/\./g, '-');
+    console.log('[BATCH DEBUG] repoName:', repoName);
+    console.log('[BATCH DEBUG] Full payload about to send:', {
+      new_name: repoName,
+      template_repo: getGithubTemplateRepo(siteConfig.template, siteConfig.templateType || 'json'),
+    });
     const templateType = siteConfig.templateType || 'json';
     const templateRepo = getGithubTemplateRepo(siteConfig.template, templateType);
     const endpoint = '/create-github-repo-from-template/';
@@ -385,10 +410,10 @@ export const useWorkflowStepRunner = () => {
     } catch (error) {
       return { success: false, error: error instanceof Error ? error.message : 'GitHub repo creation failed' };
     }
-  }, [state.config, setGeneratedDataWithRef]);
+  }, [actions, setGeneratedDataWithRef]);
 
   const runProvisionWordPressBackend = useCallback(async (logger: StepLogger): Promise<StepResult> => {
-    const { siteConfig } = state.config;
+    const siteConfig = actions.getSiteConfigSync();
     const templateType = siteConfig.templateType || 'json';
 
     // Skip if using JSON template (ai-template-*)
@@ -423,10 +448,10 @@ export const useWorkflowStepRunner = () => {
     } catch (error) {
       return { success: false, error: error instanceof Error ? error.message : 'WordPress backend provisioning failed' };
     }
-  }, [state.config, setGeneratedDataWithRef]);
+  }, [actions, setGeneratedDataWithRef]);
 
   const runProvisionSite = useCallback(async (logger: StepLogger): Promise<StepResult> => {
-    const { siteConfig } = state.config;
+    const siteConfig = actions.getSiteConfigSync();
     const endpoint = '/provision/';
     const payload = {
       bucket_name: siteConfig.domain.replace(/\./g, '-'),
@@ -448,10 +473,12 @@ export const useWorkflowStepRunner = () => {
     } catch (error) {
       return { success: false, error: error instanceof Error ? error.message : 'Provision failed' };
     }
-  }, [state.config, setGeneratedDataWithRef]);
+  }, [actions, setGeneratedDataWithRef]);
 
   const runScrapeSite = useCallback(async (logger: StepLogger): Promise<StepResult> => {
-    const { siteConfig } = state.config;
+    // Use getSiteConfigSync() to get current config from ref (avoids stale closure in batch mode)
+    const siteConfig = actions.getSiteConfigSync();
+    console.log('[BATCH DEBUG] runScrapeSite - siteConfig.scrapeDomain:', siteConfig.scrapeDomain);
 
     if (!siteConfig.scrapeDomain) {
       return { success: false, error: 'Scrape domain is required' };
@@ -462,7 +489,8 @@ export const useWorkflowStepRunner = () => {
       domain: siteConfig.scrapeDomain,
       use_selenium: true,
       scroll: true,
-      max_pages: 50,
+      max_pages: siteConfig.maxScrapePages ?? 1,
+      use_firecrawl: siteConfig.useFirecrawl ?? true,
     };
 
     try {
@@ -493,10 +521,11 @@ export const useWorkflowStepRunner = () => {
     } catch (error) {
       return { success: false, error: error instanceof Error ? error.message : 'Scrape failed' };
     }
-  }, [state.config, setGeneratedDataWithRef]);
+  }, [actions, setGeneratedDataWithRef]);
 
   const runCreateVectorStore = useCallback(async (logger: StepLogger): Promise<StepResult> => {
-    const { siteConfig } = state.config;
+    // Use getSiteConfigSync() to get current config from ref (avoids stale closure in batch mode)
+    const siteConfig = actions.getSiteConfigSync();
     const scrapeResult = getGeneratedData<ScrapeStepResult>('scrapeResult');
 
     // Debug logging
@@ -533,10 +562,10 @@ export const useWorkflowStepRunner = () => {
     } catch (error) {
       return { success: false, error: error instanceof Error ? error.message : 'Vector store creation failed' };
     }
-  }, [state.config, getGeneratedData, setGeneratedDataWithRef]);
+  }, [actions, getGeneratedData, setGeneratedDataWithRef]);
 
   const runSelectTemplate = useCallback(async (logger: StepLogger): Promise<StepResult> => {
-    const { siteConfig } = state.config;
+    const siteConfig = actions.getSiteConfigSync();
 
     // Template selection is usually done through UI, this just validates it
     if (!siteConfig.template) {
@@ -552,10 +581,10 @@ export const useWorkflowStepRunner = () => {
         templateName: siteConfig.template,
       },
     };
-  }, [state.config]);
+  }, [actions]);
 
   const runGenerateSitemap = useCallback(async (logger: StepLogger): Promise<StepResult> => {
-    const { siteConfig } = state.config;
+    const siteConfig = actions.getSiteConfigSync();
     const scrapeResult = getGeneratedData<ScrapeStepResult>('scrapeResult');
     const allocatedSitemap = getGeneratedData<AllocatedSitemapResult>('allocatedSitemap');
 
@@ -628,10 +657,10 @@ export const useWorkflowStepRunner = () => {
     } catch (error) {
       return { success: false, error: error instanceof Error ? error.message : 'Sitemap generation failed' };
     }
-  }, [state.config, getGeneratedData, setGeneratedDataWithRef]);
+  }, [actions, getGeneratedData, setGeneratedDataWithRef]);
 
   const runAllocateContent = useCallback(async (logger: StepLogger): Promise<StepResult> => {
-    const { siteConfig } = state.config;
+    const siteConfig = actions.getSiteConfigSync();
     const scrapeResult = getGeneratedData<ScrapeStepResult>('scrapeResult');
     const vectorStoreResult = getGeneratedData<VectorStoreResult>('vectorStoreResult');
 
@@ -709,10 +738,10 @@ export const useWorkflowStepRunner = () => {
     } catch (error) {
       return { success: false, error: error instanceof Error ? error.message : 'Content allocation failed' };
     }
-  }, [state.config, getGeneratedData, setGeneratedDataWithRef]);
+  }, [actions, getGeneratedData, setGeneratedDataWithRef]);
 
   const runGenerateContent = useCallback(async (logger: StepLogger): Promise<StepResult> => {
-    const { siteConfig } = state.config;
+    const siteConfig = actions.getSiteConfigSync();
     const sitemapResult = getGeneratedData<SitemapStepResult>('sitemapResult');
     const allocatedSitemap = getGeneratedData<AllocatedSitemapResult>('allocatedSitemap');
 
@@ -874,7 +903,7 @@ export const useWorkflowStepRunner = () => {
     } catch (error) {
       return { success: false, error: error instanceof Error ? error.message : 'Content generation failed' };
     }
-  }, [state.config, getGeneratedData, setGeneratedDataWithRef]);
+  }, [actions, getGeneratedData, setGeneratedDataWithRef]);
 
   const runDownloadTheme = useCallback(async (logger: StepLogger): Promise<StepResult> => {
     const scrapeResult = getGeneratedData<ScrapeStepResult>('scrapeResult');
@@ -960,7 +989,7 @@ export const useWorkflowStepRunner = () => {
   }, [getGeneratedData, setGeneratedDataWithRef]);
 
   const runImagePicker = useCallback(async (logger: StepLogger): Promise<StepResult> => {
-    const { siteConfig } = state.config;
+    const siteConfig = actions.getSiteConfigSync();
     const contentResult = getGeneratedData<ContentStepResult>('contentResult');
 
     // Log all available generated data keys for debugging
@@ -1074,7 +1103,7 @@ export const useWorkflowStepRunner = () => {
       }
 
       // Process slots in batches to call image-agent for each
-      const BATCH_SIZE = 5;
+      const BATCH_SIZE = 20;
       let updatedJson = pagesDataRecord;
       const usedImageIds = new Set<number>();
       let processedCount = 0;
@@ -1168,9 +1197,9 @@ export const useWorkflowStepRunner = () => {
           }
         });
 
-        // Small delay between batches
+        // Small delay between batches (reduced from 500ms for faster processing)
         if (i + BATCH_SIZE < slotsNeedingImages.length) {
-          await new Promise(resolve => setTimeout(resolve, 500));
+          await new Promise(resolve => setTimeout(resolve, 50));
         }
       }
 
@@ -1183,7 +1212,7 @@ export const useWorkflowStepRunner = () => {
     } catch (error) {
       return { success: false, error: error instanceof Error ? error.message : 'Image picker failed' };
     }
-  }, [state.config, state.editedInputData, actions, getGeneratedData, setGeneratedDataWithRef]);
+  }, [actions, getGeneratedData, setGeneratedDataWithRef]);
 
   // Helper function to replace URLs in a JSON object recursively
   const replaceUrlsInObject = (obj: unknown, urlMap: Map<string, string>): unknown => {
@@ -1211,7 +1240,7 @@ export const useWorkflowStepRunner = () => {
   };
 
   const runPreventHotlinking = useCallback(async (logger: StepLogger): Promise<StepResult> => {
-    const { siteConfig } = state.config;
+    const siteConfig = actions.getSiteConfigSync();
 
     // Check for edited input data first
     const editedInput = editedInputDataRef.current['prevent-hotlinking'] as {
@@ -1448,10 +1477,10 @@ export const useWorkflowStepRunner = () => {
     } catch (error) {
       return { success: false, error: error instanceof Error ? error.message : 'Image sync failed' };
     }
-  }, [state.config, getGeneratedData, setGeneratedDataWithRef]);
+  }, [actions, getGeneratedData, setGeneratedDataWithRef]);
 
   const runUploadJsonToGithub = useCallback(async (logger: StepLogger): Promise<StepResult> => {
-    const { siteConfig } = state.config;
+    const siteConfig = actions.getSiteConfigSync();
     const templateType = siteConfig.templateType || 'json';
 
     // Skip if using WordPress template (rg-template-*)
@@ -1510,6 +1539,25 @@ export const useWorkflowStepRunner = () => {
           repo = derivedRepoName;
           branch = 'master';
           logger.logProcessing(`Using derived repo name for demo mode: ${owner}/${repo}`);
+
+          // Check if the repo actually exists before proceeding
+          logger.logProcessing(`Checking if repository ${owner}/${repo} exists...`);
+          try {
+            const checkResponse = await apiClient.post<{ exists: boolean; message?: string }>('/check-github-repo/', {
+              owner,
+              repo
+            });
+
+            if (!checkResponse.exists) {
+              return {
+                success: false,
+                error: `Repository ${owner}/${repo} does not exist. Please run the create-demo-repo step first, or create the repo manually.`
+              };
+            }
+            logger.logProcessing(`Repository ${owner}/${repo} exists, proceeding with upload`);
+          } catch (checkError) {
+            logger.logWarning(`Could not verify repo existence: ${checkError}. Proceeding anyway...`);
+          }
         } else {
           return { success: false, error: 'No GitHub repository information available' };
         }
@@ -1648,10 +1696,10 @@ export const useWorkflowStepRunner = () => {
     } catch (error) {
       return { success: false, error: error instanceof Error ? error.message : 'JSON upload to GitHub failed' };
     }
-  }, [state.config, getGeneratedData, setGeneratedDataWithRef]);
+  }, [actions, getGeneratedData, setGeneratedDataWithRef]);
 
   const runExportToWordPress = useCallback(async (logger: StepLogger): Promise<StepResult> => {
-    const { siteConfig } = state.config;
+    const siteConfig = actions.getSiteConfigSync();
     const contentResult = getGeneratedData<ContentStepResult>('contentResult');
     const imagePickerResult = getGeneratedData<ImagePickerResult>('imagePickerResult');
 
@@ -1691,10 +1739,10 @@ export const useWorkflowStepRunner = () => {
     } catch (error) {
       return { success: false, error: error instanceof Error ? error.message : 'WordPress export failed' };
     }
-  }, [state.config, getGeneratedData, setGeneratedDataWithRef]);
+  }, [actions, getGeneratedData, setGeneratedDataWithRef]);
 
   const runSecondPass = useCallback(async (logger: StepLogger): Promise<StepResult> => {
-    const { siteConfig } = state.config;
+    const siteConfig = actions.getSiteConfigSync();
 
     // Auto-derive WordPress API URL from domain (e.g., example.com -> api-example.roostergrintemplates.com)
     const domainSlug = siteConfig.domain?.replace(/\./g, '-');
@@ -1725,10 +1773,10 @@ export const useWorkflowStepRunner = () => {
     } catch (error) {
       return { success: false, error: error instanceof Error ? error.message : 'Second pass failed' };
     }
-  }, [state.config, setGeneratedDataWithRef]);
+  }, [actions, setGeneratedDataWithRef]);
 
   const runUploadLogo = useCallback(async (logger: StepLogger): Promise<StepResult> => {
-    const { siteConfig } = state.config;
+    const siteConfig = actions.getSiteConfigSync();
     const templateType = siteConfig.templateType || 'json';
 
     // Get theme - prefer hotlink-updated version with CloudFront URLs
@@ -1808,10 +1856,10 @@ export const useWorkflowStepRunner = () => {
     } catch (error) {
       return { success: false, error: error instanceof Error ? error.message : 'Logo upload failed' };
     }
-  }, [state.config, getGeneratedData]);
+  }, [actions, getGeneratedData]);
 
   const runUploadFavicon = useCallback(async (logger: StepLogger): Promise<StepResult> => {
-    const { siteConfig } = state.config;
+    const siteConfig = actions.getSiteConfigSync();
     const templateType = siteConfig.templateType || 'json';
 
     // Get theme - prefer hotlink-updated version with CloudFront URLs
@@ -1889,14 +1937,19 @@ export const useWorkflowStepRunner = () => {
     } catch (error) {
       return { success: false, error: error instanceof Error ? error.message : 'Favicon upload failed' };
     }
-  }, [state.config, getGeneratedData]);
+  }, [actions, getGeneratedData]);
 
   // ============================================================================
   // Demo Site (Cloudflare Pages) Step Executors
   // ============================================================================
 
   const runCreateDemoRepo = useCallback(async (logger: StepLogger): Promise<StepResult> => {
-    const { siteConfig } = state.config;
+    console.log('[BATCH DEBUG] runCreateDemoRepo START');
+
+    // Use getSiteConfigSync() to get current config from ref (avoids stale closure in batch mode)
+    const siteConfig = actions.getSiteConfigSync();
+    console.log('[BATCH DEBUG] runCreateDemoRepo - getSiteConfigSync() returned domain:', siteConfig.domain);
+
     const deploymentTarget = siteConfig.deploymentTarget || 'demo';
 
     // Skip if not in demo mode
@@ -1905,8 +1958,20 @@ export const useWorkflowStepRunner = () => {
       return { success: true, data: { skipped: true, message: 'Not needed for production deployment' } };
     }
 
+    // Validate domain before proceeding - catches batch mode race condition
+    if (!siteConfig.domain || siteConfig.domain.trim() === '') {
+      console.log('[BATCH DEBUG] runCreateDemoRepo - Domain is EMPTY!');
+      logger.logProcessing('Domain is empty - state may not have updated yet');
+      return {
+        success: false,
+        error: 'Domain is empty - state may not have updated. This is a batch mode timing issue.',
+      };
+    }
+
     // Use the same template as production (roostergrin/ai-template-*), but create in demo-rooster org
     const repoName = siteConfig.domain.replace(/\./g, '-');
+    console.log('[BATCH DEBUG] runCreateDemoRepo - repoName:', repoName);
+
     const templateType = siteConfig.templateType || 'json';
     const templateRepoName = getGithubTemplateRepo(siteConfig.template, templateType);
     const endpoint = '/create-demo-repo/';
@@ -1931,10 +1996,11 @@ export const useWorkflowStepRunner = () => {
     } catch (error) {
       return { success: false, error: error instanceof Error ? error.message : 'Demo repo creation failed' };
     }
-  }, [state.config, setGeneratedDataWithRef]);
+  }, [actions, setGeneratedDataWithRef]);
 
   const runProvisionCloudflarePages = useCallback(async (logger: StepLogger): Promise<StepResult> => {
-    const { siteConfig } = state.config;
+    // Use getSiteConfigSync() to get current config from ref (avoids stale closure in batch mode)
+    const siteConfig = actions.getSiteConfigSync();
     const deploymentTarget = siteConfig.deploymentTarget || 'demo';
 
     // Skip if not in demo mode
@@ -1972,7 +2038,7 @@ export const useWorkflowStepRunner = () => {
     } catch (error) {
       return { success: false, error: error instanceof Error ? error.message : 'Cloudflare Pages provisioning failed' };
     }
-  }, [state.config, getGeneratedData, setGeneratedDataWithRef]);
+  }, [actions, getGeneratedData, setGeneratedDataWithRef]);
 
   // Map step IDs to executors
   const getStepExecutor = useCallback((stepId: string): StepExecutor | null => {

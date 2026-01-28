@@ -3,9 +3,19 @@
 // pageData is keyed by page name, each containing sections keyed by internal_id
 import { ContentStepResult } from '../../types/UnifiedWorkflowTypes';
 
-// Helper to generate a mock image URL
-const mockImage = (category: string, index: number) =>
-  `https://ik.imagekit.io/roostergrin/stock/${category}/${category}-${index}.jpg`;
+// Helper to generate a mock stock image URL
+// Uses CloudFront domain if configured, otherwise falls back to ImageKit
+const MOCK_CLOUDFRONT_DOMAIN = import.meta.env.VITE_CLOUDFRONT_IMAGE_DOMAIN || '';
+
+const mockImage = (category: string, index: number, isHero: boolean = false) => {
+  const filename = `${category}-${index}`;
+  if (MOCK_CLOUDFRONT_DOMAIN) {
+    const sizePrefix = isHero ? 'hero' : 'standard';
+    return `https://${MOCK_CLOUDFRONT_DOMAIN}/${sizePrefix}/${filename}.jpg`;
+  }
+  // Fallback to ImageKit for mock data
+  return `https://ik.imagekit.io/roostergrin/stock/${category}/${filename}.jpg`;
+};
 
 export const createMockContentResult = (domain: string): ContentStepResult => {
   const practiceName = domain.split('.')[0].replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());

@@ -44,9 +44,33 @@ export interface ThemeJson {
 }
 
 /**
+ * Check if a string is a valid hex color
+ */
+export const isValidHex = (hex: string | null | undefined): boolean => {
+  if (!hex || typeof hex !== 'string') return false;
+  const cleanHex = hex.replace('#', '');
+  // Valid hex colors are 3, 6, or 8 characters (8 includes alpha)
+  if (![3, 6, 8].includes(cleanHex.length)) return false;
+  // Must only contain valid hex characters
+  return /^[0-9a-fA-F]+$/.test(cleanHex);
+};
+
+/**
+ * Ensure a hex color is valid, returning fallback if not
+ */
+export const ensureValidHex = (hex: string | null | undefined, fallback: string): string => {
+  return isValidHex(hex) ? hex! : fallback;
+};
+
+/**
  * Convert hex color to RGBA format for theme.json
  */
 export const hexToRgba = (hex: string): { red: number; green: number; blue: number; alpha: number } => {
+  // Validate input to prevent NaN issues
+  if (!isValidHex(hex)) {
+    console.warn(`Invalid hex color: ${hex}, using fallback #000000`);
+    hex = '#000000';
+  }
   const cleanHex = hex.replace('#', '');
   const fullHex = cleanHex.length === 3
     ? cleanHex.split('').map(c => c + c).join('')
@@ -629,13 +653,14 @@ export const buildThemeFromDesignSystem = (designSystem: ExtendedDesignSystem): 
   const logoConfig = designSystem.logo_config || determineLogoConfig(logoUrl);
 
   // Get the semantic colors from design system (correct mappings)
-  const primaryColor = colors.primary || '#1c79a0';
-  const secondaryColor = colors.secondary || '#13526e';
-  const accentColor = colors.accent || '#ed6a40';
-  const textColor = colors.text || colors.text_primary || '#272727';
-  const bg1Color = colors.bg_1 || colors.background || '#ffffff';
-  const bg2Color = colors.bg_2 || '#f5f5f5';
-  const topbarLightColor = colors.topbar_light || '#f2f2f2';
+  // Use ensureValidHex to prevent NaN issues from invalid color values
+  const primaryColor = ensureValidHex(colors.primary, '#1c79a0');
+  const secondaryColor = ensureValidHex(colors.secondary, '#13526e');
+  const accentColor = ensureValidHex(colors.accent, '#ed6a40');
+  const textColor = ensureValidHex(colors.text || colors.text_primary, '#272727');
+  const bg1Color = ensureValidHex(colors.bg_1 || colors.background, '#ffffff');
+  const bg2Color = ensureValidHex(colors.bg_2, '#f5f5f5');
+  const topbarLightColor = ensureValidHex(colors.topbar_light, '#f2f2f2');
 
   // Initial colors to check for missing prominent ones
   const initialColors = [primaryColor, secondaryColor, accentColor];
@@ -679,7 +704,7 @@ export const buildThemeFromDesignSystem = (designSystem: ExtendedDesignSystem): 
   }
 
   // --- STEP 3: Ensure topbar-dark is actually DARK ---
-  let finalTopbarDark = colors.topbar_dark || primaryColor;
+  let finalTopbarDark = ensureValidHex(colors.topbar_dark, primaryColor);
   if (!isDarkColor(finalTopbarDark)) {
     // topbar-dark is not dark enough, find or create a dark color
     // Priority: 1) secondary if dark, 2) darken primary, 3) find dark from brand colors
