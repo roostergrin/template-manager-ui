@@ -265,6 +265,16 @@ export interface ProvisionStepResult {
   message?: string;
 }
 
+export interface DetectedBusinessType {
+  type: string;       // 'treatments' | 'services' | 'unknown'
+  confidence: number; // 0.0 - 1.0
+  signals?: {
+    keyword_matches?: Record<string, number>;
+    page_structure_hints?: string[];
+    scores?: Record<string, number>;
+  };
+}
+
 export interface ScrapeStepResult {
   success: boolean;
   domain?: string;
@@ -295,6 +305,8 @@ export interface ScrapeStepResult {
   design_system?: unknown;
   // Legacy support for camelCase
   designSystem?: unknown;
+  // Auto-detected business type based on content analysis
+  detected_business_type?: DetectedBusinessType;
 }
 
 export interface TemplateSelectionResult {
