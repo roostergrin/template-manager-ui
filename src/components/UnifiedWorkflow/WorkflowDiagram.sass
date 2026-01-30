@@ -1,0 +1,289 @@
+.workflow-diagram
+  background: #1e1e2e
+  border-radius: 8px
+  border: 1px solid #313244
+  margin-bottom: 1rem
+  overflow: hidden
+
+  &__header
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    width: 100%
+    padding: 0.75rem 1rem
+    background: transparent
+    border: none
+    color: #cdd6f4
+    cursor: pointer
+    font-size: 0.875rem
+    font-weight: 500
+    transition: background-color 0.2s
+
+    &:hover
+      background: #313244
+
+    svg
+      color: #89b4fa
+
+  &__title
+    flex: 1
+    text-align: left
+
+  &__content
+    padding: 1rem
+    border-top: 1px solid #313244
+
+  &__legend
+    display: flex
+    gap: 1.5rem
+    margin-bottom: 1.5rem
+    padding: 0.5rem 1rem
+    background: #181825
+    border-radius: 6px
+
+  &__legend-item
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    font-size: 0.75rem
+    color: #a6adc8
+
+  &__legend-dot
+    width: 10px
+    height: 10px
+    border-radius: 50%
+
+  &__flow
+    display: flex
+    gap: 2rem
+    margin-bottom: 1.5rem
+
+  &__track
+    display: flex
+    flex-direction: column
+    align-items: center
+    gap: 0.5rem
+    padding: 1rem
+    background: #181825
+    border-radius: 8px
+    min-width: 140px
+
+    &--infrastructure
+      border-left: 3px solid #3b82f6
+
+  &__track-label
+    font-size: 0.7rem
+    color: #6c7086
+    text-transform: uppercase
+    letter-spacing: 0.05em
+    margin-bottom: 0.5rem
+
+  &__step-card
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    padding: 0.5rem 0.75rem
+    background: #1e1e2e
+    border-radius: 6px
+    font-size: 0.75rem
+    color: #cdd6f4
+    border: 1px solid #313244
+
+    &--infrastructure
+      border-color: #3b82f6
+
+  &__connector
+    &--vertical
+      width: 2px
+      height: 20px
+      background: #313244
+
+  &__main-pipeline
+    flex: 1
+    display: flex
+    flex-direction: column
+    align-items: flex-start
+    gap: 0.25rem
+
+  &__step
+    display: flex
+    flex-direction: column
+    gap: 0.25rem
+    padding: 0.75rem 1rem
+    background: #181825
+    border: 2px solid #313244
+    border-radius: 8px
+    cursor: pointer
+    transition: all 0.2s
+    text-align: left
+    min-width: 280px
+
+    &:hover
+      background: #1e1e2e
+      transform: translateX(4px)
+
+    &--selected
+      background: #1e1e2e
+      box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.3)
+
+    &--planning
+      border-left-width: 4px
+      border-left-color: #8b5cf6
+
+    &--infrastructure
+      border-left-width: 4px
+      border-left-color: #3b82f6
+
+    &--deployment
+      border-left-width: 4px
+      border-left-color: #10b981
+
+    &--branch
+      min-width: auto
+      flex-direction: row
+      padding: 0.5rem 0.75rem
+      font-size: 0.75rem
+
+  &__step-header
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    color: #cdd6f4
+
+    svg
+      color: #89b4fa
+
+  &__step-name
+    font-weight: 500
+    font-size: 0.875rem
+
+  &__step-endpoint
+    font-size: 0.7rem
+    color: #6c7086
+    background: #1e1e2e
+    padding: 0.125rem 0.375rem
+    border-radius: 4px
+    font-family: 'JetBrains Mono', monospace
+
+  &__branch
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    margin-left: 1rem
+    padding: 0.5rem 0
+
+  &__branch-arrow
+    color: #6c7086
+
+  &__branch-steps
+    display: flex
+    flex-direction: column
+    gap: 0.25rem
+
+  &__arrow
+    color: #6c7086
+    margin: 0.25rem 0 0.25rem 1rem
+
+  &__details
+    background: #181825
+    border: 1px solid #313244
+    border-radius: 8px
+    padding: 1rem
+    margin-bottom: 1.5rem
+
+  &__details-title
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    font-size: 1rem
+    font-weight: 600
+    color: #cdd6f4
+    margin: 0 0 1rem 0
+
+    svg
+      color: #89b4fa
+
+  &__details-row
+    margin-bottom: 0.75rem
+
+    &:last-child
+      margin-bottom: 0
+
+  &__details-label
+    display: block
+    font-size: 0.75rem
+    color: #6c7086
+    text-transform: uppercase
+    letter-spacing: 0.05em
+    margin-bottom: 0.25rem
+
+  &__details-list
+    margin: 0
+    padding-left: 1.25rem
+    font-size: 0.8rem
+    color: #a6adc8
+
+    li
+      margin-bottom: 0.125rem
+
+    &--outputs
+      color: #a6e3a1
+
+      li
+        &::marker
+          color: #a6e3a1
+
+  &__details-deps
+    display: flex
+    flex-wrap: wrap
+    gap: 0.5rem
+
+  &__dep-tag
+    display: inline-block
+    padding: 0.25rem 0.5rem
+    background: #313244
+    border-radius: 4px
+    font-size: 0.75rem
+    color: #cdd6f4
+
+  &__table-container
+    margin-top: 1.5rem
+    overflow-x: auto
+
+  &__table-title
+    font-size: 0.875rem
+    font-weight: 600
+    color: #cdd6f4
+    margin: 0 0 0.75rem 0
+
+  &__table
+    width: 100%
+    border-collapse: collapse
+    font-size: 0.8rem
+
+    th, td
+      padding: 0.5rem 0.75rem
+      text-align: left
+      border-bottom: 1px solid #313244
+
+    th
+      background: #181825
+      color: #6c7086
+      font-weight: 500
+      text-transform: uppercase
+      letter-spacing: 0.05em
+      font-size: 0.7rem
+
+    td
+      color: #a6adc8
+
+      code
+        background: #1e1e2e
+        padding: 0.125rem 0.375rem
+        border-radius: 3px
+        font-size: 0.75rem
+        color: #f9e2af
+        font-family: 'JetBrains Mono', monospace
+
+    tr:hover td
+      background: #181825

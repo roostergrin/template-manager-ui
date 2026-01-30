@@ -57,6 +57,7 @@ const Step1Capture: React.FC = () => {
         use_selenium: data.use_selenium,
         scroll: data.scroll,
         max_pages: data.max_pages,
+        use_firecrawl: data.use_firecrawl,
       };
 
       const response = await api.post<ScrapedContent>('/scrape-site/', requestData);

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { ScrapedContent } from '../components/ScrapedContentViewer/ScrapedContentViewer';
-import { SitemapSection } from '../types/SitemapTypes';
+import { SitemapSection, VectorStore } from '../types/SitemapTypes';
 import { useSitemap } from './SitemapProvider';
 import {
   saveSitemapData,
@@ -9,7 +9,7 @@ import {
   PersistedSitemapData,
 } from '../utils/sitemapPersistence';
 
-type WizardStep = 'capture' | 'audit' | 'template' | 'structure' | 'allocate' | 'generate';
+type WizardStep = 'capture' | 'audit' | 'structure' | 'allocate' | 'generate';
 
 export interface SitemapPage {
   title: string;
@@ -58,6 +58,7 @@ interface MigrationWizardState {
   pageMappings: PageMapping[];
   generatedContent: any | null;
   selectedTemplate: string | null;
+  selectedVectorStore: VectorStore | null;
   themeSettings: {
     colors: { primary: string; secondary: string } | null;
     fonts: { heading: string; body: string } | null;
@@ -77,6 +78,7 @@ interface MigrationWizardContextType {
     setPageMappings: (mappings: PageMapping[]) => void;
     setGeneratedContent: (content: any) => void;
     setSelectedTemplate: (template: string) => void;
+    setSelectedVectorStore: (vectorStore: VectorStore | null) => void;
     setThemeSettings: (settings: Partial<MigrationWizardState['themeSettings']>) => void;
     nextStep: () => void;
     previousStep: () => void;
@@ -98,6 +100,7 @@ const initialState: MigrationWizardState = {
   pageMappings: [],
   generatedContent: null,
   selectedTemplate: null,
+  selectedVectorStore: null,
   themeSettings: {
     colors: null,
     fonts: null,
@@ -105,7 +108,7 @@ const initialState: MigrationWizardState = {
   },
 };
 
-const stepOrder: WizardStep[] = ['capture', 'audit', 'template', 'structure', 'generate'];
+const stepOrder: WizardStep[] = ['capture', 'audit', 'structure', 'generate'];
 
 export const MigrationWizardProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [state, setState] = useState<MigrationWizardState>(initialState);
@@ -249,6 +252,10 @@ export const MigrationWizardProvider: React.FC<{ children: ReactNode }> = ({ chi
     setState(prev => ({ ...prev, selectedTemplate: template }));
   };
 
+  const setSelectedVectorStore = (vectorStore: VectorStore | null) => {
+    setState(prev => ({ ...prev, selectedVectorStore: vectorStore }));
+  };
+
   const setThemeSettings = (settings: Partial<MigrationWizardState['themeSettings']>) => {
     setState(prev => ({
       ...prev,
@@ -300,6 +307,7 @@ export const MigrationWizardProvider: React.FC<{ children: ReactNode }> = ({ chi
       setPageMappings,
       setGeneratedContent,
       setSelectedTemplate,
+      setSelectedVectorStore,
       setThemeSettings,
       nextStep,
       previousStep,

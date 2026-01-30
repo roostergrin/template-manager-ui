@@ -1,13 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Loader2, CheckCircle, Download, Copy, Check, Sparkles } from 'lucide-react';
 import { useMigrationWizard } from '../../contexts/MigrationWizardProvider';
 import { useSitemap } from '../../contexts/SitemapProvider';
 import { useAppConfig } from '../../contexts/AppConfigProvider';
 import useGenerateContentForScraped from '../../hooks/useGenerateContentForScraped';
 import useGenerateGlobal from '../../hooks/useGenerateGlobal';
-import useReplaceImagesWithImageKit from '../../hooks/useReplaceImagesWithImageKit';
 import { getBackendSiteTypeForModelGroup } from '../../utils/modelGroupKeyToBackendSiteType';
+import { sanitizePracticeContext, getSanitizationStats } from '../../utils/sanitizePracticeContext';
+import { createPreserveImageMap, injectPreserveImageIntoContent, PreserveImageMap } from '../../utils/injectPreserveImage';
 import './Step4Generate.sass';
+
+const formatElapsedTime = (ms: number): string => {
+  const seconds = Math.floor(ms / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+
+  if (minutes > 0) {
+    return `${minutes}m ${remainingSeconds}s`;
+  }
+  return `${seconds}.${Math.floor((ms % 1000) / 100)}s`;
+};
 
 const Step4Generate: React.FC = () => {
   const { state, actions } = useMigrationWizard();
@@ -15,10 +27,48 @@ const Step4Generate: React.FC = () => {
   const { state: appConfigState } = useAppConfig();
   const [generateContentData, generateContentStatus, generateContentMutation] = useGenerateContentForScraped();
   const [globalContentData, globalContentStatus, generateGlobalMutation] = useGenerateGlobal();
-  const [replaceImagesData, replaceImagesStatus, replaceImagesMutation] = useReplaceImagesWithImageKit();
   const [copiedToClipboard, setCopiedToClipboard] = useState(false);
-  const [uploadedContent, setUploadedContent] = useState<any>(null);
-  const [uploadedFileName, setUploadedFileName] = useState<string>('');
+  const [useSitePool, setUseSitePool] = useState(true);  // Default to site-wide pool for image deduplication
+  const [startTime, setStartTime] = useState<number | null>(null);
+  const [elapsedTime, setElapsedTime] = useState<number>(0);
+  const [globalStartTime, setGlobalStartTime] = useState<number | null>(null);
+  const [globalElapsedTime, setGlobalElapsedTime] = useState<number>(0);
+  const [processedContentData, setProcessedContentData] = useState<any>(null);
+
+  // Ref to store preserve_image values from sitemap before generation
+  const preserveImageMapRef = useRef<PreserveImageMap>(new Map());
+
+  // Update elapsed time while content generation is in progress
+  useEffect(() => {
+    let intervalId: ReturnType<typeof setInterval> | null = null;
+
+    if (generateContentStatus === 'pending' && startTime) {
+      setElapsedTime(Date.now() - startTime);
+      intervalId = setInterval(() => {
+        setElapsedTime(Date.now() - startTime);
+      }, 100);
+    }
+
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [generateContentStatus, startTime]);
+
+  // Update elapsed time while global generation is in progress
+  useEffect(() => {
+    let intervalId: ReturnType<typeof setInterval> | null = null;
+
+    if (globalContentStatus === 'pending' && globalStartTime) {
+      setGlobalElapsedTime(Date.now() - globalStartTime);
+      intervalId = setInterval(() => {
+        setGlobalElapsedTime(Date.now() - globalStartTime);
+      }, 100);
+    }
+
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [globalContentStatus, globalStartTime]);
 
   if (!state.scrapedContent) {
     return (
@@ -48,6 +98,41 @@ const Step4Generate: React.FC = () => {
   const pagesCount = Object.keys(scrapedPages).length;
 
   const handleGenerate = async () => {
+    setStartTime(Date.now());
+    setElapsedTime(0);
+
+    // Store preserve_image values from sitemap before generation
+    console.log('📸 === PRESERVE_IMAGE DEBUG (Step4Generate) ===');
+    const pagesArray = Array.isArray(sitemapState.pages) ? sitemapState.pages : Object.values(sitemapState.pages);
+    console.log('📸 Sitemap pages count:', pagesArray.length);
+    pagesArray.forEach((page: any, pageIdx: number) => {
+      console.log(`📸 Page[${pageIdx}]: title="${page.title}"`);
+      const items = page.items || page.model_query_pairs || [];
+      items.forEach((item: any, itemIdx: number) => {
+        console.log(`📸   Item[${itemIdx}]: model="${item.model}" preserve_image=${item.preserve_image}`);
+      });
+    });
+
+    // Convert sitemap pages to the format expected by createPreserveImageMap
+    const sitemapPagesForMap = pagesArray.map((page: any) => ({
+      id: page.id || page.internal_id,
+      title: page.title,
+      wordpress_id: page.wordpress_id || page.page_id,
+      items: (page.items || page.model_query_pairs || []).map((item: any) => ({
+        id: item.id || item.internal_id,
+        model: item.model,
+        query: item.query,
+        preserve_image: item.preserve_image,
+      })),
+    }));
+    preserveImageMapRef.current = createPreserveImageMap(sitemapPagesForMap);
+
+    console.log('📸 PreserveImageMap created with', preserveImageMapRef.current.size, 'pages');
+    for (const [pageKey, itemMap] of preserveImageMapRef.current.entries()) {
+      console.log(`📸 Stored preserve_image for "${pageKey}":`, Array.from(itemMap.entries()));
+    }
+    console.log('📸 === END PRESERVE_IMAGE DEBUG ===');
+
     try {
       // Check if we have allocated sitemap (with allocated_markdown per page)
       // Priority: Use sitemap state (current) if it has allocated data, otherwise fall back to cached allocated sitemap
@@ -84,7 +169,7 @@ const Step4Generate: React.FC = () => {
 
       // Combine global_markdown and all page markdowns into a single context string
       // (This is only used as fallback if no allocated sitemap)
-      const allMarkdown = [
+      const rawMarkdown = [
         '# Global Content',
         state.scrapedContent.global_markdown,
         '\n# Pages',
@@ -93,10 +178,16 @@ const Step4Generate: React.FC = () => {
         )
       ].join('\n\n');
 
+      // Sanitize the markdown to remove noise (SVG data URIs, Google Maps tiles, etc.)
+      const allMarkdown = sanitizePracticeContext(rawMarkdown);
+      const sanitizationStats = getSanitizationStats(rawMarkdown, allMarkdown);
+
       console.log('🔍 Scraped content being sent to backend:');
       console.log('- Global markdown length:', state.scrapedContent.global_markdown.length, 'characters');
       console.log('- Number of pages:', Object.keys(state.scrapedContent.pages).length);
-      console.log('- Total combined markdown length:', allMarkdown.length, 'characters');
+      console.log('- Raw combined markdown length:', rawMarkdown.length, 'characters');
+      console.log('- Sanitized markdown length:', allMarkdown.length, 'characters');
+      console.log(`- Removed ${sanitizationStats.removedChars} chars (${sanitizationStats.removedPercent}% reduction)`);
 
       // Convert scraped markdown content to questionnaire data format
       // The backend expects questionnaire data, so we put all scraped content in practiceDetails
@@ -184,17 +275,40 @@ const Step4Generate: React.FC = () => {
         },
         site_type: backendSiteType,
         assign_images: true,
+        use_site_pool: useSitePool,
       });
 
-      actions.setGeneratedContent(result);
+      // Inject preserve_image from sitemap into generated content
+      console.log('📸 Injecting preserve_image into generated content...');
+      const pagesData = (result as any)?.pages || result;
+      const pagesWithPreserveImage = injectPreserveImageIntoContent(pagesData, preserveImageMapRef.current);
+
+      // Log what was injected
+      for (const [pageKey, components] of Object.entries(pagesWithPreserveImage)) {
+        if (Array.isArray(components)) {
+          components.forEach((comp: any, idx: number) => {
+            if (comp.preserve_image) {
+              console.log(`📸 Injected preserve_image=true for "${pageKey}" component ${idx} (${comp.acf_fc_layout || 'unknown'})`);
+            }
+          });
+        }
+      }
+
+      // Wrap back in pages if original had that structure
+      const finalResult = (result as any)?.pages ? { ...result, pages: pagesWithPreserveImage } : pagesWithPreserveImage;
+
+      // Store the processed content for display/download (with preserve_image injected)
+      setProcessedContentData(finalResult);
+      actions.setGeneratedContent(finalResult);
     } catch (error) {
       console.error('Content generation failed:', error);
     }
   };
 
   const handleDownload = () => {
-    if (!generateContentData) return;
-    const blob = new Blob([JSON.stringify(generateContentData, null, 2)], { type: 'application/json' });
+    const dataToDownload = processedContentData || generateContentData;
+    if (!dataToDownload) return;
+    const blob = new Blob([JSON.stringify(dataToDownload, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -204,19 +318,27 @@ const Step4Generate: React.FC = () => {
   };
 
   const handleCopy = () => {
-    if (!generateContentData) return;
-    navigator.clipboard.writeText(JSON.stringify(generateContentData, null, 2));
+    const dataToCopy = processedContentData || generateContentData;
+    if (!dataToCopy) return;
+    navigator.clipboard.writeText(JSON.stringify(dataToCopy, null, 2));
     setCopiedToClipboard(true);
     setTimeout(() => setCopiedToClipboard(false), 2000);
   };
 
   const handleGenerateGlobal = async () => {
+    setGlobalStartTime(Date.now());
+    setGlobalElapsedTime(0);
     try {
+      // Sanitize global markdown to remove noise (SVG data URIs, map tiles, etc.)
+      const sanitizedGlobalMarkdown = state.scrapedContent
+        ? sanitizePracticeContext(state.scrapedContent.global_markdown)
+        : '';
+
       await generateGlobalMutation({
         sitemap_data: {
           pages: sitemapState.pages,
           questionnaireData: state.scrapedContent ? {
-            practiceDetails: state.scrapedContent.global_markdown,
+            practiceDetails: sanitizedGlobalMarkdown,
             _isScrapedContent: true,
             _domain: state.scrapedContent.domain,
           } : {},
@@ -228,114 +350,10 @@ const Step4Generate: React.FC = () => {
     }
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const content = JSON.parse(e.target?.result as string);
-
-        console.log('📄 Uploaded file structure:', Object.keys(content));
-        console.log('📄 Full uploaded content:', content);
-
-        // Validate that the content has a usable structure
-        // Accept either { pages: {...} } or just the pages object directly
-        let processedContent = content;
-
-        if (!content.pages && typeof content === 'object') {
-          // If there's no "pages" property, assume the entire object IS the pages
-          console.log('📦 No "pages" property found, treating entire object as pages');
-          processedContent = { pages: content };
-        }
-
-        if (!processedContent.pages || typeof processedContent.pages !== 'object') {
-          alert('Invalid content structure. The JSON file should contain a "pages" object or be a pages object directly.');
-          return;
-        }
-
-        const pageCount = Object.keys(processedContent.pages).length;
-        console.log(`✅ Content uploaded successfully: ${file.name} (${pageCount} pages)`);
-
-        setUploadedContent(processedContent);
-        setUploadedFileName(file.name);
-      } catch (error) {
-        console.error('❌ Failed to parse JSON file:', error);
-        alert('Invalid JSON file. Please upload a valid JSON file.');
-      }
-    };
-    reader.readAsText(file);
-  };
-
-  const handleClearUploadedFile = () => {
-    setUploadedContent(null);
-    setUploadedFileName('');
-    console.log('🗑️ Uploaded content cleared');
-  };
-
-  const handleReplaceImages = async () => {
-    // Determine which content to use: uploaded content takes priority over generated content
-    const contentToUse = uploadedContent?.pages || generateContentData?.pages;
-    const contentSource = uploadedContent ? 'uploaded' : 'generated';
-
-    // Debug logging
-    console.log('🔍 Debug - Replace Images Check:');
-    console.log('  uploadedContent:', uploadedContent);
-    console.log('  uploadedContent?.pages:', uploadedContent?.pages);
-    console.log('  generateContentData?.pages:', generateContentData?.pages);
-    console.log('  contentToUse:', contentToUse);
-    console.log('  contentSource:', contentSource);
-
-    if (!contentToUse) {
-      console.error('❌ No content available to replace images');
-      console.error('  uploadedContent:', uploadedContent);
-      console.error('  generateContentData:', generateContentData);
-      alert('Please either generate content or upload a content JSON file first.');
-      return;
-    }
-
-    try {
-      const pageCount = Object.keys(contentToUse).length;
-      console.log(`🖼️ Replacing images in ${contentSource} content (${pageCount} pages)...`);
-
-      const result = await replaceImagesMutation({
-        generated_content: contentToUse,
-        site_type: backendSiteType,
-      });
-
-      // Update the displayed content with new images
-      if (result && result.data) {
-        console.log(`✅ Images replaced successfully! Updated ${Object.keys(result.data).length} pages`);
-
-        if (uploadedContent) {
-          // Update uploaded content
-          setUploadedContent({
-            ...uploadedContent,
-            pages: result.data,
-          });
-          console.log('📝 Updated uploaded content state');
-        } else {
-          // Update generated content
-          actions.setGeneratedContent({
-            ...generateContentData,
-            pages: result.data,
-          });
-          console.log('📝 Updated generated content state');
-        }
-      }
-    } catch (error) {
-      console.error('❌ Image replacement failed:', error);
-      alert(`Image replacement failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
-  };
-
   const isGenerating = generateContentStatus === 'pending';
   const hasGenerated = generateContentStatus === 'success' && generateContentData;
   const isGeneratingGlobal = globalContentStatus === 'pending';
   const hasGeneratedGlobal = globalContentStatus === 'success' && globalContentData;
-  const isReplacingImages = replaceImagesStatus === 'pending';
-  const hasReplacedImages = replaceImagesStatus === 'success' && replaceImagesData;
 
   const globalMarkdownLength = state.scrapedContent.global_markdown.length;
   const totalScrapedChars = globalMarkdownLength + Object.values(state.scrapedContent.pages).reduce((sum, md) => sum + md.length, 0);
@@ -366,6 +384,18 @@ const Step4Generate: React.FC = () => {
           <p>
             📝 Using scraped content as context: <strong>{totalScrapedChars.toLocaleString()}</strong> characters from <strong>{pagesCount + 1}</strong> sources (global + {pagesCount} pages)
           </p>
+        </div>
+        <div className="step-4-generate__options">
+          <label className="checkbox-option">
+            <input
+              type="checkbox"
+              checked={useSitePool}
+              onChange={(e) => setUseSitePool(e.target.checked)}
+            />
+            <span className="checkbox-label">
+              Use site-wide image pool (prevents duplicate images across pages)
+            </span>
+          </label>
         </div>
       </div>
 
@@ -413,7 +443,7 @@ const Step4Generate: React.FC = () => {
           <div className="step-4-generate__success">
             <div className="success-message">
               <CheckCircle size={24} className="success-icon" />
-              <p>Content generated successfully!</p>
+              <p>Content generated successfully!{elapsedTime > 0 && <span className="success-time"> ({formatElapsedTime(elapsedTime)})</span>}</p>
             </div>
             <div className="action-buttons">
               <button className="btn btn--primary" onClick={handleGenerate} disabled={isGenerating}>
@@ -439,99 +469,14 @@ const Step4Generate: React.FC = () => {
         )}
       </div>
 
-      {/* Image Replacement Section - Always Visible */}
-      <div className="step-4-generate__image-replacement">
-        <h3>Image Replacement</h3>
-        <p className="section-description">
-          Replace images in your content with fresh ImageKit/Adobe Stock images
-        </p>
-
-        {/* File Upload */}
-        <div className="image-replacement__upload">
-          <label htmlFor="content-file-upload" className="upload-label">
-            Upload Content (Optional):
-          </label>
-          <div className="upload-controls">
-            <input
-              id="content-file-upload"
-              type="file"
-              accept=".json"
-              onChange={handleFileUpload}
-              style={{ display: 'none' }}
-            />
-            <button
-              className="btn btn--secondary"
-              onClick={() => document.getElementById('content-file-upload')?.click()}
-            >
-              Choose File
-            </button>
-            {uploadedFileName && (
-              <>
-                <span className="uploaded-filename">{uploadedFileName}</span>
-                <button
-                  className="btn btn--secondary btn--small"
-                  onClick={handleClearUploadedFile}
-                  title="Clear uploaded file"
-                >
-                  ✕ Clear
-                </button>
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* Content Source Indicator */}
-        <div className="image-replacement__status">
-          {uploadedContent && (
-            <p className="status-message status-message--uploaded">
-              📁 Using uploaded content: <strong>{uploadedFileName}</strong>
-              {uploadedContent.pages && (
-                <span> ({Object.keys(uploadedContent.pages).length} pages)</span>
-              )}
-            </p>
-          )}
-          {!uploadedContent && generateContentData && (
-            <p className="status-message status-message--generated">
-              ✨ Using generated content
-              {generateContentData.pages && (
-                <span> ({Object.keys(generateContentData.pages).length} pages)</span>
-              )}
-            </p>
-          )}
-          {!uploadedContent && !generateContentData && (
-            <p className="status-message status-message--none">
-              ⚠️ No content available. Please generate content or upload a file.
-            </p>
-          )}
-        </div>
-
-        {/* Replace Images Button */}
-        <div className="image-replacement__action">
-          <button
-            className="btn btn--primary btn--large"
-            onClick={handleReplaceImages}
-            disabled={isReplacingImages || (!uploadedContent && !generateContentData)}
-          >
-            {isReplacingImages ? (
-              <>
-                <Loader2 className="spinning" size={20} />
-                Replacing Images...
-              </>
-            ) : (
-              <>
-                <Sparkles size={20} />
-                Replace with ImageKit Images
-              </>
-            )}
-          </button>
-        </div>
-      </div>
-
       {isGenerating && (
         <div className="step-4-generate__progress">
           <Loader2 className="progress-spinner spinning" size={48} />
           <p>Generating content from your scraped data and sitemap structure...</p>
           <p className="progress-note">This may take a minute or two.</p>
+          {elapsedTime > 0 && (
+            <p className="progress-timer">Elapsed: {formatElapsedTime(elapsedTime)}</p>
+          )}
         </div>
       )}
 
@@ -540,6 +485,9 @@ const Step4Generate: React.FC = () => {
           <Loader2 className="progress-spinner spinning" size={48} />
           <p>Generating global content (header, footer, contact info)...</p>
           <p className="progress-note">This may take a moment.</p>
+          {globalElapsedTime > 0 && (
+            <p className="progress-timer">Elapsed: {formatElapsedTime(globalElapsedTime)}</p>
+          )}
         </div>
       )}
 
@@ -547,7 +495,7 @@ const Step4Generate: React.FC = () => {
         <div className="step-4-generate__success">
           <div className="success-message">
             <CheckCircle size={24} className="success-icon" />
-            <p>Global content generated successfully!</p>
+            <p>Global content generated successfully!{globalElapsedTime > 0 && <span className="success-time"> ({formatElapsedTime(globalElapsedTime)})</span>}</p>
           </div>
           <div className="step-4-generate__preview">
             <h4>Global Content Preview</h4>
@@ -561,63 +509,12 @@ const Step4Generate: React.FC = () => {
         </div>
       )}
 
-      {isReplacingImages && (
-        <div className="step-4-generate__progress">
-          <Loader2 className="progress-spinner spinning" size={48} />
-          <p>Replacing images with ImageKit/Adobe Stock images...</p>
-          <p className="progress-note">Searching for relevant stock photos.</p>
-        </div>
-      )}
-
-      {hasReplacedImages && replaceImagesData && (
-        <div className="step-4-generate__success">
-          <div className="success-message">
-            <CheckCircle size={24} className="success-icon" />
-            <p>
-              Images replaced successfully!
-              {' '}✅ {replaceImagesData.success_count} replaced,
-              ⏭️ {replaceImagesData.skipped_count} skipped
-              {replaceImagesData.failed_count > 0 && `, ❌ ${replaceImagesData.failed_count} failed`}
-            </p>
-          </div>
-        </div>
-      )}
-
-      {uploadedContent && (
-        <div className="step-4-generate__preview">
-          <h4>Uploaded Content Preview</h4>
-          <div className="preview-actions" style={{ marginBottom: '1rem' }}>
-            <button
-              className="btn btn--secondary"
-              onClick={() => {
-                const blob = new Blob([JSON.stringify(uploadedContent, null, 2)], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = uploadedFileName.replace('.json', '-updated.json');
-                a.click();
-                URL.revokeObjectURL(url);
-              }}
-            >
-              <Download size={18} />
-              Download Updated Content
-            </button>
-          </div>
-          <textarea
-            className="content-preview"
-            value={JSON.stringify(uploadedContent, null, 2)}
-            readOnly
-            rows={12}
-          />
-        </div>
-      )}
-
-      {hasGenerated && generateContentData && !uploadedContent && (
+      {hasGenerated && (processedContentData || generateContentData) && (
         <div className="step-4-generate__preview">
           <h4>Generated Content Preview</h4>
           <textarea
             className="content-preview"
-            value={JSON.stringify(generateContentData, null, 2)}
+            value={JSON.stringify(processedContentData || generateContentData, null, 2)}
             readOnly
             rows={12}
           />

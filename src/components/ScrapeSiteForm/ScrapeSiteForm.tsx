@@ -7,6 +7,7 @@ export interface ScrapeSiteFormData {
   use_selenium: boolean;
   scroll: boolean;
   max_pages?: number;
+  use_firecrawl: boolean;
 }
 
 interface ScrapeSiteFormProps {
@@ -18,6 +19,7 @@ interface ScrapeSiteFormProps {
 const ScrapeSiteForm: React.FC<ScrapeSiteFormProps> = ({ onSubmit, loading = false, error }) => {
   const [domain, setDomain] = useState('');
   const [maxPages, setMaxPages] = useState<number | undefined>(undefined);
+  const [useFirecrawl, setUseFirecrawl] = useState(true);
   const [domainError, setDomainError] = useState('');
 
   const validateDomain = (value: string): boolean => {
@@ -70,6 +72,7 @@ const ScrapeSiteForm: React.FC<ScrapeSiteFormProps> = ({ onSubmit, loading = fal
       use_selenium: true,
       scroll: true,
       max_pages: maxPages,
+      use_firecrawl: useFirecrawl,
     });
   };
 
@@ -120,6 +123,26 @@ const ScrapeSiteForm: React.FC<ScrapeSiteFormProps> = ({ onSubmit, loading = fal
                 disabled={loading}
                 className="option-input"
               />
+            </div>
+
+            <div className="option-field option-field--checkbox">
+              <label htmlFor="use-firecrawl" className="option-label option-label--checkbox">
+                <input
+                  id="use-firecrawl"
+                  type="checkbox"
+                  checked={useFirecrawl}
+                  onChange={(e) => setUseFirecrawl(e.target.checked)}
+                  disabled={loading}
+                  className="option-checkbox"
+                />
+                <span>Use Firecrawl</span>
+                <span
+                  className="tooltip-wrapper"
+                  data-tooltip="Use Firecrawl API for better anti-bot handling and branding extraction. Recommended for sites with bot protection."
+                >
+                  <Info className="tooltip-icon" size={14} />
+                </span>
+              </label>
             </div>
           </div>
 

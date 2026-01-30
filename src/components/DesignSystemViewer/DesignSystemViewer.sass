@@ -1,0 +1,819 @@
+.design-system-viewer
+  display: flex
+  flex-direction: column
+  gap: 1rem
+  padding: 0.5rem
+  background: #ffffff
+  border-radius: 4px
+
+  &--empty
+    padding: 1rem
+    text-align: center
+    color: #5f6368
+    font-size: 0.875rem
+
+  &__section
+    display: flex
+    flex-direction: column
+    gap: 0.625rem
+    padding: 0.75rem
+    background: #fafbfc
+    border-radius: 4px
+    border: 1px solid #e8eaed
+
+  &__section-header
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    padding-bottom: 0.5rem
+    border-bottom: 1px solid #e8eaed
+
+    svg
+      color: #5f6368
+      flex-shrink: 0
+
+  &__section-title
+    margin: 0
+    font-size: 0.8125rem
+    font-weight: 600
+    color: #202124
+    text-transform: uppercase
+    letter-spacing: 0.5px
+
+  // Grid for images
+  &__grid
+    display: flex
+    flex-wrap: wrap
+    gap: 1rem
+    align-items: flex-start
+
+  &__item
+    display: flex
+    flex-direction: column
+    gap: 0.375rem
+
+  &__label
+    font-size: 0.75rem
+    font-weight: 500
+    color: #5f6368
+    text-transform: capitalize
+
+  &__image-container
+    position: relative
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    padding: 0.5rem
+    background: white
+    border-radius: 4px
+    border: 1px solid #dadce0
+
+    &--favicon
+      padding: 0.375rem
+
+    &:hover
+      border-color: #80868b
+
+  &__image
+    max-width: 120px
+    max-height: 60px
+    object-fit: contain
+
+    &--favicon
+      width: 32px
+      height: 32px
+
+  &__image-actions
+    display: flex
+    flex-direction: column
+    gap: 0.25rem
+
+  &__action-btn
+    display: flex
+    align-items: center
+    justify-content: center
+    padding: 0.25rem
+    background: #f8f9fa
+    border: 1px solid #dadce0
+    border-radius: 2px
+    cursor: pointer
+    color: #5f6368
+    text-decoration: none
+    transition: all 0.15s ease
+
+    &:hover
+      background: #e8eaed
+      border-color: #80868b
+      color: #202124
+
+  // Colors grid
+  &__colors-grid
+    display: grid
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr))
+    gap: 0.625rem
+
+  &__color-item
+    position: relative
+    display: flex
+    align-items: center
+    gap: 0.625rem
+    padding: 0.5rem
+    background: white
+    border-radius: 4px
+    border: 1px solid #dadce0
+    transition: border-color 0.15s ease
+
+    &:hover
+      border-color: #80868b
+
+      .design-system-viewer__copy-btn
+        opacity: 1
+
+  &__color-swatch
+    width: 36px
+    height: 36px
+    border-radius: 4px
+    border: 1px solid rgba(0, 0, 0, 0.1)
+    flex-shrink: 0
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2)
+
+  &__color-info
+    display: flex
+    flex-direction: column
+    gap: 0.125rem
+    flex: 1
+    min-width: 0
+
+  &__color-label
+    font-size: 0.6875rem
+    font-weight: 600
+    color: #5f6368
+    text-transform: uppercase
+    letter-spacing: 0.3px
+
+  &__color-value
+    font-family: 'Roboto Mono', 'Courier New', monospace
+    font-size: 0.75rem
+    color: #202124
+    background: transparent
+    padding: 0
+
+  &__copy-btn
+    position: absolute
+    top: 4px
+    right: 4px
+    display: flex
+    align-items: center
+    justify-content: center
+    padding: 0.25rem
+    background: rgba(255, 255, 255, 0.95)
+    border: 1px solid #dadce0
+    border-radius: 2px
+    cursor: pointer
+    opacity: 0
+    transition: all 0.15s ease
+
+    &:hover
+      background: white
+      border-color: #80868b
+
+    svg
+      color: #5f6368
+
+  // List items (fonts, typography, spacing)
+  &__list
+    display: flex
+    flex-direction: column
+    gap: 0.375rem
+
+  &__list-item
+    display: flex
+    align-items: center
+    justify-content: space-between
+    padding: 0.5rem 0.625rem
+    background: white
+    border-radius: 4px
+    border: 1px solid #dadce0
+
+    &:hover
+      background: #f8f9fa
+
+  &__list-label
+    font-size: 0.75rem
+    font-weight: 500
+    color: #5f6368
+
+  &__list-value
+    font-size: 0.8125rem
+    font-weight: 500
+    color: #202124
+
+  // Subsection for components
+  &__subsection
+    display: flex
+    flex-direction: column
+    gap: 0.5rem
+
+  &__subsection-title
+    margin: 0
+    font-size: 0.75rem
+    font-weight: 600
+    color: #5f6368
+    text-transform: uppercase
+    letter-spacing: 0.3px
+
+  // Buttons grid
+  &__buttons-grid
+    display: grid
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr))
+    gap: 0.75rem
+
+  &__button-item
+    display: flex
+    flex-direction: column
+    gap: 0.5rem
+    padding: 0.75rem
+    background: white
+    border-radius: 4px
+    border: 1px solid #dadce0
+
+  &__button-label
+    font-size: 0.6875rem
+    font-weight: 600
+    color: #5f6368
+    text-transform: uppercase
+    letter-spacing: 0.3px
+
+  &__button-preview
+    display: inline-flex
+    align-items: center
+    justify-content: center
+    padding: 0.5rem 1.25rem
+    font-size: 0.8125rem
+    font-weight: 500
+    transition: all 0.15s ease
+    min-width: 80px
+    max-width: 120px
+    white-space: nowrap
+
+    &--secondary
+      background: transparent
+
+  &__button-details
+    display: flex
+    flex-direction: column
+    gap: 0.25rem
+
+  &__button-detail
+    display: flex
+    align-items: center
+    gap: 0.375rem
+    font-size: 0.6875rem
+
+    span
+      color: #5f6368
+      min-width: 60px
+
+    code
+      font-family: 'Roboto Mono', 'Courier New', monospace
+      color: #202124
+      background: #f1f3f4
+      padding: 0.125rem 0.25rem
+      border-radius: 2px
+
+    &--hover
+      opacity: 0.85
+      margin-top: 0.125rem
+      padding-left: 0.375rem
+      border-left: 2px solid #667eea
+
+      span
+        color: #667eea
+        font-style: italic
+
+  // Badge for counts
+  &__badge
+    padding: 0.125rem 0.5rem
+    background: #e8f0fe
+    color: #1967d2
+    border-radius: 10px
+    font-size: 0.6875rem
+    font-weight: 600
+    margin-left: auto
+
+    &--dark
+      background: #1e293b
+      color: #f8fafc
+
+    &--light
+      background: #fef3c7
+      color: #b45309
+
+  // Logo Analysis Section
+  &__logo-config
+    margin-bottom: 0.75rem
+
+  &__logo-config-grid
+    display: grid
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr))
+    gap: 0.5rem
+
+  &__logo-config-item
+    display: flex
+    flex-direction: column
+    gap: 0.25rem
+    padding: 0.5rem 0.75rem
+    background: white
+    border-radius: 4px
+    border: 1px solid #dadce0
+
+    code
+      font-family: 'Roboto Mono', 'Courier New', monospace
+      font-size: 0.8125rem
+      color: #202124
+      font-weight: 600
+
+  &__logo-colors
+    display: flex
+    flex-direction: column
+    gap: 0.75rem
+
+  &__logo-colors-summary
+    display: grid
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr))
+    gap: 0.75rem
+
+  &__logo-colors-stat
+    display: flex
+    flex-direction: column
+    gap: 0.375rem
+    padding: 0.625rem 0.75rem
+    background: white
+    border-radius: 6px
+    border: 1px solid #dadce0
+
+  &__logo-dominant
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    position: relative
+
+    code
+      font-family: 'Roboto Mono', 'Courier New', monospace
+      font-size: 0.875rem
+      color: #202124
+      font-weight: 600
+
+  &__luminosity-bar
+    position: relative
+    height: 24px
+    background: linear-gradient(90deg, #1e293b 0%, #f8fafc 100%)
+    border-radius: 4px
+    border: 1px solid #dadce0
+    overflow: hidden
+
+  &__luminosity-fill
+    position: absolute
+    top: 0
+    left: 0
+    height: 100%
+    background: rgba(102, 126, 234, 0.3)
+    border-right: 2px solid #667eea
+
+  &__luminosity-value
+    position: absolute
+    top: 50%
+    left: 50%
+    transform: translate(-50%, -50%)
+    font-size: 0.75rem
+    font-weight: 600
+    color: #202124
+    text-shadow: 0 0 4px white, 0 0 4px white
+
+  &__classification
+    display: inline-flex
+    align-items: center
+    padding: 0.375rem 0.75rem
+    border-radius: 4px
+    font-size: 0.8125rem
+    font-weight: 600
+    width: fit-content
+
+    &--light
+      background: #fef3c7
+      color: #b45309
+      border: 1px solid #fcd34d
+
+    &--dark
+      background: #1e293b
+      color: #f8fafc
+      border: 1px solid #475569
+
+  &__logo-palette
+    display: flex
+    flex-direction: column
+    gap: 0.5rem
+    padding-top: 0.5rem
+    border-top: 1px dashed #e8eaed
+
+  &__logo-colors-grid
+    display: grid
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr))
+    gap: 0.5rem
+
+  &__logo-color-item
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    padding: 0.375rem 0.5rem
+    background: white
+    border-radius: 4px
+    border: 1px solid #dadce0
+
+    &:hover
+      border-color: #80868b
+
+  &__color-swatch--small
+    width: 24px
+    height: 24px
+    border-radius: 4px
+    border: 1px solid rgba(0, 0, 0, 0.1)
+    flex-shrink: 0
+
+  &__logo-color-info
+    display: flex
+    flex-direction: column
+    gap: 0.125rem
+
+    code
+      font-family: 'Roboto Mono', 'Courier New', monospace
+      font-size: 0.6875rem
+      color: #202124
+
+  &__logo-color-meta
+    font-size: 0.625rem
+    color: #5f6368
+
+  &__value
+    font-family: 'Roboto Mono', 'Courier New', monospace
+    font-size: 0.8125rem
+    color: #202124
+
+  // Font stacks
+  &__font-stacks
+    display: flex
+    flex-direction: column
+    gap: 0.375rem
+    margin-top: 0.5rem
+    padding-top: 0.5rem
+    border-top: 1px dashed #e8eaed
+
+  &__font-stack
+    display: flex
+    align-items: flex-start
+    gap: 0.5rem
+    font-size: 0.75rem
+
+  &__font-stack-label
+    font-weight: 600
+    color: #5f6368
+    min-width: 60px
+    flex-shrink: 0
+
+  &__font-stack-value
+    font-family: 'Roboto Mono', 'Courier New', monospace
+    font-size: 0.6875rem
+    color: #202124
+    background: #f1f3f4
+    padding: 0.125rem 0.375rem
+    border-radius: 2px
+    word-break: break-all
+
+  // Raw Data Section
+  &__raw-section
+    margin-top: 0.5rem
+    border: 1px solid #e8eaed
+    border-radius: 4px
+    background: #fafbfc
+
+  &__raw-header
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    padding: 0.625rem 0.75rem
+    cursor: pointer
+    font-size: 0.8125rem
+    font-weight: 600
+    color: #5f6368
+    user-select: none
+
+    &:hover
+      background: #f1f3f4
+
+    svg
+      color: #5f6368
+
+  &__raw-content
+    padding: 0.75rem
+    border-top: 1px solid #e8eaed
+    display: flex
+    flex-direction: column
+    gap: 1rem
+
+  &__raw-group
+    display: flex
+    flex-direction: column
+    gap: 0.5rem
+
+  &__raw-group-title
+    margin: 0
+    font-size: 0.75rem
+    font-weight: 600
+    color: #5f6368
+    text-transform: uppercase
+    letter-spacing: 0.3px
+
+  &__raw-list
+    display: flex
+    flex-direction: column
+    gap: 0.375rem
+    max-height: 200px
+    overflow-y: auto
+
+  &__raw-item
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    padding: 0.375rem 0.5rem
+    background: white
+    border-radius: 3px
+    border: 1px solid #dadce0
+
+    &:hover
+      border-color: #80868b
+
+  &__raw-thumb
+    width: 32px
+    height: 32px
+    object-fit: contain
+    border-radius: 2px
+    background: #f8f9fa
+
+  &__raw-url
+    flex: 1
+    font-family: 'Roboto Mono', 'Courier New', monospace
+    font-size: 0.6875rem
+    color: #5f6368
+    word-break: break-all
+
+  &__raw-colors
+    display: grid
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr))
+    gap: 0.375rem
+    max-height: 200px
+    overflow-y: auto
+
+  &__raw-color
+    display: flex
+    align-items: center
+    gap: 0.375rem
+    padding: 0.25rem 0.375rem
+    background: white
+    border-radius: 3px
+    border: 1px solid #dadce0
+    font-size: 0.6875rem
+
+    code
+      font-family: 'Roboto Mono', 'Courier New', monospace
+      color: #202124
+      flex: 1
+
+  &__raw-swatch
+    width: 20px
+    height: 20px
+    border-radius: 2px
+    border: 1px solid rgba(0, 0, 0, 0.1)
+    flex-shrink: 0
+
+  &__raw-count
+    color: #5f6368
+    font-size: 0.625rem
+    font-weight: 500
+
+  &__raw-fonts
+    display: flex
+    flex-direction: column
+    gap: 0.25rem
+    max-height: 200px
+    overflow-y: auto
+
+  &__raw-font
+    display: flex
+    align-items: center
+    justify-content: space-between
+    padding: 0.375rem 0.5rem
+    background: white
+    border-radius: 3px
+    border: 1px solid #dadce0
+    font-size: 0.75rem
+
+  // Generate Theme Actions
+  &__actions
+    display: flex
+    gap: 0.75rem
+    padding: 0.75rem
+    background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%)
+    border-radius: 6px
+    border: 1px solid #e0e7ff
+    margin-bottom: 0.5rem
+
+  &__generate-theme-btn
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    padding: 0.625rem 1rem
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)
+    color: white
+    border: none
+    border-radius: 6px
+    font-size: 0.875rem
+    font-weight: 600
+    cursor: pointer
+    transition: all 0.2s ease
+
+    &:hover:not(:disabled)
+      transform: translateY(-1px)
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4)
+
+    &:disabled
+      opacity: 0.7
+      cursor: not-allowed
+
+    svg
+      flex-shrink: 0
+
+  &__download-btn
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    padding: 0.625rem 1rem
+    background: white
+    color: #667eea
+    border: 2px solid #667eea
+    border-radius: 6px
+    font-size: 0.875rem
+    font-weight: 600
+    cursor: pointer
+    transition: all 0.2s ease
+
+    &:hover
+      background: #667eea
+      color: white
+
+    svg
+      flex-shrink: 0
+
+  &__spinner
+    animation: spin 1s linear infinite
+
+  @keyframes spin
+    from
+      transform: rotate(0deg)
+    to
+      transform: rotate(360deg)
+
+  // Generated Theme Section
+  &__section--generated
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)
+    border: 2px solid #7dd3fc
+
+  &__theme-colors
+    display: grid
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr))
+    gap: 0.75rem
+
+  &__theme-color
+    display: flex
+    align-items: center
+    gap: 0.75rem
+    padding: 0.625rem
+    background: white
+    border-radius: 6px
+    border: 1px solid #e0e7ff
+    position: relative
+    transition: border-color 0.15s ease
+
+    &:hover
+      border-color: #667eea
+
+      .design-system-viewer__copy-btn
+        opacity: 1
+
+  &__theme-swatch
+    width: 40px
+    height: 40px
+    border-radius: 6px
+    border: 1px solid rgba(0, 0, 0, 0.1)
+    flex-shrink: 0
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1)
+
+  &__theme-color-info
+    display: flex
+    flex-direction: column
+    gap: 0.25rem
+    flex: 1
+    min-width: 0
+
+  &__theme-label
+    font-size: 0.8125rem
+    font-weight: 600
+    color: #1e293b
+    text-transform: capitalize
+
+  &__theme-hex
+    font-family: 'Roboto Mono', 'Courier New', monospace
+    font-size: 0.75rem
+    color: #64748b
+    background: transparent
+    padding: 0
+
+  &__source-badge
+    display: inline-flex
+    padding: 0.125rem 0.5rem
+    border-radius: 10px
+    font-size: 0.625rem
+    font-weight: 600
+    text-transform: uppercase
+    letter-spacing: 0.3px
+    width: fit-content
+
+    &--website
+      background: #dcfce7
+      color: #15803d
+
+    &--semantic
+      background: #e0e7ff
+      color: #4338ca
+
+    &--generated
+      background: #fef3c7
+      color: #b45309
+
+  &__theme-typography
+    margin-top: 0.75rem
+    padding-top: 0.75rem
+    border-top: 1px dashed #cbd5e1
+
+  &__theme-subsection-title
+    margin: 0 0 0.5rem 0
+    font-size: 0.75rem
+    font-weight: 600
+    color: #64748b
+    text-transform: uppercase
+    letter-spacing: 0.3px
+
+  &__theme-font
+    display: flex
+    align-items: center
+    justify-content: space-between
+    padding: 0.5rem 0.75rem
+    background: white
+    border-radius: 4px
+    border: 1px solid #e2e8f0
+    margin-bottom: 0.375rem
+
+    code
+      font-family: 'Roboto Mono', 'Courier New', monospace
+      font-size: 0.75rem
+      color: #334155
+      flex: 1
+      margin-left: 1rem
+
+  &__theme-images
+    margin-top: 0.75rem
+    padding-top: 0.75rem
+    border-top: 1px dashed #cbd5e1
+
+  &__theme-image
+    display: flex
+    align-items: center
+    gap: 0.75rem
+    padding: 0.5rem
+    background: white
+    border-radius: 4px
+    border: 1px solid #e2e8f0
+    margin-bottom: 0.375rem
+
+    span
+      font-size: 0.75rem
+      font-weight: 500
+      color: #64748b
+
+    img
+      max-height: 40px
+      max-width: 120px
+      object-fit: contain
+
+  &__theme-favicon
+    max-width: 24px !important
+    max-height: 24px !important

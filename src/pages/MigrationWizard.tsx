@@ -1,18 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Search, CheckCircle, Layout, Map, Sparkles } from 'lucide-react';
+import { Search, CheckCircle, Map, Sparkles } from 'lucide-react';
 import { MigrationWizardProvider, useMigrationWizard } from '../contexts/MigrationWizardProvider';
 import StickyProgressNav from '../components/MigrationWizard/StickyProgressNav';
 import Step1Capture from '../components/MigrationWizard/Step1Capture';
 import Step2Audit from '../components/MigrationWizard/Step2Audit';
-import Step3Template from '../components/MigrationWizard/Step3Template';
-import Step3Structure from '../components/MigrationWizard/Step3Structure';
+import Step3Container from '../components/MigrationWizard/Step3/Step3Container';
 import Step4Generate from '../components/MigrationWizard/Step4Generate';
 import './MigrationWizard.sass';
 
 const steps = [
   { id: 'capture', label: 'Capture', icon: 'Search' },
   { id: 'audit', label: 'Audit', icon: 'CheckCircle' },
-  { id: 'template', label: 'Template', icon: 'Layout' },
   { id: 'structure', label: 'Structure', icon: 'Map' },
   { id: 'generate', label: 'Generate', icon: 'Sparkles' },
 ];
@@ -143,29 +141,16 @@ const MigrationWizardContent: React.FC = () => {
         </section>
 
         <section
-          ref={(el) => (sectionRefs.current['template'] = el)}
-          data-section-id="template"
-          className="migration-wizard-page__section"
-          id="section-template"
-        >
-          <div className="section-header">
-            <h2><Layout size={24} style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '0.5rem' }} /> Step 3: Choose Template</h2>
-            <p>Select the template that best fits your site</p>
-          </div>
-          <Step3Template />
-        </section>
-
-        <section
           ref={(el) => (sectionRefs.current['structure'] = el)}
           data-section-id="structure"
           className="migration-wizard-page__section"
           id="section-structure"
         >
           <div className="section-header">
-            <h2><Map size={24} style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '0.5rem' }} /> Step 3.5: Structure</h2>
-            <p>Choose your sitemap source and define structure</p>
+            <h2><Map size={24} style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '0.5rem' }} /> Step 3: Structure</h2>
+            <p>Select template, sitemap, allocate markdown, and generate</p>
           </div>
-          <Step3Structure />
+          <Step3Container />
         </section>
 
         <section

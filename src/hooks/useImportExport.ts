@@ -14,28 +14,28 @@ const useImportExport = () => {
   const questionnaireData = questionnaireState.data;
   const exportJson = useCallback(() => {
     const exportData = {
-      pages: pages.reduce((acc, page) => ({
-        ...acc,
-        [page.title]: {
-          internal_id: page.id,
-          page_id: page.wordpress_id || '',
-          model_query_pairs: page.items.map(item => ({
-            model: item.model,
-            query: item.query,
-            internal_id: item.id,
-            use_default: Boolean(item.useDefault),
-          })),
-        },
-      }), {} as Record<string, {
-        internal_id: string;
-        page_id: string;
-        model_query_pairs: Array<{
-          model: string;
-          query: string;
-          internal_id: string;
-          use_default?: boolean;
-        }>;
-      }>),
+      pages: pages.map(page => ({
+        id: page.id,
+        title: page.title,
+        wordpress_id: page.wordpress_id || '',
+        items: page.items.map(item => ({
+          model: item.model,
+          query: item.query,
+          id: item.id,
+          useDefault: Boolean(item.useDefault),
+          preserve_image: item.preserve_image,
+        })),
+        // RAG allocation fields - only include if present
+        ...(page.allocated_markdown && { allocated_markdown: page.allocated_markdown }),
+        ...(page.allocation_confidence !== undefined && { allocation_confidence: page.allocation_confidence }),
+        ...(page.source_location && { source_location: page.source_location }),
+        ...(page.mapped_scraped_page && { mapped_scraped_page: page.mapped_scraped_page }),
+        // Hierarchy fields - only include if present
+        ...(page.slug && { slug: page.slug }),
+        ...(page.parent_slug && { parent_slug: page.parent_slug }),
+        ...(page.depth !== undefined && { depth: page.depth }),
+        ...(page.description && { description: page.description }),
+      })),
       selectedModelGroupKey,
       modelGroups,
       questionnaireData,

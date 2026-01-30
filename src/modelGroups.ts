@@ -14,6 +14,8 @@ export interface TemplateInfo {
   data: any;
 }
 
+export type TemplateType = 'json' | 'wordpress';
+
 export interface ModelGroup {
   models: string[];
   title: string;
@@ -22,6 +24,8 @@ export interface ModelGroup {
   demoUrl?: string;
   templates: TemplateInfo[]; // Added templates to ModelGroup interface
   backend_site_type?: string;
+  github_template_repo_json?: string; // JSON template repo (ai-template-*)
+  github_template_repo_wordpress?: string; // WordPress template repo (rg-template-*)
   enabled?: boolean;
 }
 
@@ -40,6 +44,8 @@ const allModelGroups: Record<string, ModelGroup> = {
       }
     ],
     backend_site_type: "stinson",
+    github_template_repo_json: "ai-template-stinson",
+    github_template_repo_wordpress: "rg-template-stinson",
     enabled: true,
   },
   'Bay Area Orthodontics': {
@@ -56,6 +62,8 @@ const allModelGroups: Record<string, ModelGroup> = {
       }
     ],
     backend_site_type: "bayareaortho",
+    github_template_repo_json: "ai-template-bayareaortho",
+    github_template_repo_wordpress: "rg-template-bayareaortho",
     enabled: true,
   },
   'Calistoga': {
@@ -72,6 +80,8 @@ const allModelGroups: Record<string, ModelGroup> = {
       }
     ],
     backend_site_type: "calistoga",
+    github_template_repo_json: "ai-template-calistoga",
+    github_template_repo_wordpress: "rg-template-calistoga",
     enabled: true,
   },
   'Haight Ashbury': {
@@ -88,6 +98,8 @@ const allModelGroups: Record<string, ModelGroup> = {
       }
     ],
     backend_site_type: "haightashbury",
+    github_template_repo_json: "ai-template-haightashbury",
+    github_template_repo_wordpress: "rg-template-haightashbury",
     enabled: true,
   },
   'Pismo Beach': {
@@ -170,4 +182,33 @@ export const initialModelGroups = Object.fromEntries(
 export const templateRegistry: Record<string, TemplateInfo[]> = Object.fromEntries(
   Object.entries(modelGroups).map(([key, value]) => [key, value.templates])
 );
+
+// Map template keys to model group keys
+const templateToModelGroup: Record<string, string> = {
+  'stinson': 'New Stinson',
+  'haightashbury': 'Haight Ashbury',
+  'bayarea': 'Bay Area Orthodontics',
+  'bayareaortho': 'Bay Area Orthodontics',
+  'calistoga': 'Calistoga',
+  'pismo': 'Pismo Beach',
+  'eureka': 'Eureka',
+  'shasta': 'Shasta',
+  'sonoma': 'Sonoma',
+};
+
+// Helper to get GitHub template repo from template name/key and type
+export const getGithubTemplateRepo = (templateKey: string, templateType: TemplateType = 'json'): string => {
+  const modelGroupKey = templateToModelGroup[templateKey?.toLowerCase()] || 'New Stinson';
+  const modelGroup = allModelGroups[modelGroupKey];
+
+  if (templateType === 'wordpress') {
+    return modelGroup?.github_template_repo_wordpress || 'rg-template-stinson';
+  }
+  return modelGroup?.github_template_repo_json || 'ai-template-stinson';
+};
+
+// Helper to check if WordPress backend is needed based on template type
+export const needsWordPressBackend = (templateType: TemplateType): boolean => {
+  return templateType === 'wordpress';
+};
 

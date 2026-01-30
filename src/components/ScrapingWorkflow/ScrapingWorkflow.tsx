@@ -84,6 +84,7 @@ const ScrapingWorkflow: React.FC<ScrapingWorkflowProps> = ({ onComplete, initial
         use_selenium: formData.use_selenium,
         scroll: formData.scroll,
         max_pages: formData.max_pages,
+        use_firecrawl: formData.use_firecrawl,
       });
 
       // Extract scraped_content from the nested response

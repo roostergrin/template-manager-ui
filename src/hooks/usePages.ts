@@ -69,6 +69,7 @@ const usePages = (initialPages: SitemapSection[] = []) => {
     query: string;
     internal_id: string;
     use_default?: boolean;
+    preserve_image?: boolean;
   }>) => {
     setPages(prev => prev.map(page => {
       if (page.id !== pageId) return page
@@ -78,7 +79,8 @@ const usePages = (initialPages: SitemapSection[] = []) => {
         model: section.model,
         query: section.query,
         id: section.internal_id || `item-${Date.now()}-${Math.random()}`,
-        useDefault: section.use_default
+        useDefault: section.use_default,
+        preserve_image: section.preserve_image
       }))
 
       return {

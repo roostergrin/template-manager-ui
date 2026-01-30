@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { DndContext, DragEndEvent, DragOverEvent, DragStartEvent, KeyboardSensor, PointerSensor, UniqueIdentifier, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, arrayMove, verticalListSortingStrategy, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
+import { Copy, Check } from 'lucide-react';
 import { useSitemap } from '../../contexts/SitemapProvider';
 import PageListTOCItem from './PageListTOC';
 import { SitemapItem, SitemapSection, StoredSitemap } from '../../types/SitemapTypes';
@@ -40,12 +41,13 @@ const PageList: React.FC<PageListProps> = ({
   const [activeDragType, setActiveDragType] = useState<ActiveDragType>(null);
   const [hasAttemptedAutoLoad, setHasAttemptedAutoLoad] = useState<boolean>(false);
   const [expandedPageIds, setExpandedPageIds] = useState<Set<string>>(new Set());
+  const [copiedPageNames, setCopiedPageNames] = useState<boolean>(false);
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
-  const { pages, sitemapSource } = state;
+  const { pages } = state;
   const { addPage } = actions;
 
   // Auto-load the most recent sitemap if none is loaded
@@ -90,6 +92,22 @@ const PageList: React.FC<PageListProps> = ({
       return newSet;
     });
   }, []);
+
+  const copyPageNamesToClipboard = useCallback(() => {
+    // Build hierarchical list with indentation based on depth
+    const pageNames = pages.map(p => {
+      const depth = p.depth || 0;
+      const indent = '  '.repeat(depth); // 2 spaces per level
+      return `${indent}${p.title}`;
+    }).join('\n');
+    
+    navigator.clipboard.writeText(pageNames).then(() => {
+      setCopiedPageNames(true);
+      setTimeout(() => setCopiedPageNames(false), 2000);
+    }).catch(err => {
+      console.error('Failed to copy page names:', err);
+    });
+  }, [pages]);
 
   const findPageByItemId = useCallback(
     (itemId: UniqueIdentifier): SitemapSection | undefined => pages.find(p => p.items.some(i => i.id === itemId)),
@@ -201,7 +219,7 @@ const PageList: React.FC<PageListProps> = ({
   }, [actions, findPageByItemId, pages]);
 
   // Show loading state while attempting auto-load
-  if (!sitemapSource && !hasAttemptedAutoLoad) {
+  if (!state.sitemapSource && !hasAttemptedAutoLoad) {
     return (
       <div className="text-center py-8 text-gray-500">
         <p>Loading sitemap...</p>
@@ -209,8 +227,8 @@ const PageList: React.FC<PageListProps> = ({
     );
   }
 
-  // Show empty state only if no sitemap exists at all after auto-load attempt
-  if (!sitemapSource || pages.length === 0) {
+  // Show empty state only if no pages exist after auto-load attempt
+  if (pages.length === 0) {
     return (
       <div className="text-center py-8 text-gray-500">
         <p>No sitemaps available. Generate your first sitemap to get started.</p>
@@ -241,6 +259,28 @@ const PageList: React.FC<PageListProps> = ({
             {exportImportControls}
           </div>
         )}
+
+        {/* Page List Toolbar */}
+        <div className="page-list__toolbar">
+          <span className="page-list__count">{pages.length} pages</span>
+          <button
+            className="page-list__copy-names-btn"
+            onClick={copyPageNamesToClipboard}
+            title="Copy all page names to clipboard"
+          >
+            {copiedPageNames ? (
+              <>
+                <Check size={14} />
+                <span>Copied!</span>
+              </>
+            ) : (
+              <>
+                <Copy size={14} />
+                <span>Copy Names</span>
+              </>
+            )}
+          </button>
+        </div>
 
         <SortableContext items={pageIds} strategy={verticalListSortingStrategy}>
           {pages.map((page) => (

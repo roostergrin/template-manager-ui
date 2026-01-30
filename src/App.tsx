@@ -3,6 +3,7 @@ import WorkflowManager from './components/WorkflowManager/WorkflowManager';
 import TestGenerateContent from './pages/TestGenerateContent';
 import GithubFileUpdaterDemo from './pages/GithubFileUpdaterDemo';
 import MigrationWizard from './pages/MigrationWizard';
+import UnifiedWorkflowPage from './pages/UnifiedWorkflowPage';
 import GithubRepoProvider from './context/GithubRepoContext';
 import { QuestionnaireProvider } from './contexts/QuestionnaireProvider';
 import { SitemapProvider } from './contexts/SitemapProvider';
@@ -121,6 +122,8 @@ const App: React.FC = () => {
                       <GithubFileUpdaterDemo />
                     ) : typeof window !== 'undefined' && window.location.pathname.includes('/migration-wizard') ? (
                       <MigrationWizard />
+                    ) : typeof window !== 'undefined' && window.location.pathname.includes('/unified-workflow') ? (
+                      <UnifiedWorkflowPage />
                     ) : (
                       <WorkflowManager />
                     )}

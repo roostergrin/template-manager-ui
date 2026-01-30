@@ -93,14 +93,56 @@ const EnhancedPreviewSection: React.FC<EnhancedPreviewSectionProps> = ({
   const getComponentTypeCounts = (content: any) => {
     const contentArray = Array.isArray(content) ? content : [content];
     const typeCounts: Record<string, number> = {};
-    
+
     contentArray.forEach((item: any) => {
       if (item?.acf_fc_layout) {
         typeCounts[item.acf_fc_layout] = (typeCounts[item.acf_fc_layout] || 0) + 1;
       }
     });
-    
+
     return typeCounts;
+  };
+
+  // Helper function to find all images in content, including preserved ones
+  const findImagesInContent = (content: any): Array<{src: string, alt?: string, preserve?: boolean, componentType?: string}> => {
+    const images: Array<{src: string, alt?: string, preserve?: boolean, componentType?: string}> = [];
+
+    const searchForImages = (obj: any, componentType?: string) => {
+      if (!obj || typeof obj !== 'object') return;
+
+      // Check if this is an image object (has src property)
+      if (obj.src && typeof obj.src === 'string') {
+        images.push({
+          src: obj.src,
+          alt: obj.alt,
+          preserve: obj.preserve === true,
+          componentType
+        });
+        return;
+      }
+
+      // Get component type if available
+      const currentComponentType = obj.acf_fc_layout || componentType;
+
+      // Recursively search arrays and objects
+      if (Array.isArray(obj)) {
+        obj.forEach(item => searchForImages(item, currentComponentType));
+      } else {
+        Object.values(obj).forEach(value => searchForImages(value, currentComponentType));
+      }
+    };
+
+    searchForImages(content);
+    return images;
+  };
+
+  // Count preserved images
+  const countPreservedImages = (content: any): { total: number, preserved: number } => {
+    const images = findImagesInContent(content);
+    return {
+      total: images.length,
+      preserved: images.filter(img => img.preserve).length
+    };
   };
 
   // Helper function to separate SEO data from content sections
@@ -154,6 +196,8 @@ const EnhancedPreviewSection: React.FC<EnhancedPreviewSectionProps> = ({
           const isExpanded = expandedPages.has(pageName);
           const isEditing = editingPage === pageName;
           const componentCounts = getComponentTypeCounts(sections);
+          const imageCounts = countPreservedImages(content);
+          const pageImages = findImagesInContent(content);
 
           return (
             <div key={pageName} className="page-preview-card">
@@ -162,6 +206,14 @@ const EnhancedPreviewSection: React.FC<EnhancedPreviewSectionProps> = ({
                   <span className="page-name">{pageName}</span>
                   <span className="page-id">→ ID: {pageKey}</span>
                   <span className="section-count">{sections.length} sections</span>
+                  {imageCounts.total > 0 && (
+                    <span className="image-count" title={`${imageCounts.preserved} preserved images won't be replaced`}>
+                      🖼️ {imageCounts.total} images
+                      {imageCounts.preserved > 0 && (
+                        <span className="preserved-badge">🔒 {imageCounts.preserved} preserved</span>
+                      )}
+                    </span>
+                  )}
                   {Object.keys(componentCounts).length > 0 && (
                     <div className="component-types">
                       {Object.entries(componentCounts).map(([type, count]) => (
@@ -212,6 +264,41 @@ const EnhancedPreviewSection: React.FC<EnhancedPreviewSectionProps> = ({
                           </div>
                         )}
                         
+                        {/* Show Images Preview */}
+                        {pageImages.length > 0 && (
+                          <div className="images-preview">
+                            <strong>Images ({pageImages.length} total, {imageCounts.preserved} preserved):</strong>
+                            <div className="images-grid">
+                              {pageImages.map((img, idx) => (
+                                <div
+                                  key={idx}
+                                  className={`image-preview-item ${img.preserve ? 'preserved' : ''}`}
+                                  title={img.preserve ? '🔒 Preserved - will not be replaced' : 'Can be replaced'}
+                                >
+                                  <div className="image-thumbnail">
+                                    <img
+                                      src={img.src}
+                                      alt={img.alt || 'Image'}
+                                      onError={(e) => {
+                                        (e.target as HTMLImageElement).style.display = 'none';
+                                      }}
+                                    />
+                                    {img.preserve && (
+                                      <div className="preserve-overlay">
+                                        <span className="preserve-icon">🔒</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div className="image-info">
+                                    <span className="image-component">{img.componentType || 'unknown'}</span>
+                                    {img.preserve && <span className="preserve-label">Preserved</span>}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
                         {/* Show Content Sections */}
                         <div className="sections-preview">
                           <strong>Content Sections ({sections.length} items):</strong>

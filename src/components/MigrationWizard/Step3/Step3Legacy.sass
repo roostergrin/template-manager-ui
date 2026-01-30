@@ -1,0 +1,111 @@
+.step3-legacy
+  display: flex
+  flex-direction: column
+  gap: 1.5rem
+
+  &__empty
+    text-align: center
+    padding: 3rem
+    color: #64748b
+
+  &__section
+    background: #ffffff
+    border: 1px solid #e2e8f0
+    border-radius: 8px
+    padding: 1.25rem
+
+  &__section-title
+    font-size: 1rem
+    font-weight: 600
+    color: #334155
+    margin: 0 0 1rem 0
+    padding-bottom: 0.75rem
+    border-bottom: 1px solid #f1f5f9
+
+  &__two-pass-buttons
+    display: flex
+    gap: 1rem
+    flex-wrap: wrap
+    margin-bottom: 1rem
+
+  &__btn
+    display: inline-flex
+    align-items: center
+    gap: 0.5rem
+    padding: 0.625rem 1rem
+    border-radius: 6px
+    font-size: 0.9375rem
+    font-weight: 500
+    cursor: pointer
+    transition: all 0.2s ease
+    border: 1px solid transparent
+
+    &--primary
+      background: #3b82f6
+      color: white
+
+      &:hover:not(:disabled)
+        background: #2563eb
+
+    &--secondary
+      background: #6366f1
+      color: white
+
+      &:hover:not(:disabled)
+        background: #4f46e5
+
+    &--outline
+      background: transparent
+      border-color: #cbd5e1
+      color: #475569
+
+      &:hover:not(:disabled)
+        background: #f8fafc
+        border-color: #94a3b8
+
+    &:disabled
+      opacity: 0.5
+      cursor: not-allowed
+
+    .spinning
+      animation: spin 1s linear infinite
+
+  &__status
+    display: flex
+    flex-wrap: wrap
+    gap: 1rem
+    font-size: 0.85rem
+    margin-bottom: 1rem
+
+  &__status-item
+    color: #64748b
+
+    &--success
+      color: #059669
+
+  &__legacy-allocate
+    padding-top: 0.75rem
+    border-top: 1px solid #e5e7eb
+
+  &__info-row
+    display: flex
+    gap: 0.75rem
+    flex-wrap: wrap
+    margin-bottom: 1rem
+
+  &__badge
+    display: inline-block
+    padding: 0.25rem 0.75rem
+    background: #f1f5f9
+    border-radius: 9999px
+    font-size: 0.8125rem
+    color: #475569
+
+  &__selector-row
+    margin-bottom: 1rem
+
+@keyframes spin
+  from
+    transform: rotate(0deg)
+  to
+    transform: rotate(360deg)

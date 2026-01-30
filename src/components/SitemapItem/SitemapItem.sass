@@ -188,6 +188,37 @@
       color: #fff
       border-color: #3b82f6
 
+  &__preserve-image-toggle
+    width: 2.25rem
+    height: 2.25rem
+    display: flex
+    align-items: center
+    justify-content: center
+    background-color: #f3f4f6
+    border: 1px solid $border-color
+    border-radius: $radius-sm
+    font-size: 1rem
+    cursor: pointer
+    transition: background .15s ease, border-color .15s ease
+    filter: grayscale(100%)
+    opacity: 0.5
+
+    &:hover
+      background-color: #ecfdf5
+      border-color: #6ee7b7
+      filter: grayscale(0%)
+      opacity: 0.8
+
+    &--active
+      background-color: #ecfdf5
+      border: 1px solid #10b981
+      filter: grayscale(0%)
+      opacity: 1
+
+      &:hover
+        background-color: #d1fae5
+        border-color: #059669
+
   // Light black overlay to indicate default content is active
   &__overlay
     position: absolute

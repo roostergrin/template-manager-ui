@@ -376,6 +376,28 @@
     opacity: 1
     color: #3b82f6
 
+// Preserve image toggle
+.page-list-toc__preserve-image-toggle
+  background: transparent
+  border: none
+  font-size: 12px
+  cursor: pointer
+  padding: 4px
+  line-height: 1
+  border-radius: 3px
+  transition: all 0.15s ease
+  opacity: 0.4
+  filter: grayscale(100%)
+
+  &:hover
+    opacity: 0.8
+    transform: scale(1.2)
+    filter: grayscale(0%)
+
+  &--active
+    opacity: 1
+    filter: grayscale(0%)
+
 // Dropdown - Google Sheets style
 .page-list-toc__dropdown
   position: absolute
@@ -614,3 +636,42 @@
 
   &:hover
     background: #fecaca
+
+// Child page (hierarchy) styles
+.page-list-toc__item--child
+  background: #f8fafc
+  border-left: 3px solid #e2e8f0
+
+  &:hover
+    border-left-color: #94a3b8
+
+  // Depth-based visual hierarchy
+  &.page-list-toc__item--depth-1
+    border-left-color: #93c5fd
+
+  &.page-list-toc__item--depth-2
+    border-left-color: #a5b4fc
+
+  &.page-list-toc__item--depth-3
+    border-left-color: #c4b5fd
+
+.page-list-toc__hierarchy-indicator
+  display: flex
+  align-items: center
+  justify-content: center
+  color: #94a3b8
+  flex-shrink: 0
+  margin-right: 2px
+
+.page-list-toc__slug
+  font-family: 'Monaco', 'Menlo', monospace
+  font-size: 11px
+  color: #64748b
+  background: #f1f5f9
+  padding: 2px 6px
+  border-radius: 3px
+  flex-shrink: 0
+  max-width: 180px
+  overflow: hidden
+  text-overflow: ellipsis
+  white-space: nowrap

@@ -9,6 +9,7 @@ export interface PageTemplate {
     query: string;
     internal_id: string;
     use_default?: boolean;
+    preserve_image?: boolean;
   }>;
 }
 

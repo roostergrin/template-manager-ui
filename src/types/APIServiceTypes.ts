@@ -38,6 +38,7 @@ export interface GenerateContentRequest {
   sitemap_data: SitemapData;
   site_type: string;
   assign_images: boolean;
+  use_site_pool?: boolean;  // If true, use site-wide image pool for deduplication
 }
 
 export interface GenerateContentResponse {
@@ -52,6 +53,111 @@ export interface GenerateGlobalResponse {
     navigation?: Record<string, unknown>;
     [key: string]: unknown;
   };
+}
+
+// Theme Generation Types
+export interface DesignSystemImages {
+  logo?: string | null;
+  favicon?: string | null;
+}
+
+export interface DesignSystemColors {
+  primary?: string | null;
+  accent?: string | null;
+  background?: string | null;
+  text_primary?: string | null;
+  link?: string | null;
+}
+
+export interface ColorWithCount {
+  color: string;
+  count: number;
+}
+
+export interface FontWithCount {
+  family: string;
+  count: number;
+}
+
+export interface DesignSystemRaw {
+  all_colors?: Array<{ color: string; count: number }>;
+  brand_colors?: Array<{ color: string; count: number }>;
+  all_fonts?: Array<{ family: string; count: number }>;
+}
+
+export interface DesignSystemTypography {
+  font_families?: {
+    primary?: string | null;
+    heading?: string | null;
+  };
+}
+
+export interface DesignSystemData {
+  images?: DesignSystemImages | null;
+  colors?: DesignSystemColors | null;
+  fonts?: FontWithCount[];
+  typography?: DesignSystemTypography | null;
+  raw?: DesignSystemRaw | null;
+}
+
+export interface GenerateThemeRequest {
+  design_system: DesignSystemData;
+}
+
+export interface RGBAColor {
+  red: number;
+  green: number;
+  blue: number;
+  alpha: number;
+}
+
+export interface ThemeColor {
+  label: string;
+  color: RGBAColor;
+  source: 'website' | 'semantic' | 'generated';
+  hex: string;
+}
+
+export interface ThemeTypography {
+  label: string;
+  font: string;
+}
+
+export interface LogoColorEntry {
+  hex: string;
+  luminosity_percent: number;
+  count: number;
+}
+
+export interface LogoColors {
+  colors: LogoColorEntry[];
+  dominant_color: string;
+  avg_luminosity: number;
+  is_light: boolean;
+}
+
+export interface LogoConfig {
+  type: 'svg' | 'url';
+  variant: 'dark' | 'light';
+  url: string | null;
+}
+
+export interface ThemeDefault {
+  colors: ThemeColor[];
+  typography: ThemeTypography[];
+  logo_url?: string | null;
+  logo_config?: LogoConfig | null;
+  logo_colors?: LogoColors | null;
+  favicon_url?: string | null;
+}
+
+export interface ThemeData {
+  default: ThemeDefault;
+}
+
+export interface GenerateThemeResponse {
+  success: boolean;
+  theme: ThemeData;
 }
 
 export interface UpdateRepoDataRequest {

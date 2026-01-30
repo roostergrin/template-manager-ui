@@ -1,0 +1,2537 @@
+// UnifiedWorkflow Styles
+
+$primary-color: #3b82f6
+$success-color: #22c55e
+$warning-color: #f59e0b
+$error-color: #ef4444
+$neutral-color: #6b7280
+$background-light: #f8fafc
+$background-dark: #1e293b
+$border-color: #e2e8f0
+$text-primary: #1e293b
+$text-secondary: #64748b
+
+// UnifiedWorkflow Container
+.unified-workflow
+  display: flex
+  flex-direction: column
+  gap: 1.5rem
+  padding: 1.5rem
+  background: $background-light
+  border-radius: 12px
+  max-width: 1200px
+  margin: 0 auto
+
+  // Mode Selector
+  &__mode-selector
+    background: white
+    border-radius: 8px
+    padding: 1rem
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1)
+
+  &__mode-title
+    font-size: 1rem
+    font-weight: 600
+    color: $text-primary
+    margin-bottom: 0.75rem
+
+  &__mode-options
+    display: flex
+    gap: 0.75rem
+
+  &__mode-option
+    flex: 1
+    display: flex
+    flex-direction: column
+    align-items: center
+    gap: 0.5rem
+    padding: 1rem
+    border: 2px solid $border-color
+    border-radius: 8px
+    background: white
+    cursor: pointer
+    transition: all 0.2s ease
+
+    &:hover:not(:disabled)
+      border-color: $primary-color
+      background: rgba($primary-color, 0.05)
+
+    &:disabled
+      opacity: 0.5
+      cursor: not-allowed
+
+    &--active
+      border-color: $primary-color
+      background: rgba($primary-color, 0.1)
+
+  &__mode-icon
+    color: $text-secondary
+
+    .unified-workflow__mode-option--active &
+      color: $primary-color
+
+  &__mode-label
+    font-weight: 600
+    color: $text-primary
+
+  &__mode-description
+    font-size: 0.75rem
+    color: $text-secondary
+    text-align: center
+
+  // Control Buttons
+  &__controls
+    display: flex
+    gap: 0.75rem
+    justify-content: center
+    padding: 1rem
+    background: white
+    border-radius: 8px
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1)
+
+  &__control-btn
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    padding: 0.75rem 1.5rem
+    border-radius: 6px
+    font-weight: 500
+    cursor: pointer
+    transition: all 0.2s ease
+    border: none
+
+    &:disabled
+      opacity: 0.5
+      cursor: not-allowed
+
+    &--start
+      background: $success-color
+      color: white
+
+      &:hover:not(:disabled)
+        background: darken($success-color, 5%)
+
+    &--pause
+      background: $warning-color
+      color: white
+
+      &:hover:not(:disabled)
+        background: darken($warning-color, 5%)
+
+    &--resume
+      background: $primary-color
+      color: white
+
+      &:hover:not(:disabled)
+        background: darken($primary-color, 5%)
+
+    &--stop
+      background: $error-color
+      color: white
+
+      &:hover:not(:disabled)
+        background: darken($error-color, 5%)
+
+    &--reset
+      background: $neutral-color
+      color: white
+
+      &:hover:not(:disabled)
+        background: darken($neutral-color, 5%)
+
+    &--retry
+      background: $warning-color
+      color: white
+
+      &:hover:not(:disabled)
+        background: darken($warning-color, 5%)
+
+// Configuration Panel
+.config-panel
+  background: white
+  border-radius: 8px
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1)
+  overflow: hidden
+
+  &__header
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    width: 100%
+    padding: 1rem
+    background: transparent
+    border: none
+    cursor: pointer
+    font-size: 1rem
+    font-weight: 600
+    color: $text-primary
+
+    &:hover
+      background: rgba(0, 0, 0, 0.02)
+
+  &__title
+    flex: 1
+    text-align: left
+
+  &__content
+    padding: 0 1rem 1rem
+
+  &__grid
+    display: grid
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr))
+    gap: 1rem
+
+  &__field
+    display: flex
+    flex-direction: column
+    gap: 0.25rem
+
+    &--checkbox
+      flex-direction: row
+      align-items: center
+
+  &__label
+    font-size: 0.875rem
+    font-weight: 500
+    color: $text-secondary
+
+  &__required
+    color: $error-color
+    margin-left: 0.125rem
+
+  &__input,
+  &__select
+    padding: 0.625rem 0.75rem
+    border: 1px solid $border-color
+    border-radius: 6px
+    font-size: 0.875rem
+    transition: border-color 0.2s ease
+
+    &:focus
+      outline: none
+      border-color: $primary-color
+      box-shadow: 0 0 0 3px rgba($primary-color, 0.1)
+
+    &:disabled
+      background: $background-light
+      cursor: not-allowed
+
+  &__checkbox-label
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    cursor: pointer
+    font-size: 0.875rem
+    color: $text-primary
+
+    input[type="checkbox"]
+      width: 16px
+      height: 16px
+      accent-color: $primary-color
+
+  &__radio-group
+    display: flex
+    gap: 1rem
+
+  &__radio-label
+    display: flex
+    align-items: flex-start
+    gap: 0.5rem
+    cursor: pointer
+    padding: 0.625rem 0.875rem
+    border: 2px solid $border-color
+    border-radius: 8px
+    transition: all 0.2s ease
+    flex: 1
+
+    &:hover
+      border-color: $primary-color
+      background: rgba($primary-color, 0.02)
+
+    &:has(input:checked)
+      border-color: $primary-color
+      background: rgba($primary-color, 0.05)
+
+    &:has(input:disabled)
+      opacity: 0.6
+      cursor: not-allowed
+
+    input[type="radio"]
+      width: 16px
+      height: 16px
+      accent-color: $primary-color
+      margin-top: 2px
+      flex-shrink: 0
+
+  &__radio-text
+    display: flex
+    flex-direction: column
+    gap: 0.125rem
+
+    strong
+      font-size: 0.875rem
+      color: $text-primary
+
+  &__radio-hint
+    font-size: 0.75rem
+    color: $text-secondary
+    font-weight: 400
+
+// Workflow Progress Display
+.workflow-progress
+  background: white
+  border-radius: 8px
+  padding: 1.5rem
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1)
+
+  &__header
+    margin-bottom: 1.5rem
+
+  &__header-row
+    display: flex
+    align-items: center
+    justify-content: space-between
+    margin-bottom: 0.75rem
+
+  &__title
+    font-size: 1.125rem
+    font-weight: 600
+    color: $text-primary
+    margin: 0
+
+  &__toggle
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    font-size: 0.8rem
+    color: $text-secondary
+    cursor: pointer
+
+    input[type="checkbox"]
+      width: 14px
+      height: 14px
+      accent-color: $primary-color
+
+  &__bar-container
+    display: flex
+    align-items: center
+    gap: 1rem
+
+  &__bar
+    flex: 1
+    height: 12px
+    background: $background-light
+    border-radius: 6px
+    overflow: hidden
+
+  &__bar-fill
+    height: 100%
+    background: linear-gradient(90deg, $primary-color, $success-color)
+    border-radius: 6px
+    transition: width 0.3s ease
+
+  &__percentage
+    font-weight: 600
+    color: $primary-color
+    min-width: 48px
+    text-align: right
+
+  &__summary
+    font-size: 0.875rem
+    color: $text-secondary
+    margin-top: 0.5rem
+
+  // Legend
+  &__legend
+    display: flex
+    gap: 1.5rem
+    margin-bottom: 1rem
+    padding: 0.5rem 0.75rem
+    background: $background-light
+    border-radius: 6px
+
+  &__legend-item
+    display: flex
+    align-items: center
+    gap: 0.375rem
+    font-size: 0.75rem
+    color: $text-secondary
+
+  &__legend-dot
+    width: 10px
+    height: 10px
+    border-radius: 50%
+
+  // Steps List (execution order)
+  &__steps-list
+    display: flex
+    flex-direction: column
+
+  // Step Wrapper (includes deliverables)
+  &__step-wrapper
+    display: flex
+    flex-direction: column
+
+  // Deliverables connector
+  &__deliverables
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    padding: 0.5rem 0 0.5rem 2.5rem
+    margin-left: 1rem
+
+  &__deliverables-arrow
+    color: $success-color
+    flex-shrink: 0
+
+  &__deliverables-tags
+    display: flex
+    flex-wrap: wrap
+    gap: 0.375rem
+
+  &__deliverable-tag
+    display: inline-block
+    padding: 0.125rem 0.5rem
+    background: rgba($success-color, 0.1)
+    color: darken($success-color, 10%)
+    border-radius: 4px
+    font-size: 0.7rem
+    font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace
+
+  // Phases (kept for backwards compat)
+  &__phases
+    display: flex
+    flex-direction: column
+    gap: 1.5rem
+
+  &__phase
+    border-top: 1px solid $border-color
+    padding-top: 1rem
+
+    &:first-child
+      border-top: none
+      padding-top: 0
+
+  &__phase-title
+    font-size: 0.875rem
+    font-weight: 600
+    color: $text-secondary
+    text-transform: uppercase
+    letter-spacing: 0.05em
+    margin-bottom: 0.75rem
+
+  &__steps
+    display: flex
+    flex-direction: column
+    gap: 0.5rem
+
+  // Step Item
+  &__step
+    display: flex
+    align-items: flex-start
+    gap: 0.75rem
+    padding: 0.75rem
+    border: 1px solid $border-color
+    border-left: 4px solid $border-color
+    border-radius: 8px
+    cursor: pointer
+    transition: all 0.2s ease
+
+    &:hover
+      background: rgba(0, 0, 0, 0.02)
+      transform: translateX(2px)
+
+    &--active
+      border-color: $primary-color
+      background: rgba($primary-color, 0.05)
+      box-shadow: 0 0 0 2px rgba($primary-color, 0.1)
+
+    &--completed
+      background: rgba($success-color, 0.02)
+
+    &--in_progress
+      background: rgba($primary-color, 0.02)
+      box-shadow: 0 0 0 2px rgba($primary-color, 0.1)
+
+    &--error
+      background: rgba($error-color, 0.02)
+
+    &--skipped
+      opacity: 0.6
+
+  &__step-number
+    display: flex
+    align-items: center
+    justify-content: center
+    width: 24px
+    height: 24px
+    border-radius: 50%
+    font-size: 0.75rem
+    font-weight: 600
+    color: white
+    flex-shrink: 0
+
+  &__step-icon
+    flex-shrink: 0
+    margin-top: 2px
+    color: $text-secondary
+
+    .workflow-progress__step--completed &
+      color: $success-color
+
+    .workflow-progress__step--error &
+      color: $error-color
+
+  &__status-icon
+    &--completed
+      color: $success-color
+
+    &--running
+      color: $primary-color
+      animation: spin 1s linear infinite
+
+    &--error
+      color: $error-color
+
+    &--skipped
+      color: $neutral-color
+
+    &--pending
+      color: $text-secondary
+
+  &__step-content
+    flex: 1
+    min-width: 0
+
+  &__step-header
+    display: flex
+    align-items: center
+    gap: 0.5rem
+
+  &__step-name
+    font-weight: 500
+    color: $text-primary
+
+  &__step-phase
+    font-size: 0.65rem
+    text-transform: uppercase
+    letter-spacing: 0.05em
+    font-weight: 600
+
+  &__step-optional
+    font-size: 0.75rem
+    color: $text-secondary
+    font-style: italic
+
+  &__step-description
+    font-size: 0.8rem
+    color: $text-secondary
+    margin: 0.25rem 0 0
+
+  &__step-duration
+    display: inline-block
+    font-size: 0.75rem
+    color: $text-secondary
+    background: $background-light
+    padding: 0.125rem 0.5rem
+    border-radius: 4px
+    margin-top: 0.25rem
+
+  &__step-error
+    font-size: 0.8rem
+    color: $error-color
+    margin: 0.25rem 0 0
+
+  &__step-actions
+    display: flex
+    gap: 0.5rem
+    flex-shrink: 0
+
+  &__step-action
+    display: flex
+    align-items: center
+    gap: 0.25rem
+    padding: 0.375rem 0.75rem
+    border: none
+    border-radius: 4px
+    font-size: 0.75rem
+    font-weight: 500
+    cursor: pointer
+    transition: all 0.2s ease
+
+    &--run
+      background: $success-color
+      color: white
+
+      &:hover
+        background: darken($success-color, 5%)
+
+    &--skip
+      background: $neutral-color
+      color: white
+
+      &:hover
+        background: darken($neutral-color, 5%)
+
+    &--retry
+      background: $warning-color
+      color: white
+
+      &:hover
+        background: darken($warning-color, 5%)
+
+    &--edit
+      background: $primary-color
+      color: white
+
+      &:hover
+        background: darken($primary-color, 5%)
+
+  &__inline-editor
+    margin: 0.5rem 0 1rem
+    padding-left: 2rem
+
+// Activity Log
+.activity-log
+  margin-top: 1.5rem
+  padding-top: 1rem
+  border-top: 1px solid $border-color
+
+  &--empty
+    text-align: center
+    padding: 1rem
+
+  &__empty-message
+    color: $text-secondary
+    font-style: italic
+
+  &__title
+    font-size: 0.875rem
+    font-weight: 600
+    color: $text-secondary
+    text-transform: uppercase
+    letter-spacing: 0.05em
+    margin-bottom: 0.75rem
+
+  &__list
+    list-style: none
+    padding: 0
+    margin: 0
+    display: flex
+    flex-direction: column
+    gap: 0.25rem
+    font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace
+    font-size: 0.8rem
+
+  &__event
+    padding: 0.25rem 0.5rem
+    border-radius: 4px
+    background: $background-light
+
+    &--completed
+      color: $success-color
+
+    &--running
+      color: $primary-color
+
+    &--error
+      color: $error-color
+
+    &--skipped
+      color: $neutral-color
+
+  &__time
+    color: $text-secondary
+    margin-right: 0.5rem
+
+  &__message
+    color: inherit
+
+// Navigation Links
+.navigation-links
+  background: white
+  border-radius: 8px
+  padding: 1rem
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1)
+
+  &__title
+    font-size: 0.875rem
+    font-weight: 600
+    color: $text-secondary
+    margin-bottom: 0.75rem
+
+  &__list
+    display: flex
+    flex-wrap: wrap
+    gap: 0.75rem
+
+  &__link
+    display: flex
+    align-items: center
+    gap: 0.375rem
+    padding: 0.5rem 1rem
+    background: $background-light
+    border-radius: 6px
+    color: $primary-color
+    text-decoration: none
+    font-size: 0.875rem
+    font-weight: 500
+    transition: all 0.2s ease
+
+    &:hover
+      background: rgba($primary-color, 0.1)
+      color: darken($primary-color, 10%)
+
+// Animations
+@keyframes spin
+  from
+    transform: rotate(0deg)
+  to
+    transform: rotate(360deg)
+
+// Batch Mode Panel
+.batch-mode-panel
+  background: white
+  border-radius: 8px
+  padding: 1rem
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1)
+
+  &__upload
+    display: flex
+    flex-direction: column
+    align-items: center
+    gap: 0.75rem
+    padding: 2rem
+    border: 2px dashed $border-color
+    border-radius: 8px
+    cursor: pointer
+    transition: all 0.2s ease
+    text-align: center
+
+    &:hover
+      border-color: $primary-color
+      background: rgba($primary-color, 0.02)
+
+    &--drag-over
+      border-color: $primary-color
+      background: rgba($primary-color, 0.05)
+
+  &__file-input
+    display: none
+
+  &__upload-icon
+    color: $text-secondary
+
+  &__upload-text
+    font-weight: 500
+    color: $text-primary
+
+  &__upload-format
+    font-size: 0.8rem
+    color: $text-secondary
+
+  &__sample-btn
+    display: flex
+    align-items: center
+    gap: 0.375rem
+    padding: 0.5rem 1rem
+    background: $background-light
+    border: 1px solid $border-color
+    border-radius: 6px
+    font-size: 0.8rem
+    color: $text-secondary
+    cursor: pointer
+    transition: all 0.2s ease
+    margin-top: 0.5rem
+
+    &:hover
+      border-color: $primary-color
+      color: $primary-color
+
+  &__results
+    margin-top: 1rem
+
+  &__errors,
+  &__warnings
+    padding: 0.75rem
+    border-radius: 6px
+    margin-bottom: 0.75rem
+
+  &__errors
+    background: rgba($error-color, 0.1)
+
+    &-title
+      display: flex
+      align-items: center
+      gap: 0.375rem
+      color: $error-color
+      font-size: 0.875rem
+      font-weight: 600
+      margin-bottom: 0.5rem
+
+    &-list
+      margin: 0
+      padding-left: 1.25rem
+      font-size: 0.8rem
+      color: $error-color
+
+  &__warnings
+    background: rgba($warning-color, 0.1)
+
+    &-title
+      display: flex
+      align-items: center
+      gap: 0.375rem
+      color: $warning-color
+      font-size: 0.875rem
+      font-weight: 600
+      margin-bottom: 0.5rem
+
+    &-list
+      margin: 0
+      padding-left: 1.25rem
+      font-size: 0.8rem
+      color: darken($warning-color, 15%)
+
+  &__sites
+    margin-top: 1rem
+
+  &__sites-header
+    display: flex
+    justify-content: space-between
+    align-items: center
+    margin-bottom: 0.75rem
+
+  &__sites-title
+    display: flex
+    align-items: center
+    gap: 0.375rem
+    font-size: 0.875rem
+    font-weight: 600
+    color: $text-primary
+
+  &__clear-btn
+    padding: 0.375rem 0.75rem
+    background: transparent
+    border: 1px solid $border-color
+    border-radius: 4px
+    font-size: 0.75rem
+    color: $text-secondary
+    cursor: pointer
+    transition: all 0.2s ease
+
+    &:hover:not(:disabled)
+      border-color: $error-color
+      color: $error-color
+
+    &:disabled
+      opacity: 0.5
+      cursor: not-allowed
+
+  &__progress
+    margin-bottom: 0.75rem
+
+  &__progress-bar
+    height: 6px
+    background: $background-light
+    border-radius: 3px
+    overflow: hidden
+    margin-bottom: 0.25rem
+
+  &__progress-fill
+    height: 100%
+    background: linear-gradient(90deg, $primary-color, $success-color)
+    border-radius: 3px
+    transition: width 0.3s ease
+
+  &__progress-text
+    font-size: 0.8rem
+    color: $text-secondary
+
+  &__failed-count
+    color: $error-color
+    margin-left: 0.25rem
+
+  &__skipped-count
+    color: $warning-color
+    margin-left: 0.25rem
+
+  &__sites-list
+    list-style: none
+    padding: 0
+    margin: 0
+    display: flex
+    flex-direction: column
+    gap: 0.375rem
+    max-height: 300px
+    overflow-y: auto
+
+  &__site
+    display: flex
+    align-items: center
+    gap: 0.75rem
+    padding: 0.5rem 0.75rem
+    background: $background-light
+    border-radius: 6px
+    font-size: 0.8rem
+    transition: all 0.2s ease
+
+    &--current
+      background: rgba($primary-color, 0.1)
+      border: 1px solid $primary-color
+
+    &--processed
+      opacity: 0.7
+
+    &--failed
+      background: rgba($error-color, 0.1)
+      border: 1px solid rgba($error-color, 0.3)
+
+    &--skipped
+      background: rgba($warning-color, 0.1)
+      border: 1px solid rgba($warning-color, 0.3)
+      opacity: 0.8
+
+  &__site-status
+    width: 16px
+    display: flex
+    align-items: center
+    justify-content: center
+
+    &--success
+      color: $success-color
+
+    &--error
+      color: $error-color
+
+    &--skipped
+      color: $warning-color
+
+  &__site-spinner
+    width: 12px
+    height: 12px
+    border: 2px solid rgba($primary-color, 0.3)
+    border-top-color: $primary-color
+    border-radius: 50%
+    animation: spin 0.8s linear infinite
+
+  &__site-domain
+    flex: 1
+    font-weight: 500
+    color: $text-primary
+
+  &__site-template
+    color: $text-secondary
+    font-size: 0.75rem
+    padding: 0.125rem 0.375rem
+    background: rgba($primary-color, 0.1)
+    border-radius: 4px
+
+  &__site-scrape
+    color: $text-secondary
+    font-size: 0.7rem
+
+  &__site-remove
+    padding: 0.25rem
+    background: transparent
+    border: none
+    color: $text-secondary
+    cursor: pointer
+    border-radius: 4px
+    transition: all 0.2s ease
+
+    &:hover
+      background: rgba($error-color, 0.1)
+      color: $error-color
+
+  &__failed-details
+    margin-top: 1rem
+    padding: 0.75rem
+    background: rgba($error-color, 0.05)
+    border: 1px solid rgba($error-color, 0.2)
+    border-radius: 6px
+
+  &__failed-title
+    display: flex
+    align-items: center
+    gap: 0.375rem
+    color: $error-color
+    font-size: 0.875rem
+    font-weight: 600
+    margin-bottom: 0.5rem
+
+  &__failed-list
+    margin: 0
+    padding-left: 1.25rem
+    font-size: 0.8rem
+    color: $text-primary
+
+    li
+      margin-bottom: 0.25rem
+
+      strong
+        color: $error-color
+
+  &__skipped-details
+    margin-top: 1rem
+    padding: 0.75rem
+    background: rgba($warning-color, 0.05)
+    border: 1px solid rgba($warning-color, 0.2)
+    border-radius: 6px
+
+  &__skipped-title
+    display: flex
+    align-items: center
+    gap: 0.375rem
+    color: $warning-color
+    font-size: 0.875rem
+    font-weight: 600
+    margin-bottom: 0.5rem
+
+  &__skipped-list
+    margin: 0
+    padding-left: 1.25rem
+    font-size: 0.8rem
+    color: $text-primary
+
+    li
+      margin-bottom: 0.25rem
+
+      strong
+        color: $warning-color
+
+// Mock Mode Toggle
+$mock-color: #9333EA
+
+.unified-workflow
+  &__mock-toggle
+    background: rgba($mock-color, 0.05)
+    border: 1px solid rgba($mock-color, 0.2)
+    border-radius: 8px
+    padding: 0.75rem 1rem
+
+  &__mock-label
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    cursor: pointer
+    font-size: 0.875rem
+    color: $text-primary
+    font-weight: 500
+
+    input[type="checkbox"]
+      width: 18px
+      height: 18px
+      accent-color: $mock-color
+
+      &:disabled
+        opacity: 0.5
+
+    svg
+      color: $mock-color
+
+  &__mock-hint
+    font-size: 0.75rem
+    color: $text-secondary
+    font-weight: 400
+
+  // Theme Debug Viewer Section
+  &__theme-debug
+    background: white
+    border-radius: 8px
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1)
+    overflow: hidden
+
+// Intervention Mode Toggle
+.unified-workflow
+  &__intervention-toggle
+    background: rgba($primary-color, 0.05)
+    border: 1px solid rgba($primary-color, 0.2)
+    border-radius: 8px
+    padding: 0.75rem 1rem
+
+  &__intervention-label
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    cursor: pointer
+    font-size: 0.875rem
+    color: $text-primary
+    font-weight: 500
+
+    input[type="checkbox"]
+      width: 18px
+      height: 18px
+      accent-color: $primary-color
+
+      &:disabled
+        opacity: 0.5
+
+    svg
+      color: $primary-color
+
+  &__intervention-hint
+    font-size: 0.75rem
+    color: $text-secondary
+    font-weight: 400
+
+// Intervention Panel
+.intervention-panel
+  background: white
+  border: 2px solid $primary-color
+  border-radius: 8px
+  padding: 1.25rem
+  box-shadow: 0 4px 12px rgba($primary-color, 0.15)
+
+  &__header
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    margin-bottom: 1rem
+
+  &__icon
+    color: $primary-color
+
+  &__title
+    font-size: 1rem
+    font-weight: 600
+    color: $text-primary
+    margin: 0
+
+  &__status
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    font-size: 0.875rem
+    margin-bottom: 0.75rem
+
+  &__status-label
+    color: $text-secondary
+
+  &__status-value
+    font-weight: 600
+    padding: 0.125rem 0.5rem
+    border-radius: 4px
+
+    &--completed
+      background: rgba($success-color, 0.1)
+      color: $success-color
+
+    &--error
+      background: rgba($error-color, 0.1)
+      color: $error-color
+
+    &--in_progress
+      background: rgba($primary-color, 0.1)
+      color: $primary-color
+
+  &__duration
+    color: $text-secondary
+    font-size: 0.8rem
+
+  &__error
+    background: rgba($error-color, 0.1)
+    border: 1px solid rgba($error-color, 0.2)
+    border-radius: 6px
+    padding: 0.75rem
+    margin-bottom: 0.75rem
+    font-size: 0.875rem
+    color: $error-color
+
+  &__result
+    margin-bottom: 1rem
+
+  &__result-title
+    font-size: 0.875rem
+    font-weight: 600
+    color: $text-secondary
+    margin-bottom: 0.5rem
+
+  &__json
+    max-height: 300px
+    overflow-y: auto
+    border: 1px solid $border-color
+    border-radius: 6px
+
+  &__no-result
+    color: $text-secondary
+    font-style: italic
+    font-size: 0.875rem
+
+  &__actions
+    display: flex
+    gap: 0.75rem
+    justify-content: flex-end
+    padding-top: 1rem
+    border-top: 1px solid $border-color
+
+  &__btn
+    display: flex
+    align-items: center
+    gap: 0.375rem
+    padding: 0.625rem 1rem
+    border: none
+    border-radius: 6px
+    font-size: 0.875rem
+    font-weight: 500
+    cursor: pointer
+    transition: all 0.2s ease
+
+    &--continue
+      background: $success-color
+      color: white
+
+      &:hover
+        background: darken($success-color, 5%)
+
+    &--retry
+      background: $warning-color
+      color: white
+
+      &:hover
+        background: darken($warning-color, 5%)
+
+    &--stop
+      background: $error-color
+      color: white
+
+      &:hover
+        background: darken($error-color, 5%)
+
+// JSON Viewer
+.json-viewer
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace
+  font-size: 0.8rem
+  background: $background-light
+  padding: 0.75rem
+
+  &__header
+    display: flex
+    justify-content: flex-end
+    margin-bottom: 0.5rem
+
+  &__copy-btn
+    display: flex
+    align-items: center
+    gap: 0.25rem
+    padding: 0.25rem 0.5rem
+    background: white
+    border: 1px solid $border-color
+    border-radius: 4px
+    font-size: 0.7rem
+    color: $text-secondary
+    cursor: pointer
+    transition: all 0.2s ease
+
+    &:hover
+      border-color: $primary-color
+      color: $primary-color
+
+  &__content
+    overflow-x: auto
+
+  &__node
+    line-height: 1.5
+
+  &__key
+    color: #0550ae
+
+  &__string
+    color: #0a3069
+
+  &__number
+    color: #0550ae
+
+  &__boolean
+    color: #cf222e
+
+  &__null,
+  &__undefined
+    color: $text-secondary
+    font-style: italic
+
+  &__bracket
+    color: $text-secondary
+
+  &__toggle
+    display: inline-flex
+    align-items: center
+    gap: 0.25rem
+    padding: 0
+    background: transparent
+    border: none
+    cursor: pointer
+    color: inherit
+    font-family: inherit
+    font-size: inherit
+
+    &:hover
+      color: $primary-color
+
+  &__preview
+    color: $text-secondary
+    font-style: italic
+    margin-left: 0.25rem
+
+  &__children
+    padding-left: 1rem
+    border-left: 1px solid rgba($border-color, 0.5)
+    margin-left: 0.25rem
+
+  &__object,
+  &__array
+    display: inline
+
+// Activity Log - Expandable entries
+.activity-log
+  &__event
+    &--expandable
+      cursor: pointer
+
+      &:hover
+        background: darken($background-light, 2%)
+
+  &__event-header
+    display: flex
+    align-items: center
+    gap: 0.25rem
+    width: 100%
+    text-align: left
+    background: transparent
+    border: none
+    padding: 0
+    font-family: inherit
+    font-size: inherit
+    cursor: inherit
+
+  &__expand-icon
+    margin-left: auto
+    color: $text-secondary
+    flex-shrink: 0
+
+  &__details
+    margin-top: 0.5rem
+    padding: 0.5rem
+    background: white
+    border: 1px solid $border-color
+    border-radius: 4px
+
+// Cleanup Section
+$cleanup-color: #dc2626
+
+.unified-workflow
+  &__cleanup-section
+    display: flex
+    flex-direction: column
+    align-items: center
+    gap: 0.5rem
+    padding: 1.5rem
+    background: rgba($cleanup-color, 0.03)
+    border: 1px dashed rgba($cleanup-color, 0.3)
+    border-radius: 8px
+    margin-top: 0.5rem
+
+  &__cleanup-btn
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    padding: 0.75rem 1.5rem
+    background: white
+    border: 2px solid $cleanup-color
+    border-radius: 6px
+    color: $cleanup-color
+    font-weight: 600
+    font-size: 0.9rem
+    cursor: pointer
+    transition: all 0.2s ease
+
+    &:hover
+      background: $cleanup-color
+      color: white
+
+    svg
+      flex-shrink: 0
+
+  &__cleanup-hint
+    font-size: 0.8rem
+    color: $text-secondary
+    text-align: center
+
+  &__cleanup-overlay
+    position: fixed
+    inset: 0
+    background: rgba(0, 0, 0, 0.5)
+    display: flex
+    align-items: center
+    justify-content: center
+    z-index: 1000
+    padding: 1rem
+
+// Cleanup Panel
+.cleanup-panel
+  background: white
+  border-radius: 12px
+  width: 100%
+  max-width: 600px
+  max-height: 90vh
+  overflow-y: auto
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15)
+
+  &__header
+    display: flex
+    align-items: center
+    justify-content: space-between
+    padding: 1.25rem
+    border-bottom: 1px solid $border-color
+    position: sticky
+    top: 0
+    background: white
+    z-index: 1
+
+  &__header-left
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    color: $cleanup-color
+
+    h3
+      margin: 0
+      font-size: 1.125rem
+      font-weight: 600
+      color: $text-primary
+
+  &__close-btn
+    padding: 0.5rem
+    background: transparent
+    border: none
+    color: $text-secondary
+    border-radius: 6px
+    cursor: pointer
+    transition: all 0.2s ease
+
+    &:hover
+      background: $background-light
+      color: $text-primary
+
+  &__warning
+    display: flex
+    align-items: flex-start
+    gap: 0.75rem
+    padding: 1rem 1.25rem
+    background: rgba($warning-color, 0.1)
+    border-bottom: 1px solid rgba($warning-color, 0.2)
+    margin: 0
+
+    svg
+      color: $warning-color
+      flex-shrink: 0
+      margin-top: 2px
+
+    p
+      margin: 0 0 0.25rem
+      font-size: 0.875rem
+      color: $text-primary
+
+      &:last-child
+        margin-bottom: 0
+        font-size: 0.8rem
+        color: $text-secondary
+
+    strong
+      color: $cleanup-color
+
+  &__domain-section
+    padding: 1.25rem
+    border-bottom: 1px solid $border-color
+    display: flex
+    flex-direction: column
+    gap: 0.75rem
+
+  &__domain-label
+    display: flex
+    flex-direction: column
+    gap: 0.5rem
+
+  &__domain-label-text
+    font-size: 0.875rem
+    font-weight: 500
+    color: $text-primary
+
+  &__domain-input
+    padding: 0.75rem 1rem
+    border: 2px solid $border-color
+    border-radius: 6px
+    font-size: 1rem
+    font-weight: 500
+    transition: border-color 0.2s ease
+
+    &:focus
+      outline: none
+      border-color: $primary-color
+      box-shadow: 0 0 0 3px rgba($primary-color, 0.1)
+
+    &:disabled
+      background: $background-light
+      cursor: not-allowed
+
+  &__use-workflow-btn
+    align-self: flex-start
+    padding: 0.5rem 0.75rem
+    background: rgba($primary-color, 0.1)
+    border: 1px solid rgba($primary-color, 0.3)
+    border-radius: 6px
+    font-size: 0.8rem
+    color: $primary-color
+    cursor: pointer
+    transition: all 0.2s ease
+
+    &:hover:not(:disabled)
+      background: rgba($primary-color, 0.15)
+      border-color: $primary-color
+
+    &:disabled
+      opacity: 0.5
+      cursor: not-allowed
+
+  &__derived-notice
+    display: flex
+    align-items: flex-start
+    gap: 0.5rem
+    padding: 0.75rem 1.25rem
+    background: rgba($primary-color, 0.05)
+    border-bottom: 1px solid rgba($primary-color, 0.1)
+    font-size: 0.8rem
+    color: $text-secondary
+
+    svg
+      color: $primary-color
+      flex-shrink: 0
+      margin-top: 2px
+
+  &__cloudfront-section
+    padding: 1rem 1.25rem
+    background: rgba($primary-color, 0.03)
+    border-bottom: 1px solid $border-color
+
+    h4
+      margin: 0 0 0.75rem
+      font-size: 0.875rem
+      font-weight: 600
+      color: $text-primary
+
+  &__cloudfront-label
+    display: flex
+    align-items: center
+    gap: 0.75rem
+    margin-bottom: 0.5rem
+
+    span
+      font-size: 0.8rem
+      color: $text-secondary
+      min-width: 120px
+
+    &:last-child
+      margin-bottom: 0
+
+  &__cloudfront-input
+    flex: 1
+    padding: 0.5rem 0.75rem
+    border: 1px solid $border-color
+    border-radius: 6px
+    font-size: 0.875rem
+    font-family: monospace
+    transition: border-color 0.2s ease
+
+    &:focus
+      outline: none
+      border-color: $primary-color
+      box-shadow: 0 0 0 2px rgba($primary-color, 0.1)
+
+    &:disabled
+      background: $background-light
+      cursor: not-allowed
+
+    &::placeholder
+      color: rgba($text-secondary, 0.5)
+
+  &__resources
+    padding: 1.25rem
+
+    h4
+      margin: 0 0 0.75rem
+      font-size: 0.875rem
+      font-weight: 600
+      color: $text-secondary
+
+  &__resources-list
+    list-style: none
+    padding: 0
+    margin: 0
+    display: flex
+    flex-direction: column
+    gap: 0.5rem
+
+    li
+      display: flex
+      align-items: center
+      gap: 0.5rem
+      padding: 0.625rem 0.75rem
+      background: $background-light
+      border-radius: 6px
+      font-size: 0.85rem
+
+  &__resource-type
+    font-weight: 500
+    color: $text-secondary
+    min-width: 140px
+
+  &__resource-id
+    color: $text-primary
+    font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace
+    font-size: 0.8rem
+    word-break: break-all
+    flex: 1
+
+  &__resource--derived
+    border-left: 3px solid $warning-color
+    background: rgba($warning-color, 0.05)
+
+  &__resource-derived-tag
+    font-size: 0.65rem
+    text-transform: uppercase
+    letter-spacing: 0.05em
+    padding: 0.125rem 0.375rem
+    background: rgba($warning-color, 0.2)
+    color: darken($warning-color, 15%)
+    border-radius: 3px
+    font-weight: 600
+    flex-shrink: 0
+
+  &__no-resources
+    color: $text-secondary
+    font-style: italic
+    text-align: center
+    padding: 1rem
+
+  &__confirmation
+    padding: 1.25rem
+    border-top: 1px solid $border-color
+    display: flex
+    flex-direction: column
+    gap: 1rem
+
+  &__confirm-label
+    display: flex
+    flex-direction: column
+    gap: 0.5rem
+    font-size: 0.875rem
+    color: $text-primary
+
+    strong
+      color: $cleanup-color
+
+  &__confirm-input
+    padding: 0.625rem 0.75rem
+    border: 1px solid $border-color
+    border-radius: 6px
+    font-size: 0.875rem
+    transition: border-color 0.2s ease
+
+    &:focus
+      outline: none
+      border-color: $cleanup-color
+      box-shadow: 0 0 0 3px rgba($cleanup-color, 0.1)
+
+    &:disabled
+      background: $background-light
+      cursor: not-allowed
+
+  &__delete-btn
+    display: flex
+    align-items: center
+    justify-content: center
+    gap: 0.5rem
+    padding: 0.875rem 1.5rem
+    background: $cleanup-color
+    border: none
+    border-radius: 6px
+    color: white
+    font-weight: 600
+    font-size: 0.9rem
+    cursor: pointer
+    transition: all 0.2s ease
+
+    &:hover:not(:disabled)
+      background: darken($cleanup-color, 5%)
+
+    &:disabled
+      opacity: 0.5
+      cursor: not-allowed
+
+  &__spinner
+    animation: spin 0.8s linear infinite
+
+  &__result
+    margin: 1.25rem
+    padding: 1rem
+    border-radius: 8px
+    display: flex
+    align-items: flex-start
+    gap: 0.75rem
+
+    &--success
+      background: rgba($success-color, 0.1)
+      border: 1px solid rgba($success-color, 0.2)
+
+      svg
+        color: $success-color
+
+    &--error
+      background: rgba($error-color, 0.1)
+      border: 1px solid rgba($error-color, 0.2)
+
+      svg
+        color: $error-color
+
+    p
+      margin: 0 0 0.5rem
+      font-size: 0.875rem
+
+      strong
+        color: $text-primary
+
+  &__deleted-list,
+  &__failed-list
+    list-style: none
+    padding: 0
+    margin: 0.5rem 0 0
+    font-size: 0.8rem
+    font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace
+
+    li
+      padding: 0.25rem 0.5rem
+      margin-bottom: 0.25rem
+      background: rgba(white, 0.5)
+      border-radius: 4px
+
+  &__deleted-list li
+    color: $success-color
+
+  &__failed-list li
+    color: $error-color
+
+    strong
+      display: block
+      margin-bottom: 0.125rem
+
+  &__done-btn
+    margin-top: 1rem
+    padding: 0.75rem 1.5rem
+    background: $success-color
+    border: none
+    border-radius: 6px
+    color: white
+    font-weight: 500
+    font-size: 0.875rem
+    cursor: pointer
+    transition: all 0.2s ease
+    width: 100%
+
+    &:hover
+      background: darken($success-color, 5%)
+
+// Responsive
+@media (max-width: 768px)
+  .unified-workflow
+    padding: 1rem
+
+    &__mode-options
+      flex-direction: column
+
+    &__controls
+      flex-wrap: wrap
+
+    &__cleanup-overlay
+      padding: 0.5rem
+
+  .config-panel
+    &__grid
+      grid-template-columns: 1fr
+
+  .batch-mode-panel
+    &__sites-list
+      max-height: 200px
+
+  .intervention-panel
+    &__actions
+      flex-direction: column
+
+    &__btn
+      width: 100%
+      justify-content: center
+
+  .cleanup-panel
+    max-height: 85vh
+
+    &__resources-list li
+      flex-direction: column
+      align-items: flex-start
+      gap: 0.25rem
+
+    &__resource-type
+      min-width: auto
+
+// YOLO Mode Options Container
+.unified-workflow
+  &__yolo-options
+    display: flex
+    flex-wrap: wrap
+    gap: 0.75rem
+    align-items: stretch
+
+  // Pre-Step Editing Toggle
+  &__prestep-toggle
+    background: rgba($warning-color, 0.05)
+    border: 1px solid rgba($warning-color, 0.2)
+    border-radius: 8px
+    padding: 0.75rem 1rem
+
+  &__prestep-label
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    cursor: pointer
+    font-size: 0.875rem
+    color: $text-primary
+    font-weight: 500
+
+    input[type="checkbox"]
+      width: 18px
+      height: 18px
+      accent-color: $warning-color
+
+      &:disabled
+        opacity: 0.5
+
+    svg
+      color: $warning-color
+
+  &__prestep-hint
+    font-size: 0.75rem
+    color: $text-secondary
+    font-weight: 400
+
+  // Export Toggle/Button
+  &__export-toggle
+    display: flex
+    align-items: center
+
+  &__export-btn
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    padding: 0.75rem 1rem
+    background: rgba($success-color, 0.05)
+    border: 1px solid rgba($success-color, 0.2)
+    border-radius: 8px
+    font-size: 0.875rem
+    font-weight: 500
+    color: $text-primary
+    cursor: pointer
+    transition: all 0.2s ease
+
+    svg
+      color: $success-color
+
+    &:hover
+      background: rgba($success-color, 0.1)
+      border-color: rgba($success-color, 0.4)
+
+  // Export Overlay
+  &__export-overlay
+    position: fixed
+    inset: 0
+    background: rgba(0, 0, 0, 0.5)
+    display: flex
+    align-items: center
+    justify-content: center
+    z-index: 1000
+    padding: 1rem
+
+// Export Panel
+.export-panel
+  background: white
+  border-radius: 12px
+  width: 100%
+  max-width: 600px
+  max-height: 80vh
+  overflow-y: auto
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15)
+
+  &__header
+    display: flex
+    align-items: center
+    justify-content: space-between
+    padding: 1.25rem
+    border-bottom: 1px solid $border-color
+    position: sticky
+    top: 0
+    background: white
+    z-index: 1
+
+  &__title
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    font-size: 1.125rem
+    font-weight: 600
+    color: $text-primary
+    margin: 0
+
+    svg
+      color: $success-color
+
+  &__close
+    padding: 0.5rem
+    background: transparent
+    border: none
+    color: $text-secondary
+    border-radius: 6px
+    cursor: pointer
+    transition: all 0.2s ease
+
+    &:hover
+      background: $background-light
+      color: $text-primary
+
+  &__content
+    padding: 1.25rem
+
+  &__section
+    margin-bottom: 1.5rem
+
+    &:last-child
+      margin-bottom: 0
+
+  &__section-title
+    font-size: 0.875rem
+    font-weight: 600
+    color: $text-secondary
+    text-transform: uppercase
+    letter-spacing: 0.05em
+    margin: 0 0 0.75rem
+
+  &__buttons
+    display: flex
+    flex-direction: column
+    gap: 0.75rem
+
+  &__btn
+    display: flex
+    align-items: flex-start
+    gap: 0.75rem
+    padding: 1rem
+    border: none
+    border-radius: 8px
+    cursor: pointer
+    transition: all 0.2s ease
+    text-align: left
+
+    svg
+      flex-shrink: 0
+      margin-top: 2px
+
+    &--primary
+      background: $success-color
+      color: white
+
+      &:hover
+        background: darken($success-color, 5%)
+
+    &--secondary
+      background: $background-light
+      color: $text-primary
+      border: 1px solid $border-color
+
+      &:hover
+        background: darken($background-light, 3%)
+        border-color: $primary-color
+
+  &__btn-desc
+    display: block
+    font-size: 0.75rem
+    opacity: 0.85
+    margin-top: 0.25rem
+    font-weight: 400
+
+  &__step-list
+    display: flex
+    flex-direction: column
+    gap: 0.5rem
+    max-height: 300px
+    overflow-y: auto
+
+  &__step-btn
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    padding: 0.625rem 0.75rem
+    background: $background-light
+    border: 1px solid $border-color
+    border-radius: 6px
+    font-size: 0.8rem
+    cursor: pointer
+    transition: all 0.2s ease
+
+    svg
+      color: $success-color
+      flex-shrink: 0
+
+    &:hover
+      background: white
+      border-color: $success-color
+
+  &__step-name
+    flex: 1
+    font-weight: 500
+    color: $text-primary
+    text-align: left
+
+  &__step-duration
+    color: $text-secondary
+    font-size: 0.75rem
+    background: white
+    padding: 0.125rem 0.375rem
+    border-radius: 4px
+
+  &__empty
+    text-align: center
+    padding: 1.5rem
+    color: $text-secondary
+
+    p
+      margin: 0 0 0.5rem
+
+      &:last-child
+        margin-bottom: 0
+        font-size: 0.875rem
+
+// Input Editor Panel
+.input-editor-panel
+  background: white
+  border: 2px solid $warning-color
+  border-radius: 8px
+  padding: 1.25rem
+  box-shadow: 0 4px 12px rgba($warning-color, 0.15)
+
+  &__header
+    display: flex
+    align-items: center
+    justify-content: space-between
+    margin-bottom: 1rem
+
+  &__title-row
+    display: flex
+    align-items: center
+    gap: 0.5rem
+
+  &__icon
+    color: $warning-color
+
+  &__title
+    font-size: 1rem
+    font-weight: 600
+    color: $text-primary
+    margin: 0
+
+  &__close
+    padding: 0.5rem
+    background: transparent
+    border: none
+    color: $text-secondary
+    border-radius: 6px
+    cursor: pointer
+    transition: all 0.2s ease
+
+    &:hover
+      background: rgba($error-color, 0.1)
+      color: $error-color
+
+  &__description
+    margin-bottom: 1rem
+
+    p
+      margin: 0 0 0.25rem
+      font-size: 0.875rem
+      color: $text-secondary
+
+  &__data-path
+    display: inline-block
+    font-size: 0.75rem
+    font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace
+    background: $background-light
+    padding: 0.125rem 0.5rem
+    border-radius: 4px
+    color: $text-secondary
+
+  &__editor
+    margin-bottom: 1rem
+
+  &__json-editor
+    border: 1px solid $border-color
+    border-radius: 6px
+
+  &__no-data
+    display: flex
+    flex-direction: column
+    align-items: center
+    gap: 0.5rem
+    padding: 2rem
+    background: rgba($warning-color, 0.05)
+    border: 1px dashed rgba($warning-color, 0.3)
+    border-radius: 8px
+    text-align: center
+
+    svg
+      color: $warning-color
+
+    p
+      margin: 0
+      color: $text-secondary
+      font-size: 0.875rem
+
+      &:first-of-type
+        font-weight: 500
+        color: $text-primary
+
+  &__paste-hint
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    padding: 0.75rem 1rem
+    margin-bottom: 0.75rem
+    background: rgba($warning-color, 0.1)
+    border: 1px solid rgba($warning-color, 0.3)
+    border-radius: 6px
+    font-size: 0.875rem
+    color: $text-secondary
+
+    svg
+      color: $warning-color
+      flex-shrink: 0
+
+  &__footer
+    display: flex
+    align-items: center
+    justify-content: space-between
+    padding-top: 1rem
+    border-top: 1px solid $border-color
+
+  &__status
+    display: flex
+    align-items: center
+
+  &__changes-badge
+    font-size: 0.75rem
+    font-weight: 500
+    padding: 0.25rem 0.5rem
+    background: rgba($warning-color, 0.1)
+    color: darken($warning-color, 10%)
+    border-radius: 4px
+
+  &__actions
+    display: flex
+    gap: 0.75rem
+
+  &__btn
+    display: flex
+    align-items: center
+    gap: 0.375rem
+    padding: 0.625rem 1rem
+    border: none
+    border-radius: 6px
+    font-size: 0.875rem
+    font-weight: 500
+    cursor: pointer
+    transition: all 0.2s ease
+
+    &--cancel
+      background: $error-color
+      color: white
+
+      &:hover
+        background: darken($error-color, 5%)
+
+    &--skip
+      background: $neutral-color
+      color: white
+
+      &:hover
+        background: darken($neutral-color, 5%)
+
+    &--continue
+      background: $success-color
+      color: white
+
+      &:hover:not(:disabled)
+        background: darken($success-color, 5%)
+
+      &:disabled
+        opacity: 0.5
+        cursor: not-allowed
+
+  // Configuration section for specialized editor panels
+  &__config-section
+    margin-bottom: 1rem
+    padding-bottom: 1rem
+    border-bottom: 1px solid $border-color
+
+  &__section-title
+    font-size: 0.875rem
+    font-weight: 600
+    color: $text-primary
+    margin: 0 0 0.75rem
+
+  &__config-grid
+    display: grid
+    grid-template-columns: repeat(3, 1fr)
+    gap: 1rem
+
+    @media (max-width: 768px)
+      grid-template-columns: 1fr
+
+  &__config-field
+    display: flex
+    flex-direction: column
+    gap: 0.25rem
+
+    label
+      font-size: 0.75rem
+      font-weight: 500
+      color: $text-secondary
+
+    input
+      padding: 0.5rem 0.75rem
+      border: 1px solid $border-color
+      border-radius: 6px
+      font-size: 0.875rem
+      transition: border-color 0.2s ease
+
+      &:focus
+        outline: none
+        border-color: $primary-color
+
+      &::placeholder
+        color: lighten($text-secondary, 20%)
+
+    small
+      font-size: 0.7rem
+      color: lighten($text-secondary, 10%)
+
+  // JSON editors section for specialized editor panels
+  &__json-section
+    margin-bottom: 1rem
+
+  &__json-grid
+    display: grid
+    grid-template-columns: repeat(2, 1fr)
+    gap: 1rem
+
+    &--three
+      grid-template-columns: repeat(3, 1fr)
+
+    @media (max-width: 1024px)
+      &--three
+        grid-template-columns: repeat(2, 1fr)
+
+    @media (max-width: 768px)
+      grid-template-columns: 1fr
+
+      &--three
+        grid-template-columns: 1fr
+
+  &__json-field
+    display: flex
+    flex-direction: column
+    gap: 0.25rem
+
+    label
+      display: flex
+      align-items: center
+      gap: 0.5rem
+      font-size: 0.75rem
+      font-weight: 500
+      color: $text-secondary
+
+    textarea
+      min-height: 250px
+      padding: 0.75rem
+      border: 1px solid $border-color
+      border-radius: 6px
+      font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace
+      font-size: 0.8rem
+      line-height: 1.5
+      resize: vertical
+      transition: border-color 0.2s ease
+
+      &:focus
+        outline: none
+        border-color: $primary-color
+
+      &::placeholder
+        color: lighten($text-secondary, 20%)
+
+    small
+      font-size: 0.7rem
+      color: lighten($text-secondary, 10%)
+
+  &__textarea--error
+    border-color: $error-color !important
+
+    &:focus
+      border-color: $error-color !important
+
+  &__error-badge
+    font-size: 0.65rem
+    font-weight: 400
+    color: $error-color
+    background: rgba($error-color, 0.1)
+    padding: 0.125rem 0.375rem
+    border-radius: 3px
+    margin-left: auto
+
+  // Full-width JSON field (single textarea)
+  &__json-field--full
+    textarea
+      min-height: 300px
+
+  // Checkbox wrapper for config fields
+  &__checkbox-wrapper
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    cursor: pointer
+
+    input[type="checkbox"]
+      width: 16px
+      height: 16px
+      accent-color: $primary-color
+
+    span
+      font-size: 0.875rem
+      color: $text-primary
+
+  // Variant styles for different panel types
+  &--sitemap
+    border-color: $success-color
+
+    .input-editor-panel__icon
+      color: $success-color
+
+  &--content
+    border-color: #8b5cf6
+
+    .input-editor-panel__icon
+      color: #8b5cf6
+
+  &--theme
+    border-color: #ec4899
+
+    .input-editor-panel__icon
+      color: #ec4899
+
+  &--image-picker
+    border-color: #f97316
+
+    .input-editor-panel__icon
+      color: #f97316
+
+  &--hotlinking
+    border-color: $primary-color
+
+    .input-editor-panel__icon
+      color: $primary-color
+
+  &--github
+    border-color: #333
+
+    .input-editor-panel__icon
+      color: #333
+
+// JSON Editor
+.json-editor
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace
+  font-size: 0.8rem
+  background: $background-light
+  border-radius: 6px
+  overflow: hidden
+
+  &--error
+    border-color: $error-color
+
+  &--modified
+    border-color: $warning-color
+
+  &__toolbar
+    display: flex
+    align-items: center
+    justify-content: space-between
+    padding: 0.5rem 0.75rem
+    background: white
+    border-bottom: 1px solid $border-color
+
+  &__status
+    display: flex
+    align-items: center
+    gap: 0.5rem
+
+  &__modified-badge
+    font-size: 0.7rem
+    font-weight: 500
+    padding: 0.125rem 0.5rem
+    background: rgba($warning-color, 0.1)
+    color: darken($warning-color, 10%)
+    border-radius: 4px
+
+  &__error-badge
+    display: flex
+    align-items: center
+    gap: 0.25rem
+    font-size: 0.7rem
+    font-weight: 500
+    padding: 0.125rem 0.5rem
+    background: rgba($error-color, 0.1)
+    color: $error-color
+    border-radius: 4px
+
+  &__actions
+    display: flex
+    gap: 0.25rem
+
+  &__action-btn
+    display: flex
+    align-items: center
+    justify-content: center
+    padding: 0.375rem
+    background: transparent
+    border: 1px solid $border-color
+    border-radius: 4px
+    color: $text-secondary
+    cursor: pointer
+    transition: all 0.2s ease
+
+    &:hover
+      border-color: $primary-color
+      color: $primary-color
+      background: rgba($primary-color, 0.05)
+
+  &__container
+    display: flex
+    max-height: 400px
+    overflow-y: auto
+
+  &__line-numbers
+    display: flex
+    flex-direction: column
+    padding: 0.75rem 0.5rem
+    background: darken($background-light, 2%)
+    border-right: 1px solid $border-color
+    color: $text-secondary
+    font-size: 0.75rem
+    user-select: none
+    min-width: 36px
+    text-align: right
+
+    span
+      line-height: 1.5
+
+  &__textarea
+    flex: 1
+    padding: 0.75rem
+    border: none
+    background: transparent
+    resize: none
+    font-family: inherit
+    font-size: inherit
+    line-height: 1.5
+    color: $text-primary
+    min-height: 200px
+
+    &:focus
+      outline: none
+
+    &[readonly]
+      background: rgba($background-light, 0.5)
+      cursor: not-allowed
+
+  &__error-message
+    display: flex
+    align-items: center
+    gap: 0.375rem
+    padding: 0.5rem 0.75rem
+    background: rgba($error-color, 0.1)
+    color: $error-color
+    font-size: 0.75rem
+    border-top: 1px solid rgba($error-color, 0.2)
+
+// Intervention Panel - Add download button
+.intervention-panel
+  &__btn
+    &--download
+      background: rgba($primary-color, 0.1)
+      color: $primary-color
+      border: 1px solid rgba($primary-color, 0.3)
+
+      &:hover
+        background: rgba($primary-color, 0.15)
+        border-color: $primary-color
+
+// WorkflowProgress - Step download button
+.workflow-progress
+  &__step-action
+    &--download
+      background: rgba($success-color, 0.1)
+      color: $success-color
+      border: 1px solid rgba($success-color, 0.2)
+
+      &:hover
+        background: rgba($success-color, 0.15)
+        border-color: $success-color
+
+    &--retry
+      background: rgba($primary-color, 0.1)
+      color: $primary-color
+      border: 1px solid rgba($primary-color, 0.2)
+
+      &:hover
+        background: rgba($primary-color, 0.15)
+        border-color: $primary-color
+
+// Responsive updates for new components
+@media (max-width: 768px)
+  .unified-workflow
+    &__yolo-options
+      flex-direction: column
+
+  .export-panel
+    max-height: 90vh
+
+    &__buttons
+      gap: 0.5rem
+
+  .input-editor-panel
+    &__footer
+      flex-direction: column
+      gap: 0.75rem
+
+    &__actions
+      width: 100%
+      flex-direction: column
+
+    &__btn
+      width: 100%
+      justify-content: center
+
+  .json-editor
+    &__container
+      max-height: 300px

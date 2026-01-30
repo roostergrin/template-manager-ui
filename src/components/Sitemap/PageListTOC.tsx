@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { FileText, Image as ImageIcon, Zap, FileInput } from 'lucide-react';
+import { FileText, Image as ImageIcon, Zap, FileInput, CornerDownRight } from 'lucide-react';
 import { SitemapSection, SitemapItem } from '../../types/SitemapTypes';
 import { useSitemap } from '../../contexts/SitemapProvider';
 import { useAppConfig } from '../../contexts/AppConfigProvider';
@@ -10,6 +10,7 @@ import { useQuestionnaire } from '../../contexts/QuestionnaireProvider';
 import useGenerateSitemap from '../../hooks/useGenerateSitemap';
 import { getEffectiveQuestionnaireData } from '../../utils/questionnaireDataUtils';
 import { getBackendSiteTypeForModelGroup } from '../../utils/modelGroupKeyToBackendSiteType';
+import { getParentPageTitle } from '../../utils/flattenSitemapPages';
 import DefaultPageTemplateSelector, { PageTemplate } from '../DefaultPageTemplateSelector/DefaultPageTemplateSelector';
 import './PageListTOC.sass';
 
@@ -87,6 +88,10 @@ const SectionRow: React.FC<SectionRowProps> = ({
     onUpdateItem(item.id, { useDefault: !item.useDefault });
   };
 
+  const handleTogglePreserveImage = () => {
+    onUpdateItem(item.id, { preserve_image: !item.preserve_image });
+  };
+
   const handleQueryChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     onUpdateItem(item.id, { query: e.target.value });
   };
@@ -148,6 +153,15 @@ const SectionRow: React.FC<SectionRowProps> = ({
           title={item.useDefault ? 'Using default content' : 'Using custom content'}
         >
           {item.useDefault ? '●' : '○'}
+        </button>
+        <button
+          className={`page-list-toc__preserve-image-toggle ${item.preserve_image ? 'page-list-toc__preserve-image-toggle--active' : ''}`}
+          onClick={handleTogglePreserveImage}
+          aria-label={item.preserve_image ? 'Disable preserve image' : 'Enable preserve image'}
+          tabIndex={0}
+          title={item.preserve_image ? 'Preserve image ON' : 'Preserve image OFF'}
+        >
+          📷
         </button>
         <button
           className="page-list-toc__duplicate"
@@ -283,7 +297,8 @@ const PageListTOCItem: React.FC<PageListTOCItemProps> = ({ page, index, isExpand
             model: item.model,
             query: item.query,
             internal_id: item.id,
-            use_default: item.useDefault
+            use_default: item.useDefault,
+            preserve_image: item.preserve_image
           })),
           // Include allocated markdown if exists
           ...(page.allocated_markdown && { allocated_markdown: page.allocated_markdown }),
@@ -309,6 +324,9 @@ const PageListTOCItem: React.FC<PageListTOCItemProps> = ({ page, index, isExpand
     } as any);
   };
 
+  // Store original preserve_image values before generation
+  const originalPreserveImageMapRef = useRef<Map<string, boolean>>(new Map());
+
   // Handle response from sitemap generation
   useEffect(() => {
     if (generateSitemapStatus === 'success' && generateSitemapData?.sitemap_data && isGenerating) {
@@ -324,12 +342,18 @@ const PageListTOCItem: React.FC<PageListTOCItemProps> = ({ page, index, isExpand
           console.log('📝 Updating page sections with generated data');
 
           // Convert generated sections back to SitemapItem format
-          const updatedItems: SitemapItem[] = generatedPage.model_query_pairs.map((item: any) => ({
-            model: item.model,
-            query: item.query,
-            id: item.internal_id || `item-${Date.now()}-${Math.random()}`,
-            useDefault: item.use_default
-          }));
+          // Restore preserve_image from original items if not in generated data
+          const updatedItems: SitemapItem[] = generatedPage.model_query_pairs.map((item: any) => {
+            const itemId = item.internal_id || `item-${Date.now()}-${Math.random()}`;
+            const preserveImage = item.preserve_image ?? originalPreserveImageMapRef.current.get(itemId);
+            return {
+              model: item.model,
+              query: item.query,
+              id: itemId,
+              useDefault: item.use_default,
+              preserve_image: preserveImage
+            };
+          });
 
           // Update the page with generated sections
           actions.updatePageItems(page.id, updatedItems);
@@ -350,7 +374,18 @@ const PageListTOCItem: React.FC<PageListTOCItemProps> = ({ page, index, isExpand
       setGenerateError('Failed to generate page sections');
       setIsGenerating(false);
     }
-  }, [generateSitemapStatus, generateSitemapData, isGenerating, page.title, page.id, actions]);
+
+    // Store preserve_image values when generation starts
+    if (generateSitemapStatus === 'pending' && isGenerating) {
+      originalPreserveImageMapRef.current.clear();
+      page.items.forEach(item => {
+        if (item.preserve_image !== undefined) {
+          originalPreserveImageMapRef.current.set(item.id, item.preserve_image);
+        }
+      });
+      console.log('📸 Stored preserve_image values for', originalPreserveImageMapRef.current.size, 'items');
+    }
+  }, [generateSitemapStatus, generateSitemapData, isGenerating, page.title, page.id, page.items, actions]);
 
   const itemIds = page.items.map(item => item.id);
 
@@ -381,10 +416,25 @@ const PageListTOCItem: React.FC<PageListTOCItemProps> = ({ page, index, isExpand
   const wordCount = countWords(page.allocated_markdown);
   const imageCount = countImages(page.allocated_markdown);
 
+  // Hierarchy support: compute depth and indentation
+  const pageDepth = page.depth || 0;
+  const { state: sitemapState } = useSitemap();
+  const parentTitle = pageDepth > 0 ? getParentPageTitle(page, sitemapState.pages) : null;
+  const indentStyle = pageDepth > 0 ? { marginLeft: `${pageDepth * 24}px` } : {};
+
   return (
-    <div ref={setNodeRef} style={style} className="page-list-toc__item">
-      <div className="page-list-toc__row page-list-toc__row--header">
+    <div 
+      ref={setNodeRef} 
+      style={style} 
+      className={`page-list-toc__item ${pageDepth > 0 ? `page-list-toc__item--child page-list-toc__item--depth-${pageDepth}` : ''}`}
+    >
+      <div className="page-list-toc__row page-list-toc__row--header" style={indentStyle}>
         <div className="page-list-toc__col page-list-toc__col--controls">
+          {pageDepth > 0 && (
+            <span className="page-list-toc__hierarchy-indicator" title={`Child of: ${parentTitle || 'Unknown'}`}>
+              <CornerDownRight size={14} />
+            </span>
+          )}
           <button
             className="page-list-toc__chevron"
             onClick={handleTogglePageExpanded}
@@ -403,6 +453,11 @@ const PageListTOCItem: React.FC<PageListTOCItemProps> = ({ page, index, isExpand
         </div>
         <div className="page-list-toc__col page-list-toc__col--content">
           <span className="page-list-toc__number">{index + 1}</span>
+          {pageDepth > 0 && page.slug && (
+            <span className="page-list-toc__slug" title={`URL: ${page.slug}`}>
+              {page.slug}
+            </span>
+          )}
           <input
             type="text"
             className="page-list-toc__title-input"
