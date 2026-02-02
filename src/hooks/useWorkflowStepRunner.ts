@@ -489,7 +489,7 @@ export const useWorkflowStepRunner = () => {
       domain: siteConfig.scrapeDomain,
       use_selenium: true,
       scroll: true,
-      max_pages: siteConfig.maxScrapePages ?? 1,
+      max_pages: siteConfig.maxScrapePages ?? 100,
       use_firecrawl: siteConfig.useFirecrawl ?? true,
     };
 

@@ -55,7 +55,7 @@ export interface SiteConfig {
   deploymentTarget?: DeploymentTarget;
   // Use Firecrawl API for scraping (handles anti-bot, extracts branding)
   useFirecrawl?: boolean;
-  // Maximum number of pages to scrape (default: 1)
+  // Maximum number of pages to scrape (default: 100)
   maxScrapePages?: number;
 }
 

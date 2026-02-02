@@ -64,7 +64,7 @@ const defaultSiteConfig: SiteConfig = {
   enableImagePicker: false,
   enableHotlinking: false,
   deploymentTarget: 'demo', // 'demo' for Cloudflare Pages (default), 'production' for AWS
-  maxScrapePages: 1, // Limit pages scraped (1 for testing, increase for production)
+  maxScrapePages: 100, // Limit pages scraped
   useFirecrawl: true, // Use Firecrawl API for scraping (handles anti-bot, extracts branding)
 };
 

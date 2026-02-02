@@ -268,8 +268,8 @@ const ConfigurationPanel: React.FC<ConfigurationPanelProps> = ({
                 <input
                   type="number"
                   className="config-panel__input"
-                  value={config.maxScrapePages ?? 1}
-                  onChange={(e) => handleInputChange('maxScrapePages', parseInt(e.target.value, 10) || 1)}
+                  value={config.maxScrapePages ?? 100}
+                  onChange={(e) => handleInputChange('maxScrapePages', parseInt(e.target.value, 10) || 100)}
                   min={1}
                   max={100}
                   disabled={disabled}
