@@ -2047,6 +2047,13 @@ export const useWorkflowStepRunner = () => {
       const response = await apiClient.post<ProvisionCloudflarePageResult>(endpoint, payload);
 
       logger.logApiResponse(response, apiTimer.elapsed());
+
+      if (response.already_existed) {
+        logger.logProcessing(`Cloudflare Pages project already existed: ${projectName}`);
+      } else {
+        logger.logProcessing(`Cloudflare Pages project newly created: ${projectName}`);
+      }
+
       setGeneratedDataWithRef('cloudflarePagesResult', response);
       return { success: isResponseSuccessful(response as Record<string, unknown>), data: response };
     } catch (error) {
