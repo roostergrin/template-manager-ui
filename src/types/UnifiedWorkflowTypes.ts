@@ -55,7 +55,7 @@ export interface SiteConfig {
   deploymentTarget?: DeploymentTarget;
   // Use Firecrawl API for scraping (handles anti-bot, extracts branding)
   useFirecrawl?: boolean;
-  // Maximum number of pages to scrape (default: 100)
+  // Maximum number of pages to scrape (default: 50)
   maxScrapePages?: number;
 }
 
@@ -231,6 +231,7 @@ export interface CreateGithubRepoResult {
   repo?: string;
   full_name?: string;
   html_url?: string;
+  already_existed?: boolean;
   message?: string;
 }
 
