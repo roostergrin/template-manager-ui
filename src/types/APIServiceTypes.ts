@@ -220,6 +220,23 @@ export interface UpdateGithubRepoFileUploadResponse {
   };
 }
 
+// Batch File Upload Types
+export interface BatchUploadGithubFilesRequest {
+  owner: string;
+  repo: string;
+  branch: string;
+  message: string;
+  files: Array<{ file_path: string; file_content: string }>;
+}
+
+export interface BatchUploadGithubFilesResponse {
+  success: boolean;
+  commit_sha?: string;
+  commit_url?: string;
+  files_updated?: string[];
+  message?: string;
+}
+
 // Router Generation Types
 export interface GenerateRouterRequest {
   wordpress_api_url: string;
