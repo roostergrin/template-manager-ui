@@ -1998,6 +1998,13 @@ export const useWorkflowStepRunner = () => {
       const response = await apiClient.post<CreateDemoRepoResult>(endpoint, payload);
 
       logger.logApiResponse(response, apiTimer.elapsed());
+
+      if (response.already_existed) {
+        logger.logProcessing(`Demo repository already existed: ${response.owner}/${response.repo}`);
+      } else {
+        logger.logProcessing(`Demo repository newly created: ${response.owner}/${response.repo}`);
+      }
+
       setGeneratedDataWithRef('demoRepoResult', response);
       return { success: isResponseSuccessful(response as Record<string, unknown>), data: response };
     } catch (error) {
