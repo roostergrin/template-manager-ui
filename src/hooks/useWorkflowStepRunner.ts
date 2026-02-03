@@ -405,6 +405,13 @@ export const useWorkflowStepRunner = () => {
       const response = await apiClient.post<CreateGithubRepoResult>(endpoint, payload);
 
       logger.logApiResponse(response, apiTimer.elapsed());
+
+      if (response.already_existed) {
+        logger.logProcessing(`Repository already existed: ${response.owner}/${response.repo}`);
+      } else {
+        logger.logProcessing(`Repository newly created: ${response.owner}/${response.repo}`);
+      }
+
       setGeneratedDataWithRef('githubRepoResult', response);
       return { success: isResponseSuccessful(response as Record<string, unknown>), data: response };
     } catch (error) {
@@ -489,7 +496,7 @@ export const useWorkflowStepRunner = () => {
       domain: siteConfig.scrapeDomain,
       use_selenium: true,
       scroll: true,
-      max_pages: siteConfig.maxScrapePages ?? 100,
+      max_pages: siteConfig.maxScrapePages ?? 50,
       use_firecrawl: siteConfig.useFirecrawl ?? true,
     };
 
