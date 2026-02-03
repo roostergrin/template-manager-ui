@@ -26,6 +26,7 @@ import {
   ProvisionCloudflarePageResult,
 } from '../types/UnifiedWorkflowTypes';
 import apiClient from '../services/apiService';
+import { BatchUploadGithubFilesRequest, BatchUploadGithubFilesResponse } from '../types/APIServiceTypes';
 import { createStepLogger, createTimer, StepLogger } from '../utils/workflowLogger';
 import {
   parseJsonForImages,
@@ -1615,48 +1616,13 @@ export const useWorkflowStepRunner = () => {
     }
 
     try {
-      // Upload pages.json
-      const pagesEndpoint = '/update-github-repo-file/';
-      const pagesPayload = {
-        owner,
-        repo,
-        file_path: 'data/pages.json',
-        file_content: JSON.stringify(pageData, null, 2),
-        message: 'Update pages.json from workflow',
-        branch,
-      };
+      // Build files array for batch upload
+      const files: BatchUploadGithubFilesRequest['files'] = [
+        { file_path: 'data/pages.json', file_content: JSON.stringify(pageData, null, 2) },
+        { file_path: 'data/globalData.json', file_content: JSON.stringify(globalData, null, 2) },
+      ];
 
-      logger.logApiRequest(pagesEndpoint, { ...pagesPayload, file_content: `[${Object.keys(pageData).length} pages]` });
-      const pagesTimer = createTimer();
-
-      const pagesResponse = await apiClient.post<{ success: boolean; content?: { html_url?: string } }>(pagesEndpoint, pagesPayload);
-      logger.logApiResponse(pagesResponse, pagesTimer.elapsed());
-
-      if (!isResponseSuccessful(pagesResponse as Record<string, unknown>)) {
-        return { success: false, error: 'Failed to upload pages.json' };
-      }
-
-      // Upload globalData.json
-      const globalPayload = {
-        owner,
-        repo,
-        file_path: 'data/globalData.json',
-        file_content: JSON.stringify(globalData, null, 2),
-        message: 'Update globalData.json from workflow',
-        branch,
-      };
-
-      logger.logApiRequest(pagesEndpoint, { ...globalPayload, file_content: `[global data object]` });
-      const globalTimer = createTimer();
-
-      const globalResponse = await apiClient.post<{ success: boolean; content?: { html_url?: string } }>(pagesEndpoint, globalPayload);
-      logger.logApiResponse(globalResponse, globalTimer.elapsed());
-
-      if (!isResponseSuccessful(globalResponse as Record<string, unknown>)) {
-        return { success: false, error: 'Failed to upload globalData.json' };
-      }
-
-      // Upload theme.json (themeToUpload is already computed above from edited data or generated data)
+      // Add theme.json only if theme data exists
       let themeJsonUrl: string | undefined;
 
       if (themeToUpload) {
@@ -1667,28 +1633,30 @@ export const useWorkflowStepRunner = () => {
           }
         }
 
-        const themePayload = {
-          owner,
-          repo,
-          file_path: 'data/theme.json',
-          file_content: JSON.stringify(themeToUpload, null, 2),
-          message: 'Update theme.json from workflow',
-          branch,
-        };
-
-        logger.logApiRequest(pagesEndpoint, { ...themePayload, file_content: '[theme object]' });
-        const themeTimer = createTimer();
-
-        const themeResponse = await apiClient.post<{ success: boolean; content?: { html_url?: string } }>(pagesEndpoint, themePayload);
-        logger.logApiResponse(themeResponse, themeTimer.elapsed());
-
-        if (!isResponseSuccessful(themeResponse as Record<string, unknown>)) {
-          return { success: false, error: 'Failed to upload theme.json' };
-        }
-
+        files.push({ file_path: 'data/theme.json', file_content: JSON.stringify(themeToUpload, null, 2) });
         themeJsonUrl = `https://github.com/${owner}/${repo}/blob/${branch}/data/theme.json`;
       } else {
         logger.logProcessing('No theme data available, skipping theme.json upload');
+      }
+
+      // Single batch upload
+      const batchEndpoint = '/batch-update-github-repo-files/';
+      const batchPayload: BatchUploadGithubFilesRequest = {
+        owner,
+        repo,
+        branch,
+        message: 'Update site data from workflow',
+        files,
+      };
+
+      logger.logApiRequest(batchEndpoint, { ...batchPayload, files: `[${files.length} files: ${files.map(f => f.file_path).join(', ')}]` });
+      const batchTimer = createTimer();
+
+      const batchResponse = await apiClient.post<BatchUploadGithubFilesResponse>(batchEndpoint, batchPayload);
+      logger.logApiResponse(batchResponse, batchTimer.elapsed());
+
+      if (!batchResponse.success) {
+        return { success: false, error: batchResponse.message || 'Batch upload to GitHub failed' };
       }
 
       const result: GithubJsonUploadResult = {
