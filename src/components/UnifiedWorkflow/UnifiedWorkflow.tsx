@@ -29,7 +29,7 @@ import GithubJsonEditorPanel from './GithubJsonEditorPanel';
 import ExportPanel from './ExportPanel';
 import CleanupPanel from './CleanupPanel';
 import ThemeJsonDebugViewer from '../ThemeJsonDebugViewer';
-import { getStepInputData } from '../../constants/stepInputMappings';
+import { getStepEditData } from '../../constants/stepInputMappings';
 import { AVAILABLE_TEMPLATES, getStepById } from '../../constants/workflowSteps';
 import { WorkflowMode, SiteConfig, TemplateType } from '../../types/UnifiedWorkflowTypes';
 import { WORKFLOW_STEP_IDS } from '../../constants/workflowSteps';
@@ -268,10 +268,10 @@ const ConfigurationPanel: React.FC<ConfigurationPanelProps> = ({
                 <input
                   type="number"
                   className="config-panel__input"
-                  value={config.maxScrapePages ?? 100}
-                  onChange={(e) => handleInputChange('maxScrapePages', parseInt(e.target.value, 10) || 100)}
+                  value={config.maxScrapePages ?? 50}
+                  onChange={(e) => handleInputChange('maxScrapePages', parseInt(e.target.value, 10) || 50)}
                   min={1}
-                  max={100}
+                  max={50}
                   disabled={disabled}
                 />
               </label>
@@ -432,7 +432,7 @@ const UnifiedWorkflow: React.FC = () => {
 
   const preStepInputData = useMemo(() => {
     if (!pendingPreStepInput) return undefined;
-    return getStepInputData(pendingPreStepInput, generatedData);
+    return getStepEditData(pendingPreStepInput, generatedData);
   }, [pendingPreStepInput, generatedData]);
 
   // Find the last executed step (completed or error) for retry functionality

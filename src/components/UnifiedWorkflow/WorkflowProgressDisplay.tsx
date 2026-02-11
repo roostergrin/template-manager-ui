@@ -28,7 +28,7 @@ import { WorkflowStep, WorkflowStepStatus, WorkflowProgressEvent } from '../../t
 import { getYoloExecutionOrder, getExecutionOrderByTarget, WORKFLOW_STEP_IDS } from '../../constants/workflowSteps';
 import { useWorkflowExport } from '../../hooks/useWorkflowExport';
 import { useWorkflowStepRunner } from '../../hooks/useWorkflowStepRunner';
-import { STEP_INPUT_MAPPINGS, getStepInputData } from '../../constants/stepInputMappings';
+import { STEP_DATA_CONTRACT, getStepOutputKey, getStepEditData, isStepEditable as checkStepEditable } from '../../constants/stepInputMappings';
 import JsonViewer from './JsonViewer';
 import InputEditorPanel from './InputEditorPanel';
 import PreventHotlinkingEditorPanel from './PreventHotlinkingEditorPanel';
@@ -591,19 +591,11 @@ const WorkflowProgressDisplay: React.FC<WorkflowProgressDisplayProps> = ({
 
   // Edit input handlers for manual mode
   const handleEditInput = useCallback((stepId: string) => {
-    const inputData = getStepInputData(stepId, generatedData);
+    const editData = getStepEditData(stepId, generatedData);
     setEditingStepId(stepId);
-    // For specialized panels, we set localEditedInputData to empty object so the panel renders
-    const specializedPanelSteps = [
-      'generate-sitemap',
-      'generate-content',
-      'download-theme',
-      'image-picker',
-      'prevent-hotlinking',
-      'upload-json-to-github',
-    ];
-    const hasSpecializedPanel = specializedPanelSteps.includes(stepId);
-    setLocalEditedInputData(inputData ?? (hasSpecializedPanel ? {} : null));
+    // Always fall back to empty object so the editor panel renders for any editable step,
+    // allowing users to paste data even when no upstream data exists yet
+    setLocalEditedInputData(editData ?? {});
   }, [generatedData]);
 
   const handleUseOriginal = useCallback(async () => {
@@ -629,6 +621,21 @@ const WorkflowProgressDisplay: React.FC<WorkflowProgressDisplayProps> = ({
     }
   }, [editingStepId, setEditedInputDataImmediate, executeStep]);
 
+  const handleSaveInput = useCallback((editedData: unknown) => {
+    if (editingStepId) {
+      const outputKey = getStepOutputKey(editingStepId);
+      if (outputKey) {
+        // Store the pasted data under the step's OUTPUT key in generatedData
+        const dataKey = outputKey as keyof typeof generatedData;
+        actions.setGeneratedData(dataKey, editedData);
+        // Mark the step as completed
+        actions.setStepStatus(editingStepId, 'completed', editedData);
+      }
+      setEditingStepId(null);
+      setLocalEditedInputData(null);
+    }
+  }, [editingStepId, actions]);
+
   const handleCancelEdit = useCallback(() => {
     setEditingStepId(null);
     setLocalEditedInputData(null);
@@ -637,10 +644,9 @@ const WorkflowProgressDisplay: React.FC<WorkflowProgressDisplayProps> = ({
   // Get the editing step object
   const editingStep = editingStepId ? steps.find(s => s.id === editingStepId) : null;
 
-  // Check if a step is editable
-  const isStepEditable = useCallback((stepId: string): boolean => {
-    const mapping = STEP_INPUT_MAPPINGS[stepId];
-    return mapping?.editable === true;
+  // Check if a step is editable (delegates to contract helper)
+  const isStepEditableFn = useCallback((stepId: string): boolean => {
+    return checkStepEditable(stepId);
   }, []);
 
   return (
@@ -707,7 +713,7 @@ const WorkflowProgressDisplay: React.FC<WorkflowProgressDisplayProps> = ({
               isManualMode={isManualMode}
               isWorkflowRunning={isRunning}
               showDeliverables={showDeliverables && index < orderedSteps.length - 1}
-              isEditable={isStepEditable(step.id)}
+              isEditable={isStepEditableFn(step.id)}
             />
             {/* Inline editor panel - renders below the step being edited */}
             {editingStepId === step.id && localEditedInputData !== null && (
@@ -790,6 +796,7 @@ const WorkflowProgressDisplay: React.FC<WorkflowProgressDisplayProps> = ({
                     inputData={localEditedInputData}
                     onUseOriginal={handleUseOriginal}
                     onUseEdited={handleUseEdited}
+                    onSave={handleSaveInput}
                     onCancel={handleCancelEdit}
                   />
                 )}

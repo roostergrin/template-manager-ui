@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
-import { Edit3, Play, SkipForward, X, AlertTriangle } from 'lucide-react';
+import { Edit3, Play, Save, SkipForward, X, AlertTriangle } from 'lucide-react';
 import { WorkflowStep } from '../../types/UnifiedWorkflowTypes';
-import { STEP_INPUT_MAPPINGS } from '../../constants/stepInputMappings';
+import { STEP_DATA_CONTRACT } from '../../constants/stepInputMappings';
 import JsonEditor from './JsonEditor';
 
 interface InputEditorPanelProps {
@@ -9,6 +9,7 @@ interface InputEditorPanelProps {
   inputData: unknown;
   onUseOriginal: () => void;
   onUseEdited: (editedData: unknown) => void;
+  onSave?: (editedData: unknown) => void;
   onCancel: () => void;
 }
 
@@ -19,6 +20,7 @@ const InputEditorPanel: React.FC<InputEditorPanelProps> = ({
   inputData,
   onUseOriginal,
   onUseEdited,
+  onSave,
   onCancel,
 }) => {
   // Use empty object as default when no input data (allows pasting for testing)
@@ -32,7 +34,7 @@ const InputEditorPanel: React.FC<InputEditorPanelProps> = ({
   const [hasChanges, setHasChanges] = useState(hasNoInitialData); // Consider changed if starting empty
   const [isValid, setIsValid] = useState(true);
 
-  const mapping = STEP_INPUT_MAPPINGS[step.id];
+  const contract = STEP_DATA_CONTRACT[step.id];
 
   // Reset when input data changes
   useEffect(() => {
@@ -60,6 +62,12 @@ const InputEditorPanel: React.FC<InputEditorPanelProps> = ({
     }
   }, [editedData, isValid, hasChanges, onUseEdited]);
 
+  const handleSave = useCallback(() => {
+    if (isValid && hasChanges && onSave) {
+      onSave(editedData);
+    }
+  }, [editedData, isValid, hasChanges, onSave]);
+
   return (
     <div className="input-editor-panel">
       <div className="input-editor-panel__header">
@@ -80,10 +88,11 @@ const InputEditorPanel: React.FC<InputEditorPanelProps> = ({
       </div>
 
       <div className="input-editor-panel__description">
-        <p>{mapping?.description || 'Input data for this step'}</p>
-        {mapping?.dataPath && (
+        <p>{contract?.description || 'Input data for this step'}</p>
+        {contract && (
           <span className="input-editor-panel__data-path">
-            Data path: {mapping.dataKey}.{mapping.dataPath}
+            {contract.outputs.length > 0 && `Produces: ${contract.outputs.join(', ')}`}
+            {contract.inputs.length > 0 && ` · Requires: ${contract.inputs.join(', ')}`}
           </span>
         )}
       </div>
@@ -130,6 +139,19 @@ const InputEditorPanel: React.FC<InputEditorPanelProps> = ({
             >
               <SkipForward size={16} />
               Use Original
+            </button>
+          )}
+          {onSave && (
+            <button
+              type="button"
+              className="input-editor-panel__btn input-editor-panel__btn--save"
+              onClick={handleSave}
+              disabled={!isValid || !hasChanges}
+              aria-label="Save data without running step"
+              title="Save data as step output without calling the API"
+            >
+              <Save size={16} />
+              Save
             </button>
           )}
           <button

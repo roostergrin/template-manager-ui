@@ -1,143 +1,218 @@
-// Step Input Mappings
-// Maps each step to its input data source from generatedData
-// Used for pre-step input editing feature
+// Unified Step Data Contracts
+// Single source of truth for what each step reads (inputs), writes (outputs),
+// whether it supports Edit/Save, and a human-readable description.
 
-export interface StepInputMapping {
-  dataKey: string;           // Key in generatedData where input data is stored
-  dataPath?: string;         // Optional nested path within the data (e.g., "scrapedContent")
-  description: string;       // Human-readable description of what this input is
-  editable: boolean;         // Whether this input can be edited before step runs
+export interface StepDataContract {
+  inputs: string[];          // generatedData keys this step READS
+  outputs: string[];         // generatedData keys this step WRITES
+  primaryOutputKey: string;  // main output key (used by Save)
+  editable: boolean;         // supports Edit/Save
+  description: string;       // human-readable description
 }
 
-export const STEP_INPUT_MAPPINGS: Record<string, StepInputMapping> = {
+export const STEP_DATA_CONTRACT: Record<string, StepDataContract> = {
   'create-github-repo': {
-    dataKey: '',  // No input data - uses config only
-    description: 'No input data - uses domain from config to create repo name',
+    inputs: [],
+    outputs: ['githubRepoResult'],
+    primaryOutputKey: 'githubRepoResult',
     editable: false,
+    description: 'Creates GitHub repo from domain config',
   },
   'provision-wordpress-backend': {
-    dataKey: '',  // No input data - uses config only
-    description: 'No input data - copies WordPress subscription from template',
+    inputs: [],
+    outputs: ['wordpressBackendResult'],
+    primaryOutputKey: 'wordpressBackendResult',
     editable: false,
+    description: 'Copies WordPress subscription from template',
   },
   'provision-site': {
-    dataKey: '',  // No input data - uses config only
-    description: 'No input data - uses site configuration',
+    inputs: [],
+    outputs: ['provisionResult'],
+    primaryOutputKey: 'provisionResult',
     editable: false,
+    description: 'Provisions S3 bucket, CloudFront, and CodePipeline',
   },
   'scrape-site': {
-    dataKey: '',  // No input data - uses config only
-    description: 'No input data - uses scrape domain from config',
-    editable: false,
+    inputs: [],
+    outputs: ['scrapeResult'],
+    primaryOutputKey: 'scrapeResult',
+    editable: true,
+    description: 'Scrapes target site for pages, markdown, and style overview',
   },
   'create-vector-store': {
-    dataKey: 'scrapeResult',
-    dataPath: 'pages',
-    description: 'Scraped pages to index in vector store',
+    inputs: ['scrapeResult'],
+    outputs: ['vectorStoreResult'],
+    primaryOutputKey: 'vectorStoreResult',
     editable: true,
+    description: 'Indexes scraped pages into an OpenAI vector store',
   },
   'select-template': {
-    dataKey: '',  // Uses config.template
-    description: 'Template selection from config',
+    inputs: [],
+    outputs: ['templateResult'],
+    primaryOutputKey: 'templateResult',
     editable: false,
+    description: 'Selects template and loads default sitemap',
   },
   'allocate-content': {
-    dataKey: 'vectorStoreResult',
-    description: 'Vector store ID for content allocation',
-    editable: false,  // Can't edit vector store ID
+    inputs: ['vectorStoreResult'],
+    outputs: ['allocatedSitemap'],
+    primaryOutputKey: 'allocatedSitemap',
+    editable: true,
+    description: 'Allocates scraped content to sitemap sections via vector search',
   },
   'generate-sitemap': {
-    dataKey: 'allocatedSitemap',
-    dataPath: 'pages',
-    description: 'Allocated sitemap pages',
+    inputs: ['allocatedSitemap'],
+    outputs: ['sitemapResult'],
+    primaryOutputKey: 'sitemapResult',
     editable: true,
+    description: 'Generates final sitemap with queries and section assignments',
   },
   'generate-content': {
-    dataKey: 'sitemapResult',
-    dataPath: 'pages',
-    description: 'Sitemap pages for content generation',
+    inputs: ['sitemapResult'],
+    outputs: ['contentResult'],
+    primaryOutputKey: 'contentResult',
     editable: true,
+    description: 'Generates page content and global data from sitemap',
   },
   'download-theme': {
-    dataKey: 'scrapeResult',
-    dataPath: 'designSystem',
-    description: 'Design system from scraped site',
+    inputs: ['scrapeResult'],
+    outputs: ['themeResult'],
+    primaryOutputKey: 'themeResult',
     editable: true,
+    description: 'Extracts design system and generates theme.json',
   },
   'image-picker': {
-    dataKey: 'contentResult',
-    dataPath: 'pageData',
-    description: 'Generated page content with image placeholders',
+    inputs: ['contentResult'],
+    outputs: ['imagePickerResult'],
+    primaryOutputKey: 'imagePickerResult',
     editable: true,
+    description: 'Selects and assigns images to content placeholders',
   },
   'prevent-hotlinking': {
-    dataKey: 'hotlinkInputData',
-    description: 'Pages and theme data to sync to S3 with CloudFront URLs',
+    inputs: ['imagePickerResult', 'themeResult', 'provisionResult'],
+    outputs: ['hotlinkResult'],
+    primaryOutputKey: 'hotlinkResult',
     editable: true,
+    description: 'Syncs images to S3 with CloudFront URLs to prevent hotlinking',
   },
   'upload-json-to-github': {
-    dataKey: 'githubInputData',
-    description: 'Pages, globalData, and theme JSON to upload to GitHub',
+    inputs: ['hotlinkResult', 'contentResult', 'themeResult', 'githubRepoResult'],
+    outputs: ['githubJsonResult'],
+    primaryOutputKey: 'githubJsonResult',
     editable: true,
+    description: 'Uploads pages.json, globalData.json, and theme.json to GitHub',
   },
   'export-to-wordpress': {
-    dataKey: 'imagePickerResult',
-    description: 'Page data with updated images',
+    inputs: ['imagePickerResult', 'contentResult'],
+    outputs: ['wordpressResult'],
+    primaryOutputKey: 'wordpressResult',
     editable: true,
+    description: 'Exports page data to WordPress',
   },
   'second-pass': {
-    dataKey: '',  // Uses WordPress API URL from config
-    description: 'No input data - uses WordPress API URL',
+    inputs: [],
+    outputs: ['secondPassResult'],
+    primaryOutputKey: 'secondPassResult',
     editable: false,
+    description: 'Fixes IDs and accessibility issues in WordPress',
   },
   'upload-logo': {
-    dataKey: 'themeResult',
-    dataPath: 'theme',
-    description: 'Theme configuration with logo settings',
+    inputs: ['themeResult'],
+    outputs: ['logoResult'],
+    primaryOutputKey: 'logoResult',
     editable: false,
+    description: 'Uploads logo from theme configuration',
   },
   'upload-favicon': {
-    dataKey: 'themeResult',
-    dataPath: 'theme',
-    description: 'Theme configuration with favicon settings',
+    inputs: ['themeResult'],
+    outputs: ['faviconResult'],
+    primaryOutputKey: 'faviconResult',
     editable: false,
+    description: 'Uploads favicon from theme configuration',
+  },
+  'create-demo-repo': {
+    inputs: [],
+    outputs: ['demoRepoResult'],
+    primaryOutputKey: 'demoRepoResult',
+    editable: false,
+    description: 'Creates demo repo in demo-rooster GitHub org',
+  },
+  'provision-cloudflare-pages': {
+    inputs: ['demoRepoResult'],
+    outputs: ['cloudflareResult'],
+    primaryOutputKey: 'cloudflareResult',
+    editable: false,
+    description: 'Provisions Cloudflare Pages project for demo site',
   },
 };
 
-// Helper to get input data for a step from generatedData
-export const getStepInputData = (
+// ---------------------------------------------------------------------------
+// Helper functions
+// ---------------------------------------------------------------------------
+
+/** Get a step's primary output key (used by Save and session logging). */
+export const getStepOutputKey = (stepId: string): string | undefined => {
+  return STEP_DATA_CONTRACT[stepId]?.primaryOutputKey;
+};
+
+/**
+ * Get the data to show in the Edit panel for a step.
+ * Returns the step's own output if it exists (re-editing), otherwise undefined.
+ */
+export const getStepEditData = (
   stepId: string,
-  generatedData: Record<string, unknown>
+  generatedData: Record<string, unknown>,
 ): unknown => {
-  const mapping = STEP_INPUT_MAPPINGS[stepId];
-  if (!mapping || !mapping.dataKey) {
-    return undefined;
+  const contract = STEP_DATA_CONTRACT[stepId];
+  if (!contract) return undefined;
+
+  // Show the step's own primary output if it exists (for re-editing)
+  const ownOutput = generatedData[contract.primaryOutputKey];
+  if (ownOutput !== undefined) return ownOutput;
+
+  // Fall back to the first input that has data (for initial editing / paste)
+  for (const inputKey of contract.inputs) {
+    const inputData = generatedData[inputKey];
+    if (inputData !== undefined) return inputData;
   }
 
-  const data = generatedData[mapping.dataKey];
-  if (!data) {
-    return undefined;
-  }
-
-  // If there's a dataPath, extract the nested value
-  if (mapping.dataPath && typeof data === 'object' && data !== null) {
-    return (data as Record<string, unknown>)[mapping.dataPath];
-  }
-
-  return data;
+  return undefined;
 };
 
-// Helper to check if a step has editable input
-export const isStepInputEditable = (stepId: string): boolean => {
-  const mapping = STEP_INPUT_MAPPINGS[stepId];
-  return mapping?.editable === true && !!mapping.dataKey;
+/** Check whether a step supports Edit/Save. */
+export const isStepEditable = (stepId: string): boolean => {
+  const contract = STEP_DATA_CONTRACT[stepId];
+  return contract?.editable === true;
 };
 
-// Helper to get editable steps
+/** Get the input keys a step reads from. */
+export const getStepInputKeys = (stepId: string): string[] => {
+  return STEP_DATA_CONTRACT[stepId]?.inputs ?? [];
+};
+
+// ---------------------------------------------------------------------------
+// Backward-compatible aliases
+// ---------------------------------------------------------------------------
+
+/** @deprecated Use STEP_DATA_CONTRACT instead */
+export const STEP_OUTPUT_KEYS: Record<string, string> = Object.fromEntries(
+  Object.entries(STEP_DATA_CONTRACT).map(([stepId, contract]) => [
+    stepId,
+    contract.primaryOutputKey,
+  ]),
+);
+
+/** @deprecated Use isStepEditable instead */
+export const isStepInputEditable = isStepEditable;
+
+/** @deprecated Use getStepEditData instead */
+export const getStepInputData = getStepEditData;
+
+/** Get list of editable step IDs. */
 export const getEditableSteps = (): string[] => {
-  return Object.entries(STEP_INPUT_MAPPINGS)
-    .filter(([_, mapping]) => mapping.editable && mapping.dataKey)
+  return Object.entries(STEP_DATA_CONTRACT)
+    .filter(([, contract]) => contract.editable)
     .map(([stepId]) => stepId);
 };
 
-export default STEP_INPUT_MAPPINGS;
+export default STEP_DATA_CONTRACT;

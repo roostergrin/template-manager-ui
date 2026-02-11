@@ -5,7 +5,7 @@ import {
   getStepById,
 } from '../constants/workflowSteps';
 import { logWorkflowEvent } from '../utils/workflowLogger';
-import { isStepInputEditable, getStepInputData } from '../constants/stepInputMappings';
+import { isStepEditable } from '../constants/stepInputMappings';
 
 type ExecuteStepFn = (stepId: string, skipDependencyCheck?: boolean) => Promise<{ success: boolean; error?: string }>;
 
@@ -222,23 +222,8 @@ export const useYoloMode = (executeStep: ExecuteStepFn) => {
       }
 
       // Check for pre-step input editing mode - pause before editable steps
-      if (preStepPauseEnabled && isStepInputEditable(stepId)) {
-        // Get current input data for this step
-        const inputData = getStepInputData(stepId, generatedDataRef.current);
-
-        // Steps with specialized editor panels handle their own data sources,
-        // so they don't require inputData from the standard mapping
-        const specializedPanelSteps = [
-          'generate-sitemap',
-          'generate-content',
-          'download-theme',
-          'image-picker',
-          'prevent-hotlinking',
-          'upload-json-to-github',
-        ];
-        const hasSpecializedPanel = specializedPanelSteps.includes(stepId);
-
-        if (inputData !== undefined || hasSpecializedPanel) {
+      if (preStepPauseEnabled && isStepEditable(stepId)) {
+        // Always pause for editable steps so users can review/edit input or paste data
           logWorkflowEvent('pause', `Pausing for input editing before ${step.name}`);
           actions.setPendingPreStepInput(stepId);
           actions.addProgressEvent({
@@ -278,7 +263,6 @@ export const useYoloMode = (executeStep: ExecuteStepFn) => {
               message: `Continuing with original input for ${step.name}`,
             });
           }
-        }
       }
 
       // Execute the step

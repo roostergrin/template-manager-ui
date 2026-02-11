@@ -26,7 +26,6 @@ import {
   ProvisionCloudflarePageResult,
 } from '../types/UnifiedWorkflowTypes';
 import apiClient from '../services/apiService';
-import { BatchUploadGithubFilesRequest, BatchUploadGithubFilesResponse } from '../types/APIServiceTypes';
 import { createStepLogger, createTimer, StepLogger } from '../utils/workflowLogger';
 import {
   parseJsonForImages,
@@ -39,6 +38,7 @@ import {
 import { buildThemeFromDesignSystem, mergeThemeWithDesignSystem } from '../utils/themeBuilder';
 import { isMockModeEnabled } from '../mocks';
 import { createPreserveImageMap, injectPreserveImageIntoContent } from '../utils/injectPreserveImage';
+import { getStepOutputKey } from '../constants/stepInputMappings';
 
 interface StepResult {
   success: boolean;
@@ -237,26 +237,6 @@ export const useWorkflowStepRunner = () => {
     const logger = createStepLogger(stepId, step.name);
     const timer = createTimer();
 
-    // Map step IDs to generated data keys for session logging
-    const stepToDataKey: Record<string, string> = {
-      'create-github-repo': 'githubRepoResult',
-      'provision-wordpress-backend': 'wordpressBackendResult',
-      'provision-site': 'provisionResult',
-      'scrape-site': 'scrapeResult',
-      'create-vector-store': 'vectorStoreResult',
-      'allocate-content': 'allocatedSitemap',
-      'generate-sitemap': 'sitemapResult',
-      'generate-content': 'contentResult',
-      'download-theme': 'themeResult',
-      'image-picker': 'imagePickerResult',
-      'prevent-hotlinking': 'hotlinkResult',
-      'upload-json-to-github': 'githubJsonResult',
-      'export-to-wordpress': 'wordpressResult',
-      'second-pass': 'secondPassResult',
-      'upload-logo': 'logoResult',
-      'upload-favicon': 'faviconResult',
-    };
-
     try {
       // Set step to in_progress
       actions.setStepStatus(stepId, 'in_progress');
@@ -301,7 +281,7 @@ export const useWorkflowStepRunner = () => {
           stepName: step.name,
           event: 'completed',
           durationMs: totalDuration,
-          dataFileRef: stepToDataKey[stepId],
+          dataFileRef: getStepOutputKey(stepId),
         });
 
         // Auto-save to backend and download
@@ -309,14 +289,18 @@ export const useWorkflowStepRunner = () => {
           saveAndDownloadStepResult(stepId, step.name, result.data, totalDuration, 'completed');
         }
       } else {
+        // Ensure error is always a readable string
+        const errorStr = typeof result.error === 'string'
+          ? result.error
+          : result.error ? JSON.stringify(result.error) : 'Step failed (no error details)';
         // Log error
-        const errorDetails = logger.logError(result.error, { data: result.data });
-        actions.setStepStatus(stepId, 'error', undefined, result.error);
+        const errorDetails = logger.logError(errorStr, { data: result.data });
+        actions.setStepStatus(stepId, 'error', undefined, errorStr);
         actions.addProgressEvent({
           stepId,
           stepName: step.name,
           status: 'error',
-          message: `Error: ${step.name} - ${result.error}`,
+          message: `Error: ${step.name} - ${errorStr}`,
           details: errorDetails,
         });
 
@@ -541,7 +525,20 @@ export const useWorkflowStepRunner = () => {
     console.log('[DEBUG] runCreateVectorStore - scrapeResult:', scrapeResult);
     console.log('[DEBUG] runCreateVectorStore - scrapeResult?.pages:', scrapeResult?.pages ? 'present' : 'missing');
 
-    if (!scrapeResult?.pages) {
+    // Check for edited input data (from "Edit" button in manual mode)
+    const editedInput = editedInputDataRef.current['create-vector-store'];
+    let pages = scrapeResult?.pages;
+    const globalMarkdown = scrapeResult?.global_markdown;
+    const styleOverview = scrapeResult?.style_overview;
+
+    if (editedInput !== undefined) {
+      logger.logProcessing('Using edited input data for vector store');
+      pages = editedInput as typeof pages;
+      delete editedInputDataRef.current['create-vector-store'];
+      actions.clearEditedInputData();
+    }
+
+    if (!pages) {
       console.log('[DEBUG] runCreateVectorStore - FAILING: No pages in scrape result');
       return { success: false, error: 'No scraped content available for vector store' };
     }
@@ -551,9 +548,9 @@ export const useWorkflowStepRunner = () => {
     const payload = {
       domain: siteConfig.scrapeDomain || siteConfig.domain,
       scraped_content: {
-        pages: scrapeResult.pages,
-        global_markdown: scrapeResult.global_markdown,
-        style_overview: scrapeResult.style_overview,
+        pages,
+        global_markdown: globalMarkdown,
+        style_overview: styleOverview,
       },
       timestamp: new Date().toISOString(),
     };
@@ -598,7 +595,6 @@ export const useWorkflowStepRunner = () => {
 
     // Generate sitemap from scraped content, including allocated content if available
     try {
-      let response: SitemapStepResult;
       let endpoint: string;
       let payload: Record<string, unknown>;
 
@@ -645,23 +641,36 @@ export const useWorkflowStepRunner = () => {
           strict_template_mode: true,
           ...(sitemapToSend && { sitemap: sitemapToSend }),
         };
+      } else if (allocatedSitemap?.pages) {
+        // No scrape data but we have allocated sitemap (e.g., user imported a vector store)
+        // Pass through the allocated sitemap as the sitemap result — no API call needed
+        logger.logProcessing('No scrape data available, using allocated sitemap directly as sitemap result');
+        const pageCount = Object.keys(allocatedSitemap.pages).length;
+        logger.logProcessing(`Passing through ${pageCount} allocated pages as sitemapResult`);
+
+        const sitemapResult = { pages: allocatedSitemap.pages } as SitemapStepResult;
+        setGeneratedDataWithRef('sitemapResult', sitemapResult);
+        return { success: true, data: sitemapResult };
       } else {
-        // Generate from RAG/template
-        endpoint = '/generate-sitemap/';
-        payload = {
-          site_type: siteConfig.siteType,
-          domain: siteConfig.domain,
-        };
+        return { success: false, error: 'No scraped content or allocated sitemap available for sitemap generation' };
       }
 
       logger.logApiRequest(endpoint, payload);
       const apiTimer = createTimer();
 
-      response = await apiClient.post<SitemapStepResult>(endpoint, payload);
+      const response = await apiClient.post<SitemapStepResult>(endpoint, payload);
 
       logger.logApiResponse(response, apiTimer.elapsed());
-      setGeneratedDataWithRef('sitemapResult', response);
-      return { success: isResponseSuccessful(response as Record<string, unknown>), data: response };
+      const responseObj = response as Record<string, unknown>;
+      const success = isResponseSuccessful(responseObj);
+      if (success) {
+        setGeneratedDataWithRef('sitemapResult', response);
+      }
+      return {
+        success,
+        data: response,
+        ...(!success && { error: typeof responseObj.error === 'string' ? responseObj.error : (responseObj.message as string) || 'Sitemap generation returned unsuccessful response' }),
+      };
     } catch (error) {
       return { success: false, error: error instanceof Error ? error.message : 'Sitemap generation failed' };
     }
@@ -670,7 +679,22 @@ export const useWorkflowStepRunner = () => {
   const runAllocateContent = useCallback(async (logger: StepLogger): Promise<StepResult> => {
     const siteConfig = actions.getSiteConfigSync();
     const scrapeResult = getGeneratedData<ScrapeStepResult>('scrapeResult');
-    const vectorStoreResult = getGeneratedData<VectorStoreResult>('vectorStoreResult');
+    let vectorStoreResult = getGeneratedData<VectorStoreResult>('vectorStoreResult');
+
+    // Check for edited input data (user can paste a vector_store_id to use an existing store)
+    const editedInput = editedInputDataRef.current['allocate-content'] as Record<string, unknown> | undefined;
+    if (editedInput !== undefined) {
+      logger.logProcessing('Using edited vector store data');
+      // Accept either the full object or just {vector_store_id: "..."}
+      const editedVectorStoreId = editedInput.vector_store_id as string | undefined;
+      if (editedVectorStoreId) {
+        vectorStoreResult = { success: true, vector_store_id: editedVectorStoreId };
+        // Also store it in generatedData so downstream steps can use it
+        setGeneratedDataWithRef('vectorStoreResult', vectorStoreResult);
+      }
+      delete editedInputDataRef.current['allocate-content'];
+      actions.clearEditedInputData();
+    }
 
     if (!vectorStoreResult?.vector_store_id) {
       return { success: false, error: 'No vector store available for content allocation' };
@@ -1616,13 +1640,48 @@ export const useWorkflowStepRunner = () => {
     }
 
     try {
-      // Build files array for batch upload
-      const files: BatchUploadGithubFilesRequest['files'] = [
-        { file_path: 'data/pages.json', file_content: JSON.stringify(pageData, null, 2) },
-        { file_path: 'data/globalData.json', file_content: JSON.stringify(globalData, null, 2) },
-      ];
+      // Upload pages.json
+      const pagesEndpoint = '/update-github-repo-file/';
+      const pagesPayload = {
+        owner,
+        repo,
+        file_path: 'data/pages.json',
+        file_content: JSON.stringify(pageData, null, 2),
+        message: 'Update pages.json from workflow',
+        branch,
+      };
 
-      // Add theme.json only if theme data exists
+      logger.logApiRequest(pagesEndpoint, { ...pagesPayload, file_content: `[${Object.keys(pageData).length} pages]` });
+      const pagesTimer = createTimer();
+
+      const pagesResponse = await apiClient.post<{ success: boolean; content?: { html_url?: string } }>(pagesEndpoint, pagesPayload);
+      logger.logApiResponse(pagesResponse, pagesTimer.elapsed());
+
+      if (!isResponseSuccessful(pagesResponse as Record<string, unknown>)) {
+        return { success: false, error: 'Failed to upload pages.json' };
+      }
+
+      // Upload globalData.json
+      const globalPayload = {
+        owner,
+        repo,
+        file_path: 'data/globalData.json',
+        file_content: JSON.stringify(globalData, null, 2),
+        message: 'Update globalData.json from workflow',
+        branch,
+      };
+
+      logger.logApiRequest(pagesEndpoint, { ...globalPayload, file_content: `[global data object]` });
+      const globalTimer = createTimer();
+
+      const globalResponse = await apiClient.post<{ success: boolean; content?: { html_url?: string } }>(pagesEndpoint, globalPayload);
+      logger.logApiResponse(globalResponse, globalTimer.elapsed());
+
+      if (!isResponseSuccessful(globalResponse as Record<string, unknown>)) {
+        return { success: false, error: 'Failed to upload globalData.json' };
+      }
+
+      // Upload theme.json (themeToUpload is already computed above from edited data or generated data)
       let themeJsonUrl: string | undefined;
 
       if (themeToUpload) {
@@ -1633,30 +1692,28 @@ export const useWorkflowStepRunner = () => {
           }
         }
 
-        files.push({ file_path: 'data/theme.json', file_content: JSON.stringify(themeToUpload, null, 2) });
+        const themePayload = {
+          owner,
+          repo,
+          file_path: 'data/theme.json',
+          file_content: JSON.stringify(themeToUpload, null, 2),
+          message: 'Update theme.json from workflow',
+          branch,
+        };
+
+        logger.logApiRequest(pagesEndpoint, { ...themePayload, file_content: '[theme object]' });
+        const themeTimer = createTimer();
+
+        const themeResponse = await apiClient.post<{ success: boolean; content?: { html_url?: string } }>(pagesEndpoint, themePayload);
+        logger.logApiResponse(themeResponse, themeTimer.elapsed());
+
+        if (!isResponseSuccessful(themeResponse as Record<string, unknown>)) {
+          return { success: false, error: 'Failed to upload theme.json' };
+        }
+
         themeJsonUrl = `https://github.com/${owner}/${repo}/blob/${branch}/data/theme.json`;
       } else {
         logger.logProcessing('No theme data available, skipping theme.json upload');
-      }
-
-      // Single batch upload
-      const batchEndpoint = '/batch-update-github-repo-files/';
-      const batchPayload: BatchUploadGithubFilesRequest = {
-        owner,
-        repo,
-        branch,
-        message: 'Update site data from workflow',
-        files,
-      };
-
-      logger.logApiRequest(batchEndpoint, { ...batchPayload, files: `[${files.length} files: ${files.map(f => f.file_path).join(', ')}]` });
-      const batchTimer = createTimer();
-
-      const batchResponse = await apiClient.post<BatchUploadGithubFilesResponse>(batchEndpoint, batchPayload);
-      logger.logApiResponse(batchResponse, batchTimer.elapsed());
-
-      if (!batchResponse.success) {
-        return { success: false, error: batchResponse.message || 'Batch upload to GitHub failed' };
       }
 
       const result: GithubJsonUploadResult = {
