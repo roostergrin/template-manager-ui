@@ -525,7 +525,7 @@ const WorkflowProgressDisplay: React.FC<WorkflowProgressDisplayProps> = ({
 }) => {
   const { state, actions } = useUnifiedWorkflow();
   const { exportStepResult } = useWorkflowExport();
-  const { executeStep, setEditedInputDataImmediate } = useWorkflowStepRunner();
+  const { executeStep, setEditedInputDataImmediate, setGeneratedDataImmediate } = useWorkflowStepRunner();
   const { steps, currentStepId, progressEvents, config, isRunning, generatedData } = state;
   const { siteConfig } = config;
   const isManualMode = config.mode === 'manual';
@@ -625,16 +625,17 @@ const WorkflowProgressDisplay: React.FC<WorkflowProgressDisplayProps> = ({
     if (editingStepId) {
       const outputKey = getStepOutputKey(editingStepId);
       if (outputKey) {
-        // Store the pasted data under the step's OUTPUT key in generatedData
-        const dataKey = outputKey as keyof typeof generatedData;
-        actions.setGeneratedData(dataKey, editedData);
+        // Store the pasted data under the step's OUTPUT key in generatedData.
+        // Use setGeneratedDataImmediate to update both the ref and React state
+        // so the next step can read it immediately without waiting for useEffect sync.
+        setGeneratedDataImmediate(outputKey, editedData);
         // Mark the step as completed
         actions.setStepStatus(editingStepId, 'completed', editedData);
       }
       setEditingStepId(null);
       setLocalEditedInputData(null);
     }
-  }, [editingStepId, actions]);
+  }, [editingStepId, actions, setGeneratedDataImmediate]);
 
   const handleCancelEdit = useCallback(() => {
     setEditingStepId(null);

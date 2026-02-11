@@ -2185,10 +2185,19 @@ export const useWorkflowStepRunner = () => {
     sessionIdRef.current = null;
   }, []);
 
+  // Helper to set generated data immediately (bypasses async state update).
+  // Use this when saving step data from the Edit panel so the ref is up-to-date
+  // before the next step runs.
+  const setGeneratedDataImmediate = useCallback((key: string, data: unknown) => {
+    generatedDataRef.current[key] = data;
+    actions.setGeneratedData(key as keyof typeof state.generatedData, data);
+  }, [actions]);
+
   return {
     executeStep,
     abortStep,
     setEditedInputDataImmediate,
+    setGeneratedDataImmediate,
     resetSessionId,
   };
 };
