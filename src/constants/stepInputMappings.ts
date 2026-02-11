@@ -157,7 +157,9 @@ export const getStepOutputKey = (stepId: string): string | undefined => {
 
 /**
  * Get the data to show in the Edit panel for a step.
- * Returns the step's own output if it exists (re-editing), otherwise undefined.
+ * Returns ONLY the step's own output (for re-editing saved results).
+ * When no output exists, returns undefined so the editor starts empty
+ * and the user can paste the correct output-shaped data.
  */
 export const getStepEditData = (
   stepId: string,
@@ -165,18 +167,7 @@ export const getStepEditData = (
 ): unknown => {
   const contract = STEP_DATA_CONTRACT[stepId];
   if (!contract) return undefined;
-
-  // Show the step's own primary output if it exists (for re-editing)
-  const ownOutput = generatedData[contract.primaryOutputKey];
-  if (ownOutput !== undefined) return ownOutput;
-
-  // Fall back to the first input that has data (for initial editing / paste)
-  for (const inputKey of contract.inputs) {
-    const inputData = generatedData[inputKey];
-    if (inputData !== undefined) return inputData;
-  }
-
-  return undefined;
+  return generatedData[contract.primaryOutputKey];
 };
 
 /** Check whether a step supports Edit/Save. */
@@ -205,8 +196,23 @@ export const STEP_OUTPUT_KEYS: Record<string, string> = Object.fromEntries(
 /** @deprecated Use isStepEditable instead */
 export const isStepInputEditable = isStepEditable;
 
-/** @deprecated Use getStepEditData instead */
-export const getStepInputData = getStepEditData;
+/**
+ * Get the INPUT data for a step (from upstream steps).
+ * Used for pre-step editing (YOLO mode) where the user reviews/edits
+ * the data that will be fed INTO the step before running it.
+ */
+export const getStepInputData = (
+  stepId: string,
+  generatedData: Record<string, unknown>,
+): unknown => {
+  const contract = STEP_DATA_CONTRACT[stepId];
+  if (!contract) return undefined;
+  for (const inputKey of contract.inputs) {
+    const inputData = generatedData[inputKey];
+    if (inputData !== undefined) return inputData;
+  }
+  return undefined;
+};
 
 /** Get list of editable step IDs. */
 export const getEditableSteps = (): string[] => {

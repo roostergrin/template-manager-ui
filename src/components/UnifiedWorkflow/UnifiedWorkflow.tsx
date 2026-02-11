@@ -29,7 +29,7 @@ import GithubJsonEditorPanel from './GithubJsonEditorPanel';
 import ExportPanel from './ExportPanel';
 import CleanupPanel from './CleanupPanel';
 import ThemeJsonDebugViewer from '../ThemeJsonDebugViewer';
-import { getStepEditData } from '../../constants/stepInputMappings';
+import { getStepInputData } from '../../constants/stepInputMappings';
 import { AVAILABLE_TEMPLATES, getStepById } from '../../constants/workflowSteps';
 import { WorkflowMode, SiteConfig, TemplateType } from '../../types/UnifiedWorkflowTypes';
 import { WORKFLOW_STEP_IDS } from '../../constants/workflowSteps';
@@ -432,7 +432,7 @@ const UnifiedWorkflow: React.FC = () => {
 
   const preStepInputData = useMemo(() => {
     if (!pendingPreStepInput) return undefined;
-    return getStepEditData(pendingPreStepInput, generatedData);
+    return getStepInputData(pendingPreStepInput, generatedData);
   }, [pendingPreStepInput, generatedData]);
 
   // Find the last executed step (completed or error) for retry functionality
