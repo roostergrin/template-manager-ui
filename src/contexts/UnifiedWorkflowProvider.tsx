@@ -66,6 +66,8 @@ const defaultSiteConfig: SiteConfig = {
   deploymentTarget: 'demo', // 'demo' for Cloudflare Pages (default), 'production' for AWS
   maxScrapePages: 50, // Limit pages scraped
   useFirecrawl: true, // Use Firecrawl API for scraping (handles anti-bot, extracts branding)
+  contentModel: 'gpt-5-mini',
+  homePageOnly: false,
 };
 
 // Default config

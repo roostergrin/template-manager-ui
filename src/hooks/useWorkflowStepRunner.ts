@@ -805,6 +805,19 @@ export const useWorkflowStepRunner = () => {
       return { success: false, error: 'No sitemap data available' };
     }
 
+    // Home page only: filter to just the Home page if enabled
+    let filteredPages = pages;
+    if (siteConfig.homePageOnly && pages) {
+      const allKeys = Object.keys(pages as Record<string, unknown>);
+      const homeKey = allKeys.find(k => k.toLowerCase() === 'home');
+      if (homeKey) {
+        filteredPages = { [homeKey]: (pages as Record<string, unknown>)[homeKey] } as typeof pages;
+        logger.logProcessing(`Home page only: generating 1 page ("${homeKey}") from ${allKeys.length} available`);
+      } else {
+        logger.logProcessing('Home page only: no "Home" key found, using all pages');
+      }
+    }
+
     // Log which source we're using
     if (sitemapPages) {
       logger.logProcessing('Using sitemapResult as primary source (contains allocated content + preserve_image)');
@@ -820,7 +833,7 @@ export const useWorkflowStepRunner = () => {
 
     // Build questionnaire data from pages (allocated_markdown is now in pages from sitemapResult)
     const questionnaireData: Record<string, unknown> = {};
-    const pagesForQuestionnaire = pages as Record<string, unknown>;
+    const pagesForQuestionnaire = filteredPages as Record<string, unknown>;
     Object.entries(pagesForQuestionnaire).forEach(([pageId, page]) => {
       const pageData = page as Record<string, unknown>;
       if (pageData.allocated_markdown) {
@@ -835,7 +848,7 @@ export const useWorkflowStepRunner = () => {
     // Build sitemap_metadata from pages (depth, slug, parent_slug)
     // This ensures the backend returns proper sitemap_metadata in the response
     const sitemap_metadata: Record<string, { depth: number; slug?: string; parent_slug?: string }> = {};
-    const pagesRecord = pages as Record<string, unknown>;
+    const pagesRecord = filteredPages as Record<string, unknown>;
     Object.entries(pagesRecord).forEach(([pageTitle, pageData], index) => {
       const pageObj = pageData as Record<string, unknown>;
       // Generate slug from page title (lowercase, replace spaces with hyphens)
@@ -857,13 +870,14 @@ export const useWorkflowStepRunner = () => {
     const contentEndpoint = '/generate-content-for-scraped/';
     const contentPayload = {
       sitemap_data: {
-        pages,
+        pages: filteredPages,
         questionnaireData,
         sitemap_metadata,
       },
       site_type: siteConfig.siteType,
       assign_images: false,  // Disabled - image assignment handled by separate image-picker step
       use_site_pool: true,
+      model: siteConfig.contentModel || 'gpt-5-mini',
     };
 
     const globalEndpoint = '/generate-global/';
@@ -874,6 +888,7 @@ export const useWorkflowStepRunner = () => {
         questionnaireData,
       },
       site_type: siteConfig.siteType,
+      model: siteConfig.contentModel || 'gpt-5-mini',
       // Pass scraped content so backend can extract all social links
       scraped_content: scrapeResult ? {
         global_markdown: scrapeResult.global_markdown,

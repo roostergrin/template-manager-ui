@@ -57,6 +57,9 @@ export interface SiteConfig {
   useFirecrawl?: boolean;
   // Maximum number of pages to scrape (default: 50)
   maxScrapePages?: number;
+  // Speed settings
+  contentModel?: 'gpt-5-mini' | 'gpt-5-nano';  // AI model for content generation
+  homePageOnly?: boolean;                         // Generate only the home page
 }
 
 export interface BatchSiteEntry {

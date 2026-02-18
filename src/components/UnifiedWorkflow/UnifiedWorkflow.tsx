@@ -31,7 +31,7 @@ import CleanupPanel from './CleanupPanel';
 import ThemeJsonDebugViewer from '../ThemeJsonDebugViewer';
 import { getStepInputData } from '../../constants/stepInputMappings';
 import { AVAILABLE_TEMPLATES, getStepById } from '../../constants/workflowSteps';
-import { WorkflowMode, SiteConfig, TemplateType } from '../../types/UnifiedWorkflowTypes';
+import { WorkflowMode, SiteConfig, TemplateType, WorkflowStep } from '../../types/UnifiedWorkflowTypes';
 import { WORKFLOW_STEP_IDS } from '../../constants/workflowSteps';
 import { useWorkflowStepRunner } from '../../hooks/useWorkflowStepRunner';
 import { useYoloMode } from '../../hooks/useYoloMode';
@@ -71,6 +71,8 @@ interface ConfigurationPanelProps {
   config: SiteConfig;
   onConfigChange: (config: Partial<SiteConfig>) => void;
   onTemplateTypeChange?: (templateType: TemplateType) => void;
+  onImagePickerToggle?: (enabled: boolean) => void;
+  steps: WorkflowStep[];
   disabled?: boolean;
 }
 
@@ -78,9 +80,34 @@ const ConfigurationPanel: React.FC<ConfigurationPanelProps> = ({
   config,
   onConfigChange,
   onTemplateTypeChange,
+  onImagePickerToggle,
+  steps,
   disabled = false,
 }) => {
   const [isExpanded, setIsExpanded] = useState(true);
+
+  const estimatedMinutes = useMemo(() => {
+    let totalSeconds = steps
+      .filter(s => s.status !== 'skipped')
+      .reduce((sum, s) => sum + s.estimatedDurationSeconds, 0);
+
+    // Model adjustment: nano is ~4x faster for content gen (300s -> 75s)
+    if (config.contentModel === 'gpt-5-nano') {
+      totalSeconds -= 225;
+    }
+
+    // Home page only: content gen drops from 300s to ~50s
+    if (config.homePageOnly) {
+      totalSeconds -= 250;
+    }
+
+    // Both combined shouldn't double-count content gen savings
+    if (config.contentModel === 'gpt-5-nano' && config.homePageOnly) {
+      totalSeconds += 200; // add back overlap (only subtract ~275 total, not 475)
+    }
+
+    return Math.max(1, Math.round(totalSeconds / 60));
+  }, [steps, config.contentModel, config.homePageOnly]);
 
   const handleInputChange = (field: keyof SiteConfig, value: string | boolean) => {
     console.log('[DEBUG] handleInputChange called:', field, value);
@@ -293,24 +320,66 @@ const ConfigurationPanel: React.FC<ConfigurationPanelProps> = ({
               <label className="config-panel__checkbox-label">
                 <input
                   type="checkbox"
-                  checked={config.enableImagePicker}
-                  onChange={(e) => handleInputChange('enableImagePicker', e.target.checked)}
-                  disabled={disabled}
-                />
-                <span>Enable Image Picker</span>
-              </label>
-            </div>
-
-            <div className="config-panel__field config-panel__field--checkbox">
-              <label className="config-panel__checkbox-label">
-                <input
-                  type="checkbox"
                   checked={config.enableHotlinking}
                   onChange={(e) => handleInputChange('enableHotlinking', e.target.checked)}
                   disabled={disabled}
                 />
                 <span>Enable Hotlink Protection</span>
               </label>
+            </div>
+          </div>
+
+          <div className="config-panel__speed-settings">
+            <div className="config-panel__section-title">Speed Settings</div>
+
+            <div className="config-panel__grid">
+              <div className="config-panel__field">
+                <label htmlFor="contentModel" className="config-panel__label">
+                  Content Model
+                </label>
+                <select
+                  id="contentModel"
+                  className="config-panel__select"
+                  value={config.contentModel || 'gpt-5-mini'}
+                  onChange={(e) => handleInputChange('contentModel', e.target.value)}
+                  disabled={disabled}
+                >
+                  <option value="gpt-5-mini">gpt-5-mini (higher quality)</option>
+                  <option value="gpt-5-nano">gpt-5-nano (faster)</option>
+                </select>
+              </div>
+
+              <div className="config-panel__field config-panel__field--checkbox">
+                <label className="config-panel__checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={config.homePageOnly || false}
+                    onChange={(e) => handleInputChange('homePageOnly', e.target.checked)}
+                    disabled={disabled}
+                  />
+                  <span>Home page only</span>
+                </label>
+              </div>
+
+              <div className="config-panel__field config-panel__field--checkbox">
+                <label className="config-panel__checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={!config.enableImagePicker}
+                    onChange={(e) => {
+                      const skipImagePicker = e.target.checked;
+                      handleInputChange('enableImagePicker', !skipImagePicker);
+                      onImagePickerToggle?.(!skipImagePicker);
+                    }}
+                    disabled={disabled}
+                  />
+                  <span>Skip image picker</span>
+                </label>
+              </div>
+            </div>
+
+            <div className="config-panel__time-estimate">
+              Estimated time: ~{estimatedMinutes} min
             </div>
           </div>
         </div>
@@ -537,6 +606,23 @@ const UnifiedWorkflow: React.FC = () => {
     }
   }, [actions]);
 
+  // Image picker step skip/enable handler
+  const handleImagePickerToggle = useCallback((enabled: boolean) => {
+    if (enabled) {
+      actions.enableStep(WORKFLOW_STEP_IDS.IMAGE_PICKER);
+    } else {
+      actions.skipStep(WORKFLOW_STEP_IDS.IMAGE_PICKER);
+    }
+  }, [actions]);
+
+  // Skip IMAGE_PICKER on mount when enableImagePicker is false
+  useEffect(() => {
+    if (!siteConfig.enableImagePicker) {
+      actions.skipStep(WORKFLOW_STEP_IDS.IMAGE_PICKER);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Run once on mount
+
   // Intervention handlers
   const handleInterventionToggle = useCallback((enabled: boolean) => {
     actions.setInterventionMode(enabled);
@@ -631,6 +717,8 @@ const UnifiedWorkflow: React.FC = () => {
           config={siteConfig}
           onConfigChange={actions.setSiteConfig}
           onTemplateTypeChange={handleTemplateTypeChange}
+          onImagePickerToggle={handleImagePickerToggle}
+          steps={steps}
           disabled={isRunning}
         />
       )}
