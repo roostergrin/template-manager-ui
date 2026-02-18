@@ -73,7 +73,7 @@ class APIClient {
 
     this.instance = axios.create({
       baseURL,
-      timeout: config.timeout || 900000, // 15 minutes for long-running operations
+      timeout: config.timeout || 1200000, // 20 minutes for long-running operations
       headers: {
         'Content-Type': 'application/json',
       },

@@ -592,10 +592,14 @@ const WorkflowProgressDisplay: React.FC<WorkflowProgressDisplayProps> = ({
   // Edit input handlers for manual mode
   const handleEditInput = useCallback((stepId: string) => {
     const editData = getStepEditData(stepId, generatedData);
+    console.log(`[handleEditInput] stepId="${stepId}" editData=`, editData);
+    console.log(`[handleEditInput] generatedData keys:`, Object.keys(generatedData));
     setEditingStepId(stepId);
     // Always fall back to empty object so the editor panel renders for any editable step,
     // allowing users to paste data even when no upstream data exists yet
-    setLocalEditedInputData(editData ?? {});
+    const resolved = editData ?? {};
+    console.log(`[handleEditInput] resolved (what editor will show):`, resolved);
+    setLocalEditedInputData(resolved);
   }, [generatedData]);
 
   const handleUseOriginal = useCallback(async () => {
@@ -612,6 +616,7 @@ const WorkflowProgressDisplay: React.FC<WorkflowProgressDisplayProps> = ({
   const handleUseEdited = useCallback(async (editedData: unknown) => {
     if (editingStepId) {
       const stepIdToRun = editingStepId;
+      console.log(`[handleUseEdited] stepId="${stepIdToRun}" running step with edited data:`, editedData);
       // Store edited data immediately (bypasses async state update)
       setEditedInputDataImmediate(stepIdToRun, editedData);
       setEditingStepId(null);
@@ -624,11 +629,14 @@ const WorkflowProgressDisplay: React.FC<WorkflowProgressDisplayProps> = ({
   const handleSaveInput = useCallback((editedData: unknown) => {
     if (editingStepId) {
       const outputKey = getStepOutputKey(editingStepId);
+      console.log(`[handleSaveInput] stepId="${editingStepId}" outputKey="${outputKey}"`);
+      console.log(`[handleSaveInput] data being saved:`, editedData);
       if (outputKey) {
         // Store the pasted data under the step's OUTPUT key in generatedData.
         // Use setGeneratedDataImmediate to update both the ref and React state
         // so the next step can read it immediately without waiting for useEffect sync.
         setGeneratedDataImmediate(outputKey, editedData);
+        console.log(`[handleSaveInput] stored under key="${outputKey}" and marking step completed`);
         // Mark the step as completed
         actions.setStepStatus(editingStepId, 'completed', editedData);
       }

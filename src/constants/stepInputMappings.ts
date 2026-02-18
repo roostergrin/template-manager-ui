@@ -166,8 +166,13 @@ export const getStepEditData = (
   generatedData: Record<string, unknown>,
 ): unknown => {
   const contract = STEP_DATA_CONTRACT[stepId];
-  if (!contract) return undefined;
-  return generatedData[contract.primaryOutputKey];
+  if (!contract) {
+    console.log(`[getStepEditData] No contract for stepId="${stepId}"`);
+    return undefined;
+  }
+  const result = generatedData[contract.primaryOutputKey];
+  console.log(`[getStepEditData] stepId="${stepId}" outputKey="${contract.primaryOutputKey}" hasData=${result !== undefined}`, result);
+  return result;
 };
 
 /** Check whether a step supports Edit/Save. */
@@ -206,11 +211,18 @@ export const getStepInputData = (
   generatedData: Record<string, unknown>,
 ): unknown => {
   const contract = STEP_DATA_CONTRACT[stepId];
-  if (!contract) return undefined;
+  if (!contract) {
+    console.log(`[getStepInputData] No contract for stepId="${stepId}"`);
+    return undefined;
+  }
   for (const inputKey of contract.inputs) {
     const inputData = generatedData[inputKey];
-    if (inputData !== undefined) return inputData;
+    if (inputData !== undefined) {
+      console.log(`[getStepInputData] stepId="${stepId}" found input at key="${inputKey}"`, inputData);
+      return inputData;
+    }
   }
+  console.log(`[getStepInputData] stepId="${stepId}" no input data found. Checked keys:`, contract.inputs);
   return undefined;
 };
 

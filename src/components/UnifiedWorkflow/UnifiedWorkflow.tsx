@@ -432,7 +432,9 @@ const UnifiedWorkflow: React.FC = () => {
 
   const preStepInputData = useMemo(() => {
     if (!pendingPreStepInput) return undefined;
-    return getStepInputData(pendingPreStepInput, generatedData);
+    const data = getStepInputData(pendingPreStepInput, generatedData);
+    console.log(`[preStepInputData] stepId="${pendingPreStepInput}" data=`, data);
+    return data;
   }, [pendingPreStepInput, generatedData]);
 
   // Find the last executed step (completed or error) for retry functionality

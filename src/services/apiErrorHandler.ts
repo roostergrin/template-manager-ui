@@ -33,17 +33,19 @@ export const createAPIError = (error: unknown, fallbackMessage = 'An unexpected 
     const status = axiosError.response?.status;
     const data = axiosError.response?.data;
     
-    // Extract error message from various response formats
+    // Extract error message from various response formats (always ensure string)
     let message = fallbackMessage;
     if (typeof data === 'string') {
       message = data;
     } else if (data && typeof data === 'object' && 'message' in (data as any)) {
-      message = (data as any).message as string;
+      const msg = (data as any).message;
+      message = typeof msg === 'string' ? msg : JSON.stringify(msg);
     } else if (data && typeof data === 'object' && 'detail' in (data as any)) {
-      message = (data as any).detail as string;
+      const detail = (data as any).detail;
+      message = typeof detail === 'string' ? detail : JSON.stringify(detail);
     } else if (data && typeof data === 'object' && 'error' in (data as any)) {
       const err: any = (data as any).error;
-      message = typeof err === 'string' ? err : err?.message || fallbackMessage;
+      message = typeof err === 'string' ? err : err?.message || JSON.stringify(err);
     } else if (axiosError.message) {
       message = axiosError.message;
     }
@@ -74,8 +76,11 @@ export const handleAPIResponse = <T>(response: AxiosResponse<T>): T => {
     const wrappedData = response.data as { success: boolean; data?: T; message?: string; error?: unknown };
     
     if (!wrappedData.success) {
+      const errMsg = typeof wrappedData.message === 'string'
+        ? wrappedData.message
+        : wrappedData.message ? JSON.stringify(wrappedData.message) : 'Request failed';
       throw new APIError(
-        wrappedData.message || 'Request failed',
+        errMsg,
         response.status,
         undefined,
         wrappedData.error as Record<string, unknown>

@@ -681,8 +681,13 @@ export const useWorkflowStepRunner = () => {
     const scrapeResult = getGeneratedData<ScrapeStepResult>('scrapeResult');
     let vectorStoreResult = getGeneratedData<VectorStoreResult>('vectorStoreResult');
 
+    console.log('[runAllocateContent] generatedDataRef keys:', Object.keys(generatedDataRef.current));
+    console.log('[runAllocateContent] vectorStoreResult from ref:', vectorStoreResult);
+    console.log('[runAllocateContent] scrapeResult from ref:', scrapeResult ? 'exists' : 'undefined');
+
     // Check for edited input data (user can paste a vector_store_id to use an existing store)
     const editedInput = editedInputDataRef.current['allocate-content'] as Record<string, unknown> | undefined;
+    console.log('[runAllocateContent] editedInput:', editedInput);
     if (editedInput !== undefined) {
       logger.logProcessing('Using edited vector store data');
       // Accept either the full object or just {vector_store_id: "..."}
@@ -696,6 +701,19 @@ export const useWorkflowStepRunner = () => {
       actions.clearEditedInputData();
     }
 
+    // Handle nested data shape: user may paste {pages: {vector_store_id: "..."}} from a file export
+    if (!vectorStoreResult?.vector_store_id && vectorStoreResult) {
+      const nested = (vectorStoreResult as Record<string, unknown>).pages as Record<string, unknown> | undefined;
+      if (nested?.vector_store_id) {
+        console.log('[runAllocateContent] Found vector_store_id nested under .pages, unwrapping');
+        vectorStoreResult = nested as VectorStoreResult;
+        // Fix the stored data so downstream steps get the right shape
+        setGeneratedDataWithRef('vectorStoreResult', vectorStoreResult);
+      }
+    }
+
+    console.log('[runAllocateContent] final vectorStoreResult:', vectorStoreResult);
+    console.log('[runAllocateContent] vector_store_id:', vectorStoreResult?.vector_store_id);
     if (!vectorStoreResult?.vector_store_id) {
       return { success: false, error: 'No vector store available for content allocation' };
     }

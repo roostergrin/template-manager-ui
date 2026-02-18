@@ -1198,6 +1198,17 @@ $mock-color: #9333EA
       &:hover
         background: darken($error-color, 5%)
 
+    &--save
+      background: $primary-color
+      color: white
+
+      &:hover
+        background: darken($primary-color, 5%)
+
+      &:disabled
+        opacity: 0.5
+        cursor: not-allowed
+
 // JSON Viewer
 .json-viewer
   font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace
