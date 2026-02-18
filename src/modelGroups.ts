@@ -1,6 +1,6 @@
 // TODO: automate getting the acf export to get the model groups
 // TODO: make a pydantic model for the sitemap to generate a sitemap export
-import rawStinsonSitemap from '../../ContentGenerationAndDistribution/app/schemas/_site_configs/sitemap/stinson-sitemap.json';
+import rawStinsonSitemap from '../exported_sitemaps/stinson/stinson-sitemap.json';
 import haightAshburySitemap from '../exported_sitemaps/haightashbury/haightashbury-sitemap.json';
 
 /**
