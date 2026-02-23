@@ -191,7 +191,7 @@ export const useWorkflowStepRunner = () => {
       formData.append('step_name', stepName);
       formData.append('result', serializedResult);
       formData.append('session_id', sessionId);
-      formData.append('duration_ms', String(durationMs ?? 0));
+      formData.append('duration_ms', String(Number.isFinite(durationMs) ? Math.round(durationMs) : 0));
       formData.append('status', status || 'unknown');
 
       // Build URL properly - use same default as apiService
@@ -215,7 +215,8 @@ export const useWorkflowStepRunner = () => {
         const data = await response.json();
         console.log(`[Workflow] Saved to backend: ${data.saved_to}`);
       } else {
-        console.error('[Workflow] Failed to save to backend:', response.statusText);
+        const errorBody = await response.text().catch(() => '(no body)');
+        console.error(`[Workflow] Failed to save to backend (${response.status}):`, errorBody);
       }
     } catch (error) {
       console.error('[Workflow] Error saving to backend:', error);
