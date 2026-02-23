@@ -477,7 +477,6 @@ export const useWorkflowStepRunner = () => {
       return { success: false, error: 'Scrape domain is required' };
     }
 
-    const endpoint = '/scrape-site/';
     const payload = {
       domain: siteConfig.scrapeDomain,
       use_selenium: true,
@@ -487,30 +486,54 @@ export const useWorkflowStepRunner = () => {
     };
 
     try {
-      logger.logApiRequest(endpoint, payload);
+      // Use async start + poll pattern to avoid Lightsail 60s LB timeout
+      const startEndpoint = '/scrape-site/start/';
+      logger.logApiRequest(startEndpoint, payload);
       const apiTimer = createTimer();
 
-      const response = await apiClient.post<ScrapeStepResult>(endpoint, payload);
+      const startResponse = await apiClient.post<{ job_id: string; status: string }>(startEndpoint, payload);
+      const jobId = startResponse.job_id;
+      logger.logProcessing(`Scrape job started: ${jobId}`);
 
-      logger.logApiResponse(response, apiTimer.elapsed());
-      console.log('[DEBUG] runScrapeSite - storing scrapeResult:', response);
-      console.log('[DEBUG] runScrapeSite - response.pages:', response?.pages ? 'present' : 'missing');
+      // Poll for results every 5 seconds
+      const POLL_INTERVAL = 5000;
+      const MAX_POLL_TIME = 600000; // 10 minute max
+      const pollStart = Date.now();
 
-      // Check for empty scrape results (no pages found)
-      const hasPages = response?.pages && Object.keys(response.pages).length > 0;
-      if (!hasPages) {
-        logger.logProcessing('WARNING: Scrape returned no pages');
-        setGeneratedDataWithRef('scrapeResult', response);
-        return {
-          success: false,
-          error: 'EMPTY_SCRAPE: No pages found in scrape results',
-          data: response,
-        };
+      while (Date.now() - pollStart < MAX_POLL_TIME) {
+        await new Promise(resolve => setTimeout(resolve, POLL_INTERVAL));
+
+        const statusResponse = await apiClient.get<{ status: string; result?: ScrapeStepResult; error?: string }>(
+          `/scrape-site/status/${jobId}`
+        );
+
+        if (statusResponse.status === 'complete' && statusResponse.result) {
+          const response = statusResponse.result;
+          logger.logApiResponse(response, apiTimer.elapsed());
+          console.log('[DEBUG] runScrapeSite - response.pages:', response?.pages ? 'present' : 'missing');
+
+          // Check for empty scrape results
+          const hasPages = response?.pages && Object.keys(response.pages).length > 0;
+          if (!hasPages) {
+            logger.logProcessing('WARNING: Scrape returned no pages');
+            setGeneratedDataWithRef('scrapeResult', response);
+            return { success: false, error: 'EMPTY_SCRAPE: No pages found in scrape results', data: response };
+          }
+
+          setGeneratedDataWithRef('scrapeResult', response);
+          return { success: isResponseSuccessful(response as Record<string, unknown>), data: response };
+        }
+
+        if (statusResponse.status === 'error') {
+          return { success: false, error: statusResponse.error || 'Scrape failed on server' };
+        }
+
+        // Still running — log progress
+        const elapsed = Math.round(apiTimer.elapsed() / 1000);
+        logger.logProcessing(`Scraping in progress... (${elapsed}s)`);
       }
 
-      setGeneratedDataWithRef('scrapeResult', response);
-      console.log('[DEBUG] runScrapeSite - after store, generatedDataRef keys:', Object.keys(generatedDataRef.current));
-      return { success: isResponseSuccessful(response as Record<string, unknown>), data: response };
+      return { success: false, error: 'Scrape timed out after 10 minutes' };
     } catch (error) {
       return { success: false, error: error instanceof Error ? error.message : 'Scrape failed' };
     }
