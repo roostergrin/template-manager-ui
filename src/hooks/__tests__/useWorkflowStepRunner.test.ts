@@ -785,4 +785,119 @@ describe('useWorkflowStepRunner', () => {
       );
     });
   });
+
+  // ─── Home Page Only: Generate Sitemap Filtering ─────────────────
+
+  describe('runGenerateSitemap - homePageOnly filtering', () => {
+    const multiPageAllocatedSitemap = {
+      pages: {
+        Home: { page_id: 'home', title: 'Home', allocated_markdown: 'home md', source_location: 'url1', allocation_confidence: 0.9, model_query_pairs: [] },
+        About: { page_id: 'about', title: 'About', allocated_markdown: 'about md', source_location: 'url2', allocation_confidence: 0.8, model_query_pairs: [] },
+        Services: { page_id: 'services', title: 'Services', allocated_markdown: 'svc md', source_location: 'url3', allocation_confidence: 0.7, model_query_pairs: [] },
+      },
+    };
+
+    it('should filter allocated sitemap to Home page only in scrape branch when homePageOnly is true', async () => {
+      mockGetSiteConfigSync.mockReturnValue({
+        domain: 'test-site.com',
+        template: 'stinson',
+        templateType: 'json',
+        siteType: 'medical',
+        homePageOnly: true,
+        preserveDoctorPhotos: false,
+        enableImagePicker: true,
+        enableHotlinking: true,
+      });
+
+      mockGeneratedData = {
+        scrapeResult: {
+          pages: { 'https://test.com': { markdown: 'content' } },
+          global_markdown: 'global content',
+          style_overview: 'style',
+        },
+        allocatedSitemap: multiPageAllocatedSitemap,
+      };
+
+      mockedApiClient.post.mockResolvedValue({
+        success: true,
+        pages: { Home: { title: 'Home', model_query_pairs: [] } },
+      });
+
+      const { result } = renderHook(() => useWorkflowStepRunner());
+
+      await act(async () => {
+        await result.current.executeStep('generate-sitemap');
+      });
+
+      // Verify API was called with only Home page in sitemap
+      const call = mockedApiClient.post.mock.calls[0];
+      expect(call[0]).toBe('/generate-sitemap-from-scraped/');
+      const payload = call[1] as { sitemap: { pages: Record<string, unknown> } };
+      expect(Object.keys(payload.sitemap.pages)).toEqual(['Home']);
+
+      // Verify log message
+      expect(mockLogProcessing).toHaveBeenCalledWith(
+        expect.stringContaining('Home page only: filtered allocated sitemap to 1 page')
+      );
+    });
+
+    it('should filter pass-through sitemap to Home page only when homePageOnly is true (no scrape data)', async () => {
+      mockGetSiteConfigSync.mockReturnValue({
+        domain: 'test-site.com',
+        template: 'stinson',
+        templateType: 'json',
+        siteType: 'medical',
+        homePageOnly: true,
+        preserveDoctorPhotos: false,
+        enableImagePicker: true,
+        enableHotlinking: true,
+      });
+
+      mockGeneratedData = {
+        allocatedSitemap: multiPageAllocatedSitemap,
+      };
+
+      const { result } = renderHook(() => useWorkflowStepRunner());
+
+      await act(async () => {
+        await result.current.executeStep('generate-sitemap');
+      });
+
+      // No API call made (pass-through branch)
+      expect(mockedApiClient.post).not.toHaveBeenCalled();
+
+      // Verify setGeneratedData was called with sitemapResult containing only Home
+      const sitemapCall = mockSetGeneratedData.mock.calls.find(
+        (c: unknown[]) => c[0] === 'sitemapResult'
+      );
+      expect(sitemapCall).toBeDefined();
+      const sitemapResult = sitemapCall![1] as { pages: Record<string, unknown> };
+      expect(Object.keys(sitemapResult.pages)).toEqual(['Home']);
+
+      // Verify log
+      expect(mockLogProcessing).toHaveBeenCalledWith(
+        expect.stringContaining('Home page only: filtered pass-through sitemap to 1 page')
+      );
+    });
+
+    it('should pass all allocated pages when homePageOnly is not set (pass-through branch)', async () => {
+      mockGeneratedData = {
+        allocatedSitemap: multiPageAllocatedSitemap,
+      };
+
+      const { result } = renderHook(() => useWorkflowStepRunner());
+
+      await act(async () => {
+        await result.current.executeStep('generate-sitemap');
+      });
+
+      // Pass-through branch, setGeneratedData should have all 3 pages
+      const sitemapCall = mockSetGeneratedData.mock.calls.find(
+        (c: unknown[]) => c[0] === 'sitemapResult'
+      );
+      expect(sitemapCall).toBeDefined();
+      const sitemapResult = sitemapCall![1] as { pages: Record<string, unknown> };
+      expect(Object.keys(sitemapResult.pages)).toEqual(['Home', 'About', 'Services']);
+    });
+  });
 });

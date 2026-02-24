@@ -633,9 +633,21 @@ export const useWorkflowStepRunner = () => {
 
         if (allocatedSitemap?.pages) {
           logger.logProcessing('Including allocated sitemap in generate-sitemap request');
+
+          // Home page only: filter allocated pages to just the Home page
+          let allocatedPages = allocatedSitemap.pages;
+          if (siteConfig.homePageOnly) {
+            const allKeys = Object.keys(allocatedPages);
+            const homeKey = allKeys.find(k => k.toLowerCase() === 'home');
+            if (homeKey) {
+              allocatedPages = { [homeKey]: allocatedPages[homeKey] } as typeof allocatedPages;
+              logger.logProcessing(`Home page only: filtered allocated sitemap to 1 page ("${homeKey}") from ${allKeys.length}`);
+            }
+          }
+
           const pagesObject: Record<string, unknown> = {};
 
-          Object.entries(allocatedSitemap.pages).forEach(([pageTitle, pageData]) => {
+          Object.entries(allocatedPages).forEach(([pageTitle, pageData]) => {
             pagesObject[pageTitle] = {
               internal_id: pageData.page_id,
               page_id: pageData.page_id,
@@ -669,10 +681,22 @@ export const useWorkflowStepRunner = () => {
         // No scrape data but we have allocated sitemap (e.g., user imported a vector store)
         // Pass through the allocated sitemap as the sitemap result — no API call needed
         logger.logProcessing('No scrape data available, using allocated sitemap directly as sitemap result');
-        const pageCount = Object.keys(allocatedSitemap.pages).length;
+
+        // Home page only: filter to just the Home page
+        let passThroughPages = allocatedSitemap.pages;
+        if (siteConfig.homePageOnly) {
+          const allKeys = Object.keys(passThroughPages);
+          const homeKey = allKeys.find(k => k.toLowerCase() === 'home');
+          if (homeKey) {
+            passThroughPages = { [homeKey]: passThroughPages[homeKey] } as typeof passThroughPages;
+            logger.logProcessing(`Home page only: filtered pass-through sitemap to 1 page ("${homeKey}") from ${allKeys.length}`);
+          }
+        }
+
+        const pageCount = Object.keys(passThroughPages).length;
         logger.logProcessing(`Passing through ${pageCount} allocated pages as sitemapResult`);
 
-        const sitemapResult = { pages: allocatedSitemap.pages } as SitemapStepResult;
+        const sitemapResult = { pages: passThroughPages } as SitemapStepResult;
         setGeneratedDataWithRef('sitemapResult', sitemapResult);
         return { success: true, data: sitemapResult };
       } else {
@@ -764,16 +788,29 @@ export const useWorkflowStepRunner = () => {
       return { success: false, error: `No default sitemap found for template: ${siteConfig.template}` };
     }
 
+    // Home page only: filter the template sitemap to just the Home page
+    let sitemapPages = defaultSitemap.pages as Record<string, unknown>;
+    if (siteConfig.homePageOnly) {
+      const allKeys = Object.keys(sitemapPages);
+      const homeKey = allKeys.find(k => k.toLowerCase() === 'home');
+      if (homeKey) {
+        sitemapPages = { [homeKey]: sitemapPages[homeKey] };
+        logger.logProcessing(`Home page only: using 1 page ("${homeKey}") from ${allKeys.length} in template`);
+      } else {
+        logger.logProcessing('Home page only: no "Home" key found in template, using all pages');
+      }
+    }
+
     logger.logProcessing('Using default sitemap from template', {
       template: siteConfig.template,
       modelGroup: modelGroupKey,
-      pageCount: Object.keys(defaultSitemap.pages).length,
+      pageCount: Object.keys(sitemapPages).length,
     });
 
     // Build pages object with model_query_pairs for second pass allocation
     // This matches the format used by Step3Standard's "Allocate Markdown" button
     const pagesObject: Record<string, unknown> = {};
-    Object.entries(defaultSitemap.pages).forEach(([pageKey, page]: [string, unknown]) => {
+    Object.entries(sitemapPages).forEach(([pageKey, page]: [string, unknown]) => {
       const pageData = page as Record<string, unknown>;
       const pageTitle = (pageData.title as string) || pageKey;
       pagesObject[pageTitle] = {
