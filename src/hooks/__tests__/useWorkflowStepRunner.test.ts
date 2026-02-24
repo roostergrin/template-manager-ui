@@ -786,6 +786,57 @@ describe('useWorkflowStepRunner', () => {
     });
   });
 
+  // ─── Upload JSON fallback to contentResult.pages ─────────────────
+
+  describe('runUploadJsonToGithub - contentResult.pages fallback (image picker skipped)', () => {
+    const fileUploadEndpoint = '/update-github-repo-file/';
+    const successResponse = { success: true, content: { html_url: 'https://github.com/...' } };
+
+    it('should use contentResult.pages when image picker and hotlinking are skipped', async () => {
+      mockGetSiteConfigSync.mockReturnValue({
+        domain: 'test-site.com',
+        template: 'stinson',
+        templateType: 'json',
+        siteType: 'medical',
+        preserveDoctorPhotos: false,
+        enableImagePicker: false,
+        enableHotlinking: false,
+        deploymentTarget: 'demo',
+      });
+
+      // contentResult has .pages (from backend) but NOT .pageData
+      mockGeneratedData = {
+        demoRepoResult: {
+          success: true,
+          owner: 'demo-rooster',
+          repo: 'test-site-com',
+        },
+        contentResult: {
+          pages: { Home: [{ type: 'hero', headline: 'Welcome' }] },
+          globalData: { siteName: 'Test Site', phone: '555-1234' },
+        },
+      };
+      mockedApiClient.post.mockResolvedValue(successResponse);
+
+      const { result } = renderHook(() => useWorkflowStepRunner());
+
+      await act(async () => {
+        await result.current.executeStep('upload-json-to-github');
+      });
+
+      // Should NOT error with "No page data available"
+      const uploadCalls = mockedApiClient.post.mock.calls.filter(
+        (call) => call[0] === fileUploadEndpoint
+      );
+      expect(uploadCalls.length).toBeGreaterThanOrEqual(2);
+
+      // pages.json should contain the content from contentResult.pages
+      const pagesContent = JSON.parse((uploadCalls[0][1] as { file_content: string }).file_content);
+      expect(pagesContent.Home).toBeDefined();
+      expect(pagesContent.Home[0].headline).toBe('Welcome');
+    });
+  });
+
   // ─── Home Page Only: Generate Sitemap Filtering ─────────────────
 
   describe('runGenerateSitemap - homePageOnly filtering', () => {

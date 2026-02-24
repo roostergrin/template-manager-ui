@@ -1700,7 +1700,7 @@ export const useWorkflowStepRunner = () => {
 
       pageData = hotlinkPages ||
         (imagePickerResult?.success && imagePickerResult?.pageData ? imagePickerResult.pageData : null) ||
-        contentResult?.pageData;
+        contentResult?.pageData || contentResult?.pages;
 
       if (hotlinkPages) {
         logger.logProcessing('Using pages with CloudFront URLs from hotlink step');
