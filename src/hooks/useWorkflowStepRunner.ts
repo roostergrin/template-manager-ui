@@ -497,7 +497,7 @@ export const useWorkflowStepRunner = () => {
 
       // Poll for results every 5 seconds
       const POLL_INTERVAL = 5000;
-      const MAX_POLL_TIME = 600000; // 10 minute max
+      const MAX_POLL_TIME = 1800000; // 30 minute max
       const pollStart = Date.now();
 
       while (Date.now() - pollStart < MAX_POLL_TIME) {
