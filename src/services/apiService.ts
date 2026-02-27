@@ -299,6 +299,91 @@ const apiClient = new APIClient({
 });
 console.log('🎯 Default APIClient created and ready to use');
 
+// ---------------------------------------------------------------------------
+// Generic async start + poll helpers (avoids Lightsail 60s LB timeout)
+// ---------------------------------------------------------------------------
+
+export interface StartAndPollOptions {
+  /** Poll interval in ms (default 5000) */
+  pollIntervalMs?: number;
+  /** Max poll time in ms (default 1800000 = 30 min) */
+  maxPollTimeMs?: number;
+  /** Callback for progress logging (receives elapsed seconds) */
+  onProgress?: (elapsedSec: number) => void;
+}
+
+interface AsyncJobStartResponse {
+  job_id: string;
+  status: string;
+}
+
+interface AsyncJobStatusResponse<T> {
+  status: 'running' | 'complete' | 'error';
+  result?: T;
+  error?: string;
+}
+
+/**
+ * POST JSON to a /start/ endpoint, then poll /async-job/status/{job_id}
+ * until the job completes or fails. Returns the typed result.
+ */
+export async function startAndPollAsyncJob<T>(
+  startUrl: string,
+  payload?: unknown,
+  options?: StartAndPollOptions,
+): Promise<T> {
+  const pollInterval = options?.pollIntervalMs ?? 5000;
+  const maxPollTime = options?.maxPollTimeMs ?? 1800000;
+
+  const startResponse = await apiClient.post<AsyncJobStartResponse>(startUrl, payload);
+  const jobId = startResponse.job_id;
+  if (!jobId) throw new Error(`No job_id returned from ${startUrl}`);
+
+  const pollStart = Date.now();
+  while (Date.now() - pollStart < maxPollTime) {
+    await new Promise(resolve => setTimeout(resolve, pollInterval));
+    if (options?.onProgress) {
+      options.onProgress(Math.round((Date.now() - pollStart) / 1000));
+    }
+    const status = await apiClient.get<AsyncJobStatusResponse<T>>(
+      `/async-job/status/${jobId}`
+    );
+    if (status.status === 'complete' && status.result !== undefined) return status.result;
+    if (status.status === 'error') throw new Error(status.error || 'Async job failed');
+  }
+  throw new Error(`Timed out after ${maxPollTime / 60000}min polling ${startUrl}`);
+}
+
+/**
+ * Same as startAndPollAsyncJob but sends FormData instead of JSON.
+ */
+export async function startAndPollAsyncJobForm<T>(
+  startUrl: string,
+  formData: FormData,
+  options?: StartAndPollOptions,
+): Promise<T> {
+  const pollInterval = options?.pollIntervalMs ?? 5000;
+  const maxPollTime = options?.maxPollTimeMs ?? 1800000;
+
+  const startResponse = await apiClient.postForm<AsyncJobStartResponse>(startUrl, formData);
+  const jobId = startResponse.job_id;
+  if (!jobId) throw new Error(`No job_id returned from ${startUrl}`);
+
+  const pollStart = Date.now();
+  while (Date.now() - pollStart < maxPollTime) {
+    await new Promise(resolve => setTimeout(resolve, pollInterval));
+    if (options?.onProgress) {
+      options.onProgress(Math.round((Date.now() - pollStart) / 1000));
+    }
+    const status = await apiClient.get<AsyncJobStatusResponse<T>>(
+      `/async-job/status/${jobId}`
+    );
+    if (status.status === 'complete' && status.result !== undefined) return status.result;
+    if (status.status === 'error') throw new Error(status.error || 'Async job failed');
+  }
+  throw new Error(`Timed out after ${maxPollTime / 60000}min polling ${startUrl}`);
+}
+
 // Export both the class and default instance
 export { APIClient, APIError };
 export default apiClient;

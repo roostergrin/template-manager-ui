@@ -25,7 +25,7 @@ import {
   CreateDemoRepoResult,
   ProvisionCloudflarePageResult,
 } from '../types/UnifiedWorkflowTypes';
-import apiClient from '../services/apiService';
+import apiClient, { startAndPollAsyncJob, startAndPollAsyncJobForm } from '../services/apiService';
 import { createStepLogger, createTimer, StepLogger } from '../utils/workflowLogger';
 import {
   parseJsonForImages,
@@ -388,7 +388,11 @@ export const useWorkflowStepRunner = () => {
       logger.logApiRequest(endpoint, payload);
       const apiTimer = createTimer();
 
-      const response = await apiClient.post<CreateGithubRepoResult>(endpoint, payload);
+      const response = await startAndPollAsyncJob<CreateGithubRepoResult>(
+        endpoint + 'start/',
+        payload,
+        { onProgress: (s) => logger.logProcessing(`Creating repo... (${s}s)`) },
+      );
 
       logger.logApiResponse(response, apiTimer.elapsed());
 
@@ -433,7 +437,11 @@ export const useWorkflowStepRunner = () => {
       logger.logApiRequest(endpoint, { source_domain: 'stinsondental.com', target_domain: targetDomain, server: 'sunset' });
       const apiTimer = createTimer();
 
-      const response = await apiClient.post<ProvisionWordPressBackendResult>(`${endpoint}?${params}`);
+      const response = await startAndPollAsyncJob<ProvisionWordPressBackendResult>(
+        `${endpoint}/start/?${params}`,
+        undefined,
+        { onProgress: (s) => logger.logProcessing(`Provisioning WordPress backend... (${s}s)`) },
+      );
 
       logger.logApiResponse(response, apiTimer.elapsed());
       setGeneratedDataWithRef('wordpressBackendResult', response);
@@ -458,7 +466,11 @@ export const useWorkflowStepRunner = () => {
       logger.logApiRequest(endpoint, payload);
       const apiTimer = createTimer();
 
-      const response = await apiClient.post<ProvisionStepResult>(endpoint, payload);
+      const response = await startAndPollAsyncJob<ProvisionStepResult>(
+        endpoint + 'start/',
+        payload,
+        { onProgress: (s) => logger.logProcessing(`Provisioning site... (${s}s)`) },
+      );
 
       logger.logApiResponse(response, apiTimer.elapsed());
       setGeneratedDataWithRef('provisionResult', response);
@@ -583,7 +595,11 @@ export const useWorkflowStepRunner = () => {
       logger.logApiRequest(endpoint, { ...payload, scraped_content: '[truncated]' });
       const apiTimer = createTimer();
 
-      const response = await apiClient.post<VectorStoreResult>(endpoint, payload);
+      const response = await startAndPollAsyncJob<VectorStoreResult>(
+        endpoint + 'start/',
+        payload,
+        { onProgress: (s) => logger.logProcessing(`Creating vector store... (${s}s)`) },
+      );
 
       logger.logApiResponse(response, apiTimer.elapsed());
       setGeneratedDataWithRef('vectorStoreResult', response);
@@ -706,7 +722,11 @@ export const useWorkflowStepRunner = () => {
       logger.logApiRequest(endpoint, payload);
       const apiTimer = createTimer();
 
-      const response = await apiClient.post<SitemapStepResult>(endpoint, payload);
+      const response = await startAndPollAsyncJob<SitemapStepResult>(
+        endpoint.replace(/\/$/, '') + '/start/',
+        payload,
+        { onProgress: (s) => logger.logProcessing(`Generating sitemap... (${s}s)`) },
+      );
 
       logger.logApiResponse(response, apiTimer.elapsed());
       const responseObj = response as Record<string, unknown>;
@@ -832,12 +852,16 @@ export const useWorkflowStepRunner = () => {
       logger.logApiRequest(endpoint, { ...payload, sitemap: `[${Object.keys(pagesObject).length} pages]` });
       const apiTimer = createTimer();
 
-      const response = await apiClient.post<{
+      const response = await startAndPollAsyncJob<{
         success: boolean;
         enhanced_sitemap: AllocatedSitemapResult;
         summary: AllocationSummary;
         message?: string;
-      }>(endpoint, payload);
+      }>(
+        endpoint + 'start/',
+        payload,
+        { onProgress: (s) => logger.logProcessing(`Allocating content... (${s}s)`) },
+      );
 
       logger.logApiResponse(response, apiTimer.elapsed());
 
@@ -962,10 +986,18 @@ export const useWorkflowStepRunner = () => {
       logger.logProcessing('Generating content and global data in parallel...');
       const apiTimer = createTimer();
 
-      // Call both endpoints in parallel
+      // Call both endpoints in parallel via async jobs
       const [contentResponse, globalResponse] = await Promise.all([
-        apiClient.post<ContentStepResult>(contentEndpoint, contentPayload),
-        apiClient.post<Record<string, unknown>>(globalEndpoint, globalPayload),
+        startAndPollAsyncJob<ContentStepResult>(
+          contentEndpoint + 'start/',
+          contentPayload,
+          { onProgress: (s) => logger.logProcessing(`Generating page content... (${s}s)`) },
+        ),
+        startAndPollAsyncJob<Record<string, unknown>>(
+          globalEndpoint + 'start/',
+          globalPayload,
+          { onProgress: (s) => logger.logProcessing(`Generating global data... (${s}s)`) },
+        ),
       ]);
 
       logger.logApiResponse({ content: contentResponse, global: globalResponse }, apiTimer.elapsed());
@@ -1262,10 +1294,10 @@ export const useWorkflowStepRunner = () => {
             exclude_ids: Array.from(usedImageIds),
           };
 
-          const response = await apiClient.post<ImageAgentResponse>(
-            '/adobe/image-agent/find-images',
+          const response = await startAndPollAsyncJob<ImageAgentResponse>(
+            '/adobe/image-agent/find-images/start/',
             requestBody,
-            { timeout: 180000 } // 3 minute timeout for agent calls
+            { pollIntervalMs: 3000 },
           );
 
           return response;
@@ -1475,7 +1507,11 @@ export const useWorkflowStepRunner = () => {
       logger.logApiRequest(endpoint, payload);
       const apiTimer = createTimer();
 
-      const response = await apiClient.post<HotlinkProtectionResult>(endpoint, payload);
+      const response = await startAndPollAsyncJob<HotlinkProtectionResult>(
+        endpoint + 'start/',
+        payload,
+        { onProgress: (s) => logger.logProcessing(`Syncing images... (${s}s)`) },
+      );
 
       logger.logApiResponse(response, apiTimer.elapsed());
 
@@ -1748,7 +1784,11 @@ export const useWorkflowStepRunner = () => {
       logger.logApiRequest(pagesEndpoint, { ...pagesPayload, file_content: `[${Object.keys(pageData).length} pages]` });
       const pagesTimer = createTimer();
 
-      const pagesResponse = await apiClient.post<{ success: boolean; content?: { html_url?: string } }>(pagesEndpoint, pagesPayload);
+      const pagesResponse = await startAndPollAsyncJob<{ success: boolean; content?: { html_url?: string } }>(
+        pagesEndpoint + 'start/',
+        pagesPayload,
+        { onProgress: (s) => logger.logProcessing(`Uploading pages.json... (${s}s)`) },
+      );
       logger.logApiResponse(pagesResponse, pagesTimer.elapsed());
 
       if (!isResponseSuccessful(pagesResponse as Record<string, unknown>)) {
@@ -1768,7 +1808,11 @@ export const useWorkflowStepRunner = () => {
       logger.logApiRequest(pagesEndpoint, { ...globalPayload, file_content: `[global data object]` });
       const globalTimer = createTimer();
 
-      const globalResponse = await apiClient.post<{ success: boolean; content?: { html_url?: string } }>(pagesEndpoint, globalPayload);
+      const globalResponse = await startAndPollAsyncJob<{ success: boolean; content?: { html_url?: string } }>(
+        pagesEndpoint + 'start/',
+        globalPayload,
+        { onProgress: (s) => logger.logProcessing(`Uploading globalData.json... (${s}s)`) },
+      );
       logger.logApiResponse(globalResponse, globalTimer.elapsed());
 
       if (!isResponseSuccessful(globalResponse as Record<string, unknown>)) {
@@ -1798,7 +1842,11 @@ export const useWorkflowStepRunner = () => {
         logger.logApiRequest(pagesEndpoint, { ...themePayload, file_content: '[theme object]' });
         const themeTimer = createTimer();
 
-        const themeResponse = await apiClient.post<{ success: boolean; content?: { html_url?: string } }>(pagesEndpoint, themePayload);
+        const themeResponse = await startAndPollAsyncJob<{ success: boolean; content?: { html_url?: string } }>(
+          pagesEndpoint + 'start/',
+          themePayload,
+          { onProgress: (s) => logger.logProcessing(`Uploading theme.json... (${s}s)`) },
+        );
         logger.logApiResponse(themeResponse, themeTimer.elapsed());
 
         if (!isResponseSuccessful(themeResponse as Record<string, unknown>)) {
@@ -1857,7 +1905,11 @@ export const useWorkflowStepRunner = () => {
       logger.logApiRequest(endpoint, payload);
       const apiTimer = createTimer();
 
-      const response = await apiClient.post<WordPressStepResult>(endpoint, payload);
+      const response = await startAndPollAsyncJob<WordPressStepResult>(
+        endpoint + 'start/',
+        payload,
+        { onProgress: (s) => logger.logProcessing(`Exporting to WordPress... (${s}s)`) },
+      );
 
       logger.logApiResponse(response, apiTimer.elapsed());
       setGeneratedDataWithRef('wordpressResult', response);
@@ -1969,7 +2021,11 @@ export const useWorkflowStepRunner = () => {
       logger.logApiRequest(endpoint, { owner, repo, file_path: filePath });
       const uploadTimer = createTimer();
 
-      const uploadResponse = await apiClient.postForm<{ success: boolean }>(endpoint, formData);
+      const uploadResponse = await startAndPollAsyncJobForm<{ success: boolean }>(
+        endpoint + 'start/',
+        formData,
+        { onProgress: (s) => logger.logProcessing(`Uploading logo... (${s}s)`) },
+      );
       logger.logApiResponse(uploadResponse, uploadTimer.elapsed());
 
       return {
@@ -2051,7 +2107,11 @@ export const useWorkflowStepRunner = () => {
       logger.logApiRequest(endpoint, { owner, repo, file_path: filePath });
       const uploadTimer = createTimer();
 
-      const uploadResponse = await apiClient.postForm<{ success: boolean }>(endpoint, formData);
+      const uploadResponse = await startAndPollAsyncJobForm<{ success: boolean }>(
+        endpoint + 'start/',
+        formData,
+        { onProgress: (s) => logger.logProcessing(`Uploading favicon... (${s}s)`) },
+      );
       logger.logApiResponse(uploadResponse, uploadTimer.elapsed());
 
       return {
@@ -2114,7 +2174,11 @@ export const useWorkflowStepRunner = () => {
       logger.logApiRequest(endpoint, payload);
       const apiTimer = createTimer();
 
-      const response = await apiClient.post<CreateDemoRepoResult>(endpoint, payload);
+      const response = await startAndPollAsyncJob<CreateDemoRepoResult>(
+        endpoint + 'start/',
+        payload,
+        { onProgress: (s) => logger.logProcessing(`Creating demo repo... (${s}s)`) },
+      );
 
       logger.logApiResponse(response, apiTimer.elapsed());
 
@@ -2163,7 +2227,11 @@ export const useWorkflowStepRunner = () => {
       logger.logApiRequest(endpoint, payload);
       const apiTimer = createTimer();
 
-      const response = await apiClient.post<ProvisionCloudflarePageResult>(endpoint, payload);
+      const response = await startAndPollAsyncJob<ProvisionCloudflarePageResult>(
+        endpoint + 'start/',
+        payload,
+        { onProgress: (s) => logger.logProcessing(`Provisioning Cloudflare Pages... (${s}s)`) },
+      );
 
       logger.logApiResponse(response, apiTimer.elapsed());
 
