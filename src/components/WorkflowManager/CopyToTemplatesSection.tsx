@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState, forwardRef, useImpera
 import { CheckCircle2 } from 'lucide-react';
 import useProgressTracking from "../../hooks/useProgressTracking";
 import "./CopyToTemplatesSection.sass";
+import { domainToSlug } from "../../utils/domainUtils";
 import { listSubdomains, copySubdomainWithinSubscription } from "../../services/pleskAdminService";
 
 interface CopyToTemplatesSectionProps {
@@ -49,7 +50,7 @@ const CopyToTemplatesSection = forwardRef<CopyToTemplatesSectionRef, CopyToTempl
     }
     
     // For non-.com domains, replace all dots with hyphens
-    const domainWithHyphens = domain.replace(/\./g, "-");
+    const domainWithHyphens = domainToSlug(domain);
     return `api-${domainWithHyphens}.roostergrintemplates.com`;
   };
 

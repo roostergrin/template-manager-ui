@@ -39,6 +39,7 @@ import { buildThemeFromDesignSystem, mergeThemeWithDesignSystem } from '../utils
 import { isMockModeEnabled } from '../mocks';
 import { createPreserveImageMap, injectPreserveImageIntoContent } from '../utils/injectPreserveImage';
 import { getStepOutputKey } from '../constants/stepInputMappings';
+import { domainToSlug } from '../utils/domainUtils';
 
 interface StepResult {
   success: boolean;
@@ -155,7 +156,7 @@ export const useWorkflowStepRunner = () => {
 
     const sessionId = getSessionId();
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-    const domainSlug = domain.replace(/\./g, '-');
+    const domainSlug = domainToSlug(domain);
 
     // Auto-download the step result
     const filename = `${stepId}_${domainSlug}_${timestamp}.json`;
@@ -368,7 +369,7 @@ export const useWorkflowStepRunner = () => {
       };
     }
 
-    const repoName = siteConfig.domain.replace(/\./g, '-');
+    const repoName = domainToSlug(siteConfig.domain);
     console.log('[BATCH DEBUG] repoName:', repoName);
     console.log('[BATCH DEBUG] Full payload about to send:', {
       new_name: repoName,
@@ -419,7 +420,7 @@ export const useWorkflowStepRunner = () => {
       return { success: true, data: { skipped: true, message: 'Not needed for JSON templates' } };
     }
 
-    const targetDomain = `${siteConfig.domain.replace(/\./g, '-')}.com`;
+    const targetDomain = `${domainToSlug(siteConfig.domain)}.com`;
     const endpoint = '/copy-subscription';
 
     // Build query params for the backend
@@ -455,9 +456,9 @@ export const useWorkflowStepRunner = () => {
     const siteConfig = actions.getSiteConfigSync();
     const endpoint = '/provision/';
     const payload = {
-      bucket_name: siteConfig.domain.replace(/\./g, '-'),
+      bucket_name: domainToSlug(siteConfig.domain),
       github_owner: 'roostergrin',
-      github_repo: siteConfig.domain.replace(/\./g, '-'),
+      github_repo: domainToSlug(siteConfig.domain),
       github_branch: 'master',
       page_type: 'template',
     };
@@ -1419,7 +1420,7 @@ export const useWorkflowStepRunner = () => {
       pageData = editedInput.pages;
       themeData = editedInput.theme;
       globalData = editedInput.globalData;
-      bucketName = editedInput.config?.bucketName || editedInput.config?.siteIdentifier || siteConfig.domain.replace(/\./g, '-');
+      bucketName = editedInput.config?.bucketName || editedInput.config?.siteIdentifier || domainToSlug(siteConfig.domain);
       cloudfrontDomain = editedInput.config?.cloudFrontDomain;
     } else {
       // Use original data sources
@@ -1436,7 +1437,7 @@ export const useWorkflowStepRunner = () => {
 
       // Extract bucket name and CloudFront domain from provision step (step 3)
       // Use provision result values if available, otherwise fall back to derived values
-      bucketName = provisionResult?.bucket || siteConfig.domain.replace(/\./g, '-');
+      bucketName = provisionResult?.bucket || domainToSlug(siteConfig.domain);
 
       // Use assets_cdn_domain directly if available, otherwise extract from assets_distribution_url
       cloudfrontDomain = provisionResult?.assets_cdn_domain;
@@ -1696,7 +1697,7 @@ export const useWorkflowStepRunner = () => {
       if (!repoResult?.repo) {
         if (isDemoMode) {
           // Fallback: derive repo name from domain (same logic as create-demo-repo step)
-          const derivedRepoName = siteConfig.domain.replace(/\./g, '-');
+          const derivedRepoName = domainToSlug(siteConfig.domain);
           owner = 'demo-rooster';
           repo = derivedRepoName;
           branch = 'master';
@@ -2155,7 +2156,7 @@ export const useWorkflowStepRunner = () => {
     }
 
     // Use the same template as production (roostergrin/ai-template-*), but create in demo-rooster org
-    const repoName = siteConfig.domain.replace(/\./g, '-');
+    const repoName = domainToSlug(siteConfig.domain);
     console.log('[BATCH DEBUG] runCreateDemoRepo - repoName:', repoName);
 
     const templateType = siteConfig.templateType || 'json';
@@ -2213,7 +2214,7 @@ export const useWorkflowStepRunner = () => {
     }
 
     const endpoint = '/provision-cloudflare-pages/';
-    const projectName = siteConfig.domain.replace(/\./g, '-');
+    const projectName = domainToSlug(siteConfig.domain);
     const payload = {
       project_name: projectName,
       repo_name: demoRepoResult.repo,

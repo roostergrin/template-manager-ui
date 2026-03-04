@@ -29,6 +29,7 @@ import { AVAILABLE_TEMPLATES, getStepById } from '../../constants/workflowSteps'
 import { WorkflowMode, SiteConfig, TemplateType, WorkflowStep } from '../../types/UnifiedWorkflowTypes';
 import { WORKFLOW_STEP_IDS } from '../../constants/workflowSteps';
 import { useWorkflowStepRunner } from '../../hooks/useWorkflowStepRunner';
+import { domainToSlug } from '../../utils/domainUtils';
 import { useYoloMode } from '../../hooks/useYoloMode';
 import { useBatchMode } from '../../hooks/useBatchMode';
 import './UnifiedWorkflow.sass';
@@ -450,7 +451,7 @@ const NavigationLinks: React.FC<NavigationLinksProps> = ({
   if (!domain) return null;
 
   // Auto-derive WordPress admin URL from domain (e.g., example.com -> api-example-com.roostergrintemplates.com)
-  const domainSlug = domain.replace(/\./g, '-');
+  const domainSlug = domainToSlug(domain);
   const wpAdminUrl = `https://api-${domainSlug}.roostergrintemplates.com/wp-admin/`;
 
   return (

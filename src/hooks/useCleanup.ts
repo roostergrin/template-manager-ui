@@ -2,6 +2,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import { useUnifiedWorkflow } from '../contexts/UnifiedWorkflowProvider';
 import { cleanupService } from '../services/cleanupService';
+import { domainToSlug } from '../utils/domainUtils';
 import {
   CleanupConfig,
   CleanupResources,
@@ -48,7 +49,7 @@ export const useCleanup = () => {
       return {};
     }
 
-    const domainSlug = domain.replace(/\./g, '-');
+    const domainSlug = domainToSlug(domain);
 
     // If this matches the workflow domain, use provision result for accurate IDs
     const useProvisionResult = domain === workflowDomain && provisionResult;

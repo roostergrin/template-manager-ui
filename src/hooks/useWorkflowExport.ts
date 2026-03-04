@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { useUnifiedWorkflow } from '../contexts/UnifiedWorkflowProvider';
+import { domainToSlug } from '../utils/domainUtils';
 import {
   WorkflowExportBundle,
   SessionLogEntry,
@@ -203,7 +204,7 @@ export const useWorkflowExport = () => {
     };
 
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-    const domainSlug = state.config.siteConfig.domain.replace(/\./g, '-') || 'workflow';
+    const domainSlug = domainToSlug(state.config.siteConfig.domain) || 'workflow';
     const filename = `workflow_${domainSlug}_${timestamp}.json`;
     downloadJson(bundle, filename);
   }, [state, downloadJson]);
@@ -217,7 +218,7 @@ export const useWorkflowExport = () => {
     );
 
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-    const domainSlug = state.config.siteConfig.domain.replace(/\./g, '-') || 'workflow';
+    const domainSlug = domainToSlug(state.config.siteConfig.domain) || 'workflow';
     const filename = `session_log_${domainSlug}_${timestamp}.txt`;
     downloadFile(logContent, filename, 'text/plain');
   }, [state.sessionLog, state.steps, state.config.siteConfig.domain, downloadFile]);
