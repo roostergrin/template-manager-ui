@@ -6,9 +6,6 @@ import {
   SkipForward,
   Play,
   Loader,
-  ChevronDown,
-  ChevronUp,
-  ArrowDown,
   Database,
   FileText,
   Server,
@@ -24,12 +21,11 @@ import {
   RotateCw,
 } from 'lucide-react';
 import { useUnifiedWorkflow } from '../../contexts/UnifiedWorkflowProvider';
-import { WorkflowStep, WorkflowStepStatus, WorkflowProgressEvent } from '../../types/UnifiedWorkflowTypes';
+import { WorkflowStep, WorkflowStepStatus } from '../../types/UnifiedWorkflowTypes';
 import { getYoloExecutionOrder, getExecutionOrderByTarget, WORKFLOW_STEP_IDS } from '../../constants/workflowSteps';
 import { useWorkflowExport } from '../../hooks/useWorkflowExport';
 import { useWorkflowStepRunner } from '../../hooks/useWorkflowStepRunner';
 import { STEP_DATA_CONTRACT, getStepOutputKey, getStepEditData, isStepEditable as checkStepEditable } from '../../constants/stepInputMappings';
-import JsonViewer from './JsonViewer';
 import InputEditorPanel from './InputEditorPanel';
 import PreventHotlinkingEditorPanel from './PreventHotlinkingEditorPanel';
 import GithubJsonEditorPanel from './GithubJsonEditorPanel';
@@ -163,7 +159,6 @@ interface StepItemProps {
   onEditInput?: (stepId: string) => void;
   isManualMode: boolean;
   isWorkflowRunning: boolean;
-  showDeliverables: boolean;
   isEditable?: boolean;
 }
 
@@ -196,7 +191,6 @@ const StepItem: React.FC<StepItemProps> = ({
   onEditInput,
   isManualMode,
   isWorkflowRunning,
-  showDeliverables,
   isEditable,
 }) => {
   const metadata = STEP_METADATA[step.id];
@@ -390,120 +384,6 @@ const StepItem: React.FC<StepItemProps> = ({
         </div>
       </div>
 
-      {/* Deliverables connector */}
-      {showDeliverables && metadata?.outputs && step.status === 'completed' && (
-        <div className="workflow-progress__deliverables">
-          <ArrowDown size={14} className="workflow-progress__deliverables-arrow" />
-          <div className="workflow-progress__deliverables-tags">
-            {metadata.outputs.map((output, i) => (
-              <span key={i} className="workflow-progress__deliverable-tag">
-                {output}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
-
-interface ActivityLogProps {
-  events: WorkflowProgressEvent[];
-  maxEvents?: number;
-}
-
-const ActivityLog: React.FC<ActivityLogProps> = ({ events, maxEvents = 20 }) => {
-  const [expandedEvents, setExpandedEvents] = useState<Set<string>>(new Set());
-  const displayedEvents = events.slice(0, maxEvents);
-
-  const toggleExpand = useCallback((eventId: string) => {
-    setExpandedEvents((prev) => {
-      const next = new Set(prev);
-      if (next.has(eventId)) {
-        next.delete(eventId);
-      } else {
-        next.add(eventId);
-      }
-      return next;
-    });
-  }, []);
-
-  const formatTime = (timestamp: string): string => {
-    const date = new Date(timestamp);
-    return date.toLocaleTimeString('en-US', {
-      hour12: false,
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-    });
-  };
-
-  const getStatusClass = (status: WorkflowStepStatus): string => {
-    switch (status) {
-      case 'completed':
-        return 'activity-log__event--completed';
-      case 'in_progress':
-        return 'activity-log__event--running';
-      case 'error':
-        return 'activity-log__event--error';
-      case 'skipped':
-        return 'activity-log__event--skipped';
-      default:
-        return '';
-    }
-  };
-
-  if (displayedEvents.length === 0) {
-    return (
-      <div className="activity-log activity-log--empty">
-        <p className="activity-log__empty-message">No activity yet</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="activity-log">
-      <h4 className="activity-log__title">Activity Log</h4>
-      <ul className="activity-log__list">
-        {displayedEvents.map((event) => {
-          const hasDetails = event.details && Object.keys(event.details).length > 0;
-          const isExpanded = expandedEvents.has(event.id);
-
-          return (
-            <li
-              key={event.id}
-              className={`activity-log__event ${getStatusClass(event.status)} ${hasDetails ? 'activity-log__event--expandable' : ''}`}
-            >
-              <div
-                className="activity-log__event-header"
-                onClick={() => hasDetails && toggleExpand(event.id)}
-                onKeyDown={(e) => e.key === 'Enter' && hasDetails && toggleExpand(event.id)}
-                tabIndex={hasDetails ? 0 : -1}
-                role={hasDetails ? 'button' : undefined}
-                aria-expanded={hasDetails ? isExpanded : undefined}
-                aria-label={hasDetails ? `${event.message} - click to ${isExpanded ? 'collapse' : 'expand'} details` : undefined}
-              >
-                <span className="activity-log__time">[{formatTime(event.timestamp)}]</span>
-                <span className="activity-log__message">{event.message}</span>
-                {hasDetails && (
-                  <span className="activity-log__expand-icon">
-                    {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                  </span>
-                )}
-              </div>
-              {hasDetails && isExpanded && (
-                <div className="activity-log__details">
-                  <JsonViewer
-                    data={event.details}
-                    maxStringLength={100}
-                    initialExpanded={false}
-                  />
-                </div>
-              )}
-            </li>
-          );
-        })}
-      </ul>
     </div>
   );
 };
@@ -526,16 +406,13 @@ const WorkflowProgressDisplay: React.FC<WorkflowProgressDisplayProps> = ({
   const { state, actions } = useUnifiedWorkflow();
   const { exportStepResult } = useWorkflowExport();
   const { executeStep, setEditedInputDataImmediate, setGeneratedDataImmediate } = useWorkflowStepRunner();
-  const { steps, currentStepId, progressEvents, config, isRunning, generatedData } = state;
+  const { steps, currentStepId, config, isRunning, generatedData } = state;
   const { siteConfig } = config;
   const isManualMode = config.mode === 'manual';
-  const [showDeliverables, setShowDeliverables] = useState(true);
 
   // State for editing step input (uses local state for UI, context for step runner)
   const [editingStepId, setEditingStepId] = useState<string | null>(null);
   const [localEditedInputData, setLocalEditedInputData] = useState<unknown>(null);
-
-  const progress = useMemo(() => actions.getProgress(), [actions]);
 
   // Get steps in execution order based on deployment target
   const deploymentTarget = siteConfig.deploymentTarget || 'production';
@@ -660,31 +537,9 @@ const WorkflowProgressDisplay: React.FC<WorkflowProgressDisplayProps> = ({
 
   return (
     <div className="workflow-progress">
-      {/* Overall Progress Bar */}
+      {/* Header */}
       <div className="workflow-progress__header">
-        <div className="workflow-progress__header-row">
-          <h3 className="workflow-progress__title">Site Generation Progress</h3>
-          <label className="workflow-progress__toggle">
-            <input
-              type="checkbox"
-              checked={showDeliverables}
-              onChange={(e) => setShowDeliverables(e.target.checked)}
-            />
-            <span>Show deliverables</span>
-          </label>
-        </div>
-        <div className="workflow-progress__bar-container">
-          <div className="workflow-progress__bar">
-            <div
-              className="workflow-progress__bar-fill"
-              style={{ width: `${progress.percentage}%` }}
-            />
-          </div>
-          <span className="workflow-progress__percentage">{progress.percentage}%</span>
-        </div>
-        <p className="workflow-progress__summary">
-          {progress.completed} of {progress.total} steps completed
-        </p>
+        <h3 className="workflow-progress__title">Workflow Steps</h3>
       </div>
 
       {/* Legend */}
@@ -721,7 +576,6 @@ const WorkflowProgressDisplay: React.FC<WorkflowProgressDisplayProps> = ({
               onEditInput={handleEditInput}
               isManualMode={isManualMode}
               isWorkflowRunning={isRunning}
-              showDeliverables={showDeliverables && index < orderedSteps.length - 1}
               isEditable={isStepEditableFn(step.id)}
             />
             {/* Inline editor panel - renders below the step being edited */}
@@ -815,8 +669,6 @@ const WorkflowProgressDisplay: React.FC<WorkflowProgressDisplayProps> = ({
         ))}
       </div>
 
-      {/* Activity Log */}
-      <ActivityLog events={progressEvents} maxEvents={10} />
     </div>
   );
 };

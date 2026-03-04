@@ -19,46 +19,38 @@ const UnifiedWorkflowPageContent: React.FC = () => {
   return (
     <div className="unified-workflow-page">
       <header className="unified-workflow-page__header">
-        <div className="unified-workflow-page__header-top">
+        <button
+          type="button"
+          className="unified-workflow-page__back-btn"
+          onClick={handleBackToWorkflow}
+          aria-label="Back to Workflow Manager"
+        >
+          <ArrowLeft size={18} />
+        </button>
+        <Zap size={18} className="unified-workflow-page__icon" />
+        <h1 className="unified-workflow-page__title">Site Generation</h1>
+        <div className="unified-workflow-page__session-controls">
+          <span className="unified-workflow-page__session-badge" title="Session ID">
+            {sessionId}
+          </span>
           <button
             type="button"
-            className="unified-workflow-page__back-btn"
-            onClick={handleBackToWorkflow}
-            aria-label="Back to Workflow Manager"
+            className="unified-workflow-page__session-btn"
+            onClick={handleCopySessionLink}
+            title="Copy session link"
           >
-            <ArrowLeft size={18} />
-            Back
+            <Copy size={14} />
           </button>
-          <div className="unified-workflow-page__session-controls">
-            <span className="unified-workflow-page__session-badge" title="Session ID">
-              Session: {sessionId}
-            </span>
-            <button
-              type="button"
-              className="unified-workflow-page__session-btn"
-              onClick={handleCopySessionLink}
-              title="Copy session link"
-            >
-              <Copy size={14} />
-            </button>
-            <button
-              type="button"
-              className="unified-workflow-page__session-btn unified-workflow-page__session-btn--new"
-              onClick={openNewSession}
-              title="Open new session in new tab"
-            >
-              <Plus size={14} />
-              New Session
-            </button>
-          </div>
+          <button
+            type="button"
+            className="unified-workflow-page__session-btn unified-workflow-page__session-btn--new"
+            onClick={openNewSession}
+            title="Open new session in new tab"
+          >
+            <Plus size={14} />
+            New
+          </button>
         </div>
-        <div className="unified-workflow-page__title-container">
-          <Zap size={28} className="unified-workflow-page__icon" />
-          <h1 className="unified-workflow-page__title">Unified Site Generation</h1>
-        </div>
-        <p className="unified-workflow-page__description">
-          Orchestrate all site generation steps with real-time progress tracking
-        </p>
       </header>
 
       <main className="unified-workflow-page__content">

@@ -12,15 +12,25 @@ import {
   ChevronDown,
   ChevronUp,
   ExternalLink,
-  Eye,
-  Edit3,
-  FlaskConical,
   Trash2,
-  Download,
+  Globe,
+  SlidersHorizontal,
+  Clock,
+  Cpu,
+  Layers,
+  FileCode,
+  Rocket,
+  Flame,
+  Hash,
+  Camera,
+  Link,
+  Hand,
+  PenLine,
+  Home,
+  ImageOff,
 } from 'lucide-react';
 import { useUnifiedWorkflow } from '../../contexts/UnifiedWorkflowProvider';
 import WorkflowProgressDisplay from './WorkflowProgressDisplay';
-import WorkflowDiagram from './WorkflowDiagram';
 import BatchModePanel from './BatchModePanel';
 import InterventionPanel from './InterventionPanel';
 import InputEditorPanel from './InputEditorPanel';
@@ -36,7 +46,6 @@ import { WORKFLOW_STEP_IDS } from '../../constants/workflowSteps';
 import { useWorkflowStepRunner } from '../../hooks/useWorkflowStepRunner';
 import { useYoloMode } from '../../hooks/useYoloMode';
 import { useBatchMode } from '../../hooks/useBatchMode';
-import { getMockConfig, setMockConfig } from '../../mocks';
 import './UnifiedWorkflow.sass';
 
 interface ModeOption {
@@ -44,6 +53,8 @@ interface ModeOption {
   label: string;
   description: string;
   icon: React.ReactNode;
+  color: string;
+  bgColor: string;
 }
 
 const MODE_OPTIONS: ModeOption[] = [
@@ -52,18 +63,24 @@ const MODE_OPTIONS: ModeOption[] = [
     label: 'Manual',
     description: 'Step-by-step control',
     icon: <List size={20} />,
+    color: '#16a34a',
+    bgColor: 'rgba(22, 163, 74, 0.08)',
   },
   {
     id: 'yolo',
     label: 'YOLO',
     description: 'Automated execution',
     icon: <Zap size={20} />,
+    color: '#d97706',
+    bgColor: 'rgba(217, 119, 6, 0.08)',
   },
   {
     id: 'batch',
     label: 'Batch',
     description: 'Process multiple sites',
     icon: <Upload size={20} />,
+    color: '#7c3aed',
+    bgColor: 'rgba(124, 58, 237, 0.08)',
   },
 ];
 
@@ -74,6 +91,14 @@ interface ConfigurationPanelProps {
   onImagePickerToggle?: (enabled: boolean) => void;
   steps: WorkflowStep[];
   disabled?: boolean;
+  interventionMode?: boolean;
+  onInterventionToggle?: (enabled: boolean) => void;
+  preStepPauseEnabled?: boolean;
+  onPreStepPauseToggle?: (enabled: boolean) => void;
+  onStartWorkflow?: () => void;
+  onResetWorkflow?: () => void;
+  mode?: WorkflowMode;
+  canStart?: boolean;
 }
 
 const ConfigurationPanel: React.FC<ConfigurationPanelProps> = ({
@@ -83,8 +108,16 @@ const ConfigurationPanel: React.FC<ConfigurationPanelProps> = ({
   onImagePickerToggle,
   steps,
   disabled = false,
+  interventionMode = false,
+  onInterventionToggle,
+  preStepPauseEnabled = false,
+  onPreStepPauseToggle,
+  onStartWorkflow,
+  onResetWorkflow,
+  mode: workflowMode,
+  canStart = true,
 }) => {
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isAdvancedExpanded, setIsAdvancedExpanded] = useState(false);
 
   const estimatedMinutes = useMemo(() => {
     let totalSeconds = steps
@@ -106,12 +139,22 @@ const ConfigurationPanel: React.FC<ConfigurationPanelProps> = ({
       totalSeconds += 200; // add back overlap (only subtract ~275 total, not 475)
     }
 
+    // Real-world overhead: API latency, retries, queuing add ~2x
+    totalSeconds = Math.round(totalSeconds * 2);
+
     return Math.max(1, Math.round(totalSeconds / 60));
   }, [steps, config.contentModel, config.homePageOnly]);
 
   const handleInputChange = (field: keyof SiteConfig, value: string | boolean) => {
     console.log('[DEBUG] handleInputChange called:', field, value);
-    onConfigChange({ [field]: value });
+    const updates: Partial<SiteConfig> = { [field]: value };
+
+    // Auto-sync template and siteType
+    if (field === 'template') {
+      updates.siteType = value as string;
+    }
+
+    onConfigChange(updates);
 
     // Trigger template type change callback when templateType is changed
     if (field === 'templateType' && onTemplateTypeChange) {
@@ -120,155 +163,37 @@ const ConfigurationPanel: React.FC<ConfigurationPanelProps> = ({
   };
 
   return (
-    <div className="config-panel">
-      <button
-        type="button"
-        className="config-panel__header"
-        onClick={() => setIsExpanded(!isExpanded)}
-        aria-expanded={isExpanded}
-        aria-label="Toggle configuration panel"
-      >
-        <Settings size={18} />
-        <span className="config-panel__title">Site Configuration</span>
-        {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-      </button>
-
-      {isExpanded && (
-        <div className="config-panel__content">
-          <div className="config-panel__grid">
-            <div className="config-panel__field">
-              <label htmlFor="domain" className="config-panel__label">
+    <div className="config-panel-v2">
+      <div className="config-panel-v2__cards">
+        {/* Site Details Card */}
+        <div className="config-panel-v2__card config-panel-v2__card--site">
+          <div className="config-panel-v2__card-header">
+            <Globe size={18} className="config-panel-v2__card-icon config-panel-v2__card-icon--violet" />
+            <h3 className="config-panel-v2__card-title">Site Details</h3>
+          </div>
+          <div className="config-panel-v2__card-body">
+            <div className="config-panel-v2__field">
+              <label htmlFor="domain" className="config-panel-v2__label">
                 Domain
               </label>
               <input
                 type="text"
                 id="domain"
-                className="config-panel__input"
+                className="config-panel-v2__input"
                 value={config.domain}
                 onChange={(e) => handleInputChange('domain', e.target.value)}
                 placeholder="example.com"
                 disabled={disabled}
               />
             </div>
-
-            <div className="config-panel__field">
-              <label htmlFor="template" className="config-panel__label">
-                Template
-              </label>
-              <select
-                id="template"
-                className="config-panel__select"
-                value={config.template}
-                onChange={(e) => handleInputChange('template', e.target.value)}
-                disabled={disabled}
-              >
-                {AVAILABLE_TEMPLATES.map((template) => (
-                  <option key={template.id} value={template.id}>
-                    {template.name} - {template.description}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="config-panel__field">
-              <label htmlFor="templateType" className="config-panel__label">
-                Template Type
-              </label>
-              <div className="config-panel__radio-group">
-                <label className="config-panel__radio-label">
-                  <input
-                    type="radio"
-                    name="templateType"
-                    value="json"
-                    checked={config.templateType === 'json'}
-                    onChange={() => handleInputChange('templateType', 'json')}
-                    disabled={disabled}
-                  />
-                  <span className="config-panel__radio-text">
-                    <strong>JSON</strong>
-                    <span className="config-panel__radio-hint">ai-template-* (no WordPress backend)</span>
-                  </span>
-                </label>
-                <label className="config-panel__radio-label">
-                  <input
-                    type="radio"
-                    name="templateType"
-                    value="wordpress"
-                    checked={config.templateType === 'wordpress'}
-                    onChange={() => handleInputChange('templateType', 'wordpress')}
-                    disabled={disabled}
-                  />
-                  <span className="config-panel__radio-text">
-                    <strong>WordPress</strong>
-                    <span className="config-panel__radio-hint">rg-template-* (with WordPress backend)</span>
-                  </span>
-                </label>
-              </div>
-            </div>
-
-            <div className="config-panel__field">
-              <label htmlFor="deploymentTarget" className="config-panel__label">
-                Deployment Target
-              </label>
-              <div className="config-panel__radio-group">
-                <label className="config-panel__radio-label">
-                  <input
-                    type="radio"
-                    name="deploymentTarget"
-                    value="production"
-                    checked={config.deploymentTarget !== 'demo'}
-                    onChange={() => handleInputChange('deploymentTarget', 'production')}
-                    disabled={disabled}
-                  />
-                  <span className="config-panel__radio-text">
-                    <strong>Production (AWS)</strong>
-                    <span className="config-panel__radio-hint">S3 + CloudFront + CodePipeline</span>
-                  </span>
-                </label>
-                <label className="config-panel__radio-label">
-                  <input
-                    type="radio"
-                    name="deploymentTarget"
-                    value="demo"
-                    checked={config.deploymentTarget === 'demo'}
-                    onChange={() => handleInputChange('deploymentTarget', 'demo')}
-                    disabled={disabled}
-                  />
-                  <span className="config-panel__radio-text">
-                    <strong>Demo (Cloudflare Pages)</strong>
-                    <span className="config-panel__radio-hint">demo-rooster org + Cloudflare Pages</span>
-                  </span>
-                </label>
-              </div>
-            </div>
-
-            <div className="config-panel__field">
-              <label htmlFor="siteType" className="config-panel__label">
-                Site Type
-              </label>
-              <select
-                id="siteType"
-                className="config-panel__select"
-                value={config.siteType}
-                onChange={(e) => handleInputChange('siteType', e.target.value)}
-                disabled={disabled}
-              >
-                {AVAILABLE_TEMPLATES.map((template) => (
-                  <option key={template.id} value={template.id}>
-                    {template.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="config-panel__field">
-              <label htmlFor="scrapeDomain" className="config-panel__label">
-                Scrape Domain <span className="config-panel__required">*</span>
+            <div className="config-panel-v2__field">
+              <label htmlFor="scrapeDomain" className="config-panel-v2__label">
+                Scrape Domain <span className="config-panel-v2__required">*</span>
               </label>
               <input
                 type="text"
                 id="scrapeDomain"
-                className="config-panel__input"
+                className="config-panel-v2__input"
                 value={config.scrapeDomain || ''}
                 onChange={(e) => handleInputChange('scrapeDomain', e.target.value)}
                 placeholder="existing-site.com"
@@ -277,113 +202,253 @@ const ConfigurationPanel: React.FC<ConfigurationPanelProps> = ({
               />
             </div>
 
-            <div className="config-panel__field config-panel__field--checkbox">
-              <label className="config-panel__checkbox-label">
-                <input
-                  type="checkbox"
-                  checked={config.useFirecrawl ?? true}
-                  onChange={(e) => handleInputChange('useFirecrawl', e.target.checked)}
-                  disabled={disabled}
-                />
-                <span>Use Firecrawl (anti-bot + branding extraction)</span>
+            {onStartWorkflow && !disabled && (
+              <div className="config-panel-v2__actions">
+                <button
+                  type="button"
+                  className="config-panel-v2__start-btn"
+                  onClick={onStartWorkflow}
+                  disabled={!canStart}
+                >
+                  <Play size={16} />
+                  {workflowMode === 'yolo' ? 'Start YOLO Mode' : workflowMode === 'batch' ? 'Start Batch' : 'Start Workflow'}
+                </button>
+                {onResetWorkflow && (
+                  <button
+                    type="button"
+                    className="config-panel-v2__reset-btn"
+                    onClick={onResetWorkflow}
+                  >
+                    <RotateCcw size={14} />
+                    Reset
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Options Card */}
+        <div className="config-panel-v2__card config-panel-v2__card--options">
+          <div className="config-panel-v2__card-header">
+            <SlidersHorizontal size={18} className="config-panel-v2__card-icon config-panel-v2__card-icon--sky" />
+            <h3 className="config-panel-v2__card-title">Options</h3>
+          </div>
+          <div className="config-panel-v2__card-body">
+            <div className="config-panel-v2__field">
+              <label htmlFor="contentModel" className="config-panel-v2__label">
+                <Cpu size={14} /> Content Model
               </label>
+              <select
+                id="contentModel"
+                className="config-panel-v2__select"
+                value={config.contentModel || 'gpt-5-mini'}
+                onChange={(e) => handleInputChange('contentModel', e.target.value)}
+                disabled={disabled}
+              >
+                <option value="gpt-5-mini">gpt-5-mini (higher quality)</option>
+                <option value="gpt-5-nano">gpt-5-nano (faster)</option>
+              </select>
             </div>
 
-            <div className="config-panel__field">
-              <label className="config-panel__label">
-                Max Pages to Scrape
+            <div className="config-panel-v2__toggle-row">
+              <label className="config-panel-v2__toggle">
+                <input
+                  type="checkbox"
+                  checked={config.homePageOnly || false}
+                  onChange={(e) => handleInputChange('homePageOnly', e.target.checked)}
+                  disabled={disabled}
+                />
+                <span className="config-panel-v2__toggle-track" />
+              </label>
+              <Home size={14} className="config-panel-v2__toggle-icon" />
+              <span className="config-panel-v2__toggle-text">Home page only</span>
+            </div>
+
+            <div className="config-panel-v2__toggle-row">
+              <label className="config-panel-v2__toggle">
+                <input
+                  type="checkbox"
+                  checked={!config.enableImagePicker}
+                  onChange={(e) => {
+                    const skipImagePicker = e.target.checked;
+                    handleInputChange('enableImagePicker', !skipImagePicker);
+                    onImagePickerToggle?.(!skipImagePicker);
+                  }}
+                  disabled={disabled}
+                />
+                <span className="config-panel-v2__toggle-track" />
+              </label>
+              <ImageOff size={14} className="config-panel-v2__toggle-icon" />
+              <span className="config-panel-v2__toggle-text">Skip image picker</span>
+            </div>
+
+            <div className="config-panel-v2__time-pill">
+              <Clock size={14} />
+              <span>~{estimatedMinutes} min estimated</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Advanced Settings Card */}
+      <div className="config-panel-v2__card config-panel-v2__card--advanced">
+        <button
+          type="button"
+          className="config-panel-v2__card-header config-panel-v2__card-header--clickable"
+          onClick={() => setIsAdvancedExpanded(!isAdvancedExpanded)}
+          aria-expanded={isAdvancedExpanded}
+        >
+          <Settings size={18} className="config-panel-v2__card-icon config-panel-v2__card-icon--gray" />
+          <h3 className="config-panel-v2__card-title">Advanced Settings</h3>
+          {isAdvancedExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+        </button>
+
+        {isAdvancedExpanded && (
+          <div className="config-panel-v2__card-body">
+            <div className="config-panel-v2__advanced-grid">
+              <div className="config-panel-v2__field">
+                <label htmlFor="template" className="config-panel-v2__label">
+                  <Layers size={14} /> Template
+                </label>
+                <select
+                  id="template"
+                  className="config-panel-v2__select"
+                  value={config.template}
+                  onChange={(e) => handleInputChange('template', e.target.value)}
+                  disabled={disabled}
+                >
+                  {AVAILABLE_TEMPLATES.map((template) => (
+                    <option key={template.id} value={template.id}>
+                      {template.name} - {template.description}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="config-panel-v2__field">
+                <label htmlFor="templateType" className="config-panel-v2__label">
+                  <FileCode size={14} /> Template Type
+                </label>
+                <select
+                  id="templateType"
+                  className="config-panel-v2__select"
+                  value={config.templateType}
+                  onChange={(e) => handleInputChange('templateType', e.target.value)}
+                  disabled={disabled}
+                >
+                  <option value="json">JSON (static site)</option>
+                  <option value="wordpress">WordPress (CMS backend)</option>
+                </select>
+              </div>
+
+              <div className="config-panel-v2__field">
+                <label htmlFor="deploymentTarget" className="config-panel-v2__label">
+                  <Rocket size={14} /> Deployment Target
+                </label>
+                <select
+                  id="deploymentTarget"
+                  className="config-panel-v2__select"
+                  value={config.deploymentTarget || 'production'}
+                  onChange={(e) => handleInputChange('deploymentTarget', e.target.value)}
+                  disabled={disabled}
+                >
+                  <option value="production">Production (AWS)</option>
+                  <option value="demo">Demo (Cloudflare Pages)</option>
+                </select>
+              </div>
+
+              <div className="config-panel-v2__field">
+                <label htmlFor="maxScrapePages" className="config-panel-v2__label">
+                  <Hash size={14} /> Max Pages
+                </label>
                 <input
                   type="number"
-                  className="config-panel__input"
+                  id="maxScrapePages"
+                  className="config-panel-v2__input"
                   value={config.maxScrapePages ?? 50}
                   onChange={(e) => handleInputChange('maxScrapePages', parseInt(e.target.value, 10) || 50)}
                   min={1}
                   max={50}
                   disabled={disabled}
                 />
-              </label>
-            </div>
-
-            <div className="config-panel__field config-panel__field--checkbox">
-              <label className="config-panel__checkbox-label">
-                <input
-                  type="checkbox"
-                  checked={config.preserveDoctorPhotos}
-                  onChange={(e) => handleInputChange('preserveDoctorPhotos', e.target.checked)}
-                  disabled={disabled}
-                />
-                <span>Preserve doctor photos during image updates</span>
-              </label>
-            </div>
-
-            <div className="config-panel__field config-panel__field--checkbox">
-              <label className="config-panel__checkbox-label">
-                <input
-                  type="checkbox"
-                  checked={config.enableHotlinking}
-                  onChange={(e) => handleInputChange('enableHotlinking', e.target.checked)}
-                  disabled={disabled}
-                />
-                <span>Enable Hotlink Protection</span>
-              </label>
-            </div>
-          </div>
-
-          <div className="config-panel__speed-settings">
-            <div className="config-panel__section-title">Speed Settings</div>
-
-            <div className="config-panel__grid">
-              <div className="config-panel__field">
-                <label htmlFor="contentModel" className="config-panel__label">
-                  Content Model
-                </label>
-                <select
-                  id="contentModel"
-                  className="config-panel__select"
-                  value={config.contentModel || 'gpt-5-mini'}
-                  onChange={(e) => handleInputChange('contentModel', e.target.value)}
-                  disabled={disabled}
-                >
-                  <option value="gpt-5-mini">gpt-5-mini (higher quality)</option>
-                  <option value="gpt-5-nano">gpt-5-nano (faster)</option>
-                </select>
               </div>
+            </div>
 
-              <div className="config-panel__field config-panel__field--checkbox">
-                <label className="config-panel__checkbox-label">
+            <div className="config-panel-v2__toggles">
+              <div className="config-panel-v2__toggle-row">
+                <label className="config-panel-v2__toggle">
                   <input
                     type="checkbox"
-                    checked={config.homePageOnly || false}
-                    onChange={(e) => handleInputChange('homePageOnly', e.target.checked)}
+                    checked={config.useFirecrawl ?? true}
+                    onChange={(e) => handleInputChange('useFirecrawl', e.target.checked)}
                     disabled={disabled}
                   />
-                  <span>Home page only</span>
+                  <span className="config-panel-v2__toggle-track" />
                 </label>
+                <Flame size={14} className="config-panel-v2__toggle-icon" />
+                <span className="config-panel-v2__toggle-text">Use Firecrawl</span>
               </div>
 
-              <div className="config-panel__field config-panel__field--checkbox">
-                <label className="config-panel__checkbox-label">
+              <div className="config-panel-v2__toggle-row">
+                <label className="config-panel-v2__toggle">
                   <input
                     type="checkbox"
-                    checked={!config.enableImagePicker}
-                    onChange={(e) => {
-                      const skipImagePicker = e.target.checked;
-                      handleInputChange('enableImagePicker', !skipImagePicker);
-                      onImagePickerToggle?.(!skipImagePicker);
-                    }}
+                    checked={config.preserveDoctorPhotos}
+                    onChange={(e) => handleInputChange('preserveDoctorPhotos', e.target.checked)}
                     disabled={disabled}
                   />
-                  <span>Skip image picker</span>
+                  <span className="config-panel-v2__toggle-track" />
                 </label>
+                <Camera size={14} className="config-panel-v2__toggle-icon" />
+                <span className="config-panel-v2__toggle-text">Preserve doctor photos</span>
+              </div>
+
+              <div className="config-panel-v2__toggle-row">
+                <label className="config-panel-v2__toggle">
+                  <input
+                    type="checkbox"
+                    checked={config.enableHotlinking}
+                    onChange={(e) => handleInputChange('enableHotlinking', e.target.checked)}
+                    disabled={disabled}
+                  />
+                  <span className="config-panel-v2__toggle-track" />
+                </label>
+                <Link size={14} className="config-panel-v2__toggle-icon" />
+                <span className="config-panel-v2__toggle-text">Enable hotlink protection</span>
+              </div>
+
+              <div className="config-panel-v2__toggle-row">
+                <label className="config-panel-v2__toggle">
+                  <input
+                    type="checkbox"
+                    checked={interventionMode}
+                    onChange={(e) => onInterventionToggle?.(e.target.checked)}
+                    disabled={disabled}
+                  />
+                  <span className="config-panel-v2__toggle-track" />
+                </label>
+                <Hand size={14} className="config-panel-v2__toggle-icon" />
+                <span className="config-panel-v2__toggle-text">Intervention mode</span>
+              </div>
+
+              <div className="config-panel-v2__toggle-row">
+                <label className="config-panel-v2__toggle">
+                  <input
+                    type="checkbox"
+                    checked={preStepPauseEnabled}
+                    onChange={(e) => onPreStepPauseToggle?.(e.target.checked)}
+                    disabled={disabled}
+                  />
+                  <span className="config-panel-v2__toggle-track" />
+                </label>
+                <PenLine size={14} className="config-panel-v2__toggle-icon" />
+                <span className="config-panel-v2__toggle-text">Pre-step editing</span>
               </div>
             </div>
-
-            <div className="config-panel__time-estimate">
-              Estimated time: ~{estimatedMinutes} min
-            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };
@@ -456,19 +521,11 @@ const UnifiedWorkflow: React.FC = () => {
   } = state;
   const { mode, siteConfig } = config;
 
-  // Mock mode state
-  const [mockModeEnabled, setMockModeEnabled] = useState(() => getMockConfig().enabled);
-
   // Cleanup panel state
   const [showCleanupPanel, setShowCleanupPanel] = useState(false);
 
   // Export panel state
   const [showExportPanel, setShowExportPanel] = useState(false);
-
-  const handleMockModeToggle = useCallback((enabled: boolean) => {
-    setMockConfig({ enabled });
-    setMockModeEnabled(enabled);
-  }, []);
 
   // Initialize the step runner
   const { executeStep, resetSessionId } = useWorkflowStepRunner();
@@ -670,91 +727,94 @@ const UnifiedWorkflow: React.FC = () => {
 
   return (
     <div className="unified-workflow">
-      {/* Mode Selector */}
-      <div className="unified-workflow__mode-selector">
-        <h3 className="unified-workflow__mode-title">Execution Mode</h3>
-        <div className="unified-workflow__mode-options">
+      {/* Sidebar */}
+      <div className="unified-workflow__sidebar">
+        {/* Mode Selector */}
+        <div className="mode-selector">
           {MODE_OPTIONS.map((option) => (
             <button
               key={option.id}
               type="button"
-              className={`unified-workflow__mode-option ${mode === option.id ? 'unified-workflow__mode-option--active' : ''}`}
+              className={`mode-selector__pill ${mode === option.id ? 'mode-selector__pill--active' : ''}`}
               onClick={() => handleModeChange(option.id)}
               disabled={isRunning}
               aria-label={`Select ${option.label} mode: ${option.description}`}
+              style={mode === option.id ? { '--pill-color': option.color, '--pill-bg': option.bgColor } as React.CSSProperties : undefined}
             >
-              <span className="unified-workflow__mode-icon">{option.icon}</span>
-              <span className="unified-workflow__mode-label">{option.label}</span>
-              <span className="unified-workflow__mode-description">{option.description}</span>
+              <span className="mode-selector__icon">{option.icon}</span>
+              <span className="mode-selector__label">{option.label}</span>
             </button>
           ))}
         </div>
-      </div>
 
-      {/* Mock Mode Toggle */}
-      <div className="unified-workflow__mock-toggle">
-        <label className="unified-workflow__mock-label">
-          <input
-            type="checkbox"
-            checked={mockModeEnabled}
-            onChange={(e) => handleMockModeToggle(e.target.checked)}
+        {/* Configuration Panel - shown for manual and yolo modes */}
+        {mode !== 'batch' && (
+          <ConfigurationPanel
+            config={siteConfig}
+            onConfigChange={actions.setSiteConfig}
+            onTemplateTypeChange={handleTemplateTypeChange}
+            onImagePickerToggle={handleImagePickerToggle}
+            steps={steps}
             disabled={isRunning}
+            interventionMode={interventionMode}
+            onInterventionToggle={handleInterventionToggle}
+            preStepPauseEnabled={preStepPauseEnabled}
+            onPreStepPauseToggle={handlePreStepPauseToggle}
+            onStartWorkflow={handleStartWorkflow}
+            onResetWorkflow={handleResetWorkflow}
+            mode={mode}
+            canStart={!!(siteConfig.domain && siteConfig.scrapeDomain)}
           />
-          <FlaskConical size={16} />
-          <span>Mock Mode</span>
-          <span className="unified-workflow__mock-hint">
-            (use fake data, no backend required)
-          </span>
-        </label>
-      </div>
+        )}
 
-      {/* Workflow Diagram - shows execution order and deliverables */}
-      <WorkflowDiagram />
+        {/* Batch Mode Panel */}
+        {mode === 'batch' && (
+          <>
+            <BatchModePanel
+              onProcessSite={executeStep}
+              disabled={isRunning}
+            />
+            <div className="config-panel-v2__actions">
+              {!isRunning && (
+                <button
+                  type="button"
+                  className="config-panel-v2__start-btn"
+                  onClick={handleStartWorkflow}
+                >
+                  <Play size={16} />
+                  Start Batch
+                </button>
+              )}
+              <button
+                type="button"
+                className="config-panel-v2__reset-btn"
+                onClick={handleResetWorkflow}
+              >
+                <RotateCcw size={14} />
+                Reset
+              </button>
+            </div>
+          </>
+        )}
 
-      {/* Configuration Panel - shown for manual and yolo modes */}
-      {mode !== 'batch' && (
-        <ConfigurationPanel
-          config={siteConfig}
-          onConfigChange={actions.setSiteConfig}
-          onTemplateTypeChange={handleTemplateTypeChange}
-          onImagePickerToggle={handleImagePickerToggle}
-          steps={steps}
-          disabled={isRunning}
-        />
-      )}
-
-      {/* Batch Mode Panel */}
-      {mode === 'batch' && (
-        <BatchModePanel
-          onProcessSite={executeStep}
-          disabled={isRunning}
-        />
-      )}
-
-      {/* Theme JSON Debug Viewer - shows when design system data is available */}
-      {(generatedData.scrapeResult as { design_system?: Record<string, unknown> } | undefined)?.design_system && (
-        <div className="unified-workflow__theme-debug">
-          <ThemeJsonDebugViewer
-            designSystem={(generatedData.scrapeResult as { design_system: Record<string, unknown> }).design_system as import('../DesignSystemViewer').DesignSystem}
-          />
-        </div>
-      )}
-
-      {/* Control Buttons */}
-      <div className="unified-workflow__controls">
-        {!isRunning ? (
+        {/* Cleanup Link */}
+        {!isRunning && (
           <button
             type="button"
-            className="unified-workflow__control-btn unified-workflow__control-btn--start"
-            onClick={handleStartWorkflow}
-            disabled={(!siteConfig.domain || !siteConfig.scrapeDomain) && mode !== 'batch'}
-            aria-label="Start workflow"
+            className="unified-workflow__cleanup-link"
+            onClick={() => setShowCleanupPanel(true)}
           >
-            <Play size={18} />
-            {mode === 'yolo' ? 'Start YOLO Mode' : mode === 'batch' ? 'Start Batch' : 'Start Workflow'}
+            <Trash2 size={14} />
+            {siteConfig.domain ? `Cleanup ${siteConfig.domain}` : 'Cleanup infrastructure'}
           </button>
-        ) : (
-          <>
+        )}
+      </div>
+
+      {/* Main Content */}
+      <div className="unified-workflow__main">
+        {/* Running Controls - only shown when workflow is active */}
+        {isRunning && (
+          <div className="unified-workflow__controls">
             {isPaused ? (
               <button
                 type="button"
@@ -785,189 +845,117 @@ const UnifiedWorkflow: React.FC = () => {
               <Square size={18} />
               Stop
             </button>
-          </>
+          </div>
         )}
+
+        {/* Retry last step - shown when not running and a step was executed */}
         {lastExecutedStep && !isRunning && (
-          <button
-            type="button"
-            className="unified-workflow__control-btn unified-workflow__control-btn--retry"
-            onClick={handleRetryLastStep}
-            aria-label={`Retry step: ${lastExecutedStep.name}`}
-          >
-            <RefreshCw size={18} />
-            Retry {lastExecutedStep.name}
-          </button>
-        )}
-        <button
-          type="button"
-          className="unified-workflow__control-btn unified-workflow__control-btn--reset"
-          onClick={handleResetWorkflow}
-          aria-label="Reset workflow"
-        >
-          <RotateCcw size={18} />
-          Reset
-        </button>
-      </div>
-
-      {/* YOLO Mode Options */}
-      {mode === 'yolo' && (
-        <div className="unified-workflow__yolo-options">
-          {/* Intervention Mode Toggle */}
-          <div className="unified-workflow__intervention-toggle">
-            <label className="unified-workflow__intervention-label">
-              <input
-                type="checkbox"
-                checked={interventionMode}
-                onChange={(e) => handleInterventionToggle(e.target.checked)}
-                disabled={isRunning}
-              />
-              <Eye size={16} />
-              <span>Intervention Mode</span>
-              <span className="unified-workflow__intervention-hint">
-                (pause after each step for inspection)
-              </span>
-            </label>
-          </div>
-
-          {/* Pre-Step Input Editing Toggle */}
-          <div className="unified-workflow__prestep-toggle">
-            <label className="unified-workflow__prestep-label">
-              <input
-                type="checkbox"
-                checked={preStepPauseEnabled}
-                onChange={(e) => handlePreStepPauseToggle(e.target.checked)}
-                disabled={isRunning}
-              />
-              <Edit3 size={16} />
-              <span>Pre-Step Editing</span>
-              <span className="unified-workflow__prestep-hint">
-                (edit input data before each step)
-              </span>
-            </label>
-          </div>
-
-          {/* Export Button */}
-          <div className="unified-workflow__export-toggle">
+          <div className="unified-workflow__controls">
             <button
               type="button"
-              className="unified-workflow__export-btn"
-              onClick={() => setShowExportPanel(true)}
-              aria-label="Open export panel"
+              className="unified-workflow__control-btn unified-workflow__control-btn--retry"
+              onClick={handleRetryLastStep}
+              aria-label={`Retry step: ${lastExecutedStep.name}`}
             >
-              <Download size={16} />
-              <span>Export Data</span>
+              <RefreshCw size={18} />
+              Retry {lastExecutedStep.name}
             </button>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Intervention Panel - shown when paused for intervention */}
-      {interventionStep && pendingIntervention && (
-        <InterventionPanel
-          step={interventionStep}
-          onContinue={handleInterventionContinue}
-          onRetry={handleInterventionRetry}
-          onStop={handleInterventionStop}
+        {/* Theme JSON Debug Viewer - shows when design system data is available */}
+        {(generatedData.scrapeResult as { design_system?: Record<string, unknown> } | undefined)?.design_system && (
+          <div className="unified-workflow__theme-debug">
+            <ThemeJsonDebugViewer
+              designSystem={(generatedData.scrapeResult as { design_system: Record<string, unknown> }).design_system as import('../DesignSystemViewer').DesignSystem}
+            />
+          </div>
+        )}
+
+        {/* Intervention Panel - shown when paused for intervention */}
+        {interventionStep && pendingIntervention && (
+          <InterventionPanel
+            step={interventionStep}
+            onContinue={handleInterventionContinue}
+            onRetry={handleInterventionRetry}
+            onStop={handleInterventionStop}
+          />
+        )}
+
+        {/* Input Editor Panels - step-specific for prevent-hotlinking and upload-json-to-github */}
+        {preStepInputStep && pendingPreStepInput === 'prevent-hotlinking' && (
+          <PreventHotlinkingEditorPanel
+            step={preStepInputStep}
+            pagesData={
+              (generatedData.imagePickerResult as { pageData?: Record<string, unknown> } | undefined)?.pageData ||
+              (generatedData.contentResult as { pageData?: Record<string, unknown> } | undefined)?.pageData
+            }
+            themeData={(generatedData.themeResult as { theme?: Record<string, unknown> } | undefined)?.theme}
+            provisionResult={generatedData.provisionResult as import('../../types/UnifiedWorkflowTypes').ProvisionStepResult | undefined}
+            siteConfig={siteConfig}
+            onUseOriginal={handlePreStepInputUseOriginal}
+            onUseEdited={handlePreStepInputUseEdited}
+            onCancel={handlePreStepInputCancel}
+          />
+        )}
+
+        {preStepInputStep && pendingPreStepInput === 'upload-json-to-github' && (
+          <GithubJsonEditorPanel
+            step={preStepInputStep}
+            pagesData={
+              (generatedData.hotlinkPagesResult as Record<string, unknown> | undefined) ||
+              (generatedData.imagePickerResult as { pageData?: Record<string, unknown> } | undefined)?.pageData ||
+              (generatedData.contentResult as { pageData?: Record<string, unknown> } | undefined)?.pageData
+            }
+            globalData={(generatedData.contentResult as { globalData?: Record<string, unknown> } | undefined)?.globalData}
+            themeData={
+              (generatedData.hotlinkThemeResult as Record<string, unknown> | undefined) ||
+              (generatedData.themeResult as { theme?: Record<string, unknown> } | undefined)?.theme
+            }
+            githubRepoResult={generatedData.githubRepoResult as import('../../types/UnifiedWorkflowTypes').CreateGithubRepoResult | undefined}
+            onUseOriginal={handlePreStepInputUseOriginal}
+            onUseEdited={handlePreStepInputUseEdited}
+            onCancel={handlePreStepInputCancel}
+          />
+        )}
+
+        {/* Fallback Input Editor Panel for other editable steps */}
+        {preStepInputStep && pendingPreStepInput &&
+         pendingPreStepInput !== 'prevent-hotlinking' &&
+         pendingPreStepInput !== 'upload-json-to-github' && (
+          <InputEditorPanel
+            step={preStepInputStep}
+            inputData={preStepInputData}
+            onUseOriginal={handlePreStepInputUseOriginal}
+            onUseEdited={handlePreStepInputUseEdited}
+            onCancel={handlePreStepInputCancel}
+          />
+        )}
+
+        {/* Progress Display */}
+        <WorkflowProgressDisplay
+          onRunStep={handleRunStep}
+          onSkipStep={handleSkipStep}
+          onRetryStep={handleRetryStep}
         />
-      )}
 
-      {/* Input Editor Panels - step-specific for prevent-hotlinking and upload-json-to-github */}
-      {preStepInputStep && pendingPreStepInput === 'prevent-hotlinking' && (
-        <PreventHotlinkingEditorPanel
-          step={preStepInputStep}
-          pagesData={
-            (generatedData.imagePickerResult as { pageData?: Record<string, unknown> } | undefined)?.pageData ||
-            (generatedData.contentResult as { pageData?: Record<string, unknown> } | undefined)?.pageData
-          }
-          themeData={(generatedData.themeResult as { theme?: Record<string, unknown> } | undefined)?.theme}
-          provisionResult={generatedData.provisionResult as import('../../types/UnifiedWorkflowTypes').ProvisionStepResult | undefined}
-          siteConfig={siteConfig}
-          onUseOriginal={handlePreStepInputUseOriginal}
-          onUseEdited={handlePreStepInputUseEdited}
-          onCancel={handlePreStepInputCancel}
-        />
-      )}
+        {/* Navigation Links - shown when domain is configured */}
+        {siteConfig.domain && (
+          <NavigationLinks
+            domain={siteConfig.domain}
+            githubRepo={siteConfig.githubRepo}
+          />
+        )}
 
-      {preStepInputStep && pendingPreStepInput === 'upload-json-to-github' && (
-        <GithubJsonEditorPanel
-          step={preStepInputStep}
-          pagesData={
-            (generatedData.hotlinkPagesResult as Record<string, unknown> | undefined) ||
-            (generatedData.imagePickerResult as { pageData?: Record<string, unknown> } | undefined)?.pageData ||
-            (generatedData.contentResult as { pageData?: Record<string, unknown> } | undefined)?.pageData
-          }
-          globalData={(generatedData.contentResult as { globalData?: Record<string, unknown> } | undefined)?.globalData}
-          themeData={
-            (generatedData.hotlinkThemeResult as Record<string, unknown> | undefined) ||
-            (generatedData.themeResult as { theme?: Record<string, unknown> } | undefined)?.theme
-          }
-          githubRepoResult={generatedData.githubRepoResult as import('../../types/UnifiedWorkflowTypes').CreateGithubRepoResult | undefined}
-          onUseOriginal={handlePreStepInputUseOriginal}
-          onUseEdited={handlePreStepInputUseEdited}
-          onCancel={handlePreStepInputCancel}
-        />
-      )}
+      </div>
 
-      {/* Fallback Input Editor Panel for other editable steps */}
-      {preStepInputStep && pendingPreStepInput &&
-       pendingPreStepInput !== 'prevent-hotlinking' &&
-       pendingPreStepInput !== 'upload-json-to-github' && (
-        <InputEditorPanel
-          step={preStepInputStep}
-          inputData={preStepInputData}
-          onUseOriginal={handlePreStepInputUseOriginal}
-          onUseEdited={handlePreStepInputUseEdited}
-          onCancel={handlePreStepInputCancel}
-        />
-      )}
-
-      {/* Export Panel Modal */}
+      {/* Modals stay at root level (fixed position overlays) */}
       {showExportPanel && (
         <div className="unified-workflow__export-overlay">
           <ExportPanel onClose={() => setShowExportPanel(false)} />
         </div>
       )}
 
-      {/* Progress Display */}
-      <WorkflowProgressDisplay
-        onRunStep={handleRunStep}
-        onSkipStep={handleSkipStep}
-        onRetryStep={handleRetryStep}
-      />
-
-      {/* Navigation Links - shown when domain is configured */}
-      {siteConfig.domain && (
-        <NavigationLinks
-          domain={siteConfig.domain}
-          githubRepo={siteConfig.githubRepo}
-        />
-      )}
-
-      {/* Cleanup Button - always available when not running */}
-      {!isRunning && (
-        <div className="unified-workflow__cleanup-section">
-          <button
-            type="button"
-            className="unified-workflow__cleanup-btn"
-            onClick={() => setShowCleanupPanel(true)}
-            aria-label="Open cleanup panel to delete provisioned infrastructure"
-          >
-            <Trash2 size={18} />
-            {siteConfig.domain ? (
-              <>Cleanup <strong>{siteConfig.domain}</strong></>
-            ) : (
-              'Cleanup Infrastructure'
-            )}
-          </button>
-          <span className="unified-workflow__cleanup-hint">
-            {siteConfig.domain
-              ? 'Delete AWS resources and GitHub repo for this domain'
-              : 'Delete AWS resources and GitHub repo for any domain'}
-          </span>
-        </div>
-      )}
-
-      {/* Cleanup Panel Modal */}
       {showCleanupPanel && (
         <div className="unified-workflow__cleanup-overlay">
           <CleanupPanel onClose={() => setShowCleanupPanel(false)} />
