@@ -130,6 +130,8 @@ const ConfigurationPanel: React.FC<ConfigurationPanelProps> = ({
     return Math.max(1, Math.round(totalSeconds / 60));
   }, [steps, config.contentModel, config.homePageOnly]);
 
+  const [domainManuallyEdited, setDomainManuallyEdited] = useState(false);
+
   const handleInputChange = (field: keyof SiteConfig, value: string | boolean) => {
     console.log('[DEBUG] handleInputChange called:', field, value);
     const updates: Partial<SiteConfig> = { [field]: value };
@@ -137,6 +139,15 @@ const ConfigurationPanel: React.FC<ConfigurationPanelProps> = ({
     // Auto-sync template and siteType
     if (field === 'template') {
       updates.siteType = value as string;
+    }
+
+    // Auto-fill domain from scrapeDomain unless user has manually edited domain
+    if (field === 'scrapeDomain' && !domainManuallyEdited && typeof value === 'string') {
+      updates.domain = value;
+    }
+
+    if (field === 'domain') {
+      setDomainManuallyEdited(true);
     }
 
     onConfigChange(updates);
@@ -154,20 +165,6 @@ const ConfigurationPanel: React.FC<ConfigurationPanelProps> = ({
         <div className="config-panel-v2__card config-panel-v2__card--site">
           <div className="config-panel-v2__card-body">
             <div className="config-panel-v2__field">
-              <label htmlFor="domain" className="config-panel-v2__label">
-                Domain
-              </label>
-              <input
-                type="text"
-                id="domain"
-                className="config-panel-v2__input"
-                value={config.domain}
-                onChange={(e) => handleInputChange('domain', e.target.value)}
-                placeholder="example.com"
-                disabled={disabled}
-              />
-            </div>
-            <div className="config-panel-v2__field">
               <label htmlFor="scrapeDomain" className="config-panel-v2__label">
                 Scrape Domain <span className="config-panel-v2__required">*</span>
               </label>
@@ -180,6 +177,20 @@ const ConfigurationPanel: React.FC<ConfigurationPanelProps> = ({
                 placeholder="existing-site.com"
                 disabled={disabled}
                 required
+              />
+            </div>
+            <div className="config-panel-v2__field">
+              <label htmlFor="domain" className="config-panel-v2__label">
+                Domain
+              </label>
+              <input
+                type="text"
+                id="domain"
+                className="config-panel-v2__input"
+                value={config.domain}
+                onChange={(e) => handleInputChange('domain', e.target.value)}
+                placeholder="example.com"
+                disabled={disabled}
               />
             </div>
 
