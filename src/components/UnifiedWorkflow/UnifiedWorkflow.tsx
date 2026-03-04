@@ -142,8 +142,20 @@ const ConfigurationPanel: React.FC<ConfigurationPanelProps> = ({
     }
 
     // Auto-fill domain from scrapeDomain unless user has manually edited domain
+    // Strips protocol, www, trailing slashes, then derives a short name:
+    //   https://www.drcraigortho.com/ -> drcraigortho
+    //   https://example.net -> example-net
+    //   example.org/path -> example-org
     if (field === 'scrapeDomain' && !domainManuallyEdited && typeof value === 'string') {
-      updates.domain = value;
+      let cleaned = value.replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/.*$/, '').trim();
+      if (cleaned) {
+        const parts = cleaned.split('.');
+        const tld = parts.length > 1 ? parts[parts.length - 1] : '';
+        const name = parts.slice(0, -1).join('');
+        updates.domain = tld === 'com' || !tld ? name : `${name}-${tld}`;
+      } else {
+        updates.domain = '';
+      }
     }
 
     if (field === 'domain') {
