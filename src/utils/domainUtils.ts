@@ -2,6 +2,7 @@
 // "https://www.drcraigortho.com/" -> "drcraigortho.com"
 export const cleanDomain = (raw: string): string => {
   return raw
+    .trim()
     .replace(/^https?:\/\//, '')
     .replace(/^www\./, '')
     .replace(/\/.*$/, '')
