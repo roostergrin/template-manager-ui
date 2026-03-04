@@ -72,7 +72,7 @@ const defaultSiteConfig: SiteConfig = {
 
 // Default config
 const defaultConfig: UnifiedWorkflowConfig = {
-  mode: 'manual',
+  mode: 'yolo',
   siteConfig: defaultSiteConfig,
   stopOnError: true,
 };

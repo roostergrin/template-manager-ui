@@ -6,23 +6,13 @@ import {
   SkipForward,
   Play,
   Loader,
-  Database,
-  FileText,
-  Server,
-  Globe,
-  Layout,
-  Image,
-  Shield,
-  Upload,
-  Palette,
-  Map,
   Download,
   Edit3,
   RotateCw,
 } from 'lucide-react';
 import { useUnifiedWorkflow } from '../../contexts/UnifiedWorkflowProvider';
 import { WorkflowStep, WorkflowStepStatus } from '../../types/UnifiedWorkflowTypes';
-import { getYoloExecutionOrder, getExecutionOrderByTarget, WORKFLOW_STEP_IDS } from '../../constants/workflowSteps';
+import { getExecutionOrderByTarget } from '../../constants/workflowSteps';
 import { useWorkflowExport } from '../../hooks/useWorkflowExport';
 import { useWorkflowStepRunner } from '../../hooks/useWorkflowStepRunner';
 import { STEP_DATA_CONTRACT, getStepOutputKey, getStepEditData, isStepEditable as checkStepEditable } from '../../constants/stepInputMappings';
@@ -35,115 +25,6 @@ import DownloadThemeEditorPanel from './DownloadThemeEditorPanel';
 import ImagePickerEditorPanel from './ImagePickerEditorPanel';
 import { ProvisionStepResult, CreateGithubRepoResult, ScrapeStepResult, SitemapStepResult, AllocatedSitemapResult, ContentStepResult } from '../../types/UnifiedWorkflowTypes';
 
-// Step metadata with icons and deliverables
-const STEP_METADATA: Record<string, {
-  icon: React.ReactNode;
-  outputs: string[];
-  phase: 'infrastructure' | 'planning' | 'deployment';
-}> = {
-  'create-github-repo': {
-    icon: <Globe size={16} />,
-    outputs: ['repo_url', 'owner', 'repo_name'],
-    phase: 'infrastructure',
-  },
-  'provision-wordpress-backend': {
-    icon: <Database size={16} />,
-    outputs: ['api_domain', 'credentials'],
-    phase: 'infrastructure',
-  },
-  'provision-site': {
-    icon: <Server size={16} />,
-    outputs: ['bucket', 'cloudfront_id', 'pipeline_name'],
-    phase: 'infrastructure',
-  },
-  'scrape-site': {
-    icon: <Globe size={16} />,
-    outputs: ['pages', 'global_markdown', 'style_overview'],
-    phase: 'planning',
-  },
-  'create-vector-store': {
-    icon: <Database size={16} />,
-    outputs: ['vector_store_id'],
-    phase: 'planning',
-  },
-  'select-template': {
-    icon: <Layout size={16} />,
-    outputs: ['template', 'default sitemap'],
-    phase: 'planning',
-  },
-  'allocate-content': {
-    icon: <FileText size={16} />,
-    outputs: ['allocatedSitemap', 'allocated_markdown'],
-    phase: 'planning',
-  },
-  'generate-sitemap': {
-    icon: <Map size={16} />,
-    outputs: ['sitemapResult.pages'],
-    phase: 'planning',
-  },
-  'generate-content': {
-    icon: <FileText size={16} />,
-    outputs: ['pageData', 'globalData'],
-    phase: 'planning',
-  },
-  'download-theme': {
-    icon: <Palette size={16} />,
-    outputs: ['theme.json'],
-    phase: 'planning',
-  },
-  'image-picker': {
-    icon: <Image size={16} />,
-    outputs: ['updated pageData'],
-    phase: 'planning',
-  },
-  'prevent-hotlinking': {
-    icon: <Shield size={16} />,
-    outputs: ['S3 policy'],
-    phase: 'infrastructure',
-  },
-  'export-to-wordpress': {
-    icon: <Upload size={16} />,
-    outputs: ['WP pages updated'],
-    phase: 'deployment',
-  },
-  'second-pass': {
-    icon: <CheckCircle size={16} />,
-    outputs: ['IDs fixed', 'a11y fixed'],
-    phase: 'deployment',
-  },
-  'upload-logo': {
-    icon: <Image size={16} />,
-    outputs: ['logoUrl'],
-    phase: 'deployment',
-  },
-  'upload-favicon': {
-    icon: <Image size={16} />,
-    outputs: ['faviconUrl'],
-    phase: 'deployment',
-  },
-  // Demo site (Cloudflare Pages) steps
-  'create-demo-repo': {
-    icon: <Globe size={16} />,
-    outputs: ['repo_url', 'owner', 'repo_name'],
-    phase: 'infrastructure',
-  },
-  'provision-cloudflare-pages': {
-    icon: <Server size={16} />,
-    outputs: ['pages_url', 'project_name'],
-    phase: 'infrastructure',
-  },
-  'upload-json-to-github': {
-    icon: <Upload size={16} />,
-    outputs: ['pages.json', 'globalData.json', 'theme.json'],
-    phase: 'deployment',
-  },
-};
-
-const PHASE_COLORS = {
-  infrastructure: '#3b82f6',
-  planning: '#8b5cf6',
-  deployment: '#10b981',
-};
 
 interface StepItemProps {
   step: WorkflowStep;
@@ -165,15 +46,15 @@ interface StepItemProps {
 const StepStatusIcon: React.FC<{ status: WorkflowStepStatus }> = ({ status }) => {
   switch (status) {
     case 'completed':
-      return <CheckCircle className="workflow-progress__status-icon workflow-progress__status-icon--completed" size={18} />;
+      return <CheckCircle className="workflow-progress__status-icon workflow-progress__status-icon--completed" size={16} />;
     case 'in_progress':
-      return <Loader className="workflow-progress__status-icon workflow-progress__status-icon--running" size={18} />;
+      return <Loader className="workflow-progress__status-icon workflow-progress__status-icon--running" size={16} />;
     case 'error':
-      return <AlertCircle className="workflow-progress__status-icon workflow-progress__status-icon--error" size={18} />;
+      return <AlertCircle className="workflow-progress__status-icon workflow-progress__status-icon--error" size={16} />;
     case 'skipped':
-      return <SkipForward className="workflow-progress__status-icon workflow-progress__status-icon--skipped" size={18} />;
+      return <SkipForward className="workflow-progress__status-icon workflow-progress__status-icon--skipped" size={16} />;
     default:
-      return <Clock className="workflow-progress__status-icon workflow-progress__status-icon--pending" size={18} />;
+      return <Clock className="workflow-progress__status-icon workflow-progress__status-icon--pending" size={16} />;
   }
 };
 
@@ -193,9 +74,6 @@ const StepItem: React.FC<StepItemProps> = ({
   isWorkflowRunning,
   isEditable,
 }) => {
-  const metadata = STEP_METADATA[step.id];
-  const phaseColor = metadata ? PHASE_COLORS[metadata.phase] : '#6c7086';
-
   const formatDuration = (seconds: number): string => {
     if (seconds < 60) return `${seconds}s`;
     const mins = Math.floor(seconds / 60);
@@ -242,41 +120,20 @@ const StepItem: React.FC<StepItemProps> = ({
         tabIndex={0}
         role="button"
         aria-label={`Step ${stepIndex + 1}: ${step.name}, Status: ${step.status}`}
-        style={{ borderLeftColor: phaseColor }}
       >
-        <div className="workflow-progress__step-number" style={{ backgroundColor: phaseColor }}>
-          {stepIndex + 1}
-        </div>
-
         <div className="workflow-progress__step-icon">
-          {step.status === 'in_progress' ? (
-            <StepStatusIcon status={step.status} />
-          ) : step.status === 'completed' ? (
-            <StepStatusIcon status={step.status} />
-          ) : step.status === 'error' ? (
-            <StepStatusIcon status={step.status} />
-          ) : (
-            metadata?.icon || <StepStatusIcon status={step.status} />
-          )}
+          <StepStatusIcon status={step.status} />
         </div>
 
         <div className="workflow-progress__step-content">
-          <div className="workflow-progress__step-header">
-            <span className="workflow-progress__step-name">{step.name}</span>
-            <span className="workflow-progress__step-phase" style={{ color: phaseColor }}>
-              {metadata?.phase}
-            </span>
-          </div>
-          <p className="workflow-progress__step-description">{step.description}</p>
-
+          <span className="workflow-progress__step-name">{step.name}</span>
           {step.actualDurationSeconds !== undefined && (
             <span className="workflow-progress__step-duration">
               {formatDuration(step.actualDurationSeconds)}
             </span>
           )}
-
           {step.error && (
-            <p className="workflow-progress__step-error">{step.error}</p>
+            <span className="workflow-progress__step-error">{step.error}</span>
           )}
         </div>
 
@@ -537,27 +394,6 @@ const WorkflowProgressDisplay: React.FC<WorkflowProgressDisplayProps> = ({
 
   return (
     <div className="workflow-progress">
-      {/* Header */}
-      <div className="workflow-progress__header">
-        <h3 className="workflow-progress__title">Workflow Steps</h3>
-      </div>
-
-      {/* Legend */}
-      <div className="workflow-progress__legend">
-        <span className="workflow-progress__legend-item">
-          <span className="workflow-progress__legend-dot" style={{ backgroundColor: PHASE_COLORS.infrastructure }} />
-          Infrastructure
-        </span>
-        <span className="workflow-progress__legend-item">
-          <span className="workflow-progress__legend-dot" style={{ backgroundColor: PHASE_COLORS.planning }} />
-          Planning
-        </span>
-        <span className="workflow-progress__legend-item">
-          <span className="workflow-progress__legend-dot" style={{ backgroundColor: PHASE_COLORS.deployment }} />
-          Deployment
-        </span>
-      </div>
-
       {/* Steps in execution order with inline editor panels */}
       <div className="workflow-progress__steps-list">
         {orderedSteps.map((step, index) => (
