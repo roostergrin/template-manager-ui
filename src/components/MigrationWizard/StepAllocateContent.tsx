@@ -6,7 +6,7 @@ import { useAppConfig } from '../../contexts/AppConfigProvider';
 import useAllocateContent from '../../hooks/useAllocateContent';
 import { getBackendSiteTypeForModelGroup } from '../../utils/modelGroupKeyToBackendSiteType';
 import ContentAllocationViewer from './ContentAllocationViewer';
-import './Step3.25AllocateContent.sass';
+import './StepAllocateContent.sass';
 
 const Step3_25AllocateContent: React.FC = () => {
   const { state, actions } = useMigrationWizard();

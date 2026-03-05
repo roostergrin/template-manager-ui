@@ -7,6 +7,8 @@
 
 import { DesignSystemData, LogoConfig } from '../types/APIServiceTypes';
 
+// ─── TYPE DEFINITIONS ───
+
 export interface ThemeColorEntry {
   label: string;
   color: { red: number; green: number; blue: number; alpha: number };
@@ -42,6 +44,8 @@ export interface ThemeDefault {
 export interface ThemeJson {
   default: ThemeDefault;
 }
+
+// ─── COLOR UTILITIES ───
 
 /**
  * Check if a string is a valid hex color
@@ -126,6 +130,8 @@ export const getWcagRating = (contrast: number): { rating: string; class: string
   if (contrast >= 3) return { rating: 'AA Large', class: 'wcag-aa-large' };
   return { rating: 'Fail', class: 'wcag-fail' };
 };
+
+// ─── FONT UTILITIES ───
 
 /**
  * Format font stack for theme.json
@@ -641,6 +647,8 @@ const findMissingProminentColors = (
   return prominent;
 };
 
+// ─── PUBLIC API ───
+
 /**
  * Build a complete theme.json from design system data
  */
@@ -766,6 +774,8 @@ export const buildThemeFromDesignSystem = (designSystem: ExtendedDesignSystem): 
 
   return themeJson;
 };
+
+// ─── THEME MERGING ───
 
 /**
  * Merge backend theme response with design system data

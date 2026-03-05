@@ -101,6 +101,7 @@ const unifiedWorkflowReducer = (
   action: UnifiedWorkflowAction
 ): UnifiedWorkflowState => {
   switch (action.type) {
+    // ─── SITE CONFIGURATION ───
     case 'SET_MODE':
       return {
         ...state,
@@ -157,6 +158,7 @@ const unifiedWorkflowReducer = (
         config: { ...state.config, batchConfig: action.payload },
       };
 
+    // ─── STEP MANAGEMENT ───
     case 'SET_STEP_STATUS': {
       const { stepId, status, result, error } = action.payload;
       const now = new Date().toISOString();
@@ -201,6 +203,7 @@ const unifiedWorkflowReducer = (
         currentStepId: action.payload,
       };
 
+    // ─── WORKFLOW LIFECYCLE ───
     case 'START_WORKFLOW':
       return {
         ...state,
@@ -235,6 +238,7 @@ const unifiedWorkflowReducer = (
         config: state.config, // Preserve config
       };
 
+    // ─── PROGRESS EVENTS ───
     case 'ADD_PROGRESS_EVENT': {
       const event: WorkflowProgressEvent = {
         ...action.payload,
@@ -253,6 +257,7 @@ const unifiedWorkflowReducer = (
         progressEvents: [],
       };
 
+    // ─── GENERATED DATA ───
     case 'SET_GENERATED_DATA':
       return {
         ...state,
@@ -294,6 +299,7 @@ const unifiedWorkflowReducer = (
         ...action.payload,
       };
 
+    // ─── INTERVENTION ───
     case 'SET_INTERVENTION_MODE':
       return {
         ...state,
@@ -363,6 +369,7 @@ const unifiedWorkflowReducer = (
         editedInputData: {},
       };
 
+    // ─── SESSION LOG ───
     case 'ADD_SESSION_LOG_ENTRY': {
       const logEntry: SessionLogEntry = {
         ...action.payload,
@@ -412,6 +419,8 @@ export const UnifiedWorkflowProvider: React.FC<UnifiedWorkflowProviderProps> = (
     () => getSessionStorageKey(BASE_STORAGE_KEY, sessionId),
     [sessionId]
   );
+
+  // ─── STATE PERSISTENCE ───
 
   // Load state from localStorage on mount
   useEffect(() => {

@@ -138,6 +138,7 @@ const ConfigurationPanel: React.FC<ConfigurationPanelProps> = ({
     const updates: Partial<SiteConfig> = { [field]: value };
 
     // Auto-sync template and siteType
+    // TODO: Remove siteType once all consumers have migrated to use template directly (siteType is deprecated)
     if (field === 'template') {
       updates.siteType = value as string;
     }
