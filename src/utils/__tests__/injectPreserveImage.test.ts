@@ -5,7 +5,7 @@ import {
   injectPreserveImageFromSitemap,
   SitemapPage,
   GeneratedComponent,
-} from '../injectPreserveImage';
+} from '../imagePreservation/injectPreserveImage';
 
 describe('createPreserveImageMap', () => {
   it('should create a map with preserve_image values by page and index', () => {

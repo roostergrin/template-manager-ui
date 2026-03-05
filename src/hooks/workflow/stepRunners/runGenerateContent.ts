@@ -7,7 +7,7 @@ import {
   AllocatedSitemapResult,
   ContentStepResult,
 } from '../../../types/UnifiedWorkflowTypes';
-import { createPreserveImageMap, injectPreserveImageIntoContent } from '../../../utils/injectPreserveImage';
+import { createPreserveImageMap, injectPreserveImageIntoContent } from '../../../utils/imagePreservation/injectPreserveImage';
 import { StepResult, StepRunnerDeps, isResponseSuccessful } from './stepRunnerTypes';
 
 export async function runGenerateContent(deps: StepRunnerDeps, logger: StepLogger): Promise<StepResult> {
