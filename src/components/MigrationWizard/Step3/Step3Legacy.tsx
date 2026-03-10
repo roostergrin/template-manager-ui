@@ -33,7 +33,7 @@ const Step3Legacy: React.FC = () => {
   const hasSavedAllocationRef = useRef(false);
 
   const selectedModelGroupKey = appConfigState.selectedModelGroupKey || Object.keys(modelGroups)[0];
-  const backendSiteType = getBackendSiteTypeForModelGroup(selectedModelGroupKey) || ';
+  const backendSiteType = getBackendSiteTypeForModelGroup(selectedModelGroupKey) || '';
   const pages = sitemapState.pages;
   const pagesCount = pages.length;
 
