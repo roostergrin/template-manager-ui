@@ -6,7 +6,7 @@ import { StepResult, StepRunnerDeps, isResponseSuccessful } from './stepRunnerTy
 
 export async function runCreateVectorStore(deps: StepRunnerDeps, logger: StepLogger): Promise<StepResult> {
   // Use getSiteConfigSync() to get current config from ref (avoids stale closure in batch mode)
-  const siteConfig = deps.actions.getSiteConfigSync();
+  const siteConfig = deps.getSiteConfigSync();
   const scrapeResult = deps.getGeneratedData<ScrapeStepResult>('scrapeResult');
 
   // Debug logging
@@ -23,7 +23,7 @@ export async function runCreateVectorStore(deps: StepRunnerDeps, logger: StepLog
     logger.logProcessing('Using edited input data for vector store');
     pages = editedInput as typeof pages;
     delete deps.editedInputDataRef.current['create-vector-store'];
-    deps.actions.clearEditedInputData();
+    deps.clearEditedInputData();
   }
 
   if (!pages) {

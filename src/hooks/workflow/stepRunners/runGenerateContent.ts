@@ -11,7 +11,7 @@ import { createPreserveImageMap, injectPreserveImageIntoContent } from '../../..
 import { StepResult, StepRunnerDeps, isResponseSuccessful } from './stepRunnerTypes';
 
 export async function runGenerateContent(deps: StepRunnerDeps, logger: StepLogger): Promise<StepResult> {
-  const siteConfig = deps.actions.getSiteConfigSync();
+  const siteConfig = deps.getSiteConfigSync();
   const sitemapResult = deps.getGeneratedData<SitemapStepResult>('sitemapResult');
   const allocatedSitemap = deps.getGeneratedData<AllocatedSitemapResult>('allocatedSitemap');
 
@@ -94,7 +94,7 @@ export async function runGenerateContent(deps: StepRunnerDeps, logger: StepLogge
       questionnaireData,
       sitemap_metadata,
     },
-    site_type: siteConfig.siteType,
+    site_type: siteConfig.template,
     assign_images: false,  // Disabled - image assignment handled by separate image-picker step
     use_site_pool: true,
     model: siteConfig.contentModel || 'gpt-5-mini',
@@ -107,7 +107,7 @@ export async function runGenerateContent(deps: StepRunnerDeps, logger: StepLogge
     sitemap_data: {
       questionnaireData,
     },
-    site_type: siteConfig.siteType,
+    site_type: siteConfig.template,
     model: siteConfig.contentModel || 'gpt-5-mini',
     // Pass scraped content so backend can extract all social links
     scraped_content: scrapeResult ? {

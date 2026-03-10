@@ -315,7 +315,7 @@ export const useWorkflowStepRunner = () => {
 
   // Build deps object for step runners (memoized to avoid unnecessary re-creation)
   const deps: StepRunnerDeps = useMemo(() => ({
-    actions,
+    ...actions,
     getGeneratedData,
     setGeneratedDataWithRef,
     editedInputDataRef,

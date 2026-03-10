@@ -1,7 +1,7 @@
 import { startAndPollAsyncJob } from '../../../services/apiService';
 import { createTimer } from '../../../utils/workflowLogger';
 import { StepLogger } from '../../../utils/workflowLogger';
-import { getGithubTemplateRepo } from '../../../modelGroups';
+import { getGithubTemplateRepo } from '../../../siteTemplates';
 import { CreateDemoRepoResult } from '../../../types/UnifiedWorkflowTypes';
 import { domainToSlug } from '../../../utils/domainUtils';
 import { StepResult, StepRunnerDeps, isResponseSuccessful } from './stepRunnerTypes';
@@ -10,7 +10,7 @@ export async function runCreateDemoRepo(deps: StepRunnerDeps, logger: StepLogger
   console.log('[BATCH DEBUG] runCreateDemoRepo START');
 
   // Use getSiteConfigSync() to get current config from ref (avoids stale closure in batch mode)
-  const siteConfig = deps.actions.getSiteConfigSync();
+  const siteConfig = deps.getSiteConfigSync();
   console.log('[BATCH DEBUG] runCreateDemoRepo - getSiteConfigSync() returned domain:', siteConfig.domain);
 
   const deploymentTarget = siteConfig.deploymentTarget || 'demo';

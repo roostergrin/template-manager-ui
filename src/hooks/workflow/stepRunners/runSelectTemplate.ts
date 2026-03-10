@@ -2,7 +2,7 @@ import { StepLogger } from '../../../utils/workflowLogger';
 import { StepResult, StepRunnerDeps } from './stepRunnerTypes';
 
 export async function runSelectTemplate(deps: StepRunnerDeps, logger: StepLogger): Promise<StepResult> {
-  const siteConfig = deps.actions.getSiteConfigSync();
+  const siteConfig = deps.getSiteConfigSync();
 
   // Template selection is usually done through UI, this just validates it
   if (!siteConfig.template) {

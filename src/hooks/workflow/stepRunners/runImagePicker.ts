@@ -37,7 +37,7 @@ export async function runImagePicker(deps: StepRunnerDeps, logger: StepLogger): 
     }
     // Clear the edited data after using it (both ref and state)
     delete deps.editedInputDataRef.current['image-picker'];
-    deps.actions.clearEditedInputData();
+    deps.clearEditedInputData();
   } else {
     // Check for page data under different possible keys
     // The API might return data as 'pageData', 'pages', or wrapped in a 'pages' object

@@ -25,7 +25,7 @@ const GenerateSitemapEditorPanel: React.FC<GenerateSitemapEditorPanelProps> = ({
   const initialPages = allocatedPages || scrapedPages;
 
   // Configuration state
-  const [siteType, setSiteType] = useState(siteConfig.siteType || 'stinson');
+  const [siteType, setSiteType] = useState(siteConfig.template || 'stinson');
 
   // JSON data state
   const [pagesJson, setPagesJson] = useState(

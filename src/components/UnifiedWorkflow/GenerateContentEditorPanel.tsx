@@ -22,7 +22,7 @@ const GenerateContentEditorPanel: React.FC<GenerateContentEditorPanelProps> = ({
   onCancel,
 }) => {
   // Configuration state
-  const [siteType, setSiteType] = useState(siteConfig.siteType || 'stinson');
+  const [siteType, setSiteType] = useState(siteConfig.template || 'stinson');
   const [assignImages, setAssignImages] = useState(true);
 
   // JSON data state

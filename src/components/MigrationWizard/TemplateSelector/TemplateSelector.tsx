@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef } from 'react';
-import { modelGroups } from '../../../modelGroups';
+import { modelGroups } from '../../../siteTemplates';
 import './TemplateSelector.sass';
 
 interface TemplateSelectorProps {

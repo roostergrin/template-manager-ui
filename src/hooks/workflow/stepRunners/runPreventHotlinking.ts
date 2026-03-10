@@ -37,7 +37,7 @@ function replaceUrlsInObject(obj: unknown, urlMap: Map<string, string>): unknown
 }
 
 export async function runPreventHotlinking(deps: StepRunnerDeps, logger: StepLogger): Promise<StepResult> {
-  const siteConfig = deps.actions.getSiteConfigSync();
+  const siteConfig = deps.getSiteConfigSync();
 
   // Check for edited input data first
   const editedInput = deps.editedInputDataRef.current['prevent-hotlinking'] as {

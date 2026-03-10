@@ -5,7 +5,7 @@ import { ScrapeStepResult, AllocatedSitemapResult, SitemapStepResult } from '../
 import { StepResult, StepRunnerDeps, isResponseSuccessful } from './stepRunnerTypes';
 
 export async function runGenerateSitemap(deps: StepRunnerDeps, logger: StepLogger): Promise<StepResult> {
-  const siteConfig = deps.actions.getSiteConfigSync();
+  const siteConfig = deps.getSiteConfigSync();
   const scrapeResult = deps.getGeneratedData<ScrapeStepResult>('scrapeResult');
   const allocatedSitemap = deps.getGeneratedData<AllocatedSitemapResult>('allocatedSitemap');
 
@@ -53,7 +53,7 @@ export async function runGenerateSitemap(deps: StepRunnerDeps, logger: StepLogge
 
         sitemapToSend = {
           pages: pagesObject,
-          siteType: siteConfig.siteType,
+          siteType: siteConfig.template,
         };
 
         logger.logProcessing(`Built sitemap with ${Object.keys(pagesObject).length} pages containing allocated content`);
@@ -65,7 +65,7 @@ export async function runGenerateSitemap(deps: StepRunnerDeps, logger: StepLogge
           global_markdown: scrapeResult.global_markdown,
           style_overview: scrapeResult.style_overview,
         },
-        site_type: siteConfig.siteType,
+        site_type: siteConfig.template,
         strict_template_mode: true,
         ...(sitemapToSend && { sitemap: sitemapToSend }),
       };

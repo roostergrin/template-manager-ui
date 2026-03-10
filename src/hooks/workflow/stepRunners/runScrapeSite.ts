@@ -6,7 +6,7 @@ import { StepResult, StepRunnerDeps, isResponseSuccessful } from './stepRunnerTy
 
 export async function runScrapeSite(deps: StepRunnerDeps, logger: StepLogger): Promise<StepResult> {
   // Use getSiteConfigSync() to get current config from ref (avoids stale closure in batch mode)
-  const siteConfig = deps.actions.getSiteConfigSync();
+  const siteConfig = deps.getSiteConfigSync();
   console.log('[BATCH DEBUG] runScrapeSite - siteConfig.scrapeDomain:', siteConfig.scrapeDomain);
 
   if (!siteConfig.scrapeDomain) {

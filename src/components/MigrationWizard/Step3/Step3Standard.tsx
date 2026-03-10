@@ -12,7 +12,7 @@ import useRagSitemap from '../../../hooks/useRagSitemap';
 import { useSavedSitemaps } from '../../../hooks/useSavedSitemaps';
 import { getSavedSitemap } from '../../../services/sitemapHistoryService';
 import { getBackendSiteTypeForModelGroup } from '../../../utils/modelGroupKeyToBackendSiteType';
-import { modelGroups } from '../../../modelGroups';
+import { modelGroups } from '../../../siteTemplates';
 import { VectorStore } from '../../../types/SitemapTypes';
 import './Step3Standard.sass';
 
@@ -40,7 +40,7 @@ const Step3Standard: React.FC = () => {
   const { exportJson, importJson } = useImportExport();
 
   // Get vector stores for the domain
-  const domain = state.scrapedContent?.domain || '';
+  const domain = state.scrapedContent?.domain || ';
   const { vectorStores, vectorStoresLoading } = useRagSitemap(domain);
 
   // Get saved sitemaps from backend
@@ -56,7 +56,7 @@ const Step3Standard: React.FC = () => {
   const dropZoneRef = useRef<HTMLDivElement>(null);
 
   const selectedModelGroupKey = appConfigState.selectedModelGroupKey || Object.keys(modelGroups)[0];
-  const backendSiteType = getBackendSiteTypeForModelGroup(selectedModelGroupKey) || '';
+  const backendSiteType = getBackendSiteTypeForModelGroup(selectedModelGroupKey) || ';
   const pages = sitemapState.pages;
   const scrapedContent = state.scrapedContent;
 
@@ -358,7 +358,7 @@ const Step3Standard: React.FC = () => {
       reader.readAsText(file);
     }
     if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+      fileInputRef.current.value = ';
     }
   }, [importJson]);
 

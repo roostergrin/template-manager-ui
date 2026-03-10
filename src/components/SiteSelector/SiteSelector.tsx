@@ -1,6 +1,6 @@
 import React from 'react';
 import './SiteSelector.sass';
-import { ModelGroup, modelGroups } from '../../modelGroups';
+import { ModelGroup, modelGroups } from '../../siteTemplates';
 
 interface SiteSelectorProps {
   selectedModelGroupKey: string;

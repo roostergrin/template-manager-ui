@@ -5,7 +5,7 @@ import { SecondPassResult } from '../../../types/UnifiedWorkflowTypes';
 import { StepResult, StepRunnerDeps, isResponseSuccessful } from './stepRunnerTypes';
 
 export async function runSecondPass(deps: StepRunnerDeps, logger: StepLogger): Promise<StepResult> {
-  const siteConfig = deps.actions.getSiteConfigSync();
+  const siteConfig = deps.getSiteConfigSync();
 
   // Auto-derive WordPress API URL from domain (e.g., example.com -> api-example.roostergrintemplates.com)
   const domainSlug = siteConfig.domain?.replace(/\./g, '-');

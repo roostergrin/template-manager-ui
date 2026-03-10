@@ -13,7 +13,7 @@ import { domainToSlug } from '../../../utils/domainUtils';
 import { StepResult, StepRunnerDeps, isResponseSuccessful } from './stepRunnerTypes';
 
 export async function runUploadJsonToGithub(deps: StepRunnerDeps, logger: StepLogger): Promise<StepResult> {
-  const siteConfig = deps.actions.getSiteConfigSync();
+  const siteConfig = deps.getSiteConfigSync();
   const templateType = siteConfig.templateType || 'json';
 
   // Skip if using WordPress template (rg-template-*)

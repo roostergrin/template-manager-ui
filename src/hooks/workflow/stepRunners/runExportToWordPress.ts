@@ -9,7 +9,7 @@ import {
 import { StepResult, StepRunnerDeps, isResponseSuccessful } from './stepRunnerTypes';
 
 export async function runExportToWordPress(deps: StepRunnerDeps, logger: StepLogger): Promise<StepResult> {
-  const siteConfig = deps.actions.getSiteConfigSync();
+  const siteConfig = deps.getSiteConfigSync();
   const contentResult = deps.getGeneratedData<ContentStepResult>('contentResult');
   const imagePickerResult = deps.getGeneratedData<ImagePickerResult>('imagePickerResult');
 

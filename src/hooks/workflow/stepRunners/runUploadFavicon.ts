@@ -9,7 +9,7 @@ import {
 import { StepResult, StepRunnerDeps } from './stepRunnerTypes';
 
 export async function runUploadFavicon(deps: StepRunnerDeps, logger: StepLogger): Promise<StepResult> {
-  const siteConfig = deps.actions.getSiteConfigSync();
+  const siteConfig = deps.getSiteConfigSync();
   const templateType = siteConfig.templateType || 'json';
 
   // Get theme - prefer hotlink-updated version with CloudFront URLs

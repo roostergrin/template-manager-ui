@@ -1,7 +1,7 @@
 import { startAndPollAsyncJob } from '../../../services/apiService';
 import { createTimer } from '../../../utils/workflowLogger';
 import { StepLogger } from '../../../utils/workflowLogger';
-import { modelGroups } from '../../../modelGroups';
+import { modelGroups } from '../../../siteTemplates';
 import {
   ScrapeStepResult,
   VectorStoreResult,
@@ -11,7 +11,7 @@ import {
 import { StepResult, StepRunnerDeps, isResponseSuccessful } from './stepRunnerTypes';
 
 export async function runAllocateContent(deps: StepRunnerDeps, logger: StepLogger): Promise<StepResult> {
-  const siteConfig = deps.actions.getSiteConfigSync();
+  const siteConfig = deps.getSiteConfigSync();
   const scrapeResult = deps.getGeneratedData<ScrapeStepResult>('scrapeResult');
   let vectorStoreResult = deps.getGeneratedData<VectorStoreResult>('vectorStoreResult');
 
@@ -31,7 +31,7 @@ export async function runAllocateContent(deps: StepRunnerDeps, logger: StepLogge
       deps.setGeneratedDataWithRef('vectorStoreResult', vectorStoreResult);
     }
     delete deps.editedInputDataRef.current['allocate-content'];
-    deps.actions.clearEditedInputData();
+    deps.clearEditedInputData();
   }
 
   // Handle nested data shape: user may paste {pages: {vector_store_id: "..."}} from a file export
@@ -110,7 +110,7 @@ export async function runAllocateContent(deps: StepRunnerDeps, logger: StepLogge
   const payload = {
     sitemap: { pages: pagesObject },
     vector_store_id: vectorStoreResult.vector_store_id,
-    site_type: siteConfig.siteType,
+    site_type: siteConfig.template,
   };
 
   try {

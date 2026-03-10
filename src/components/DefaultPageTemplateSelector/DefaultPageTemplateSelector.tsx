@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { modelGroups } from '../../modelGroups';
+import { modelGroups } from '../../siteTemplates';
 import './DefaultPageTemplateSelector.css';
 
 export interface PageTemplate {
@@ -112,7 +112,7 @@ const DefaultPageTemplateSelector: React.FC<DefaultPageTemplateSelectorProps> = 
               <div
                 key={page.title}
                 className={`default-page-template-selector__item ${
-                  selectedPageIndex === index ? 'default-page-template-selector__item--selected' : ''
+                  selectedPageIndex === index ? 'default-page-template-selector__item--selected' : '
                 }`}
                 onClick={() => handlePageSelect(index)}
               >

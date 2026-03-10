@@ -15,7 +15,7 @@ import useFirstPassAllocation from '../../hooks/useFirstPassAllocation';
 import useSecondPassAllocation from '../../hooks/useSecondPassAllocation';
 import { getBackendSiteTypeForModelGroup } from '../../utils/modelGroupKeyToBackendSiteType';
 import { getEffectiveQuestionnaireData } from '../../utils/questionnaireDataUtils';
-import { modelGroups } from '../../modelGroups';
+import { modelGroups } from '../../siteTemplates';
 import { VectorStore } from '../../types/SitemapTypes';
 import './Step3Structure.sass';
 
@@ -38,7 +38,7 @@ const Step3Structure: React.FC = () => {
   const hasRestoredSourceRef = useRef(false);
 
   const selectedModelGroupKey = appConfigState.selectedModelGroupKey || Object.keys(appConfigState.modelGroups)[0];
-  const backendSiteType = getBackendSiteTypeForModelGroup(selectedModelGroupKey) || '';
+  const backendSiteType = getBackendSiteTypeForModelGroup(selectedModelGroupKey) || ';
   const pages = sitemapState.pages;
 
   // Helper function to merge allocated data into pages
@@ -220,7 +220,7 @@ const Step3Structure: React.FC = () => {
       console.log(`  ✓ Page ${index + 1}: "${url}" → "${formattedTitle}" (id: ${pageId})`);
 
       // Include the markdown content from the scraped page
-      const markdownContent = state.scrapedContent.pages[url] || '';
+      const markdownContent = state.scrapedContent.pages[url] || ';
 
       pagesObject[formattedTitle] = {
         internal_id: internalId,

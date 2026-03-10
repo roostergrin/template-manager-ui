@@ -76,12 +76,6 @@ export const ConfigurationPanel: React.FC<ConfigurationPanelProps> = ({
     console.log('[DEBUG] handleInputChange called:', field, value);
     const updates: Partial<SiteConfig> = { [field]: value };
 
-    // Auto-sync template and siteType
-    // TODO: Remove siteType once all consumers have migrated to use template directly (siteType is deprecated)
-    if (field === 'template') {
-      updates.siteType = value as string;
-    }
-
     // Auto-fill domain from scrapeDomain unless user has manually edited domain
     // Strips protocol, www, trailing slashes, then derives a short name:
     //   https://www.drcraigortho.com/ -> drcraigortho

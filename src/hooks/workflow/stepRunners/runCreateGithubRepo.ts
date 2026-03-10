@@ -1,17 +1,17 @@
 import { startAndPollAsyncJob } from '../../../services/apiService';
 import { createTimer } from '../../../utils/workflowLogger';
 import { StepLogger } from '../../../utils/workflowLogger';
-import { getGithubTemplateRepo } from '../../../modelGroups';
+import { getGithubTemplateRepo } from '../../../siteTemplates';
 import { CreateGithubRepoResult } from '../../../types/UnifiedWorkflowTypes';
 import { domainToSlug } from '../../../utils/domainUtils';
 import { StepResult, StepRunnerDeps, isResponseSuccessful } from './stepRunnerTypes';
 
 export async function runCreateGithubRepo(deps: StepRunnerDeps, logger: StepLogger): Promise<StepResult> {
   console.log('[BATCH DEBUG] runCreateGithubRepo START');
-  console.log('[BATCH DEBUG] typeof actions.getSiteConfigSync:', typeof deps.actions.getSiteConfigSync);
+  console.log('[BATCH DEBUG] typeof actions.getSiteConfigSync:', typeof deps.getSiteConfigSync);
 
   // Use getSiteConfigSync() to get current config from ref (avoids stale closure in batch mode)
-  const siteConfig = deps.actions.getSiteConfigSync();
+  const siteConfig = deps.getSiteConfigSync();
   console.log('[BATCH DEBUG] getSiteConfigSync() returned domain:', siteConfig.domain);
   console.log('[BATCH DEBUG] getSiteConfigSync() returned full config:', JSON.stringify(siteConfig));
 

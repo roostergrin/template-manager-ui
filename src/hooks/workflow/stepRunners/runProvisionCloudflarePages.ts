@@ -7,7 +7,7 @@ import { StepResult, StepRunnerDeps, isResponseSuccessful } from './stepRunnerTy
 
 export async function runProvisionCloudflarePages(deps: StepRunnerDeps, logger: StepLogger): Promise<StepResult> {
   // Use getSiteConfigSync() to get current config from ref (avoids stale closure in batch mode)
-  const siteConfig = deps.actions.getSiteConfigSync();
+  const siteConfig = deps.getSiteConfigSync();
   const deploymentTarget = siteConfig.deploymentTarget || 'demo';
 
   // Skip if not in demo mode

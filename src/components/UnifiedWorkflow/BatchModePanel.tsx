@@ -42,7 +42,7 @@ const parseCSV = (content: string): CSVParseResult => {
       continue;
     }
 
-    const [domain, template, siteType, scrapeDomain] = parts;
+    const [domain, template, scrapeDomain] = parts;
 
     // Validate domain
     if (!domain || !domain.match(/^[a-zA-Z0-9][a-zA-Z0-9-_.]+[a-zA-Z0-9]$/)) {
@@ -59,7 +59,6 @@ const parseCSV = (content: string): CSVParseResult => {
     sites.push({
       domain,
       template: validTemplates.includes(normalizedTemplate) ? normalizedTemplate : 'stinson',
-      siteType: siteType || normalizedTemplate || 'stinson',
       scrapeDomain: scrapeDomain || undefined,
     });
   }
@@ -73,10 +72,10 @@ const parseCSV = (content: string): CSVParseResult => {
 };
 
 const generateSampleCSV = (): string => {
-  return `domain,template,site_type,scrape_domain
-example1.com,stinson,stinson,
-example2.com,haightashbury,haightashbury,old-example2.com
-example3.com,bayarea,bayarea,`;
+  return `domain,template,scrape_domain
+example1.com,stinson,
+example2.com,haightashbury,old-example2.com
+example3.com,bayarea,`;
 };
 
 const BatchModePanel: React.FC<BatchModePanelProps> = ({ onProcessSite, disabled = false }) => {

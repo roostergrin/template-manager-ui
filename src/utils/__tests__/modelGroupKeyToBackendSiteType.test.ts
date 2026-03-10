@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest'
 import { getBackendSiteTypeForModelGroup } from '../modelGroupKeyToBackendSiteType'
 
 // Mock modelGroups
-vi.mock('../../modelGroups', () => ({
+vi.mock('../../siteTemplates', () => ({
   modelGroups: {
     'medical': {
       models: ['gpt-4', 'claude'],

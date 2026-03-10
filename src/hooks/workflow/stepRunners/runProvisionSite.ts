@@ -6,7 +6,7 @@ import { domainToSlug } from '../../../utils/domainUtils';
 import { StepResult, StepRunnerDeps, isResponseSuccessful } from './stepRunnerTypes';
 
 export async function runProvisionSite(deps: StepRunnerDeps, logger: StepLogger): Promise<StepResult> {
-  const siteConfig = deps.actions.getSiteConfigSync();
+  const siteConfig = deps.getSiteConfigSync();
   const endpoint = '/provision/';
   const payload = {
     bucket_name: domainToSlug(siteConfig.domain),

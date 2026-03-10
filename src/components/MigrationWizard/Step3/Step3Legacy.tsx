@@ -15,7 +15,7 @@ import useFirstPassAllocation from '../../../hooks/useFirstPassAllocation';
 import useSecondPassAllocation from '../../../hooks/useSecondPassAllocation';
 import { getBackendSiteTypeForModelGroup } from '../../../utils/modelGroupKeyToBackendSiteType';
 import { getEffectiveQuestionnaireData } from '../../../utils/questionnaireDataUtils';
-import { modelGroups } from '../../../modelGroups';
+import { modelGroups } from '../../../siteTemplates';
 import { VectorStore } from '../../../types/SitemapTypes';
 import './Step3Legacy.sass';
 
@@ -33,7 +33,7 @@ const Step3Legacy: React.FC = () => {
   const hasSavedAllocationRef = useRef(false);
 
   const selectedModelGroupKey = appConfigState.selectedModelGroupKey || Object.keys(modelGroups)[0];
-  const backendSiteType = getBackendSiteTypeForModelGroup(selectedModelGroupKey) || '';
+  const backendSiteType = getBackendSiteTypeForModelGroup(selectedModelGroupKey) || ';
   const pages = sitemapState.pages;
   const pagesCount = pages.length;
 

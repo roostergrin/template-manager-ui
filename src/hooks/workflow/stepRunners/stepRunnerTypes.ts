@@ -26,8 +26,7 @@ export const isResponseSuccessful = (response: Record<string, unknown>): boolean
   return true;
 };
 
-export interface StepRunnerDeps {
-  actions: UnifiedWorkflowActions;
+export interface StepRunnerDeps extends UnifiedWorkflowActions {
   getGeneratedData: <T>(key: string) => T | undefined;
   setGeneratedDataWithRef: (key: string, data: unknown) => void;
   editedInputDataRef: React.MutableRefObject<Record<string, unknown>>;
