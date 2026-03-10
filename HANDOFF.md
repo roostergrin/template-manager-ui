@@ -668,7 +668,63 @@ Key environment variables (set in `.env` or deployment environment):
 
 ### Frontend
 
-Environment-specific config lives in `.env.development` / `.env.production` in `template-manager-ui/`. The Vite build mode selects which file to load.
+The frontend has **no runtime config server** — all environment variables are baked into the JS bundle at build time by Vite. Whatever is in the `.env.*` file when `npm run build` runs becomes a literal string in the compiled output. Changing an env var requires a rebuild and redeploy.
+
+#### Environment files
+
+| File | When used | Gitignored? |
+|------|-----------|-------------|
+| `.env.development` | `npm run dev` | No — committed |
+| `.env.production` | `npm run build` / `npm run build:prod` | No — committed |
+| `.env.local` | Always, overrides both above | Yes — never committed |
+
+`.env.local` is the right place for personal overrides (e.g. pointing your local dev server at the production backend). Never put real secrets in `.env.development` or `.env.production` — those are committed to the repo.
+
+#### Environment variables
+
+| Variable | Purpose |
+|----------|---------|
+| `VITE_API_BASE_URL` | Backend URL (e.g. `https://automation-tools.wjj7y49t8p9c2.us-west-2.cs.amazonlightsail.com/`) |
+| `VITE_INTERNAL_API_KEY` | API key sent as `X-API-Key` header on every request — must match `ALLOWED_API_KEYS` on the backend |
+| `VITE_INTERNAL_API_TOKEN` | Alias for `VITE_INTERNAL_API_KEY` (either works; key takes precedence if both set) |
+| `VITE_CLOUDFRONT_IMAGE_DOMAIN` | CloudFront domain used when rewriting image URLs post-hotlink-prevention |
+
+All `VITE_*` variables are exposed to browser code via `import.meta.env`. Non-prefixed variables are never sent to the browser.
+
+#### How the API key is resolved at runtime
+
+`apiService.ts` checks these sources in order, using the first non-empty value:
+
+1. **In-memory** — set by `setInMemoryInternalApiKey()` (called by the TokenGate UI on login)
+2. **`VITE_INTERNAL_API_KEY` / `VITE_INTERNAL_API_TOKEN`** — baked in at build time
+3. **`null`** — request is sent without an `X-API-Key` header (backend will reject it)
+
+This means users can also paste their API key directly into the **TokenGate UI** at runtime — it gets stored in `localStorage` and passed to `setInMemoryInternalApiKey()` on next load. This is the normal flow for anyone who doesn't have the key baked into their build.
+
+#### How to update env vars
+
+**For local development:**
+```bash
+# Edit .env.development (or .env.local for personal overrides)
+VITE_API_BASE_URL=http://localhost:8000/
+VITE_INTERNAL_API_KEY=your_key_here
+# Then restart: npm run dev
+```
+
+**For production (AWS CodeBuild):**
+
+The production build runs through **AWS CodePipeline → CodeBuild** (`buildspec.yml`). CodeBuild runs `npm run build:prod`, which reads `.env.production`. Environment variables that shouldn't be committed (like the actual API key value) must be set as **CodeBuild environment variables** in the AWS Console:
+
+1. Go to AWS Console → CodeBuild → your project → Edit → Environment
+2. Add environment variables under "Additional configuration"
+3. For secrets, use **AWS Secrets Manager** or **Parameter Store** and reference them as `SECRETS_MANAGER` type — don't paste secrets as plaintext in the console
+4. Trigger a new build (or push to the watched branch) — CodePipeline will pick it up automatically
+
+**GitHub Actions (`ci.yml`) does not deploy** — it only runs lint, tests, and a build check. No GitHub secrets are needed or used for deployment. If you ever wire up GitHub Actions to deploy directly, you would add secrets under GitHub repo Settings → Secrets and variables → Actions, then reference them as `${{ secrets.MY_SECRET }}` in the workflow YAML.
+
+**For Cloudflare Pages demo sites:**
+
+Demo sites are built locally by the workflow step runner and the pre-built `dist/` files are pushed directly to the demo GitHub repo. Cloudflare Pages just serves those static files — it does not run a build. So no Cloudflare environment variables are needed; the backend URL and API key are already baked into the bundle before it's pushed.
 
 ---
 
