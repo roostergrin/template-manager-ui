@@ -490,6 +490,59 @@ ServerErrorMiddleware → CORSMiddleware → Auth middleware → SessionMiddlewa
 
 CORSMiddleware must be registered **after** the auth middleware in `routes.py` so that CORS headers are added to error responses too. If you touch middleware registration order, be careful.
 
+### Production Deployment (AWS Lightsail)
+
+The backend runs as a Docker container on **AWS Lightsail Container Services**.
+
+**Live container dashboard:**
+https://lightsail.aws.amazon.com/ls/webapp/us-west-2/container-services/automation-tools/deployments
+
+**How deployments work:**
+
+Deployments are triggered automatically on every push to `main`, or manually via GitHub Actions (`workflow_dispatch`). The workflow is `.github/workflows/lightsail-deploy.yml` in `ContentGenerationAndDistribution/`.
+
+```
+Push to main (or manual dispatch)
+        │
+        ▼
+GitHub Actions builds Docker image
+        │
+        ▼
+aws lightsail push-container-image
+(pushes image to Lightsail's private registry)
+        │
+        ▼
+Workflow builds containers.json using jq —
+this is where GitHub Secrets become container env vars
+        │
+        ▼
+aws lightsail create-container-service-deployment
+(new deployment goes live; old one replaced)
+```
+
+The critical step is the `jq` block that constructs `containers.json` — every secret that needs to reach the app must be listed there explicitly. If you add a new secret to GitHub but forget to add it to this block, it will never reach the container.
+
+**To trigger a manual redeploy:**
+
+GitHub → Actions tab → "Deploy to Lightsail" → Run workflow → select branch → Run.
+
+**To check what's running:**
+
+The Lightsail dashboard (link above) shows current and previous deployments, container health, and logs. Logs are also accessible via:
+```bash
+aws logs tail /aws/lightsail/automation-tools --follow --region us-west-2
+```
+
+**To add a new environment variable to production** — three files must all be updated:
+
+1. **GitHub Secrets** — add via repo Settings → Secrets and variables → Actions
+2. **`app/config.py`** — `MY_VAR = os.environ.get("MY_VAR")`
+3. **`lightsail-deploy.yml`** — add to the `jq` `--arg` list and to the JSON `environment` block
+
+Missing any one of these means the variable won't reach the app.
+
+**Note on the frontend deployment:** The frontend uses a separate path — AWS CodeBuild reads `buildspec.yml`, runs `npm run build:prod`, and the `dist/` output is deployed to S3/CloudFront via CodePipeline. This is completely independent of the Lightsail backend deployment.
+
 ---
 
 ## 9. Key Data Structures
