@@ -2,48 +2,7 @@
 // TODO: make a pydantic model for the sitemap to generate a sitemap export
 import rawStinsonSitemap from '../exported_sitemaps/stinson/stinson-sitemap.json';
 import haightAshburySitemap from '../exported_sitemaps/haightashbury/haightashbury-sitemap.json';
-
-/**
- * Mirrors the backend's _should_preserve_image() logic from rag_sitemap_generator.py
- * so the frontend sitemap has preserve_image flags without needing a separate copy.
- */
-const injectPreserveImageFlags = (sitemap: typeof rawStinsonSitemap): typeof rawStinsonSitemap => {
-  const result = JSON.parse(JSON.stringify(sitemap));
-  for (const [pageKey, page] of Object.entries(result.pages)) {
-    const pageLower = pageKey.toLowerCase();
-    for (const pair of (page as { model_query_pairs: { model: string; query: string; preserve_image?: boolean }[] }).model_query_pairs) {
-      const modelLower = pair.model.toLowerCase();
-      const queryLower = pair.query.toLowerCase();
-
-      // Doctor/provider photos on home or about-like pages
-      if (['home', 'about', 'about us', 'meet the team', 'our team'].includes(pageLower)) {
-        if (['image text', 'tabs'].includes(modelLower)) {
-          if (['doctor', 'dr.', 'meet the', 'headshot', 'photo', 'provider', 'orthodontist', 'dentist'].some(k => queryLower.includes(k))) {
-            pair.preserve_image = true;
-            continue;
-          }
-        }
-
-        // Team photos and office tour on about-like pages only
-        if (pageLower.includes('about') || pageLower.includes('team')) {
-          if (modelLower === 'block grid') {
-            if (['team', 'staff', 'member', 'profile'].some(k => queryLower.includes(k))) {
-              pair.preserve_image = true;
-              continue;
-            }
-          }
-          if (modelLower === 'single image slider') {
-            if (['office', 'tour', 'facility', 'gallery'].some(k => queryLower.includes(k))) {
-              pair.preserve_image = true;
-              continue;
-            }
-          }
-        }
-      }
-    }
-  }
-  return result;
-};
+import { injectPreserveImageFlags } from './utils/imagePreservation/sitemapPreserveFlags';
 
 import pismoSitemap from '../exported_sitemaps/pismo/pismo-sitemap-reversed.json';
 import bayareaorthoSitemap from '../exported_sitemaps/bayareaortho/bayareaortho-sitemap.json';

@@ -12,7 +12,7 @@ import useRagSitemap from '../../../hooks/useRagSitemap';
 import { useSavedSitemaps } from '../../../hooks/useSavedSitemaps';
 import { getSavedSitemap } from '../../../services/sitemapHistoryService';
 import { getBackendSiteTypeForModelGroup } from '../../../utils/modelGroupKeyToBackendSiteType';
-import { modelGroups } from '../../../modelGroups';
+import { modelGroups } from '../../../siteTemplates';
 import { VectorStore } from '../../../types/SitemapTypes';
 import './Step3Standard.sass';
 

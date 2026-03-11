@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useCallback, ReactNode, useEffect } from 'react'
-import { ModelGroup, TemplateInfo, modelGroups as defaultModelGroups } from '../modelGroups'
+import { ModelGroup, TemplateInfo, modelGroups as defaultModelGroups } from '../siteTemplates'
 import { useModelGroups } from '../hooks/appConfig/useModelGroups'
 import { useAppSettings, AppSettings } from '../hooks/appConfig/useAppSettings'
 import { useUserPreferences, UserPreferences } from '../hooks/appConfig/useUserPreferences'

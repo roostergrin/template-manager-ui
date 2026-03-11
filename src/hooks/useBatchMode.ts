@@ -29,7 +29,6 @@ export const useBatchMode = (
     const configToSet = {
       domain: site.domain,
       template: site.template,
-      siteType: site.siteType,
       scrapeDomain: site.scrapeDomain,
       preserveDoctorPhotos: true, // Default to true for batch mode
     };

@@ -2,7 +2,7 @@ import { renderHook, act } from '@testing-library/react'
 import { ReactNode } from 'react'
 import { vi } from 'vitest'
 import { AppConfigProvider, useAppConfig, AppSettings, UserPreferences } from '../AppConfigProvider'
-import { ModelGroup } from '../../modelGroups'
+import { ModelGroup } from '../../siteTemplates'
 
 // Mock localStorage
 const mockLocalStorage = {

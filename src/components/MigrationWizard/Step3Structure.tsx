@@ -15,7 +15,7 @@ import useFirstPassAllocation from '../../hooks/useFirstPassAllocation';
 import useSecondPassAllocation from '../../hooks/useSecondPassAllocation';
 import { getBackendSiteTypeForModelGroup } from '../../utils/modelGroupKeyToBackendSiteType';
 import { getEffectiveQuestionnaireData } from '../../utils/questionnaireDataUtils';
-import { modelGroups } from '../../modelGroups';
+import { modelGroups } from '../../siteTemplates';
 import { VectorStore } from '../../types/SitemapTypes';
 import './Step3Structure.sass';
 

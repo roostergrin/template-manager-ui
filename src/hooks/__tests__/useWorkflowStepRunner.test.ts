@@ -41,7 +41,7 @@ vi.mock('../../mocks', () => ({
   isMockModeEnabled: () => false,
 }));
 
-vi.mock('../../modelGroups', () => ({
+vi.mock('../../siteTemplates', () => ({
   modelGroups: {},
   getGithubTemplateRepo: () => 'ai-template-stinson',
 }));

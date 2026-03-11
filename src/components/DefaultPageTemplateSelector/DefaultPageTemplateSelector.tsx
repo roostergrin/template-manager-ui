@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { modelGroups } from '../../modelGroups';
+import { modelGroups } from '../../siteTemplates';
 import './DefaultPageTemplateSelector.css';
 
 export interface PageTemplate {

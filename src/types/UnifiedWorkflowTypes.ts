@@ -43,7 +43,6 @@ export interface SiteConfig {
   domain: string;
   template: string;
   templateType: TemplateType; // 'json' for ai-template-*, 'wordpress' for rg-template-*
-  siteType: string;
   scrapeDomain?: string;
   preserveDoctorPhotos: boolean;
   enableImagePicker: boolean;
@@ -65,7 +64,6 @@ export interface SiteConfig {
 export interface BatchSiteEntry {
   domain: string;
   template: string;
-  siteType: string;
   scrapeDomain?: string;
 }
 

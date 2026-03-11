@@ -6,7 +6,7 @@ import { generateGlobalQueryFunction } from '../../services/generateGlobalServic
 import { GenerateContentRequest } from '../../types/APIServiceTypes';
 import { getEffectiveQuestionnaireData, isMarkdownData } from '../../utils/questionnaireDataUtils';
 import { getBackendSiteTypeForModelGroup } from '../../utils/modelGroupKeyToBackendSiteType';
-import { createPreserveImageMap, injectPreserveImageIntoContent, PreserveImageMap } from '../../utils/injectPreserveImage';
+import { createPreserveImageMap, injectPreserveImageIntoContent, PreserveImageMap } from '../../utils/imagePreservation/injectPreserveImage';
 import { useQuestionnaire } from '../../contexts/QuestionnaireProvider';
 import { useSitemap } from '../../contexts/SitemapProvider';
 import { useAppConfig } from '../../contexts/AppConfigProvider';

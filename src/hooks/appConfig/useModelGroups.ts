@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { ModelGroup, TemplateInfo, modelGroups as defaultModelGroups } from '../../modelGroups'
+import { ModelGroup, TemplateInfo, modelGroups as defaultModelGroups } from '../../siteTemplates'
 
 export const useModelGroups = (initialModelGroups: Record<string, ModelGroup> = defaultModelGroups) => {
   const [modelGroups, setModelGroups] = useState<Record<string, ModelGroup>>(initialModelGroups)

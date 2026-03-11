@@ -7,7 +7,7 @@ import useGenerateContentForScraped from '../../hooks/useGenerateContentForScrap
 import useGenerateGlobal from '../../hooks/useGenerateGlobal';
 import { getBackendSiteTypeForModelGroup } from '../../utils/modelGroupKeyToBackendSiteType';
 import { sanitizePracticeContext, getSanitizationStats } from '../../utils/sanitizePracticeContext';
-import { createPreserveImageMap, injectPreserveImageIntoContent, PreserveImageMap } from '../../utils/injectPreserveImage';
+import { createPreserveImageMap, injectPreserveImageIntoContent, PreserveImageMap } from '../../utils/imagePreservation/injectPreserveImage';
 import './Step4Generate.sass';
 
 const formatElapsedTime = (ms: number): string => {
