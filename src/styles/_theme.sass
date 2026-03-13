@@ -1,0 +1,227 @@
+// Theme system — CSS custom properties for light/dark mode
+// Import this in global.sass. Components use var(--xxx) for theme-sensitive values.
+
+\:root
+  // Surfaces
+  --bg-app: #ffffff
+  --bg-surface: #ffffff
+  --bg-subtle: #f8fafc
+  --bg-elevated: #ffffff
+  --bg-input: #ffffff
+  --bg-overlay: rgba(0, 0, 0, 0.5)
+
+  // Text
+  --text-primary: #222222
+  --text-secondary: #222222
+  --text-muted: #6b7280
+
+  // Borders
+  --border-color: #e2e8f0
+  --border-strong: #cbd5e1
+
+  // Shadows
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06)
+  --shadow-md: 0 6px 16px rgba(2, 6, 23, 0.08)
+  --shadow-lg: 0 16px 32px rgba(2, 6, 23, 0.12)
+
+  // Focus
+  --focus-ring: 0 0 0 3px rgba(77, 78, 193, 0.35)
+
+  // Scrollbar
+  --scrollbar-thumb: #cbd5e1
+  --scrollbar-track: transparent
+
+  // Form-specific
+  --form-bg: rgba(248, 249, 250, 0.8)
+  --form-border: #e1e5e9
+  --form-disabled-bg: #f5f5f5
+  --form-disabled-text: #999999
+  --form-placeholder: #999999
+
+  // Code / pre
+  --code-bg: #f8f9fa
+  --code-border: #e1e5e9
+  --code-text: #374151
+
+  // Status backgrounds (semantic — untouched in dark, just softened)
+  --status-idle-bg: #f3f4f6
+  --status-idle-text: #6b7280
+  --status-pending-bg: #fef3c7
+  --status-pending-text: #d97706
+  --status-success-bg: #d1fae5
+  --status-success-text: #059669
+  --status-error-bg: #fee2e2
+  --status-error-text: #dc2626
+  --status-info-bg: #e3f2fd
+  --status-info-text: #1565c0
+  --status-warning-bg: #fff3cd
+  --status-warning-text: #856404
+
+  // Transition for smooth theme switching
+  color-scheme: light
+
+[data-theme="dark"]
+  // Surfaces
+  --bg-app: #0f172a
+  --bg-surface: #1e293b
+  --bg-subtle: #1e293b
+  --bg-elevated: #334155
+  --bg-input: #1e293b
+  --bg-overlay: rgba(0, 0, 0, 0.7)
+
+  // Text
+  --text-primary: #f1f5f9
+  --text-secondary: #e2e8f0
+  --text-muted: #94a3b8
+
+  // Borders
+  --border-color: #334155
+  --border-strong: #475569
+
+  // Shadows
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3)
+  --shadow-md: 0 6px 16px rgba(0, 0, 0, 0.4)
+  --shadow-lg: 0 16px 32px rgba(0, 0, 0, 0.5)
+
+  // Focus
+  --focus-ring: 0 0 0 3px rgba(99, 102, 241, 0.45)
+
+  // Scrollbar
+  --scrollbar-thumb: #475569
+  --scrollbar-track: transparent
+
+  // Form-specific
+  --form-bg: rgba(30, 41, 59, 0.8)
+  --form-border: #475569
+  --form-disabled-bg: #1e293b
+  --form-disabled-text: #64748b
+  --form-placeholder: #64748b
+
+  // Code / pre
+  --code-bg: #1e293b
+  --code-border: #334155
+  --code-text: #e2e8f0
+
+  // Status backgrounds — softened for dark
+  --status-idle-bg: rgba(100, 116, 139, 0.2)
+  --status-idle-text: #94a3b8
+  --status-pending-bg: rgba(217, 119, 6, 0.15)
+  --status-pending-text: #fbbf24
+  --status-success-bg: rgba(5, 150, 105, 0.15)
+  --status-success-text: #34d399
+  --status-error-bg: rgba(220, 38, 38, 0.15)
+  --status-error-text: #f87171
+  --status-info-bg: rgba(14, 165, 233, 0.15)
+  --status-info-text: #38bdf8
+  --status-warning-bg: rgba(245, 158, 11, 0.15)
+  --status-warning-text: #fbbf24
+
+  color-scheme: dark
+
+// ─── Dark mode overrides for hardcoded colors in component SASS files ───
+// These catch common patterns across 44+ files that use hardcoded light-mode colors
+// rather than CSS custom properties. Over time, components should migrate to var(--xxx).
+
+[data-theme="dark"]
+  // Hardcoded white backgrounds → dark surface
+  // Matches: background: #fff, background: #ffffff, background: white,
+  //          background-color: #fff, background-color: white, etc.
+  .section,
+  .card,
+  .page-preview-card,
+  .stat-item,
+  .image-preview-item,
+  .edit-help,
+  .info-card,
+  .token-gate__card
+    background-color: var(--bg-surface) !important
+
+  // Hardcoded light gray backgrounds → dark subtle
+  // Matches: background: #f8f9fa, #f8fafc, #fafbfc, rgba(248,249,250,...)
+  .page-card-header,
+  .images-preview,
+  .api-request-preview,
+  .global-content-preview,
+  .preview-format,
+  .seo-preview,
+  .structure-stats span
+    background-color: var(--bg-subtle) !important
+
+  // Hardcoded dark text → light text
+  // Matches: color: #333, #222, #374151, #495057, #555, #666
+  .info-card h3,
+  .info-card p,
+  .info-card li,
+  .sections-preview strong,
+  .images-preview strong,
+  .api-request-preview strong,
+  .stat-label
+    color: var(--text-secondary) !important
+
+  // Muted text overrides
+  // Matches: color: #6c757d, #6b7280, #999
+  .page-id,
+  .global-size,
+  .image-component
+    color: var(--text-muted) !important
+
+  // Borders: #e9ecef, #e1e5e9, #dee2e6, #ddd → dark border
+  .structure-header,
+  .images-preview,
+  .stat-item,
+  .image-preview-item
+    border-color: var(--border-color) !important
+
+  // Badge overrides for dark mode readability
+  .section-count
+    background: var(--status-info-bg) !important
+    color: var(--status-info-text) !important
+
+  .image-count
+    background: var(--bg-elevated) !important
+    color: var(--text-secondary) !important
+
+  .component-type-badge
+    background: var(--status-warning-bg) !important
+    color: var(--status-warning-text) !important
+
+  .preserved-badge,
+  .preserve-label
+    background: var(--status-success-bg) !important
+    color: var(--status-success-text) !important
+
+  // Edit section (yellow-tinted) → dark warm tone
+  .page-edit-section
+    background: rgba(245, 158, 11, 0.1) !important
+    border-color: rgba(245, 158, 11, 0.2) !important
+
+  .edit-header
+    border-color: rgba(245, 158, 11, 0.2) !important
+
+  .edit-header strong
+    color: var(--status-warning-text) !important
+
+  .edit-textarea
+    background: var(--bg-surface) !important
+    color: var(--text-primary) !important
+    border-color: var(--border-strong) !important
+
+  // Code blocks with dark bg are fine, light bg ones need override
+  .api-code
+    background: #1a1a2e !important
+    color: #a0aec0 !important
+
+  // JSON preview already uses variables, but ensure it's right
+  .json-preview,
+  .seo-json-preview
+    background: var(--bg-surface) !important
+    border-color: var(--border-color) !important
+    color: var(--text-primary) !important
+
+// Smooth transition when toggling theme
+// Applied only after initial load to avoid flash
+[data-theme-transition]
+  *,
+  *::before,
+  *::after
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease !important

@@ -3,7 +3,7 @@
 .workflow-manager
   display: flex
   min-height: 100vh
-  background: variables.$bg-app
+  background: var(--bg-app)
 
   &__main
     flex: 1
@@ -34,10 +34,10 @@ html
   min-height: 100vh
   padding: 2rem 0
   scroll-margin-top: 2rem
-  
+
   &:first-child
     padding-top: 0
-    
+
   &:last-child
     padding-bottom: 4rem
 
@@ -47,26 +47,26 @@ html
   &__header
     margin-bottom: 24px
     padding: 20px 24px
-    background: variables.$bg-surface
+    background: var(--bg-surface)
     border-radius: variables.$radius-md
-    border: 1px solid variables.$border-color
-    box-shadow: variables.$shadow-sm
-    
+    border: 1px solid var(--border-color)
+    box-shadow: var(--shadow-sm)
+
   &__header-title
     display: flex
     align-items: center
     gap: 12px
     margin-bottom: 8px
-    
+
     h2
       margin: 0
-      color: variables.$text-primary
+      color: var(--text-primary)
       font-size: 1.5rem
       font-weight: 600
-    
+
   &__header p
     margin: 0
-    color: variables.$text-secondary
+    color: var(--text-secondary)
     font-size: 0.95rem
     line-height: 1.5
 
@@ -81,40 +81,40 @@ html
 
   .section
     padding: 20px
-    border: 1px solid variables.$border-color
+    border: 1px solid var(--border-color)
     border-radius: variables.$radius-md
-    background-color: variables.$bg-surface
-    box-shadow: variables.$shadow-sm
+    background-color: var(--bg-surface)
+    box-shadow: var(--shadow-sm)
     scroll-margin-top: 100px
-    
+
     &__header
       display: flex
       align-items: center
       gap: 10px
       margin-bottom: 8px
-      
+
       h3
         margin: 0
-        color: variables.$text-primary
+        color: var(--text-primary)
         font-size: 1.1rem
         font-weight: 600
-    
+
     p
       margin: 0 0 16px 0
-      color: variables.$text-secondary
+      color: var(--text-secondary)
       font-size: 0.9rem
       line-height: 1.5
 
 .placeholder-section
-  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%)
-  border: 2px dashed #d1a441
+  background: var(--status-warning-bg)
+  border: 2px dashed var(--status-warning-text)
   border-radius: 8px
   padding: 20px
   text-align: center
-  
+
   p
     margin: 0
-    color: #856404
+    color: var(--status-warning-text)
     font-size: 1rem
     font-weight: 500
 
@@ -126,25 +126,25 @@ html
 
   .info-card
     padding: 25px
-    border: 2px solid #e1e5e9
+    border: 2px solid var(--form-border)
     border-radius: 12px
-    background-color: #fafbfc
-    
+    background-color: var(--bg-subtle)
+
     h3
       margin: 0 0 15px 0
-      color: #333
+      color: var(--text-primary)
       font-size: 1.3rem
-    
+
     p
       margin: 0 0 15px 0
-      color: #666
+      color: var(--text-muted)
       line-height: 1.5
-    
+
     ul, ol
       margin: 0
       padding-left: 20px
-      color: #555
-      
+      color: var(--text-secondary)
+
       li
         margin-bottom: 8px
         line-height: 1.4
@@ -153,32 +153,32 @@ html
 @media (max-width: 768px)
   .workflow-manager
     flex-direction: column
-    
+
     &__main
       margin-left: 0
       padding: 1rem
-      
+
       &--expanded
         margin-left: 0
 
   .workflow-section
     min-height: auto
     padding: 1rem 0
-        
+
   .tab-content
     &__header
       padding: 20px
-      
+
       h2
         font-size: 1.5rem
-        
+
       p
         font-size: 1rem
-  
+
   .deploy-info
     grid-template-columns: 1fr
     gap: 20px
-  
+
   .infrastructure-sections,
   .setup-sections,
   .content-sections,
@@ -187,43 +187,43 @@ html
     gap: 25px
 
 .auto-filled-notice
-  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%)
-  border: 2px solid #b3d4b3
+  background: var(--status-success-bg)
+  border: 2px solid var(--status-success-text)
   border-radius: 8px
   padding: 15px
   margin-bottom: 20px
-  
+
   h4
     margin: 0 0 10px 0
-    color: #155724
+    color: var(--status-success-text)
     font-size: 1.1rem
-  
+
   p
     margin: 5px 0
-    color: #155724
+    color: var(--status-success-text)
     font-size: 0.9rem
 
 .success-summary
-  background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%)
-  border: 2px solid #86c5d8
+  background: var(--status-info-bg)
+  border: 2px solid var(--status-info-text)
   border-radius: 8px
   padding: 15px
   margin-bottom: 15px
-  
+
   h4
     margin: 0 0 10px 0
-    color: #0c5460
+    color: var(--status-info-text)
     font-size: 1.2rem
-  
+
   .success-details
     div
       margin: 5px 0
-      color: #0c5460
+      color: var(--status-info-text)
       font-size: 0.9rem
-      
+
       a
         color: #0056b3
         text-decoration: none
-        
+
         &:hover
-          text-decoration: underline 
+          text-decoration: underline

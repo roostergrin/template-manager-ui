@@ -8,9 +8,9 @@
   justify-content: space-between
   margin-bottom: 1.5rem
   padding: 1rem
-  background: rgba(248, 249, 250, 0.8)
+  background: var(--form-bg)
   border-radius: 8px
-  border: 1px solid #e1e5e9
+  border: 1px solid var(--form-border)
 
   // Progress indicator styling within headers
   .progress-indicator
@@ -21,40 +21,41 @@
   margin: 0
   font-size: 1.2rem
   font-weight: 600
-  color: #333
+  color: var(--text-primary)
 
 // Form group styling
 %form-group
   margin-bottom: 20px
-  
+
   label
     display: block
     font-weight: 600
     margin-bottom: 8px
-    color: #333
+    color: var(--text-primary)
     font-size: 1rem
-  
+
   input, textarea, select
     width: 100%
     padding: 12px 16px
-    border: 2px solid #e1e5e9
+    border: 2px solid var(--form-border)
     border-radius: 8px
     font-size: 1rem
     transition: border-color 0.3s ease, box-shadow 0.3s ease
-    background-color: #fff
-    
+    background-color: var(--bg-input)
+    color: var(--text-primary)
+
     &:focus
       outline: none
       border-color: #667eea
       box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1)
-    
+
     &:disabled
-      background-color: #f5f5f5
-      color: #999
+      background-color: var(--form-disabled-bg)
+      color: var(--form-disabled-text)
       cursor: not-allowed
-    
+
     &::placeholder
-      color: #999
+      color: var(--form-placeholder)
 
   textarea
     min-height: 120px
@@ -62,13 +63,13 @@
     font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace
 
   input[type="file"]
-    border: 2px dashed #e1e5e9
-    background: #fafbfc
+    border: 2px dashed var(--form-border)
+    background: var(--bg-subtle)
     cursor: pointer
-    
+
     &:hover
       border-color: #667eea
-      background: #f8fbff
+      background: var(--bg-elevated)
 
   input[type="radio"], input[type="checkbox"]
     width: auto
@@ -77,21 +78,21 @@
 
   small
     display: block
-    color: #666
+    color: var(--text-muted)
     font-size: 0.85rem
     margin-top: 0.25rem
 
 // Form section styling (for grouped form elements)
 %form-section
-  background: rgba(248, 249, 250, 0.8)
-  border: 1px solid #e1e5e9
+  background: var(--form-bg)
+  border: 1px solid var(--form-border)
   border-radius: 8px
   padding: 16px
   margin-bottom: 20px
-  
+
   h4
     margin: 0 0 16px 0
-    color: #333
+    color: var(--text-primary)
     font-size: 1.1rem
     font-weight: 600
 
@@ -99,7 +100,7 @@
 %form-row
   display: flex
   gap: 1rem
-  
+
   .form-group
     flex: 1
 
@@ -116,11 +117,11 @@
   cursor: pointer
   transition: all 0.3s ease
   margin-bottom: 20px
-  
+
   &:hover:not(:disabled)
     transform: translateY(-2px)
     box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3)
-  
+
   &:disabled
     background: linear-gradient(135deg, #ccc 0%, #999 100%)
     cursor: not-allowed
@@ -137,28 +138,28 @@
   font-weight: 600
   cursor: pointer
   transition: all 0.2s ease
-  
+
   &:hover:not(:disabled)
     background: #5a6268
     transform: translateY(-1px)
-  
+
   &:disabled
     background: #ccc
     cursor: not-allowed
 
 // Message styling
 %error-message
-  background: linear-gradient(135deg, #fee 0%, #fdd 100%)
-  border: 2px solid #f5c6cb
+  background: var(--status-error-bg)
+  border: 2px solid var(--status-error-text)
   border-radius: 8px
   padding: 12px 16px
   margin-bottom: 20px
-  color: #721c24
+  color: var(--status-error-text)
   font-size: 0.95rem
 
 %success-section
-  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%)
-  border: 2px solid #b3d4b3
+  background: var(--status-success-bg)
+  border: 2px solid var(--status-success-text)
   border-radius: 12px
   padding: 20px
   margin-top: 20px
@@ -168,10 +169,10 @@
     align-items: center
     gap: 10px
     margin-bottom: 15px
-    
+
     h4
       margin: 0
-      color: #155724
+      color: var(--status-success-text)
       font-size: 1.3rem
 
   .success-details
@@ -179,9 +180,9 @@
 
   .detail-item
     margin-bottom: 8px
-    color: #155724
+    color: var(--status-success-text)
     font-size: 0.95rem
-    
+
     strong
       font-weight: 600
 
@@ -200,7 +201,7 @@
       border-radius: 6px
       font-weight: 500
       transition: background-color 0.3s ease
-      
+
       &:hover
         background: #0056b3
         text-decoration: none
@@ -208,7 +209,7 @@
   // Support for different content types
   .update-summary, .content-summary
     margin-bottom: 15px
-    
+
     .summary-item
       display: flex
       justify-content: space-between
@@ -216,18 +217,18 @@
       margin-bottom: 8px
       padding: 6px 0
       border-bottom: 1px solid rgba(21, 87, 36, 0.1)
-      
+
       &:last-child
         border-bottom: none
         margin-bottom: 0
-      
+
       .summary-label
-        color: #155724
+        color: var(--status-success-text)
         font-weight: 500
         font-size: 0.95rem
-      
+
       .summary-value
-        color: #155724
+        color: var(--status-success-text)
         font-weight: 600
         font-size: 0.95rem
 
@@ -235,22 +236,22 @@
   .content-previews
     .preview-block
       margin-bottom: 15px
-      
+
       &:last-child
         margin-bottom: 0
-      
+
       .preview-header
         display: flex
         justify-content: space-between
         align-items: center
         margin-bottom: 8px
-        
+
         h5
           margin: 0
-          color: #155724
+          color: var(--status-success-text)
           font-size: 1rem
           font-weight: 600
-        
+
         .download-button
           padding: 6px 12px
           background: #28a745
@@ -261,39 +262,39 @@
           font-weight: 500
           cursor: pointer
           transition: background-color 0.3s ease
-          
+
           &:hover
             background: #218838
 
   // Support for URLs and copy sections
   .repo-url-section, .url-section
     margin-bottom: 15px
-    
+
     label
       display: block
       font-weight: 600
       margin-bottom: 8px
-      color: #155724
+      color: var(--status-success-text)
       font-size: 0.95rem
-    
+
     .url-copy-container
       display: flex
       align-items: center
-      background: rgba(255, 255, 255, 0.7)
-      border: 1px solid #b3d4b3
+      background: var(--bg-surface)
+      border: 1px solid var(--border-color)
       border-radius: 6px
       padding: 8px 12px
-      
+
       .repo-url, .site-url
         flex: 1
         font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace
         font-size: 0.9rem
-        color: #155724
+        color: var(--status-success-text)
         background: none
         border: none
         overflow-x: auto
         white-space: nowrap
-      
+
       .copy-button
         margin-left: 12px
         padding: 6px 12px
@@ -306,7 +307,7 @@
         cursor: pointer
         transition: background-color 0.3s ease
         white-space: nowrap
-        
+
         &:hover
           background: #218838
 
@@ -314,91 +315,80 @@
   .credentials-section
     margin-bottom: 15px
     padding: 15px
-    background: rgba(21, 87, 36, 0.03)
-    border: 1px solid rgba(21, 87, 36, 0.1)
+    background: var(--bg-subtle)
+    border: 1px solid var(--border-color)
     border-radius: 8px
-    
+
     h5
       margin: 0 0 12px 0
-      color: #155724
+      color: var(--status-success-text)
       font-size: 1.1rem
       font-weight: 600
       display: flex
       align-items: center
       gap: 0.5rem
-    
+
     code
-      background: rgba(255, 255, 255, 0.8)
-      border: 1px solid rgba(21, 87, 36, 0.2)
+      background: var(--bg-surface)
+      border: 1px solid var(--border-color)
       padding: 4px 8px
       border-radius: 4px
       font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace
       font-size: 0.85rem
-      color: #155724
+      color: var(--text-primary)
       font-weight: 500
       margin-left: 8px
       user-select: all
       cursor: text
 
 %info-banner
-  background: #e3f2fd
-  border: 1px solid #1976d2
+  background: var(--status-info-bg)
+  border: 1px solid var(--status-info-text)
   border-radius: 8px
   padding: 12px 16px
   margin-bottom: 20px
-  color: #1565c0
+  color: var(--status-info-text)
   font-size: 0.95rem
 
 %warning-banner
-  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%)
-  border: 2px dashed #d1a441
+  background: var(--status-warning-bg)
+  border: 2px dashed var(--status-warning-text)
   border-radius: 8px
   padding: 15px
   text-align: center
-  
+
   p
     margin: 0
-    color: #856404
+    color: var(--status-warning-text)
     font-size: 0.95rem
     line-height: 1.4
-    
+
     strong
       font-weight: 600
 
 // Radio group styling
 %radio-group
   display: flex
-  // flex-direction: column
   gap: 0.75rem
-  
+
   .radio-option
     display: flex
     align-items: center
     gap: 0.5rem
     cursor: pointer
     padding: 0.75rem
-    // border: 2px solid #e1e5e9
-    // border-radius: 8px
     transition: all 0.2s ease
-    
-    // &:hover
-    //   border-color: #667eea
-    //   background: rgba(102, 126, 234, 0.05)
-      
+
     input[type="radio"]
       margin: 0
-      
+
     span
       font-weight: 500
-      color: #333
-      
+      color: var(--text-primary)
+
     input[type="radio"]:checked + span
       color: #667eea
       font-weight: 600
-      
-    // &:has(input:checked)
-    //   border-color: #667eea
-    //   background: rgba(102, 126, 234, 0.05)
 
 // Status indicator styling
 %status-indicator
@@ -406,37 +396,29 @@
   border-radius: 4px
   font-weight: 600
   font-size: 0.9rem
-  
+
   &.pending
-    color: #d97706
-    background: #fef3c7
-  
+    color: var(--status-pending-text)
+    background: var(--status-pending-bg)
+
   &.success, &.completed
-    color: #059669
-    background: #d1fae5
-  
+    color: var(--status-success-text)
+    background: var(--status-success-bg)
+
   &.error, &.failed
-    color: #dc2626
-    background: #fee2e2
-  
+    color: var(--status-error-text)
+    background: var(--status-error-bg)
+
   &.idle
-    color: #6b7280
-    background: #f3f4f6
+    color: var(--status-idle-text)
+    background: var(--status-idle-bg)
 
 // Status display containers and items
-// %status-display
-//   margin-bottom: 20px
-//   padding: 15px
-//   background: #f8f9fa
-//   border: 1px solid #e1e5e9
-//   border-radius: 8px
-
 %status-section
   display: flex
   gap: 1rem
 
 %content-status
-  //@extend %status-display
   display: flex
   gap: 1rem
 
@@ -445,79 +427,76 @@
   align-items: center
   gap: 1rem
   margin-bottom: 8px
-  
-  // &:last-child
-  //   margin-bottom: 0
 
 %status-label
   font-weight: 500
-  color: #374151
+  color: var(--text-secondary)
   font-size: 0.95rem
 
 %status-value
   @extend %status-indicator
-  
+
   &--idle
     @extend %status-indicator
-    color: #6b7280
-    background: #f3f4f6
-  
+    color: var(--status-idle-text)
+    background: var(--status-idle-bg)
+
   &--pending
     @extend %status-indicator
-    color: #d97706
-    background: #fef3c7
-  
+    color: var(--status-pending-text)
+    background: var(--status-pending-bg)
+
   &--success
     @extend %status-indicator
-    color: #059669
-    background: #d1fae5
-  
+    color: var(--status-success-text)
+    background: var(--status-success-bg)
+
   &--error
     @extend %status-indicator
-    color: #dc2626
-    background: #fee2e2
-  
+    color: var(--status-error-text)
+    background: var(--status-error-bg)
+
   &--completed
     @extend %status-indicator
-    color: #059669
-    background: #d1fae5
-  
+    color: var(--status-success-text)
+    background: var(--status-success-bg)
+
   &--failed
     @extend %status-indicator
-    color: #dc2626
-    background: #fee2e2
-  
+    color: var(--status-error-text)
+    background: var(--status-error-bg)
+
   &--in-progress
     @extend %status-indicator
-    color: #2563eb
-    background: #dbeafe
-  
+    color: var(--status-info-text)
+    background: var(--status-info-bg)
+
   &--ready
     @extend %status-indicator
-    color: #059669
-    background: #d1fae5
-  
+    color: var(--status-success-text)
+    background: var(--status-success-bg)
+
   &--missing
     @extend %status-indicator
-    color: #dc2626
-    background: #fee2e2
+    color: var(--status-error-text)
+    background: var(--status-error-bg)
 
 // Auto-filled notice styling
 %auto-filled-notice
-  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%)
-  border: 2px solid #b3d4b3
+  background: var(--status-success-bg)
+  border: 2px solid var(--status-success-text)
   border-radius: 8px
   padding: 15px
   margin-bottom: 20px
-  
+
   h4
     margin: 0 0 10px 0
-    color: #155724
+    color: var(--status-success-text)
     font-size: 1.1rem
-  
+
   p
     margin: 5px 0
-    color: #155724
+    color: var(--status-success-text)
     font-size: 0.9rem
 
 // Responsive design mixins
@@ -526,10 +505,10 @@
     .form-row
       flex-direction: column
       gap: 0.5rem
-    
+
     .radio-group .radio-option
       padding: 0.5rem
-    
+
     %primary-button, %secondary-button
       font-size: 1rem
 
@@ -568,9 +547,6 @@
   @extend %auto-filled-notice
 
 // Status styling utility classes
-// .status-display
-//   @extend %status-display
-
 .status-section
   @extend %status-section
 
@@ -592,71 +568,71 @@
 // Status value modifiers
 .status-value--idle
   @extend %status-value
-  color: #6b7280
-  background: #f3f4f6
+  color: var(--status-idle-text)
+  background: var(--status-idle-bg)
 
 .status-value--pending
   @extend %status-value
-  color: #d97706
-  background: #fef3c7
+  color: var(--status-pending-text)
+  background: var(--status-pending-bg)
 
 .status-value--success
   @extend %status-value
-  color: #059669
-  background: #d1fae5
+  color: var(--status-success-text)
+  background: var(--status-success-bg)
 
 .status-value--error
   @extend %status-value
-  color: #dc2626
-  background: #fee2e2
+  color: var(--status-error-text)
+  background: var(--status-error-bg)
 
 .status-value--completed
   @extend %status-value
-  color: #059669
-  background: #d1fae5
+  color: var(--status-success-text)
+  background: var(--status-success-bg)
 
 .status-value--failed
   @extend %status-value
-  color: #dc2626
-  background: #fee2e2
+  color: var(--status-error-text)
+  background: var(--status-error-bg)
 
 .status-value--in-progress
   @extend %status-value
-  color: #2563eb
-  background: #dbeafe
+  color: var(--status-info-text)
+  background: var(--status-info-bg)
 
 .status-value--ready
   @extend %status-value
-  color: #059669
-  background: #d1fae5
+  color: var(--status-success-text)
+  background: var(--status-success-bg)
 
 .status-value--missing
   @extend %status-value
-  color: #dc2626
-  background: #fee2e2
+  color: var(--status-error-text)
+  background: var(--status-error-bg)
 
 // Pre tag styling
 %pre-tag
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace
   font-size: 0.875rem
   line-height: 1.5
-  background: #f8f9fa
-  border: 1px solid #e1e5e9
+  background: var(--code-bg)
+  border: 1px solid var(--code-border)
   border-radius: 8px
   padding: 1rem
   margin: 1rem 0
   overflow-x: auto
   white-space: pre
-  color: #374151
+  color: var(--code-text)
   border-image: initial
 
 // JSON display specific styling
 %json-display
   @extend %pre-tag
-  background: rgba(255, 255, 255, 0.9)
-  border: 1px solid #d1d5db
+  background: var(--bg-surface)
+  border: 1px solid var(--border-color)
   font-size: 0.8rem
-  
+
   &.compact
     padding: 0.75rem
     font-size: 0.75rem
@@ -682,7 +658,6 @@ pre
 
 .code-block
   @extend %pre-tag
-  
+
 .content-preview
   @extend %json-display
-

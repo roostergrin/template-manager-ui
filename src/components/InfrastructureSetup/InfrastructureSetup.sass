@@ -13,18 +13,18 @@
   &__title
     font-size: 28px
     font-weight: 600
-    color: #1a1a1a
+    color: var(--text-primary)
     margin: 0 0 8px 0
 
   &__subtitle
     font-size: 15px
-    color: #666
+    color: var(--text-muted)
     margin: 0
 
   // Configuration Section
   &__configuration
-    background: #fff
-    border: 1px solid #e0e0e0
+    background: var(--bg-surface)
+    border: 1px solid var(--border-color)
     border-radius: 8px
     padding: 24px
     margin-bottom: 24px
@@ -32,7 +32,7 @@
   .configuration__title
     font-size: 18px
     font-weight: 600
-    color: #1a1a1a
+    color: var(--text-primary)
     margin: 0 0 20px 0
 
   .configuration__field
@@ -45,7 +45,7 @@
     display: block
     font-size: 14px
     font-weight: 600
-    color: #1a1a1a
+    color: var(--text-primary)
     margin-bottom: 8px
 
   .configuration__input,
@@ -53,10 +53,12 @@
     width: 100%
     padding: 10px 12px
     font-size: 15px
-    border: 1px solid #d0d0d0
+    border: 1px solid var(--border-color)
     border-radius: 6px
     transition: border-color 0.2s, box-shadow 0.2s
     font-family: inherit
+    background: var(--bg-input)
+    color: var(--text-primary)
 
     &:focus
       outline: none
@@ -65,7 +67,7 @@
 
   .configuration__help-text
     font-size: 13px
-    color: #666
+    color: var(--text-muted)
     margin: 6px 0 0 0
 
   // Page Type Cards
@@ -75,8 +77,8 @@
     gap: 12px
 
   .page-type-card
-    background: #fff
-    border: 2px solid #e0e0e0
+    background: var(--bg-surface)
+    border: 2px solid var(--border-color)
     border-radius: 8px
     padding: 16px
     cursor: pointer
@@ -88,17 +90,17 @@
 
     &--selected
       border-color: #0066cc
-      background: #f0f7ff
+      background: var(--bg-subtle)
 
     &__title
       font-size: 15px
       font-weight: 600
-      color: #1a1a1a
+      color: var(--text-primary)
       margin-bottom: 4px
 
     &__description
       font-size: 13px
-      color: #666
+      color: var(--text-muted)
 
   // Provisioning Steps
   &__provisioning
@@ -108,18 +110,18 @@
     font-size: 11px
     font-weight: 700
     letter-spacing: 1px
-    color: #9ca3af
+    color: var(--text-muted)
     margin: 0 0 20px 0
     text-transform: uppercase
 
   // Individual Step
   .provisioning-step
-    background: #fff
-    border: 1px solid #e5e7eb
+    background: var(--bg-surface)
+    border: 1px solid var(--border-color)
     border-radius: 8px
     margin-bottom: 16px
     transition: all 0.2s ease
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05)
+    box-shadow: var(--shadow-sm)
 
     &:hover:not(&--disabled)
       border-color: #0066cc
@@ -127,21 +129,21 @@
 
     &--disabled
       opacity: 0.5
-      background: #f9fafb
+      background: var(--bg-subtle)
 
       .provisioning-step__number
         background: #d1d5db
         color: #fff
 
       .provisioning-step__title
-        color: #9ca3af
+        color: var(--text-muted)
 
       .provisioning-step__preview
-        color: #9ca3af
+        color: var(--text-muted)
 
     &--completed
       border-color: #86efac
-      background: #f0fdf4
+      background: var(--status-success-bg)
 
     &__header
       display: flex
@@ -166,11 +168,11 @@
       margin-top: 4px
       flex-shrink: 0
       accent-color: #0066cc
-      border: 2px solid #d1d5db
+      border: 2px solid var(--border-strong)
       border-radius: 5px
       transition: all 0.2s ease
       appearance: none
-      background: #fff
+      background: var(--bg-input)
       position: relative
 
       &:checked
@@ -204,7 +206,7 @@
     &__title
       font-size: 15px
       font-weight: 600
-      color: #111827
+      color: var(--text-primary)
       margin: 0 0 6px 0
       line-height: 1.4
       display: flex
@@ -215,7 +217,7 @@
         font-size: 13px
         font-weight: 600
         color: #22c55e
-        background: #dcfce7
+        background: var(--status-success-bg)
         padding: 4px 12px
         border-radius: 12px
         display: inline-flex
@@ -224,7 +226,7 @@
 
     &__preview
       font-size: 13px
-      color: #6b7280
+      color: var(--text-muted)
       line-height: 1.5
       display: flex
       flex-wrap: wrap
@@ -236,7 +238,7 @@
       color: #0066cc
       font-weight: 500
       font-size: 12px
-      background: #eff6ff
+      background: var(--bg-subtle)
       padding: 2px 8px
       border-radius: 4px
       white-space: nowrap
@@ -268,7 +270,7 @@
       border: none
       padding: 8px
       cursor: pointer
-      color: #9ca3af
+      color: var(--text-muted)
       display: flex
       align-items: center
       transition: all 0.2s
@@ -277,7 +279,7 @@
 
       &:hover:not(:disabled)
         color: #0066cc
-        background: #f3f4f6
+        background: var(--bg-subtle)
 
       &:disabled
         cursor: not-allowed
@@ -285,16 +287,16 @@
 
     // Content Section (Component Container)
     &__content
-      border-top: 1px solid #e5e7eb
+      border-top: 1px solid var(--border-color)
       padding: 24px
-      background: #f9fafb
+      background: var(--bg-subtle)
 
     // Success Message
     &__success
       display: flex
       gap: 20px
       padding: 24px
-      background: #f0fdf4
+      background: var(--status-success-bg)
       border: 2px solid #86efac
       border-radius: 8px
 
@@ -317,7 +319,7 @@
       .success-title
         font-size: 18px
         font-weight: 600
-        color: #166534
+        color: var(--status-success-text)
         margin: 0 0 16px 0
 
       .success-details
@@ -327,7 +329,7 @@
 
       .success-detail-item
         font-size: 14px
-        color: #166534
+        color: var(--status-success-text)
         line-height: 1.5
 
         strong
@@ -343,21 +345,21 @@
 
   // Action Bar
   &__action-bar
-    background: #fff
-    border: 1px solid #e5e7eb
+    background: var(--bg-surface)
+    border: 1px solid var(--border-color)
     border-radius: 8px
     padding: 20px 24px
     display: flex
     align-items: center
     justify-content: space-between
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05)
+    box-shadow: var(--shadow-sm)
     margin-top: 8px
 
   .action-bar__info
     display: flex
     gap: 24px
     font-size: 14px
-    color: #6b7280
+    color: var(--text-muted)
 
     &-item
       display: flex
@@ -366,7 +368,7 @@
 
       strong
         font-weight: 600
-        color: #111827
+        color: var(--text-primary)
 
   .action-bar__buttons
     display: flex
@@ -385,14 +387,14 @@
     position: relative
 
     &--secondary
-      background: #fff
-      color: #374151
-      border: 1px solid #d1d5db
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05)
+      background: var(--bg-surface)
+      color: var(--text-secondary)
+      border: 1px solid var(--border-color)
+      box-shadow: var(--shadow-sm)
 
       &:hover
-        background: #f9fafb
-        border-color: #9ca3af
+        background: var(--bg-subtle)
+        border-color: var(--border-strong)
 
     &--primary
       background: #0066cc

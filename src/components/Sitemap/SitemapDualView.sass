@@ -1,7 +1,7 @@
 @use '../../styles/_variables.sass' as *
 .sitemap-dual-view
   padding: $space-6
-  background: $bg-subtle
+  background: var(--bg-subtle)
   border-radius: $radius-lg
   margin: $space-6 0
 
@@ -12,12 +12,12 @@
   &__title
     font-size: 1.8rem
     font-weight: 700
-    color: #333
+    color: var(--text-primary)
     margin-bottom: 0.5rem
 
   &__description
     font-size: 1.1rem
-    color: #6c757d
+    color: var(--text-muted)
     margin: 0
 
   &__container
@@ -27,22 +27,22 @@
     align-items: start
 
   &__section
-    background: $bg-surface
+    background: var(--bg-surface)
     border-radius: $radius-md
     padding: $space-5
-    box-shadow: $shadow-md
-    border: 1px solid $border-color
+    box-shadow: var(--shadow-md)
+    border: 1px solid var(--border-color)
 
 .sitemap-compact-view
   &__header
     margin-bottom: 1.5rem
     padding-bottom: 1rem
-    border-bottom: 2px solid #e1e5e9
+    border-bottom: 2px solid var(--border-color)
 
   &__title
     font-size: 1.3rem
     font-weight: 600
-    color: #495057
+    color: var(--text-secondary)
     margin-bottom: 0.5rem
     display: flex
     align-items: center
@@ -54,7 +54,7 @@
 
   &__description
     font-size: 0.9rem
-    color: #6c757d
+    color: var(--text-muted)
     margin: 0
     line-height: 1.4
 
@@ -62,12 +62,12 @@
   &__header
     margin-bottom: 1.5rem
     padding-bottom: 1rem
-    border-bottom: 2px solid #e1e5e9
+    border-bottom: 2px solid var(--border-color)
 
   &__title
     font-size: 1.3rem
     font-weight: 600
-    color: #495057
+    color: var(--text-secondary)
     margin-bottom: 0.5rem
     display: flex
     align-items: center
@@ -79,7 +79,7 @@
 
   &__description
     font-size: 0.9rem
-    color: #6c757d
+    color: var(--text-muted)
     margin: 0
     line-height: 1.4
 
@@ -125,14 +125,16 @@
 .sitemap-view-container
   width: 100%
   min-height: 100vh
+  background: var(--bg-app)
+  color: var(--text-primary)
 
 .sitemap-view-toggle
-  background: #fff
+  background: var(--bg-surface)
   border-radius: 8px
   padding: 1.5rem
   margin-bottom: 2rem
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1)
-  border: 1px solid #e1e5e9
+  box-shadow: var(--shadow-md)
+  border: 1px solid var(--border-color)
 
   &__header
     display: flex
@@ -143,7 +145,7 @@
   &__title
     font-size: 1.5rem
     font-weight: 700
-    color: #333
+    color: var(--text-primary)
     margin: 0
     text-align: center
 
@@ -155,12 +157,12 @@
 
   &__button
     padding: 0.75rem 1.25rem
-    border: 2px solid #e1e5e9
-    background: #fff
+    border: 2px solid var(--border-color)
+    background: var(--bg-surface)
     border-radius: 8px
     font-size: 0.9rem
     font-weight: 600
-    color: #495057
+    color: var(--text-secondary)
     cursor: pointer
     transition: all 0.2s ease
     display: flex
@@ -187,22 +189,22 @@
 
 // Single view styles
 .sitemap-single-view
-  background: #fff
+  background: var(--bg-surface)
   border-radius: 8px
   padding: 2rem
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1)
-  border: 1px solid #e1e5e9
+  box-shadow: var(--shadow-md)
+  border: 1px solid var(--border-color)
 
   &__header
     text-align: center
     margin-bottom: 2rem
     padding-bottom: 1.5rem
-    border-bottom: 2px solid #f8f9fa
+    border-bottom: 2px solid var(--border-color)
 
     h3
       font-size: 1.6rem
       font-weight: 700
-      color: #333
+      color: var(--text-primary)
       margin-bottom: 0.75rem
       display: flex
       align-items: center
@@ -211,17 +213,17 @@
 
     p
       font-size: 1rem
-      color: #6c757d
+      color: var(--text-muted)
       margin: 0
       line-height: 1.5
 
 // Original view styles
 .sitemap-original-view
-  background: #fff
+  background: var(--bg-surface)
   border-radius: 8px
   padding: 2rem
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1)
-  border: 1px solid #e1e5e9
+  box-shadow: var(--shadow-md)
+  border: 1px solid var(--border-color)
 
 // Responsive design for view toggle
 @media (max-width: 768px)
