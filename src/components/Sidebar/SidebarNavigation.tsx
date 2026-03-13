@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Server, FileText, Rocket, LayoutDashboard } from 'lucide-react';
+import { Server, FileText, Rocket, LayoutDashboard, Workflow } from 'lucide-react';
 import useProgressTracking, { ProgressStatus } from '../../hooks/useProgressTracking';
 import ProgressIndicator from '../Common/ProgressIndicator';
 
@@ -201,14 +201,25 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
             <h2 className="sidebar-navigation__title">Template Manager</h2>
           )}
         </div>
-        <button
-          className="sidebar-navigation__toggle"
-          onClick={onToggleCollapse}
-          aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          tabIndex={0}
-        >
-          {isCollapsed ? '▶' : '◀'}
-        </button>
+        <div className="sidebar-navigation__header-actions">
+          <button
+            className="sidebar-navigation__workflow-link"
+            onClick={() => { window.location.href = '/unified-workflow'; }}
+            aria-label="Unified Workflow"
+            tabIndex={0}
+            data-tooltip="Unified Workflow"
+          >
+            <Workflow size={16} strokeWidth={2} />
+          </button>
+          <button
+            className="sidebar-navigation__toggle"
+            onClick={onToggleCollapse}
+            aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            tabIndex={0}
+          >
+            {isCollapsed ? '▶' : '◀'}
+          </button>
+        </div>
       </div>
 
       {/* Overall Progress */}
