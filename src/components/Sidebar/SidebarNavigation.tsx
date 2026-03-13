@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Server, FileText, Rocket, LayoutDashboard, Workflow } from 'lucide-react';
+import { Server, FileText, Rocket, LayoutDashboard, Workflow, Sun, Moon } from 'lucide-react';
 import useProgressTracking, { ProgressStatus } from '../../hooks/useProgressTracking';
+import useTheme from '../../hooks/useTheme';
 import ProgressIndicator from '../Common/ProgressIndicator';
 
 interface SidebarNavigationProps {
@@ -20,6 +21,8 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
     getOverallProgress,
     progressState,
   } = useProgressTracking();
+
+  const { theme, toggleTheme } = useTheme();
 
   const getIconComponent = (iconName: string) => {
     const iconProps = { size: 20, strokeWidth: 2 };
@@ -210,6 +213,15 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
             data-tooltip="Unified Workflow"
           >
             <Workflow size={16} strokeWidth={2} />
+          </button>
+          <button
+            className="sidebar-navigation__theme-toggle"
+            onClick={toggleTheme}
+            aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+            tabIndex={0}
+            data-tooltip={theme === 'light' ? 'Dark mode' : 'Light mode'}
+          >
+            {theme === 'light' ? <Moon size={16} strokeWidth={2} /> : <Sun size={16} strokeWidth={2} />}
           </button>
           <button
             className="sidebar-navigation__toggle"

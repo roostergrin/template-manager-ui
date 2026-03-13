@@ -1,8 +1,9 @@
 @use './variables'
 @use './mixins'
+@use './theme'
 @use 'sass:color'
 
-// Expose variables locally
+// Expose variables locally (non-theme values only — use var(--xxx) for themed values)
 $color-primary: variables.$color-primary
 $color-primary-600: variables.$color-primary-600
 $color-primary-700: variables.$color-primary-700
@@ -12,20 +13,9 @@ $color-info: variables.$color-info
 $color-warning: variables.$color-warning
 $color-danger: variables.$color-danger
 
-$bg-app: variables.$bg-app
-$bg-surface: variables.$bg-surface
-$bg-subtle: variables.$bg-subtle
-$text-primary: variables.$text-primary
-$text-secondary: variables.$text-secondary
-$text-muted: variables.$text-muted
-$border-color: variables.$border-color
-$border-strong: variables.$border-strong
 $radius-sm: variables.$radius-sm
 $radius-md: variables.$radius-md
 $radius-lg: variables.$radius-lg
-$shadow-sm: variables.$shadow-sm
-$shadow-md: variables.$shadow-md
-$shadow-lg: variables.$shadow-lg
 $space-1: variables.$space-1
 $space-2: variables.$space-2
 $space-3: variables.$space-3
@@ -38,7 +28,6 @@ $space-12: variables.$space-12
 $container-max: variables.$container-max
 $sidebar-width: variables.$sidebar-width
 $sidebar-width-collapsed: variables.$sidebar-width-collapsed
-$focus-ring: variables.$focus-ring
 
 // Reset / base
 *, *::before, *::after
@@ -50,8 +39,8 @@ html, body, #root
 body
   margin: 0
   font-family: 'Karla', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif
-  color: $text-primary
-  background: $bg-app
+  color: var(--text-primary)
+  background: var(--bg-app)
   -webkit-font-smoothing: antialiased
   -moz-osx-font-smoothing: grayscale
 
@@ -69,7 +58,7 @@ img
 // Headings
 h1, h2, h3, h4, h5, h6
   font-family: 'Avenir Next', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif
-  color: $text-primary
+  color: var(--text-primary)
   margin: 0 0 $space-3
   line-height: 1.2
 
@@ -84,7 +73,7 @@ h4
 
 p
   margin: 0 0 $space-3
-  color: $text-secondary
+  color: var(--text-secondary)
 
 // Buttons
 .btn
@@ -98,8 +87,8 @@ p
   font-weight: 600
   cursor: pointer
   transition: .2s ease
-  background: $bg-surface
-  color: $text-primary
+  background: var(--bg-surface)
+  color: var(--text-primary)
   &:focus-visible
     @include mixins.focus-ring
   &:disabled
@@ -120,10 +109,10 @@ p
 
 .btn--outline
   background: transparent
-  border-color: $border-strong
-  color: $text-primary
+  border-color: var(--border-strong)
+  color: var(--text-primary)
   &:hover
-    background: $bg-subtle
+    background: var(--bg-subtle)
 
 .btn--ghost
   background: transparent
@@ -145,13 +134,12 @@ p
 
 // Inputs
 input, select, textarea
-  // width: 100%
   flex: 1
   padding: 10px 12px
-  border: 1px solid $border-color
+  border: 1px solid var(--border-color)
   border-radius: $radius-sm
-  background: white
-  color: $text-primary
+  background: var(--bg-input)
+  color: var(--text-primary)
   transition: .2s ease
   &:focus
     border-color: $color-primary
@@ -161,14 +149,14 @@ label
   display: block
   margin-bottom: 6px
   font-weight: 600
-  color: $text-secondary
+  color: var(--text-secondary)
   text-transform: uppercase
   font-family: 'Karla', sans-serif
 
 // Card
 .card
-  background: $bg-surface
-  border: 1px solid $border-color
+  background: var(--bg-surface)
+  border: 1px solid var(--border-color)
   border-radius: $radius-md
   padding: $space-6
   @include mixins.elevate('sm')
@@ -185,7 +173,7 @@ label
   @include mixins.elevate('lg')
 
 .text-muted
-  color: $text-muted
+  color: var(--text-muted)
 
 .grid
   display: grid
@@ -197,5 +185,3 @@ label
 // Scrollbars globally for scrollable panes
 .scrollable
   @include mixins.scrollbar
-
-

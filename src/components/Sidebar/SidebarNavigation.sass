@@ -3,11 +3,11 @@
 .sidebar-navigation
   width: variables.$sidebar-width
   height: 100vh
-  background: #ffffff
-  border-right: 1px solid variables.$border-color
+  background: var(--bg-surface)
+  border-right: 1px solid var(--border-color)
   display: flex
   flex-direction: column
-  box-shadow: variables.$shadow-sm
+  box-shadow: var(--shadow-sm)
   position: fixed
   left: 0
   top: 0
@@ -21,8 +21,22 @@
     .sidebar-navigation__progress,
     .sidebar-navigation__tasks,
     .sidebar-navigation__footer,
-    .sidebar-navigation__section-title
+    .sidebar-navigation__section-title,
+    .sidebar-navigation__workflow-link,
+    .sidebar-navigation__theme-toggle
       display: none
+
+    .sidebar-navigation__header
+      overflow: visible
+
+    .sidebar-navigation__toggle
+      right: -1rem
+      background: linear-gradient(135deg, variables.$color-primary 0%, variables.$color-primary-700 100%)
+      border: 1px solid rgba(255, 255, 255, 0.3)
+      border-radius: 50%
+
+      &:hover
+        background: linear-gradient(135deg, variables.$color-primary-700 0%, darken(variables.$color-primary-700, 8%) 100%)
 
     .sidebar-navigation__section-button
       justify-content: center
@@ -30,12 +44,13 @@
 
   &__header
     padding: 1rem
-    border-bottom: 1px solid variables.$border-color
+    border-bottom: 1px solid var(--border-color)
     background: linear-gradient(135deg, variables.$color-primary 0%, variables.$color-primary-700 100%)
     color: white
     display: flex
     align-items: center
     justify-content: space-between
+    position: relative
 
   &__logo
     display: flex
@@ -58,6 +73,7 @@
     display: flex
     align-items: center
     gap: 0.5rem
+    padding-right: 2.5rem
 
   &__workflow-link
     position: relative
@@ -97,7 +113,8 @@
       outline: 2px solid rgba(255, 255, 255, 0.5)
       outline-offset: 2px
 
-  &__toggle
+  &__theme-toggle
+    position: relative
     background: rgba(255, 255, 255, 0.18)
     border: 1px solid rgba(255, 255, 255, 0.3)
     color: white
@@ -115,14 +132,56 @@
       background: rgba(255, 255, 255, 0.3)
       transform: scale(1.1)
 
+      &::after
+        content: attr(data-tooltip)
+        position: absolute
+        top: 100%
+        right: 0
+        margin-top: 0.5rem
+        padding: 0.35rem 0.65rem
+        background: rgba(0, 0, 0, 0.85)
+        color: white
+        font-size: 0.75rem
+        white-space: nowrap
+        border-radius: 4px
+        pointer-events: none
+        z-index: 100
+
+    &:focus
+      outline: 2px solid rgba(255, 255, 255, 0.5)
+      outline-offset: 2px
+
+  &__toggle
+    position: absolute
+    top: 50%
+    transform: translateY(-50%)
+    right: 0.1rem
+    background: rgba(255, 255, 255, 0.18)
+    border: 1px solid rgba(255, 255, 255, 0.3)
+    color: white
+    border-radius: 4px
+    padding: 0.5rem
+    cursor: pointer
+    transition: all 0.3s ease
+    width: 2rem
+    height: 2rem
+    display: flex
+    align-items: center
+    justify-content: center
+    z-index: 1
+
+    &:hover
+      background: rgba(255, 255, 255, 0.3)
+      transform: translateY(-50%) scale(1.1)
+
     &:focus
       outline: 2px solid rgba(255, 255, 255, 0.5)
       outline-offset: 2px
 
   &__progress
     padding: 1rem
-    border-bottom: 1px solid variables.$border-color
-    background: rgba(255, 255, 255, 0.6)
+    border-bottom: 1px solid var(--border-color)
+    background: var(--bg-subtle)
 
   &__progress-header
     display: flex
@@ -133,7 +192,7 @@
   &__progress-label
     font-size: 0.875rem
     font-weight: 500
-    color: variables.$text-secondary
+    color: var(--text-secondary)
 
   &__progress-percentage
     font-size: 0.875rem
@@ -142,7 +201,7 @@
 
   &__progress-bar
     height: 6px
-    background: #e9ecef
+    background: var(--border-color)
     border-radius: 3px
     overflow: hidden
 
@@ -230,7 +289,7 @@
 
   &__tasks
     padding: 0.5rem 0 0.5rem
-    background: rgba(248, 249, 250, 0.8)
+    background: var(--bg-subtle)
     // border-left: 2px solid variables.$border-color
     // margin-left: 1rem
 
@@ -279,11 +338,11 @@
   &__task-title
     font-size: 0.8rem
     font-weight: 500
-    color: variables.$text-secondary
+    color: var(--text-secondary)
 
   &__task-description
     font-size: 0.75rem
-    color: variables.$text-muted
+    color: var(--text-muted)
     margin: 0
     padding-left: 2rem
     line-height: 1.3
@@ -311,15 +370,15 @@
 
   &__footer
     padding: 1rem
-    border-top: 1px solid #dee2e6
-    background: rgba(248, 249, 250, 0.8)
+    border-top: 1px solid var(--border-color)
+    background: var(--bg-subtle)
 
   &__footer-content
     text-align: center
 
   &__footer-text
     font-size: 0.75rem
-    color: #6c757d
+    color: var(--text-muted)
     margin: 0 0 0.5rem 0
 
   &__footer-links
@@ -353,7 +412,7 @@
     position: relative
     box-shadow: none
     border-right: none
-    border-bottom: 2px solid #dee2e6
+    border-bottom: 2px solid var(--border-color)
     z-index: 1001
 
     &--collapsed

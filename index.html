@@ -9,6 +9,14 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Karla:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <title>Template Manager — SaaS Console</title>
+    <script>
+      // Apply saved theme before first paint to prevent flash
+      (function() {
+        var theme = 'light';
+        try { theme = localStorage.getItem('theme') || 'light'; } catch(e) {}
+        document.documentElement.setAttribute('data-theme', theme);
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

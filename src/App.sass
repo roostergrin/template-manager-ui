@@ -2,7 +2,7 @@
 
 body
   margin: 0
-  background: variables.$bg-app
+  background: var(--bg-app)
 
 // Token Gate Styles
 .token-gate
@@ -10,37 +10,37 @@ body
   align-items: center
   justify-content: center
   min-height: 100vh
-  background: #ffffff
+  background: var(--bg-app)
   padding: 2rem
 
   &__card
-    background: #ffffff
-    border: 1px solid variables.$border-color
+    background: var(--bg-surface)
+    border: 1px solid var(--border-color)
     border-radius: variables.$radius-md
     padding: 2.5rem
     max-width: 400px
     width: 100%
-    box-shadow: variables.$shadow-md
+    box-shadow: var(--shadow-md)
 
   &__title
     font-family: 'Avenir Next', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif
     font-size: 1.75rem
-    color: #222
+    color: var(--text-primary)
     margin-bottom: 0.5rem
     text-align: center
 
   &__description
-    color: #222
+    color: var(--text-secondary)
     text-align: center
     margin-bottom: 1.5rem
 
   &__input
     width: 100%
     padding: 0.75rem 1rem
-    border: 1px solid variables.$border-color
+    border: 1px solid var(--border-color)
     border-radius: variables.$radius-sm
-    background: #ffffff
-    color: #222
+    background: var(--bg-input)
+    color: var(--text-primary)
     font-family: 'Karla', sans-serif
     font-size: 1rem
     margin-bottom: 1rem
@@ -48,13 +48,13 @@ body
 
     &:focus
       outline: none
-      border-color: #4D4EC1
-      box-shadow: variables.$focus-ring
+      border-color: variables.$color-primary
+      box-shadow: var(--focus-ring)
 
   &__button
     width: 100%
     padding: 0.75rem 1rem
-    background: #4D4EC1
+    background: variables.$color-primary
     color: #ffffff
     border: none
     border-radius: variables.$radius-sm
@@ -65,7 +65,7 @@ body
     transition: all 0.2s ease
 
     &:hover:not(:disabled)
-      background: #3e3f9d
+      background: variables.$color-primary-600
 
     &:disabled
       opacity: 0.6
@@ -78,7 +78,7 @@ body
     text-align: center
 
 .app
-  color: variables.$text-primary
+  color: var(--text-primary)
   padding: 0
   &__title
     font-size: 2rem
@@ -90,29 +90,29 @@ body
     margin-bottom: 1.5rem
   &__page
     &--compact
-      background-color: variables.$bg-surface
-      border: 1px solid variables.$border-color
+      background-color: var(--bg-surface)
+      border: 1px solid var(--border-color)
       border-radius: variables.$radius-md
-      box-shadow: variables.$shadow-sm
+      box-shadow: var(--shadow-sm)
       overflow: hidden
-      
+
     &-header
       display: flex
       align-items: center
       padding: 0.5rem
-      background-color: variables.$bg-subtle
-      
+      background-color: var(--bg-subtle)
+
       @media (max-width: 300px)
         flex-wrap: wrap
-        
+
         .app__page-title-input
           width: 100%
           margin-bottom: 0.25rem
-        
+
         .app__page-controls
           width: 100%
           justify-content: flex-end
-      
+
     &-number
       width: 2.5rem
       font-weight: bold
@@ -122,15 +122,15 @@ body
       border-radius: 3px
       text-align: center
       margin-right: 0.5rem
-      
+
     &-title-input
       flex: 1
       padding: 0.25rem 0.5rem
-      border: 1px solid variables.$border-color
+      border: 1px solid var(--border-color)
       border-radius: 3px
       font-size: 0.9rem
       min-width: 0
-      
+
     &-controls
       display: flex
       align-items: center
@@ -140,7 +140,7 @@ body
     &-wordpress-id-input
       width: 3.5rem
       padding: 0.25rem 0.5rem
-      border: 1px solid variables.$border-color
+      border: 1px solid var(--border-color)
       border-radius: 3px
       font-size: 0.85rem
       text-align: center
@@ -151,51 +151,51 @@ body
     display: flex
     align-items: center
     justify-content: center
-    background-color: #ffffff
-    border: 1px solid variables.$border-color
+    background-color: var(--bg-surface)
+    border: 1px solid var(--border-color)
     border-radius: 3px
     cursor: pointer
 
     &:hover
-      background-color: variables.$bg-subtle
-  
+      background-color: var(--bg-subtle)
+
   &__view-controls
     display: flex
     flex-wrap: wrap
     align-items: center
     padding: 0.5rem 1rem
     margin-bottom: 1rem
-    background-color: variables.$bg-subtle
+    background-color: var(--bg-subtle)
     border-radius: 4px
-    border: 1px solid variables.$border-color
+    border: 1px solid var(--border-color)
     gap: 1rem
-  
+
   &__layout-controls
     display: flex
     flex-wrap: wrap
     align-items: center
     padding: 0.5rem 1rem
     margin-bottom: 1rem
-    background-color: variables.$bg-subtle
+    background-color: var(--bg-subtle)
     border-radius: 4px
-    border: 1px solid variables.$border-color
-    
+    border: 1px solid var(--border-color)
+
   &__grid-width-control
     display: flex
     flex-direction: column
     width: 100%
-    
+
     label
       font-size: 0.9rem
       display: flex
       flex-direction: column
       gap: 0.5rem
-    
+
   &__grid-width-slider
     width: 100%
     margin-top: 0.25rem
     cursor: pointer
-  
+
   &__add-page-button
     background-color: variables.$color-primary
     color: white
@@ -205,7 +205,7 @@ body
     cursor: pointer
     margin: 0.5rem 0
     font-weight: 500
-    
+
     &:hover
       background-color: variables.$color-primary-600
 
@@ -215,11 +215,11 @@ body
   margin-left: 10px
   font-weight: normal
   animation: pulse 1.5s ease-in-out
-  
+
 @keyframes pulse
   0%
     opacity: 0
-  25% 
+  25%
     opacity: 1
   75%
     opacity: 1
@@ -228,7 +228,7 @@ body
 
 .app__page--compact
   margin-bottom: 1rem
-  border: 1px solid #ddd
+  border: 1px solid var(--border-color)
   border-radius: 4px
   padding: 0.5rem
 
@@ -236,44 +236,44 @@ body
     display: flex
     align-items: center
     margin-bottom: 0.5rem
-    
+
     .app__page-number
       width: 2rem
       font-weight: bold
-    
+
     .app__page-title-input
       flex: 1
       padding: 0.3rem
       margin-right: 0.5rem
       font-size: 0.9rem
-      
+
     .app__page-controls
       display: flex
       align-items: center
-      
+
       .app__page-wordpress-id-input
         width: 5rem
         padding: 0.3rem
         margin-right: 0.5rem
         font-size: 0.8rem
 
-// Token Gate Styles
+// Token Gate Styles (second definition — kept for backward compat)
 .token-gate
   min-height: 100vh
   display: flex
   align-items: center
   justify-content: center
-  background: variables.$bg-app
+  background: var(--bg-app)
   padding: 1rem
 
   &__card
-    background: variables.$bg-surface
-    border: 1px solid variables.$border-color
+    background: var(--bg-surface)
+    border: 1px solid var(--border-color)
     border-radius: variables.$radius-lg
     padding: 2rem
     max-width: 400px
     width: 100%
-    box-shadow: variables.$shadow-lg
+    box-shadow: var(--shadow-lg)
     text-align: center
 
   &__image
@@ -287,18 +287,18 @@ body
   &__title
     font-size: 1.75rem
     font-weight: 700
-    color: variables.$text-primary
+    color: var(--text-primary)
     margin-bottom: 0.5rem
 
   &__description
     font-size: 1rem
-    color: variables.$text-secondary
+    color: var(--text-secondary)
     margin-bottom: 1.5rem
 
   &__input
     width: 100%
     padding: 0.75rem 1rem
-    border: 1px solid variables.$border-color
+    border: 1px solid var(--border-color)
     border-radius: variables.$radius-sm
     font-size: 1rem
     margin-bottom: 1rem
@@ -306,10 +306,10 @@ body
     &:focus
       outline: none
       border-color: variables.$color-primary
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1)
+      box-shadow: var(--focus-ring)
 
   &__error
-    background-color: #fee
+    background-color: var(--status-error-bg)
     color: variables.$color-danger
     padding: 0.75rem
     border-radius: variables.$radius-sm
@@ -331,7 +331,7 @@ body
     &:hover:not(:disabled)
       background-color: variables.$color-primary-600
       transform: translateY(-1px)
-      box-shadow: variables.$shadow-md
+      box-shadow: var(--shadow-md)
 
     &:disabled
       opacity: 0.6
@@ -340,27 +340,27 @@ body
 // GitHub File Updater Demo Styles
 .github-file-updater-demo
   min-height: 100vh
-  background: variables.$bg-app
-  
+  background: var(--bg-app)
+
   &__container
     max-width: 1200px
     margin: 0 auto
     padding: 2rem
-    
+
   &__header
     text-align: center
     margin-bottom: 3rem
-    
+
     h1
       font-size: 2.5rem
       font-weight: 700
-      color: variables.$text-primary
+      color: var(--text-primary)
       margin-bottom: 1rem
-      
+
     p
       font-size: 1.2rem
-      color: variables.$text-secondary
-      
+      color: var(--text-secondary)
+
   &__main
     display: flex
     justify-content: center
