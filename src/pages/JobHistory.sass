@@ -1,0 +1,295 @@
+$primary: #3b82f6
+$danger: #ef4444
+$success: #22c55e
+$warning: #f59e0b
+
+.job-history
+  min-height: 100vh
+  background: var(--bg-app)
+  display: flex
+  flex-direction: column
+
+  &__header
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    padding: 0.75rem 2rem
+    background: var(--bg-surface)
+    border-bottom: 1px solid var(--border-color)
+    position: sticky
+    top: 0
+    z-index: 10
+
+  &__back-btn
+    display: flex
+    align-items: center
+    justify-content: center
+    padding: 0.375rem
+    background: transparent
+    border: none
+    color: var(--text-muted)
+    cursor: pointer
+    &:hover
+      color: var(--text-primary)
+
+  &__header-icon
+    color: $primary
+    flex-shrink: 0
+
+  &__title
+    font-size: 0.9375rem
+    font-weight: 600
+    color: var(--text-primary)
+    margin: 0
+    white-space: nowrap
+
+  &__controls
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    margin-left: auto
+
+  &__search
+    display: flex
+    align-items: center
+    gap: 0.375rem
+    padding: 0.375rem 0.625rem
+    border: 1px solid var(--border-color)
+    border-radius: 4px
+    background: var(--bg-app)
+
+  &__search-icon
+    color: var(--text-muted)
+    flex-shrink: 0
+
+  &__search-input
+    border: none
+    outline: none
+    background: transparent
+    color: var(--text-primary)
+    font-size: 0.8rem
+    width: 180px
+    &::placeholder
+      color: var(--text-muted)
+
+  &__refresh-btn
+    display: flex
+    align-items: center
+    justify-content: center
+    padding: 0.375rem
+    background: transparent
+    border: 1px solid var(--border-color)
+    border-radius: 4px
+    color: var(--text-muted)
+    cursor: pointer
+    &:hover
+      border-color: $primary
+      color: $primary
+
+  &__tabs
+    display: flex
+    gap: 0
+    padding: 0 2rem
+    background: var(--bg-surface)
+    border-bottom: 1px solid var(--border-color)
+
+  &__tab
+    display: flex
+    align-items: center
+    gap: 0.375rem
+    padding: 0.625rem 1rem
+    background: transparent
+    border: none
+    border-bottom: 2px solid transparent
+    color: var(--text-muted)
+    font-size: 0.8rem
+    font-weight: 500
+    cursor: pointer
+    transition: all 0.15s ease
+    &:hover
+      color: var(--text-primary)
+    &--active
+      color: $primary
+      border-bottom-color: $primary
+
+  &__content
+    flex: 1
+    padding: 1.5rem 2rem
+    overflow-x: auto
+
+  &__loading,
+  &__error
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    padding: 2rem
+    color: var(--text-muted)
+    font-size: 0.875rem
+
+  &__error
+    color: $danger
+
+  &__empty
+    color: var(--text-muted)
+    font-size: 0.875rem
+    padding: 2rem 0
+
+  &__table
+    width: 100%
+    border-collapse: collapse
+    font-size: 0.8rem
+
+    th
+      text-align: left
+      padding: 0.5rem 0.75rem
+      color: var(--text-muted)
+      font-weight: 600
+      font-size: 0.7rem
+      text-transform: uppercase
+      letter-spacing: 0.03em
+      border-bottom: 1px solid var(--border-color)
+      white-space: nowrap
+
+    td
+      padding: 0.625rem 0.75rem
+      color: var(--text-primary)
+      border-bottom: 1px solid var(--border-color)
+
+    tr:hover td
+      background: var(--bg-subtle)
+
+  &__domain
+    font-weight: 500
+
+  &__link
+    color: $primary
+    text-decoration: none
+    &:hover
+      text-decoration: underline
+
+  &__status
+    display: inline-flex
+    align-items: center
+    gap: 0.25rem
+    padding: 0.125rem 0.5rem
+    border-radius: 10px
+    font-size: 0.7rem
+    font-weight: 500
+    white-space: nowrap
+
+    &--ok
+      background: rgba($success, 0.1)
+      color: $success
+
+    &--error
+      background: rgba($danger, 0.1)
+      color: $danger
+
+    &--running
+      background: rgba($primary, 0.1)
+      color: $primary
+
+    &--default
+      background: var(--bg-subtle)
+      color: var(--text-muted)
+
+  &__type-badge
+    display: inline-block
+    padding: 0.125rem 0.5rem
+    border-radius: 10px
+    font-size: 0.7rem
+    font-weight: 500
+    background: var(--bg-subtle)
+    color: var(--text-muted)
+    text-transform: uppercase
+
+  &__fail-count
+    color: $danger
+    font-weight: 600
+
+  &__row
+    cursor: pointer
+    &--expanded > td
+      border-bottom: none
+
+  &__expand-cell
+    width: 1.5rem
+    color: var(--text-muted)
+
+  &__detail-cell
+    padding: 0 0.75rem 1rem 2.25rem !important
+    background: var(--bg-subtle)
+    border-bottom: 1px solid var(--border-color) !important
+
+    &--error
+      color: $danger
+
+  &__detail-sections
+    display: flex
+    flex-direction: column
+    gap: 0.75rem
+
+  &__detail-section
+    display: flex
+    flex-direction: column
+    gap: 0.25rem
+
+  &__detail-heading
+    margin: 0
+    font-size: 0.7rem
+    font-weight: 600
+    text-transform: uppercase
+    letter-spacing: 0.03em
+    color: var(--text-muted)
+
+  &__detail-error
+    margin: 0
+    color: $danger
+    font-size: 0.8rem
+
+  &__detail-list
+    margin: 0
+    padding-left: 1.25rem
+    font-size: 0.8rem
+    color: var(--text-primary)
+    li
+      padding: 0.1rem 0
+
+  &__detail-empty
+    margin: 0
+    color: var(--text-muted)
+    font-size: 0.8rem
+    font-style: italic
+
+  &__json
+    margin: 0
+    padding: 0.75rem
+    background: var(--bg-app)
+    border: 1px solid var(--border-color)
+    border-radius: 4px
+    font-size: 0.7rem
+    line-height: 1.5
+    color: var(--text-primary)
+    overflow-x: auto
+    max-height: 400px
+    overflow-y: auto
+
+  &__spinner
+    animation: job-history-spin 1s linear infinite
+
+@keyframes job-history-spin
+  from
+    transform: rotate(0deg)
+  to
+    transform: rotate(360deg)
+
+@media (max-width: 768px)
+  .job-history
+    &__header
+      padding: 0.75rem 1rem
+    &__tabs
+      padding: 0 1rem
+    &__content
+      padding: 1rem
+    &__search-input
+      width: 120px

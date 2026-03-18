@@ -48,6 +48,11 @@
     background: linear-gradient(135deg, variables.$color-primary 0%, variables.$color-primary-700 100%)
     color: white
     display: flex
+    flex-direction: column
+    gap: 0.625rem
+
+  &__header-top
+    display: flex
     align-items: center
     justify-content: space-between
     position: relative
@@ -73,7 +78,6 @@
     display: flex
     align-items: center
     gap: 0.5rem
-    padding-right: 2.5rem
 
   &__workflow-link
     position: relative
@@ -98,7 +102,7 @@
         content: attr(data-tooltip)
         position: absolute
         top: 100%
-        right: 0
+        left: 0
         margin-top: 0.5rem
         padding: 0.35rem 0.65rem
         background: rgba(0, 0, 0, 0.85)
@@ -136,7 +140,7 @@
         content: attr(data-tooltip)
         position: absolute
         top: 100%
-        right: 0
+        left: 0
         margin-top: 0.5rem
         padding: 0.35rem 0.65rem
         background: rgba(0, 0, 0, 0.85)
@@ -155,7 +159,7 @@
     position: absolute
     top: 50%
     transform: translateY(-50%)
-    right: 0.1rem
+    right: -1rem
     background: rgba(255, 255, 255, 0.18)
     border: 1px solid rgba(255, 255, 255, 0.3)
     color: white
@@ -172,7 +176,6 @@
 
     &:hover
       background: rgba(255, 255, 255, 0.3)
-      transform: translateY(-50%) scale(1.1)
 
     &:focus
       outline: 2px solid rgba(255, 255, 255, 0.5)

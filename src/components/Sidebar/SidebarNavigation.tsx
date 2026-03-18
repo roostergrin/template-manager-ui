@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Server, FileText, Rocket, LayoutDashboard, Workflow, Sun, Moon } from 'lucide-react';
+import { Server, FileText, Rocket, LayoutDashboard, Workflow, Sun, Moon, Clock } from 'lucide-react';
 import useProgressTracking, { ProgressStatus } from '../../hooks/useProgressTracking';
 import useTheme from '../../hooks/useTheme';
 import ProgressIndicator from '../Common/ProgressIndicator';
@@ -196,33 +196,15 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
     <div className={`sidebar-navigation ${isCollapsed ? 'sidebar-navigation--collapsed' : ''}`}>
       {/* Header */}
       <div className="sidebar-navigation__header">
-        <div className="sidebar-navigation__logo">
-          <span className="sidebar-navigation__logo-icon">
-            <LayoutDashboard size={24} strokeWidth={2} />
-          </span>
-          {!isCollapsed && (
-            <h2 className="sidebar-navigation__title">Template Manager</h2>
-          )}
-        </div>
-        <div className="sidebar-navigation__header-actions">
-          <button
-            className="sidebar-navigation__workflow-link"
-            onClick={() => { window.location.href = '/unified-workflow'; }}
-            aria-label="Unified Workflow"
-            tabIndex={0}
-            data-tooltip="Unified Workflow"
-          >
-            <Workflow size={16} strokeWidth={2} />
-          </button>
-          <button
-            className="sidebar-navigation__theme-toggle"
-            onClick={toggleTheme}
-            aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
-            tabIndex={0}
-            data-tooltip={theme === 'light' ? 'Dark mode' : 'Light mode'}
-          >
-            {theme === 'light' ? <Moon size={16} strokeWidth={2} /> : <Sun size={16} strokeWidth={2} />}
-          </button>
+        <div className="sidebar-navigation__header-top">
+          <div className="sidebar-navigation__logo">
+            <span className="sidebar-navigation__logo-icon">
+              <LayoutDashboard size={24} strokeWidth={2} />
+            </span>
+            {!isCollapsed && (
+              <h2 className="sidebar-navigation__title">Template Manager</h2>
+            )}
+          </div>
           <button
             className="sidebar-navigation__toggle"
             onClick={onToggleCollapse}
@@ -232,6 +214,37 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
             {isCollapsed ? '▶' : '◀'}
           </button>
         </div>
+        {!isCollapsed && (
+          <div className="sidebar-navigation__header-actions">
+            <button
+              className="sidebar-navigation__workflow-link"
+              onClick={() => { window.location.href = '/unified-workflow'; }}
+              aria-label="Unified Workflow"
+              tabIndex={0}
+              data-tooltip="Unified Workflow"
+            >
+              <Workflow size={16} strokeWidth={2} />
+            </button>
+            <button
+              className="sidebar-navigation__workflow-link"
+              onClick={() => { window.location.href = '/job-history'; }}
+              aria-label="Job History"
+              tabIndex={0}
+              data-tooltip="Job History"
+            >
+              <Clock size={16} strokeWidth={2} />
+            </button>
+            <button
+              className="sidebar-navigation__theme-toggle"
+              onClick={toggleTheme}
+              aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+              tabIndex={0}
+              data-tooltip={theme === 'light' ? 'Dark mode' : 'Light mode'}
+            >
+              {theme === 'light' ? <Moon size={16} strokeWidth={2} /> : <Sun size={16} strokeWidth={2} />}
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Overall Progress */}
