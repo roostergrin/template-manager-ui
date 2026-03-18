@@ -17,12 +17,12 @@ type DeployStatus = 'idle' | 'deploying' | 'success' | 'error';
 const CloudflareDeploy: React.FC = () => {
   const [repoMode, setRepoMode] = useState<RepoMode>('select');
   const [selectedRepoId, setSelectedRepoId] = useState<string>('');
-  const [manualOwner, setManualOwner] = useState('');
+  const [manualOwner, setManualOwner] = useState('demo-rooster');
   const [manualRepo, setManualRepo] = useState('');
   const [projectName, setProjectName] = useState('');
   const [buildCommand, setBuildCommand] = useState('npm run generate');
   const [buildOutputDir, setBuildOutputDir] = useState('dist');
-  const [nodeVersion, setNodeVersion] = useState('16');
+  const [nodeVersion, setNodeVersion] = useState('14');
 
   const [deployStatus, setDeployStatus] = useState<DeployStatus>('idle');
   const [deployError, setDeployError] = useState('');
