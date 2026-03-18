@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import {
   CheckCircle,
   Clock,
@@ -9,7 +9,10 @@ import {
   Download,
   Edit3,
   RotateCw,
+  Zap,
+  X,
 } from 'lucide-react';
+import apiClient from '../../services/apiService';
 import { useUnifiedWorkflow } from '../../contexts/UnifiedWorkflowProvider';
 import { WorkflowStep, WorkflowStepStatus } from '../../types/UnifiedWorkflowTypes';
 import { getExecutionOrderByTarget } from '../../constants/workflowSteps';
@@ -38,6 +41,8 @@ interface StepItemProps {
   onRetryStep: (stepId: string) => void;
   onDownloadStep: (stepId: string) => void;
   onEditInput?: (stepId: string) => void;
+  onTestConnection?: (stepId: string) => void;
+  testConnectionLoading?: boolean;
   isManualMode: boolean;
   isWorkflowRunning: boolean;
   isEditable?: boolean;
@@ -70,6 +75,8 @@ const StepItem: React.FC<StepItemProps> = ({
   onRetryStep,
   onDownloadStep,
   onEditInput,
+  onTestConnection,
+  testConnectionLoading,
   isManualMode,
   isWorkflowRunning,
   isEditable,
@@ -110,6 +117,13 @@ const StepItem: React.FC<StepItemProps> = ({
     e.stopPropagation();
     onEditInput?.(step.id);
   };
+
+  const handleTestConnectionClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onTestConnection?.(step.id);
+  };
+
+  const showTestButton = step.id === 'provision-cloudflare-pages' && onTestConnection;
 
   return (
     <div className="workflow-progress__step-wrapper">
@@ -238,6 +252,24 @@ const StepItem: React.FC<StepItemProps> = ({
               )}
             </>
           )}
+
+          {/* Test Connection button for Cloudflare Pages step */}
+          {showTestButton && (
+            <button
+              type="button"
+              className="workflow-progress__step-action workflow-progress__step-action--test"
+              onClick={handleTestConnectionClick}
+              disabled={testConnectionLoading}
+              aria-label="Test Cloudflare connection"
+              title="Test Cloudflare API connection"
+            >
+              {testConnectionLoading ? (
+                <><Loader size={14} className="workflow-progress__status-icon--running" /> Testing...</>
+              ) : (
+                <><Zap size={14} /> Test</>
+              )}
+            </button>
+          )}
         </div>
       </div>
 
@@ -270,6 +302,32 @@ const WorkflowProgressDisplay: React.FC<WorkflowProgressDisplayProps> = ({
   // State for editing step input (uses local state for UI, context for step runner)
   const [editingStepId, setEditingStepId] = useState<string | null>(null);
   const [localEditedInputData, setLocalEditedInputData] = useState<unknown>(null);
+
+  // Toast notification state
+  const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [cfTestLoading, setCfTestLoading] = useState(false);
+
+  useEffect(() => {
+    if (!toast) return;
+    const timer = setTimeout(() => setToast(null), 5000);
+    return () => clearTimeout(timer);
+  }, [toast]);
+
+  const handleTestCloudflareConnection = useCallback(async () => {
+    setCfTestLoading(true);
+    setToast(null);
+    try {
+      const data = await apiClient.get<{ success: boolean; message: string }>(
+        '/test-cloudflare-connection'
+      );
+      setToast({ type: data.success ? 'success' : 'error', message: data.message });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Connection test failed';
+      setToast({ type: 'error', message });
+    } finally {
+      setCfTestLoading(false);
+    }
+  }, []);
 
   // Get steps in execution order based on deployment target
   const deploymentTarget = siteConfig.deploymentTarget || 'production';
@@ -410,6 +468,8 @@ const WorkflowProgressDisplay: React.FC<WorkflowProgressDisplayProps> = ({
               onRetryStep={handleRetryStep}
               onDownloadStep={handleDownloadStep}
               onEditInput={handleEditInput}
+              onTestConnection={step.id === 'provision-cloudflare-pages' ? handleTestCloudflareConnection : undefined}
+              testConnectionLoading={step.id === 'provision-cloudflare-pages' ? cfTestLoading : undefined}
               isManualMode={isManualMode}
               isWorkflowRunning={isRunning}
               isEditable={isStepEditableFn(step.id)}
@@ -505,6 +565,21 @@ const WorkflowProgressDisplay: React.FC<WorkflowProgressDisplayProps> = ({
         ))}
       </div>
 
+      {/* Toast notification */}
+      {toast && (
+        <div className={`workflow-toast workflow-toast--${toast.type}`} role="alert">
+          {toast.type === 'success' ? <CheckCircle size={16} /> : <AlertCircle size={16} />}
+          <span className="workflow-toast__message">{toast.message}</span>
+          <button
+            type="button"
+            className="workflow-toast__close"
+            onClick={() => setToast(null)}
+            aria-label="Dismiss"
+          >
+            <X size={14} />
+          </button>
+        </div>
+      )}
     </div>
   );
 };
