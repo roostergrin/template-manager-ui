@@ -295,15 +295,38 @@ function WorkflowTable({ data }: { data: WorkflowSessionRecord[] }) {
   );
 }
 
+function fuzzyMatch(text: string, query: string): boolean {
+  const lower = text.toLowerCase();
+  let qi = 0;
+  for (let i = 0; i < lower.length && qi < query.length; i++) {
+    if (lower[i] === query[qi]) qi++;
+  }
+  return qi === query.length;
+}
+
+function filterByDomain<T extends { domain: string | null }>(items: T[], query: string): T[] {
+  if (!query) return items;
+  const q = query.toLowerCase();
+  return items.filter(item => item.domain && fuzzyMatch(item.domain, q));
+}
+
+function filterRepos(items: GitHubRepoRecord[], query: string): GitHubRepoRecord[] {
+  if (!query) return items;
+  const q = query.toLowerCase();
+  return items.filter(r =>
+    (r.domain && fuzzyMatch(r.domain, q)) ||
+    fuzzyMatch(`${r.owner}/${r.repo_name}`, q),
+  );
+}
+
 const JobHistory: React.FC = () => {
   const [activeTab, setActiveTab] = useState<Tab>('scrapes');
   const [domainFilter, setDomainFilter] = useState('');
-  const domainParam = domainFilter.trim() || undefined;
 
-  const scrapes = useQuery({ queryKey: ['scrapeJobs', domainParam], queryFn: () => fetchScrapeJobs(domainParam), enabled: activeTab === 'scrapes' });
-  const repos = useQuery({ queryKey: ['githubRepos', domainParam], queryFn: () => fetchGitHubRepos(domainParam), enabled: activeTab === 'repos' });
-  const deploys = useQuery({ queryKey: ['deployments', domainParam], queryFn: () => fetchDeployments(domainParam), enabled: activeTab === 'deployments' });
-  const workflows = useQuery({ queryKey: ['workflowSessions', domainParam], queryFn: () => fetchWorkflowSessions(domainParam), enabled: activeTab === 'workflows' });
+  const scrapes = useQuery({ queryKey: ['scrapeJobs'], queryFn: () => fetchScrapeJobs(), enabled: activeTab === 'scrapes' });
+  const repos = useQuery({ queryKey: ['githubRepos'], queryFn: () => fetchGitHubRepos(), enabled: activeTab === 'repos' });
+  const deploys = useQuery({ queryKey: ['deployments'], queryFn: () => fetchDeployments(), enabled: activeTab === 'deployments' });
+  const workflows = useQuery({ queryKey: ['workflowSessions'], queryFn: () => fetchWorkflowSessions(), enabled: activeTab === 'workflows' });
 
   const activeQuery = { scrapes, repos, deployments: deploys, workflows }[activeTab];
 
@@ -365,10 +388,10 @@ const JobHistory: React.FC = () => {
         )}
         {activeQuery.isSuccess && (
           <>
-            {activeTab === 'scrapes' && <ScrapeTable data={scrapes.data!} />}
-            {activeTab === 'repos' && <RepoTable data={repos.data!} />}
-            {activeTab === 'deployments' && <DeployTable data={deploys.data!} />}
-            {activeTab === 'workflows' && <WorkflowTable data={workflows.data!} />}
+            {activeTab === 'scrapes' && <ScrapeTable data={filterByDomain(scrapes.data!, domainFilter)} />}
+            {activeTab === 'repos' && <RepoTable data={filterRepos(repos.data!, domainFilter)} />}
+            {activeTab === 'deployments' && <DeployTable data={filterByDomain(deploys.data!, domainFilter)} />}
+            {activeTab === 'workflows' && <WorkflowTable data={filterByDomain(workflows.data!, domainFilter)} />}
           </>
         )}
       </main>
