@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Server, FileText, Rocket, LayoutDashboard, Workflow, Sun, Moon, Clock } from 'lucide-react';
+import { Server, FileText, Rocket, LayoutDashboard, Workflow, Sun, Moon, Clock, Cloud } from 'lucide-react';
 import useProgressTracking, { ProgressStatus } from '../../hooks/useProgressTracking';
 import useTheme from '../../hooks/useTheme';
 import ProgressIndicator from '../Common/ProgressIndicator';
@@ -233,6 +233,15 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
               data-tooltip="Job History"
             >
               <Clock size={16} strokeWidth={2} />
+            </button>
+            <button
+              className="sidebar-navigation__workflow-link"
+              onClick={() => { window.location.href = '/cloudflare-deploy'; }}
+              aria-label="Cloudflare Deploy"
+              tabIndex={0}
+              data-tooltip="Cloudflare Deploy"
+            >
+              <Cloud size={16} strokeWidth={2} />
             </button>
             <button
               className="sidebar-navigation__theme-toggle"

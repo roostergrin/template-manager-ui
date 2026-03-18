@@ -5,6 +5,7 @@ import GithubFileUpdaterDemo from './pages/GithubFileUpdaterDemo';
 import MigrationWizard from './pages/MigrationWizard';
 import UnifiedWorkflowPage from './pages/UnifiedWorkflowPage';
 import JobHistory from './pages/JobHistory';
+import CloudflareDeploy from './pages/CloudflareDeploy';
 import GithubRepoProvider from './context/GithubRepoContext';
 import { QuestionnaireProvider } from './contexts/QuestionnaireProvider';
 import { SitemapProvider } from './contexts/SitemapProvider';
@@ -117,7 +118,9 @@ const App: React.FC = () => {
                           <GithubRepoProvider>
                 <TokenGate>
                   <div className="app">
-                    {typeof window !== 'undefined' && window.location.pathname.includes('/job-history') ? (
+                    {typeof window !== 'undefined' && window.location.pathname.includes('/cloudflare-deploy') ? (
+                      <CloudflareDeploy />
+                    ) : typeof window !== 'undefined' && window.location.pathname.includes('/job-history') ? (
                       <JobHistory />
                     ) : typeof window !== 'undefined' && window.location.pathname.includes('/test-generate-content') ? (
                       <TestGenerateContent />
